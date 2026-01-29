@@ -1,65 +1,154 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { Box } from '@mui/material';
+import { RepoItem } from './src/components/types';
+import RepositorySidebar from './src/components/RepositorySidebar';
+import ProjectTabs from './src/components/ProjectTabs';
+import JdmEditor from './src/components/JdmEditor';
+import AddMenu from './src/components/AddMenu';
+import CreateItemDialog from './src/components/CreateItemDialog';
+
+export default function Page() {
+  const [items, setItems] = useState<RepoItem[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [openFiles, setOpenFiles] = useState<number[]>([]);
+  const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
+
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [createType, setCreateType] = useState<'file' | 'folder' | null>(null);
+  const [name, setName] = useState('');
+
+  const toggleFolder = (id: number) => {
+    setExpandedFolders(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const findItem = (list: RepoItem[], id: number): RepoItem | null => {
+    for (const i of list) {
+      if (i.id === id) return i;
+      if (i.children) {
+        const f = findItem(i.children, id);
+        if (f) return f;
+      }
+    }
+    return null;
+  };
+
+  const findParentFolder = (list: RepoItem[], childId: number): RepoItem | null => {
+    for (const i of list) {
+      if (i.children?.some(c => c.id === childId)) return i;
+      if (i.children) {
+        const p = findParentFolder(i.children, childId);
+        if (p) return p;
+      }
+    }
+    return null;
+  };
+
+  const resolveDestination = (): RepoItem | null => {
+    if (!selectedId) return null;
+    const selected = findItem(items, selectedId);
+    if (!selected) return null;
+    if (selected.type === 'folder') return selected;
+    return findParentFolder(items, selected.id);
+  };
+
+  const openFile = (id: number) => {
+    setSelectedId(id);
+    setOpenFiles(prev => prev.includes(id) ? prev : [...prev, id]);
+  };
+
+  const addItem = () => {
+    if (!createType) return;
+
+    const newItem: RepoItem = {
+      id: Date.now(),
+      name,
+      type: createType,
+      ...(createType === 'file' ? { graph: {} } : { children: [] }),
+    };
+
+    const destination = resolveDestination();
+
+    setItems(prev => {
+      if (!destination) return [...prev, newItem];
+
+      setExpandedFolders(p => new Set(p).add(destination.id));
+
+      const insert = (list: RepoItem[]): RepoItem[] =>
+        list.map(i =>
+          i.id === destination.id
+            ? { ...i, children: [...(i.children || []), newItem] }
+            : i.children ? { ...i, children: insert(i.children) } : i
+        );
+
+      return insert(prev);
+    });
+
+    if (createType === 'file') openFile(newItem.id);
+
+    setCreateType(null);
+    setName('');
+  };
+
+  const openedFiles = openFiles
+    .map(id => findItem(items, id))
+    .filter(Boolean) as RepoItem[];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#e5e9f7' }}>
+      <RepositorySidebar
+        items={items}
+        selectedId={selectedId}
+        expandedFolders={expandedFolders}
+        onToggleFolder={toggleFolder}
+        onSelectItem={(item) => {
+          setSelectedId(item.id);
+          if (item.type === 'file') openFile(item.id);
+        }}
+        onAddClick={setAnchorEl}
+        onDragStart={() => {}}
+        onDropOnFolder={() => {}}
+      />
+
+      <Box sx={{ flex: 1, p: 1.5 }}>
+        <Box sx={{ height: '100%', bgcolor: '#fff', borderRadius: 2 }}>
+          <ProjectTabs
+            projects={openedFiles}
+            activeProjectId={selectedId}
+            onSelect={openFile}
+            onClose={(id) => setOpenFiles(prev => prev.filter(x => x !== id))}
+          />
+
+          {selectedId && (
+            <JdmEditor
+              value={findItem(items, selectedId)?.graph}
+              onChange={() => {}}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          )}
+        </Box>
+      </Box>
+
+      <AddMenu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+        onFile={() => setCreateType('file')}
+        onFolder={() => setCreateType('folder')}
+      />
+
+      <CreateItemDialog
+        open={!!createType}
+        title={`Create ${createType}`}
+        value={name}
+        onChange={setName}
+        onClose={() => setCreateType(null)}
+        onSubmit={addItem}
+      />
+    </Box>
   );
 }
