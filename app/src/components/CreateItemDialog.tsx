@@ -8,6 +8,7 @@ import {
   TextField,
   Button,
 } from '@mui/material';
+import { CreateItemDialogProps } from './types';
 
 export default function CreateItemDialog({
   open,
@@ -16,16 +17,38 @@ export default function CreateItemDialog({
   onChange,
   onClose,
   onSubmit,
-}: any) {
+}: CreateItemDialogProps) {
+  const handleSubmit = () => {
+    if (value.trim()) {
+      onSubmit();
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <TextField autoFocus fullWidth value={value} onChange={(e) => onChange(e.target.value)} />
+        <TextField
+          autoFocus
+          fullWidth
+          margin="dense"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Enter name..."
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={onSubmit}>Create</Button>
+        <Button variant="contained" onClick={handleSubmit} disabled={!value.trim()}>
+          Create
+        </Button>
       </DialogActions>
     </Dialog>
   );

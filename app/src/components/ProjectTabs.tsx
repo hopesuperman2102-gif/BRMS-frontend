@@ -1,25 +1,10 @@
 'use client';
 
 import { styled } from '@mui/material/styles';
-import {
-  Box,
-  Chip,
-  IconButton,
-} from '@mui/material';
+import { Box, Chip, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import FolderIcon from '@mui/icons-material/Folder';
-
-type Project = {
-  id: number;
-  name: string;
-};
-
-type ProjectTabsProps = {
-  projects: Project[];
-  activeProjectId: number | null;
-  onSelect: (id: number) => void;
-  onClose: (id: number) => void;
-};
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { ProjectTabsProps } from './types';
 
 /* ---------------- styled ---------------- */
 
@@ -31,14 +16,16 @@ const TabsWrapper = styled(Box)(() => ({
   borderBottom: '1px solid #e5e7eb',
   backgroundColor: '#ffffff',
   overflowX: 'auto',
+  overflowY: 'hidden',
   whiteSpace: 'nowrap',
+  flexShrink: 0, // Prevents the tabs container from shrinking
+  minHeight: 48, // Fixed height to prevent layout shifts
 
+  // Hide scrollbar for all browsers
+  scrollbarWidth: 'none', // Firefox
+  msOverflowStyle: 'none', // IE and Edge
   '&::-webkit-scrollbar': {
-    height: 6,
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor: '#d1d5db',
-    borderRadius: 4,
+    display: 'none', // Chrome, Safari, Opera
   },
 }));
 
@@ -54,6 +41,7 @@ const ProjectChip = styled(Chip, {
   backgroundColor: active ? '#eef2ff' : '#f8fafc',
   border: active ? '1px solid #6366f1' : '1px solid #e5e7eb',
   color: active ? '#4f46e5' : '#111827',
+  flexShrink: 0, // Prevents chips from shrinking
 
   '& .MuiChip-icon': {
     color: active ? '#4f46e5' : '#6b7280',
@@ -61,6 +49,16 @@ const ProjectChip = styled(Chip, {
 
   '&:hover': {
     backgroundColor: active ? '#e0e7ff' : '#f1f5f9',
+  },
+
+  // Prevent text from wrapping
+  '& .MuiChip-label': {
+    paddingLeft: 8,
+    paddingRight: 8,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: 150, // Optional: limit tab width
   },
 }));
 
@@ -83,7 +81,7 @@ export default function ProjectTabs({
           <ProjectChip
             key={project.id}
             active={active}
-            icon={<FolderIcon fontSize="small" />}
+            icon={<InsertDriveFileIcon fontSize="small" />}
             label={project.name}
             onClick={() => onSelect(project.id)}
             deleteIcon={

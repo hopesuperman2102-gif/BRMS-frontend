@@ -3,28 +3,8 @@
 import { Box, Typography, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
-
 import RepoTree from './RepoTree';
-import { RepoItem } from './types';
-
-type Props = {
-  items: RepoItem[];
-  selectedId: number | null;
-
-  // accordion state
-  expandedFolders: Set<number>;
-  onToggleFolder: (id: number) => void;
-
-  // selection
-  onSelectItem: (item: RepoItem) => void;
-
-  // add menu
-  onAddClick: (el: HTMLElement) => void;
-
-  // drag & drop
-  onDragStart: (item: RepoItem) => void;
-  onDropOnFolder: (folder: RepoItem) => void;
-};
+import { RepositorySidebarProps } from './types';
 
 export default function RepositorySidebar({
   items,
@@ -35,7 +15,7 @@ export default function RepositorySidebar({
   onAddClick,
   onDragStart,
   onDropOnFolder,
-}: Props) {
+}: RepositorySidebarProps) {
   return (
     <Box sx={{ width: 280, height: '100vh', p: 1.5, bgcolor: '#e5e9f7' }}>
       <Box
@@ -66,10 +46,7 @@ export default function RepositorySidebar({
               <SearchIcon fontSize="small" />
             </IconButton>
 
-            <IconButton
-              size="small"
-              onClick={(e) => onAddClick(e.currentTarget)}
-            >
+            <IconButton size="small" onClick={(e) => onAddClick(e.currentTarget)}>
               <AddIcon fontSize="small" />
             </IconButton>
           </Box>
