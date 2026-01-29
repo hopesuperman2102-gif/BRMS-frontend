@@ -4,7 +4,7 @@ import { Box, Typography, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import RepoTree from './RepoTree';
-import { RepositorySidebarProps } from './types';
+import { RepositorySidebarProps } from '../types/commonTypes';
 
 export default function RepositorySidebar({
   items,

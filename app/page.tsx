@@ -1,5 +1,5 @@
 
-import JdmEditorPage from './src/components/JdmEditorPage/Page/JdmEditorPage';
+import JdmEditorPage from './src/modules/JdmEditorPage/Page/JdmEditorPage';
 
 export default function EditorPage() {
   return <JdmEditorPage/>;

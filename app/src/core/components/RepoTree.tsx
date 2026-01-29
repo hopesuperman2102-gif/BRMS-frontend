@@ -6,7 +6,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { RepoTreeProps } from './types';
+import { RepoTreeProps } from '../types/commonTypes';
 
 export default function RepoTree({
   items,

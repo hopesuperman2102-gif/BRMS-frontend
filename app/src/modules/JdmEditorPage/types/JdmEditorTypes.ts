@@ -1,4 +1,4 @@
-import { RepoItem } from "../../types";
+import { RepoItem } from "../../../core/types/commonTypes";
 
 export type ProjectTreeProps = {
   items: RepoItem[];

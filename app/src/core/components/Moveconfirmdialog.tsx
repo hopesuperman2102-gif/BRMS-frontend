@@ -8,7 +8,7 @@ import {
   Button,
   Typography,
 } from '@mui/material';
-import { MoveConfirmDialogProps } from './types';
+import { MoveConfirmDialogProps } from '../types/commonTypes';
 
 export default function MoveConfirmDialog({
   open,

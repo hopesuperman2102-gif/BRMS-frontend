@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { Box } from '@mui/material';
-import { RepoItem } from '../../types';
-import alertUtils from '../../AlertUtils';
-import RepositorySidebar from '../../RepositorySidebar';
-import AddMenu from '../../AddMenu';
-import CreateItemDialog from '../../CreateItemDialog';
-import MoveConfirmDialog from '../../Moveconfirmdialog';
+import { RepoItem } from '../../../core/types/commonTypes';
+import alertUtils from '../../../core/components/AlertUtils';
+import RepositorySidebar from '../../../core/components/RepositorySidebar';
+import AddMenu from '../../../core/components/AddMenu';
+import CreateItemDialog from '../../../core/components/CreateItemDialog';
+import MoveConfirmDialog from '../../../core/components/Moveconfirmdialog';
 import { ProjectTreeProps } from '../types/JdmEditorTypes';
 
 export default function ProjectTree({

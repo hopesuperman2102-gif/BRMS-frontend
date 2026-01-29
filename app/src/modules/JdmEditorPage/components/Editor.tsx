@@ -1,9 +1,9 @@
 'use client';
 
 import { Box } from '@mui/material';
-import { RepoItem } from '../../types';
-import JdmEditor from '../../JdmEditor';
-import ProjectTabs from '../../ProjectTabs';
+import { RepoItem } from '../../../core/types/commonTypes';
+import JdmEditor from '../../../core/components/JdmEditor';
+import ProjectTabs from '../../../core/components/ProjectTabs';
 import { EditorProps } from '../types/JdmEditorTypes';
 
 

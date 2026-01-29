@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Box } from '@mui/material';
-import AlertComponent from '../../Alert';
-import { RepoItem } from '../../types';
+import AlertComponent from '../../../core/components/Alert';
+import { RepoItem } from '../../../core/types/commonTypes';
 import Editor from '../components/Editor';
 import ProjectTree from '../components/ProjectTree';
 

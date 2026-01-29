@@ -8,7 +8,7 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import { CreateItemDialogProps } from './types';
+import { CreateItemDialogProps } from '../types/commonTypes';
 
 export default function CreateItemDialog({
   open,

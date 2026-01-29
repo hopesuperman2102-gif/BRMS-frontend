@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import '@gorules/jdm-editor/dist/style.css';
-import { JdmEditorProps } from './types';
+import { JdmEditorProps } from '../types/commonTypes';
 
 // Client-only imports
 const DecisionGraph = dynamic(
