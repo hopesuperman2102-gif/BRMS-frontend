@@ -2,11 +2,9 @@
 
 import { Box } from '@mui/material';
 import { RepoItem } from '../../../core/types/commonTypes';
-import JdmEditor from '../../../core/components/JdmEditor';
 import ProjectTabs from '../../../core/components/ProjectTabs';
 import { EditorProps } from '../types/JdmEditorTypes';
-
-
+import EnhancedJdmEditor from '../../../core/components/EnhancedJdmEditor';
 
 export default function Editor({
   items,
@@ -34,8 +32,15 @@ export default function Editor({
   };
 
   const handleGraphChange = (value: any) => {
-    // Placeholder for graph changes
-    // You can implement this later if needed
+    // Update the graph in your items state
+    // You'll need to implement this based on your state management
+    console.log('Graph changed:', value);
+  };
+
+  const handleFileNameChange = (name: string) => {
+    // Update the file name in your items state
+    // You'll need to implement this based on your state management
+    console.log('File name changed:', name);
   };
 
   const openedFiles = openFiles.map((id) => findItem(items, id)).filter(Boolean) as RepoItem[];
@@ -46,8 +51,8 @@ export default function Editor({
       sx={{
         flex: 1,
         p: 1.5,
-        minWidth: 0, // CRITICAL: Allows flex child to shrink below content size
-        overflow: 'hidden', // Prevents this container from scrolling
+        minWidth: 0,
+        overflow: 'hidden',
       }}
     >
       {/* Main container with border radius and overflow hidden */}
@@ -59,14 +64,14 @@ export default function Editor({
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          minWidth: 0, // CRITICAL: Allows flex child to shrink
+          minWidth: 0,
         }}
       >
         {/* Tabs container with constrained width */}
         <Box
           sx={{
-            minWidth: 0, // CRITICAL: Constrains tabs to container width
-            width: '100%', // Takes full width of parent
+            minWidth: 0,
+            width: '100%',
             flexShrink: 0,
           }}
         >
@@ -80,7 +85,12 @@ export default function Editor({
 
         {selectedId && selectedItem?.type === 'file' && (
           <Box sx={{ flex: 1, overflow: 'hidden' }}>
-            <JdmEditor value={selectedItem?.graph} onChange={handleGraphChange} />
+            <EnhancedJdmEditor
+              value={selectedItem?.graph}
+              onChange={handleGraphChange}
+              fileName={selectedItem?.name}
+              onFileNameChange={handleFileNameChange}
+            />
           </Box>
         )}
       </Box>
