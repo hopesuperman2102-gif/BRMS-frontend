@@ -88,8 +88,6 @@ export default function Editor({
             <EnhancedJdmEditor
               value={selectedItem?.graph}
               onChange={handleGraphChange}
-              fileName={selectedItem?.name}
-              onFileNameChange={handleFileNameChange}
             />
           </Box>
         )}

@@ -1,711 +1,478 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import '@gorules/jdm-editor/dist/style.css';
-import {
-  Box,
-  Button,
-  IconButton,
-  Typography,
-  Menu,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Divider,
-  TextField,
-  Tooltip,
-  Paper,
-  Collapse,
-  Alert,
-} from '@mui/material';
+import { JdmEditorProps } from '../types/commonTypes';
+import { Box, Button, TextField, Typography, Tabs, Tab, Paper, IconButton, Chip } from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ClearIcon from '@mui/icons-material/Clear';
+import CodeIcon from '@mui/icons-material/Code';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-// Type declarations for File System Access API
-declare global {
-  interface FileSystemWritableFileStream extends WritableStream {
-    write(data: string | BufferSource | Blob): Promise<void>;
-    close(): Promise<void>;
-  }
-
-  interface FileSystemFileHandle {
-    getFile(): Promise<File>;
-    createWritable(): Promise<FileSystemWritableFileStream>;
-    readonly kind: 'file';
-    readonly name: string;
-  }
-
-  interface Window {
-    showOpenFilePicker(options?: {
-      types?: Array<{ accept: Record<string, string[]> }>;
-    }): Promise<FileSystemFileHandle[]>;
-    showSaveFilePicker(options?: {
-      types?: Array<{ description?: string; accept: Record<string, string[]> }>;
-    }): Promise<FileSystemFileHandle>;
-  }
-}
-
-// Dynamic imports for client-only components
+// Client-only imports
 const DecisionGraph = dynamic(
   () => import('@gorules/jdm-editor').then((mod) => mod.DecisionGraph),
   { ssr: false }
 );
 
-interface DecisionGraphType {
-  nodes: any[];
-  edges: any[];
-}
-
-interface EnhancedJdmEditorProps {
-  value?: DecisionGraphType;
-  onChange?: (value: DecisionGraphType) => void;
-  fileName?: string;
-  onFileNameChange?: (name: string) => void;
-}
-
-enum ThemePreference {
-  Automatic = 'automatic',
-  Light = 'light',
-  Dark = 'dark',
-}
-
-enum DocumentFileTypes {
-  Decision = 'application/vnd.gorules.decision',
-}
-
-const supportFSApi = typeof window !== 'undefined' && 'showSaveFilePicker' in window;
-
-// Simple icon components using Unicode symbols
-const Icon = ({ children, ...props }: any) => (
-  <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', fontSize: '1.2rem' }} {...props}>
-    {children}
-  </Box>
+const JdmConfigProvider = dynamic(
+  () => import('@gorules/jdm-editor').then((mod) => mod.JdmConfigProvider),
+  { ssr: false }
 );
 
-export default function EnhancedJdmEditor({
-  value = { nodes: [], edges: [] },
-  onChange,
-  fileName: initialFileName = 'Untitled Decision',
-  onFileNameChange,
-}: EnhancedJdmEditorProps) {
-  const fileInput = useRef<HTMLInputElement>(null);
-  const graphRef = useRef<any>(null);
-  const [themePreference, setThemePreference] = useState<ThemePreference>(ThemePreference.Automatic);
-  const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | undefined>();
-  const [graph, setGraph] = useState<DecisionGraphType>(value);
-  const [fileName, setFileName] = useState(initialFileName);
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [tempFileName, setTempFileName] = useState(fileName);
-  
-  // Menu states
-  const [openMenuAnchor, setOpenMenuAnchor] = useState<null | HTMLElement>(null);
-  const [themeMenuAnchor, setThemeMenuAnchor] = useState<null | HTMLElement>(null);
-  
-  // Dialog states
-  const [newDialogOpen, setNewDialogOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+// Custom Simulator Panel Component
+function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => void; onClear: () => void }) {
+  const [context, setContext] = useState('{\n  \n}');
+  const [result, setResult] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
 
-  // Simulator states
-  const [showSimulator, setShowSimulator] = useState(true);
-  const [simulatorContext, setSimulatorContext] = useState('{\n  \n}');
-  const [simulatorResult, setSimulatorResult] = useState<any>(null);
-  const [simulatorError, setSimulatorError] = useState<string>('');
-
-  useEffect(() => {
-    setGraph(value);
-  }, [value]);
-
-  const handleGraphChange = (newValue: DecisionGraphType) => {
-    setGraph(newValue);
-    onChange?.(newValue);
-  };
-
-  const handleFileNameBlur = () => {
-    setIsEditingName(false);
-    const trimmed = tempFileName.trim();
-    if (trimmed) {
-      setFileName(trimmed);
-      onFileNameChange?.(trimmed);
-    } else {
-      setTempFileName(fileName);
-    }
-  };
-
-  const handleNew = () => {
-    setNewDialogOpen(true);
-  };
-
-  const confirmNew = () => {
-    setGraph({ nodes: [], edges: [] });
-    onChange?.({ nodes: [], edges: [] });
-    setFileName('Untitled Decision');
-    onFileNameChange?.('Untitled Decision');
-    setNewDialogOpen(false);
-    showSnackbar('New decision created');
-  };
-
-  const openFile = async () => {
-    if (!supportFSApi) {
-      fileInput.current?.click?.();
-      return;
-    }
-
+  const handleRun = async () => {
     try {
-      const [handle] = await window.showOpenFilePicker({
-        types: [{ accept: { 'application/json': ['.json'] } }],
-      });
-
-      setFileHandle(handle);
-
-      const file = await handle.getFile();
-      const content = await file.text();
-      setFileName(file?.name);
-      onFileNameChange?.(file?.name);
-      const parsed = JSON.parse(content);
-      const newGraph = {
-        nodes: parsed?.nodes || [],
-        edges: parsed?.edges || [],
-      };
-      setGraph(newGraph);
-      onChange?.(newGraph);
-      showSnackbar('File opened successfully');
-    } catch (err) {
-      console.error('Error opening file:', err);
-      showSnackbar('Error opening file');
-    }
-  };
-
-  const saveFile = async () => {
-    if (!supportFSApi) {
-      showSnackbar('File system API not supported');
-      return;
-    }
-
-    if (fileHandle) {
-      let writable: FileSystemWritableFileStream | undefined = undefined;
-      try {
-        writable = await fileHandle.createWritable();
-        const json = JSON.stringify({ contentType: DocumentFileTypes.Decision, ...graph }, null, 2);
-        await writable.write(json);
-        showSnackbar('File saved successfully');
-      } catch (e) {
-        console.error('Error saving file:', e);
-        showSnackbar('Error saving file');
-      } finally {
-        await writable?.close?.();
-      }
-    }
-  };
-
-  const saveFileAs = async () => {
-    if (!supportFSApi) {
-      return await handleDownload();
-    }
-
-    let writable: FileSystemWritableFileStream | undefined = undefined;
-    try {
-      const json = JSON.stringify({ contentType: DocumentFileTypes.Decision, ...graph }, null, 2);
-      const newFileName = `${fileName.replaceAll('.json', '')}.json`;
-      const handle = await window.showSaveFilePicker({
-        types: [{ description: newFileName, accept: { 'application/json': ['.json'] } }],
-      });
-
-      writable = await handle.createWritable();
-      await writable.write(json);
-      setFileHandle(handle);
-      const file = await handle.getFile();
-      setFileName(file.name);
-      onFileNameChange?.(file.name);
-      showSnackbar('File saved successfully');
-    } catch (e) {
-      console.error('Error saving file:', e);
-      showSnackbar('Error saving file');
-    } finally {
-      await writable?.close?.();
-    }
-  };
-
-  const handleDownload = async () => {
-    try {
-      const newFileName = `${fileName.replaceAll('.json', '')}.json`;
-      const json = JSON.stringify({ contentType: DocumentFileTypes.Decision, ...graph }, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const href = URL.createObjectURL(blob);
-
-      const link = window.document.createElement('a');
-      link.href = href;
-      link.download = newFileName;
-      window.document.body.appendChild(link);
-      link.click();
-
-      window.document.body.removeChild(link);
-      URL.revokeObjectURL(href);
-      showSnackbar('File downloaded');
-    } catch (e) {
-      console.error('Error downloading file:', e);
-      showSnackbar('Error downloading file');
-    }
-  };
-
-  const handleUploadInput = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = event?.target?.files as FileList;
-    if (!fileList || fileList.length === 0) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const parsed = JSON.parse(e?.target?.result as string);
-        if (parsed?.contentType !== DocumentFileTypes.Decision) {
-          throw new Error('Invalid content type');
-        }
-
-        const nodes: any[] = parsed.nodes || [];
-        const nodeIds = nodes.map((node) => node.id);
-        const edges: any[] = ((parsed.edges || []) as any[]).filter(
-          (edge: any) => nodeIds.includes(edge?.targetId) && nodeIds.includes(edge?.sourceId)
-        );
-
-        const newGraph = { edges, nodes };
-        setGraph(newGraph);
-        onChange?.(newGraph);
-        setFileName(fileList?.[0]?.name);
-        onFileNameChange?.(fileList?.[0]?.name);
-        showSnackbar('File loaded successfully');
-      } catch (e) {
-        console.error('Error loading file:', e);
-        showSnackbar('Error loading file');
-      }
-    };
-
-    reader.readAsText(Array.from(fileList)?.[0], 'UTF-8');
-  };
-
-  const handleRunSimulation = async () => {
-    setSimulatorError('');
-    setSimulatorResult(null);
-
-    try {
-      // Parse the context
-      const context = JSON.parse(simulatorContext);
-
-      // Here you would call your backend simulation API
-      // For now, we'll show a mock result
+      setIsRunning(true);
+      const parsedContext = JSON.parse(context);
+      
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       const mockResult = {
-        result: context,
+        result: parsedContext,
         performance: '1.2ms',
-        trace: [
-          { nodeId: 'input', nodeName: 'Input', status: 'success' },
-          { nodeId: 'decision', nodeName: 'Decision Table', status: 'success' },
-          { nodeId: 'output', nodeName: 'Output', status: 'success' },
-        ],
+        status: 'success'
       };
-
-      setSimulatorResult(mockResult);
-      showSnackbar('Simulation completed');
-
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/simulate', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ context, content: graph }),
-      // });
-      // const result = await response.json();
-      // setSimulatorResult(result);
-    } catch (e: any) {
-      setSimulatorError(e.message || 'Simulation failed');
-      showSnackbar('Simulation error');
+      setResult(mockResult);
+      setActiveTab(0);
+      onRun(parsedContext);
+      setIsRunning(false);
+    } catch (e) {
+      console.error('Invalid JSON:', e);
+      setResult({
+        error: 'Invalid JSON format',
+        message: (e as Error).message,
+        status: 'error'
+      });
+      setIsRunning(false);
     }
   };
 
-  const handleClearSimulation = () => {
-    setSimulatorResult(null);
-    setSimulatorError('');
-    setSimulatorContext('{\n  \n}');
-  };
-
-  const showSnackbar = (message: string) => {
-    setSnackbarMessage(message);
-    setTimeout(() => setSnackbarMessage(''), 3000);
+  const handleClear = () => {
+    setContext('{\n  \n}');
+    setResult(null);
+    onClear();
   };
 
   return (
-    <>
-      <input
-        hidden
-        accept="application/json"
-        type="file"
-        ref={fileInput}
-        onChange={handleUploadInput}
-        onClick={(event) => {
-          const target = event.target as HTMLInputElement;
-          target.value = '';
-        }}
-      />
-
-      <Box
-        sx={{
-          display: 'flex',
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        height: '100%', 
+        bgcolor: '#fafbfc',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+      }}
+    >
+      {/* Content */}
+      <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        {/* Left - Input */}
+        <Box sx={{ 
+          flex: 1, 
+          display: 'flex', 
           flexDirection: 'column',
-          height: '100%',
-          width: '100%',
-          bgcolor: '#f5f5f5',
-        }}
-      >
-        {/* Toolbar */}
-        <Paper
-          elevation={0}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            px: 1,
-            py: 0.5,
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-            bgcolor: 'background.paper',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton
-              size="small"
-              href="https://gorules.io"
-              target="_blank"
-              sx={{ p: 0.5 }}
-            >
-              <Box
-                component="span"
-                sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: 'primary.main',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '0.7rem',
-                }}
-              >
-                JDM
-              </Box>
-            </IconButton>
-
-            <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {isEditingName ? (
-                <TextField
-                  size="small"
-                  value={tempFileName}
-                  onChange={(e) => setTempFileName(e.target.value)}
-                  onBlur={handleFileNameBlur}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleFileNameBlur();
-                    }
-                  }}
-                  autoFocus
-                  sx={{ width: 200 }}
-                  inputProps={{ maxLength: 24 }}
-                />
-              ) : (
-                <Typography
-                  variant="h6"
-                  onClick={() => {
-                    setIsEditingName(true);
-                    setTempFileName(fileName);
-                  }}
-                  sx={{
-                    cursor: 'pointer',
-                    fontWeight: 400,
-                    fontSize: '1.1rem',
-                    '&:hover': { bgcolor: 'action.hover' },
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1,
-                  }}
-                >
-                  {fileName}
-                </Typography>
-              )}
-
-              <Tooltip title="New Decision">
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={handleNew}
-                  startIcon={<Icon>📄</Icon>}
-                >
-                  New
-                </Button>
-              </Tooltip>
-
-              <Tooltip title="Open File">
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={(e) => setOpenMenuAnchor(e.currentTarget)}
-                  startIcon={<Icon>📂</Icon>}
-                >
-                  Open
-                </Button>
-              </Tooltip>
-              <Menu
-                anchorEl={openMenuAnchor}
-                open={Boolean(openMenuAnchor)}
-                onClose={() => setOpenMenuAnchor(null)}
-              >
-                <MenuItem onClick={() => { openFile(); setOpenMenuAnchor(null); }}>
-                  File system
-                </MenuItem>
-              </Menu>
-
-              {supportFSApi && (
-                <Tooltip title="Save">
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={saveFile}
-                    startIcon={<Icon>💾</Icon>}
-                  >
-                    Save
-                  </Button>
-                </Tooltip>
-              )}
-
-              <Tooltip title="Save As">
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={saveFileAs}
-                  startIcon={<Icon>📥</Icon>}
-                >
-                  Save as
-                </Button>
-              </Tooltip>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Tooltip title="Toggle Simulator">
-              <Button
-                size="small"
-                variant={showSimulator ? 'contained' : 'outlined'}
-                onClick={() => setShowSimulator(!showSimulator)}
-                startIcon={<Icon>▶️</Icon>}
-              >
-                Simulator
-              </Button>
-            </Tooltip>
-
-            <Tooltip title="Theme">
-              <IconButton
-                size="small"
-                onClick={(e) => setThemeMenuAnchor(e.currentTarget)}
-              >
-                <Icon>💡</Icon>
-              </IconButton>
-            </Tooltip>
-            <Menu
-              anchorEl={themeMenuAnchor}
-              open={Boolean(themeMenuAnchor)}
-              onClose={() => setThemeMenuAnchor(null)}
-            >
-              <MenuItem
-                onClick={() => {
-                  setThemePreference(ThemePreference.Automatic);
-                  setThemeMenuAnchor(null);
-                }}
-              >
-                {themePreference === ThemePreference.Automatic && <Icon sx={{ mr: 1 }}>✓</Icon>}
-                {themePreference !== ThemePreference.Automatic && <Box sx={{ width: 24, mr: 1 }} />}
-                Automatic
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setThemePreference(ThemePreference.Dark);
-                  setThemeMenuAnchor(null);
-                }}
-              >
-                {themePreference === ThemePreference.Dark && <Icon sx={{ mr: 1 }}>✓</Icon>}
-                {themePreference !== ThemePreference.Dark && <Box sx={{ width: 24, mr: 1 }} />}
-                Dark
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setThemePreference(ThemePreference.Light);
-                  setThemeMenuAnchor(null);
-                }}
-              >
-                {themePreference === ThemePreference.Light && <Icon sx={{ mr: 1 }}>✓</Icon>}
-                {themePreference !== ThemePreference.Light && <Box sx={{ width: 24, mr: 1 }} />}
-                Light
-              </MenuItem>
-            </Menu>
-          </Box>
-        </Paper>
-
-        {/* Main Content Area */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Editor Content */}
-          <Box sx={{ flex: showSimulator ? '1 1 60%' : '1', overflow: 'hidden', position: 'relative' }}>
-            <DecisionGraph
-              ref={graphRef}
-              value={graph}
-              onChange={handleGraphChange}
-            />
-          </Box>
-
-          {/* Simulator Panel */}
-          <Collapse in={showSimulator} timeout={300}>
-            <Paper
-              elevation={3}
-              sx={{
-                height: 250,
-                borderTop: '2px solid',
-                borderColor: 'primary.main',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-              }}
-            >
-              {/* Simulator Header */}
-              <Box
-                sx={{
-                  px: 2,
-                  py: 1,
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 500 }}>
-                  ▶️ Simulator
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    color="success"
-                    onClick={handleRunSimulation}
-                    sx={{ color: 'white' }}
-                  >
-                    Run
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={handleClearSimulation}
-                    sx={{ color: 'white', borderColor: 'white' }}
-                  >
-                    Clear
-                  </Button>
-                </Box>
-              </Box>
-
-              {/* Simulator Content */}
-              <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-                {/* Input Section */}
-                <Box sx={{ flex: 1, p: 2, borderRight: '1px solid', borderColor: 'divider', overflow: 'auto' }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Context (JSON)
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={6}
-                    value={simulatorContext}
-                    onChange={(e) => setSimulatorContext(e.target.value)}
-                    placeholder='{\n  "key": "value"\n}'
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      '& .MuiInputBase-root': {
-                        fontFamily: 'monospace',
-                        fontSize: '0.875rem',
-                      },
-                    }}
-                  />
-                </Box>
-
-                {/* Output Section */}
-                <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Result
-                  </Typography>
-                  {simulatorError && (
-                    <Alert severity="error" sx={{ mb: 1 }}>
-                      {simulatorError}
-                    </Alert>
-                  )}
-                  {simulatorResult ? (
-                    <Box
-                      sx={{
-                        bgcolor: 'grey.100',
-                        p: 1.5,
-                        borderRadius: 1,
-                        fontFamily: 'monospace',
-                        fontSize: '0.875rem',
-                        overflow: 'auto',
-                        maxHeight: 150,
-                      }}
-                    >
-                      <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
-                        {JSON.stringify(simulatorResult, null, 2)}
-                      </pre>
-                    </Box>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      Click "Run" to execute simulation
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-            </Paper>
-          </Collapse>
-        </Box>
-
-        {/* Snackbar */}
-        {snackbarMessage && (
-          <Paper
-            elevation={6}
-            sx={{
-              position: 'absolute',
-              bottom: 16,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              px: 2,
-              py: 1,
-              bgcolor: 'grey.800',
-              color: 'white',
-              zIndex: 9999,
+          borderRight: '1px solid #e1e4e8',
+          bgcolor: 'white'
+        }}>
+          <Box 
+            sx={{ 
+              px: 2, 
+              py: 1.25, 
+              bgcolor: '#f6f8fa',
+              borderBottom: '1px solid #e1e4e8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              minHeight: 40,
             }}
           >
-            <Typography variant="body2">{snackbarMessage}</Typography>
-          </Paper>
-        )}
-      </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <CodeIcon sx={{ fontSize: 16, color: '#586069' }} />
+              <Typography 
+                variant="subtitle2" 
+                sx={{ 
+                  fontWeight: 600,
+                  color: '#24292e',
+                  fontSize: '0.8125rem',
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                Context (JSON)
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleRun}
+                disabled={isRunning}
+                startIcon={<PlayArrowIcon sx={{ fontSize: 14 }} />}
+                sx={{
+                  bgcolor: '#667eea',
+                  color: 'white',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  px: 1.5,
+                  py: 0.25,
+                  borderRadius: '4px',
+                  boxShadow: '0 1px 3px rgba(102, 126, 234, 0.3)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.02em',
+                  minHeight: 26,
+                  '&:hover': { 
+                    bgcolor: '#5a5fcf',
+                    boxShadow: '0 2px 4px rgba(102, 126, 234, 0.4)',
+                  },
+                  '&:disabled': {
+                    bgcolor: '#b3b9f0',
+                    color: 'white',
+                  },
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {isRunning ? 'Running...' : 'Run'}
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleClear}
+                startIcon={<ClearIcon sx={{ fontSize: 14 }} />}
+                sx={{
+                  color: '#586069',
+                  borderColor: '#d1d5da',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  px: 1.5,
+                  py: 0.25,
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.02em',
+                  minHeight: 26,
+                  '&:hover': { 
+                    borderColor: '#b1b5ba', 
+                    bgcolor: '#f6f8fa',
+                  },
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                Clear
+              </Button>
+            </Box>
+          </Box>
+          <Box sx={{ flex: 1, p: 2 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                height: '100%',
+                border: '1px solid #e1e4e8',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                '&:focus-within': {
+                  borderColor: '#667eea',
+                  boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                },
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <TextField
+                fullWidth
+                multiline
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                placeholder='{\n  "key": "value"\n}'
+                variant="standard"
+                InputProps={{
+                  disableUnderline: true,
+                }}
+                sx={{
+                  height: '100%',
+                  '& .MuiInputBase-root': {
+                    height: '100%',
+                    alignItems: 'flex-start',
+                    fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+                    fontSize: '0.875rem',
+                    lineHeight: 1.6,
+                    p: 2,
+                    color: '#24292e',
+                  },
+                  '& textarea': {
+                    height: '100% !important',
+                    '&::placeholder': {
+                      color: '#959da5',
+                      opacity: 1,
+                    }
+                  }
+                }}
+              />
+            </Paper>
+          </Box>
+        </Box>
 
-      {/* New Decision Dialog */}
-      <Dialog open={newDialogOpen} onClose={() => setNewDialogOpen(false)}>
-        <DialogTitle>New decision</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to create new blank decision, your current work might be lost?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setNewDialogOpen(false)}>Cancel</Button>
-          <Button onClick={confirmNew} variant="contained" color="primary">
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+        {/* Right - Output */}
+        <Box sx={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column',
+          bgcolor: 'white'
+        }}>
+          <Tabs
+            value={activeTab}
+            onChange={(e, v) => setActiveTab(v)}
+            sx={{
+              minHeight: 40,
+              borderBottom: '1px solid #e1e4e8',
+              bgcolor: '#f6f8fa',
+              px: 1.5,
+              '& .MuiTabs-indicator': {
+                height: 2,
+                borderRadius: '2px 2px 0 0',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              },
+              '& .MuiTab-root': {
+                minHeight: 40,
+                textTransform: 'none',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                minWidth: 80,
+                color: '#586069',
+                letterSpacing: '-0.01em',
+                py: 0.75,
+                '&.Mui-selected': {
+                  color: '#667eea',
+                },
+                '&:hover': {
+                  color: '#24292e',
+                  bgcolor: 'rgba(102, 126, 234, 0.05)',
+                },
+                transition: 'all 0.2s ease',
+              }
+            }}
+          >
+            <Tab label="Output" />
+            <Tab label="Input" />
+            <Tab label="Trace" />
+          </Tabs>
+          <Box sx={{ flex: 1, p: 2, overflow: 'auto', bgcolor: '#fafbfc' }}>
+            {activeTab === 0 && (
+              result ? (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+                    fontSize: '0.875rem',
+                    lineHeight: 1.6,
+                    whiteSpace: 'pre-wrap',
+                    bgcolor: result.status === 'error' ? '#fff5f5' : '#f6f8fa',
+                    color: result.status === 'error' ? '#d73a49' : '#24292e',
+                    p: 2,
+                    borderRadius: '8px',
+                    border: '1px solid',
+                    borderColor: result.status === 'error' ? '#fdb8c0' : '#e1e4e8',
+                    position: 'relative',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  }}
+                >
+                  {result.status === 'success' && (
+                    <Box 
+                      sx={{ 
+                        position: 'absolute', 
+                        top: 12, 
+                        right: 12,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}
+                    >
+                      <CheckCircleIcon sx={{ fontSize: 16, color: '#28a745' }} />
+                      <Chip 
+                        label={result.performance} 
+                        size="small" 
+                        sx={{ 
+                          height: 22,
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          bgcolor: '#dcffe4',
+                          color: '#28a745',
+                          borderRadius: '6px'
+                        }} 
+                      />
+                    </Box>
+                  )}
+                  <Box sx={{ mt: result.status === 'success' ? 4 : 0 }}>
+                    {JSON.stringify(result, null, 2)}
+                  </Box>
+                </Paper>
+              ) : (
+                <Box 
+                  sx={{ 
+                    textAlign: 'center', 
+                    py: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 1.5
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      bgcolor: '#f6f8fa',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px dashed #e1e4e8',
+                    }}
+                  >
+                    <PlayArrowIcon sx={{ fontSize: 24, color: '#959da5' }} />
+                  </Box>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: '#586069',
+                      fontSize: '0.875rem',
+                      fontWeight: 500
+                    }}
+                  >
+                    Click "Run" to execute simulation
+                  </Typography>
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      color: '#959da5',
+                      fontSize: '0.8125rem'
+                    }}
+                  >
+                    Enter your context JSON and run to see results
+                  </Typography>
+                </Box>
+              )
+            )}
+            {activeTab === 1 && (
+              <Paper
+                elevation={0}
+                sx={{
+                  fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+                  fontSize: '0.875rem',
+                  lineHeight: 1.6,
+                  whiteSpace: 'pre-wrap',
+                  bgcolor: '#f6f8fa',
+                  color: '#24292e',
+                  p: 3,
+                  borderRadius: '8px',
+                  border: '1px solid #e1e4e8',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                }}
+              >
+                {context}
+              </Paper>
+            )}
+            {activeTab === 2 && (
+              <Box 
+                sx={{ 
+                  textAlign: 'center', 
+                  py: 4,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 1.5
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    bgcolor: '#f6f8fa',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px dashed #e1e4e8',
+                  }}
+                >
+                  <CodeIcon sx={{ fontSize: 24, color: '#959da5' }} />
+                </Box>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: '#586069',
+                    fontSize: '0.875rem',
+                    fontWeight: 500
+                  }}
+                >
+                  Run a request to see the node trace in action
+                </Typography>
+                <Typography 
+                  component="a"
+                  href="#" 
+                  sx={{ 
+                    color: '#667eea',
+                    fontSize: '0.8125rem',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    }
+                  }}
+                >
+                  Learn more →
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+export default function JdmEditor({ value, onChange }: JdmEditorProps) {
+  const [simulation, setSimulation] = useState<any>();
+
+  const handleSimulationRun = (context: any) => {
+    console.log('Running simulation with context:', context);
+    // TODO: Call your backend API here
+    // const response = await fetch('/api/simulate', {
+    //   method: 'POST',
+    //   body: JSON.stringify({ context, content: value })
+    // });
+  };
+
+  const handleSimulationClear = () => {
+    setSimulation(undefined);
+  };
+
+  return (
+    <JdmConfigProvider>
+      <div style={{ width: '100%', height: '100%' }}>
+        <DecisionGraph 
+          value={value} 
+          onChange={onChange}
+          simulate={simulation}
+          panels={[
+            {
+              id: 'simulator',
+              title: 'Simulator',
+              icon: <PlayArrowIcon />,
+              renderPanel: () => (
+                <CustomSimulatorPanel
+                  onRun={handleSimulationRun}
+                  onClear={handleSimulationClear}
+                />
+              ),
+            },
+          ]}
+        />
+      </div>
+    </JdmConfigProvider>
   );
 }
