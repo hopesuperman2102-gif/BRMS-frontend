@@ -19,9 +19,10 @@ import {
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { CreateModal } from './CreateModal';
+import { projectsMock } from './mock_data';
 
 export default function ProjectListCard() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(projectsMock);
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
   
@@ -42,8 +43,8 @@ export default function ProjectListCard() {
   };
 
   const handleOpenProject = (project: Project) => {
-  router.push(`/projects/${project.id}`);
-};
+    router.push(`/dashboard/${project.id}/rules`);
+  };
 
   return (
     <>

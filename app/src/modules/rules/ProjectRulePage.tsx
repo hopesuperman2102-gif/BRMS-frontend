@@ -11,7 +11,7 @@ import {
 } from '../../core/components/mock_data'; // adjust path if needed
 
 export default function ProjectRulePage() {
-  const { projectId } = useParams<{ projectId: string }>();
+  const { folderId } = useParams<{ folderId: string }>();
   const router = useRouter();
 
   const [rules, setRules] = useState<RuleFile[]>([]);
@@ -21,7 +21,7 @@ export default function ProjectRulePage() {
   /* ---------- Mock API (replace later) ---------- */
   useEffect(() => {
     setRules(projectRulesMock);
-  }, [projectId]);
+  }, [folderId]);
 
   /* ---------- Table Headers ---------- */
   const headers = [
@@ -46,10 +46,7 @@ export default function ProjectRulePage() {
     setSelectedIndex(index);
 
     const selectedRule = rules[index];
-    console.log('Selected rule:', selectedRule);
-
-    // later:
-    // router.push(`/projects/${projectId}/rules?file=${selectedRule.id}`);
+    router.push(`/dashboard/${folderId}/rules/${selectedRule.id}/editor`);
   };
 
   return (
@@ -65,7 +62,7 @@ export default function ProjectRulePage() {
         {/* ---------- Header ---------- */}
         <Box mb={2}>
           <Typography variant="h6">
-            {projectId}
+            {folderId}
           </Typography>
         </Box>
 
