@@ -7,6 +7,7 @@ export type Project = {
 };
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -22,7 +23,8 @@ import { CreateModal } from './CreateModal';
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [openModal, setOpenModal] = useState(false);
-
+  const router = useRouter();
+  
   const handleCreateProject = (name: string) => {
     const now = new Date().toLocaleString();
     setProjects((prev) => [
@@ -38,6 +40,10 @@ export default function ProjectListCard() {
   const handleDelete = (id: number) => {
     setProjects((prev) => prev.filter((p) => p.id !== id));
   };
+
+  const handleOpenProject = (project: Project) => {
+  router.push(`/projects/${project.id}`);
+};
 
   return (
     <>
@@ -98,9 +104,14 @@ export default function ProjectListCard() {
                 }}
               >
                 <Box>
-                  <Typography variant="body2" color="primary">
-                    {project.name}
-                  </Typography>
+                  <Typography
+  variant="body2"
+  color="primary"
+  sx={{ cursor: 'pointer', fontWeight: 500 }}
+  onClick={() => handleOpenProject(project)}
+>
+  {project.name}
+</Typography>
                   <Typography variant="caption" color="text.secondary">
                     Last updated {project.updatedAt}
                   </Typography>
@@ -110,7 +121,8 @@ export default function ProjectListCard() {
                   <Button
                     size="small"
                     startIcon={<OpenInNewIcon />}
-                    onClick={() => console.log('Open project', project.id)}
+                    onClick={() => handleOpenProject(project)}
+
                   >
                     Open
                   </Button>
