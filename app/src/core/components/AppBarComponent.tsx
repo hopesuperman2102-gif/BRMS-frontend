@@ -2,8 +2,6 @@
 
 import React from 'react';
 import { AppBar, Toolbar, Box } from '@mui/material';
-
-import Dropdown from './Dropdown';
 import HeaderIcon from './HeaderIcon';
 import LogoTitle from './LogoTitle';
 
@@ -15,11 +13,6 @@ export type AppBarComponentProps = {
   logo: React.ReactNode;
   organizationName?: string;
 };
-
-const projectDropdownItems = [
-  { label: 'mydemo', value: 'mydemo' },
-  { label: '+ New project', value: 'new', isAddNew: true },
-];
 
 const AppBarComponent: React.FC<AppBarComponentProps> = ({
   logo,
