@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import { RepoItem } from '../../../core/types/commonTypes';
 import ProjectTabs from '../../../core/components/ProjectTabs';
 import { EditorProps } from '../types/JdmEditorTypes';
-import EnhancedJdmEditor from '../../../core/components/EnhancedJdmEditor';
+import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
 
 export default function Editor({
   items,
@@ -85,7 +85,7 @@ export default function Editor({
 
         {selectedId && selectedItem?.type === 'file' && (
           <Box sx={{ flex: 1, overflow: 'hidden' }}>
-            <EnhancedJdmEditor
+            <JdmEditorComponent
               value={selectedItem?.graph}
               onChange={handleGraphChange}
             />

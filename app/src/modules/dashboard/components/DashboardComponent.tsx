@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
-
 import AppBarComponent from '../../../core/components/AppBarComponent';
 import ProjectList from '../../../core/components/ProjectList';
 

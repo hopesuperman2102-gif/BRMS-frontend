@@ -435,7 +435,7 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
   );
 }
 
-export default function JdmEditor({ value, onChange }: JdmEditorProps) {
+export default function JdmEditorComponent({ value, onChange }: JdmEditorProps) {
   const [simulation, setSimulation] = useState<any>();
 
   const handleSimulationRun = (context: any) => {

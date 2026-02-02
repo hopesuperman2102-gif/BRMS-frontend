@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { Box } from '@mui/material';
 import AlertComponent from '../../../core/components/Alert';
 import { RepoItem } from '../../../core/types/commonTypes';
-import Editor from '../components/Editor';
 import ProjectTree from '../components/ProjectTree';
+import Editor from '../components/Editor';
 
-export default function JdmEditorPage() {
+export default function JdmEditorWithSimulator() {
   // Shared state between panels
   const [items, setItems] = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
