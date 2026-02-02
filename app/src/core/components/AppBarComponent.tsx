@@ -41,11 +41,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({
           <LogoTitle logo={logo} organizationName={organizationName} />
 
           <Box display="flex" alignItems="center" gap={1}>
-            <Dropdown
-              label="My Projects"
-              items={projectDropdownItems}
-              onSelect={handleProjectSelect}
-            />
+            
 
             <HeaderIcon icon={<HelpOutlineIcon />} tooltip="Help" />
             <HeaderIcon icon={<SettingsIcon />} tooltip="Settings" />
