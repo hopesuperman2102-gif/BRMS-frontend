@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Box } from '@mui/material';
 import AlertComponent from '../../../core/components/Alert';
 import { RepoItem } from '../../../core/types/commonTypes';
-import ProjectTree from '../components/ProjectTree';
-import Editor from '../components/Editor';
+import ProjectTree from './ProjectTree';
+import Editor from './Editor';
 
 export default function JdmEditorWithSimulator() {
   // Shared state between panels

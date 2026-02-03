@@ -1,6 +1,6 @@
-import ProjectRulePage from '../../../src/modules/rules/ProjectRulePage';
+import ProjectRulePage from '../../../src/modules/rules/components/ProjectRuleComponent';
 
-export default function RulesPage() {
+export default function RulesPageRoute() {
   return <ProjectRulePage />;
 }
 

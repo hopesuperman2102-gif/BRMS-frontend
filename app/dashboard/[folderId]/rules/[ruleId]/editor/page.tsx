@@ -1,6 +1,6 @@
-import JdmEditorWithSimulator from '../../../../../src/modules/JdmEditorPage/Page/JdmEditorWithSimulator';
+import JdmEditorPage from 'app/src/modules/JdmEditorPage/Page/JdmEditorPage';
 
-export default function EditorPage() {
-  return <JdmEditorWithSimulator />;
+export default function EditorPageRoute() {
+  return <JdmEditorPage />;
 }
 

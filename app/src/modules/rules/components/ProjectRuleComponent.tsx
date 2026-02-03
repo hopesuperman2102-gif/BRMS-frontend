@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 
-import CdfTable from '../../core/components/CdfTable';
+import CdfTable from '../../../core/components/CdfTable';
 import {
   projectRulesMock,
   RuleFile,
-} from '../../core/components/mock_data'; // adjust path if needed
+} from '../../../core/components/mock_data'; // adjust path if needed
 
-export default function ProjectRulePage() {
+export default function ProjectRuleComponent() {
   const { folderId } = useParams<{ folderId: string }>();
   const router = useRouter();
 
