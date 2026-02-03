@@ -30,27 +30,20 @@ export const projectRulesMock: RuleFile[] = [
   },
 ];
 
-
-export type Project = {
-  id: number;
-  name: string;
-  updatedAt: string;
-};
-
-export const projectsMock: Project[] = [
+export const projectsMock = [
   {
-    id: 1,
+    id: '1', 
     name: 'Project Alpha',
-    updatedAt: new Date('2024-01-15').toLocaleString(),
+    updatedAt: '2/1/2026, 10:30 AM',
   },
   {
-    id: 2,
+    id: '2', 
     name: 'Project Beta',
-    updatedAt: new Date('2024-02-20').toLocaleString(),
+    updatedAt: '2/2/2026, 2:15 PM',
   },
   {
-    id: 3,
-    name: 'Project Gamma',
-    updatedAt: new Date('2024-03-10').toLocaleString(),
+    id: '3', 
+    name: 'Project Gammma',
+    updatedAt: '2/2/2026, 2:15 PM',
   },
 ];
