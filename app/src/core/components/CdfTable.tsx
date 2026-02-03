@@ -6,10 +6,9 @@ import {
   TableHead,
   TableRow,
   Typography,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import type { ReactNode } from 'react';
-
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import type { ReactNode } from "react";
 
 export type CdfTableProps = {
   headers: readonly string[];
@@ -22,10 +21,10 @@ export type CdfTableProps = {
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  boxShadow: 'none',
+  boxShadow: "none",
   borderRadius: theme.shape.borderRadius,
-  overflowX: 'auto',
-  '&::-webkit-scrollbar': { display: 'none' },
+  overflowX: "auto",
+  "&::-webkit-scrollbar": { display: "none" },
 }));
 
 const StyledTableHead = styled(TableHead)(({ theme }) => ({
@@ -36,12 +35,12 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   borderTop: `1px solid ${theme.palette.divider}`,
   borderBottom: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(1.2, 2),
-  '&:first-of-type': {
+  "&:first-of-type": {
     borderLeft: `1px solid ${theme.palette.divider}`,
     borderTopLeftRadius: theme.shape.borderRadius,
     borderBottomLeftRadius: theme.shape.borderRadius,
   },
-  '&:last-of-type': {
+  "&:last-of-type": {
     borderRight: `1px solid ${theme.palette.divider}`,
     borderTopRightRadius: theme.shape.borderRadius,
     borderBottomRightRadius: theme.shape.borderRadius,
@@ -49,14 +48,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const StyledTableRow = styled(TableRow, {
-  shouldForwardProp: (prop) => prop !== 'selected',
+  shouldForwardProp: (prop) => prop !== "selected",
 })<{ selected?: boolean }>(({ theme, selected }) => ({
   backgroundColor: selected
     ? theme.palette.action.selected
     : theme.palette.background.paper,
-  cursor: 'pointer',
+  cursor: "pointer",
 
-  '&:hover': {
+  "&:hover": {
     backgroundColor: selected
       ? theme.palette.action.selected
       : theme.palette.action.hover,
@@ -75,10 +74,10 @@ const CdfTable: React.FC<CdfTableProps> = ({
     <StyledTableContainer>
       <Table
         sx={(theme) => ({
-          borderCollapse: 'separate',
+          borderCollapse: "separate",
           borderSpacing: `${theme.spacing(0)} ${theme.spacing(0.5)}`,
-          width: '100%',
-          whiteSpace: 'nowrap',
+          width: "100%",
+          whiteSpace: "nowrap",
         })}
       >
         {/* ------------------ HEADER---------------- */}
@@ -86,7 +85,11 @@ const CdfTable: React.FC<CdfTableProps> = ({
           <TableRow>
             {headers.map((header, i) => (
               <StyledTableCell key={i}>
-                <Typography variant="caption" fontWeight="bold" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  fontWeight="bold"
+                  color="text.secondary"
+                >
                   {header}
                 </Typography>
               </StyledTableCell>
@@ -99,7 +102,11 @@ const CdfTable: React.FC<CdfTableProps> = ({
           {rows.length === 0 ? (
             <TableRow>
               <StyledTableCell colSpan={headers.length} align="center">
-                <Typography variant="caption" fontWeight="bold" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  fontWeight="bold"
+                  color="text.secondary"
+                >
                   No Data Available
                 </Typography>
               </StyledTableCell>
@@ -107,14 +114,14 @@ const CdfTable: React.FC<CdfTableProps> = ({
           ) : (
             rows.map((row, rowIndex) => (
               <StyledTableRow
-  key={rowIndex}
-  selected={rowIndex === selectedRowIndex}
-  onClick={() => onRowClick?.(row, rowIndex)}
->
+                key={rowIndex}
+                selected={rowIndex === selectedRowIndex}
+                onClick={() => onRowClick?.(row, rowIndex)}
+              >
                 {headers.map((header, i) => (
                   <StyledTableCell key={i}>
                     <Typography variant="caption" color="text.secondary">
-                      {row[header] ?? '-'}
+                      {row[header] ?? "-"}
                     </Typography>
                   </StyledTableCell>
                 ))}
