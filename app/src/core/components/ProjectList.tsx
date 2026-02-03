@@ -1,7 +1,7 @@
 "use client";
 
 export type Project = {
-  id: number;
+  id: string; 
   name: string;
   description?: string;
   domain?: string;
@@ -33,19 +33,22 @@ export default function ProjectListCard() {
 
   const handleCreateProject = async (data: { [key: string]: string }) => {
     try {
-      const newProject = await projectsApi.createProject({
+      const response = await projectsApi.createProject({
         name: data.name,
         description: data.description,
         domain: data.domain,
       });
 
+      // Extract project from the API response
+      const newProject = response.project;
+
       // Add the new project to the list
       const projectToAdd = {
-        id: newProject.id || Date.now(),
+        id: newProject.id,
         name: newProject.name,
-        description: newProject.description,
-        domain: newProject.domain,
-        updatedAt: new Date().toLocaleString(),
+        description: data.description,
+        domain: data.domain,
+        updatedAt: new Date(newProject.created_at).toLocaleString(),
       };
 
       setProjects((prev) => [projectToAdd, ...prev]);
@@ -54,7 +57,7 @@ export default function ProjectListCard() {
       // If API fails, still add to local state for demo purposes
       const now = new Date().toLocaleString();
       const newProject = {
-        id: Date.now(),
+        id: Date.now().toString(),
         name: data.name,
         description: data.description,
         domain: data.domain,
@@ -64,7 +67,7 @@ export default function ProjectListCard() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await projectsApi.deleteProject(id);
 
