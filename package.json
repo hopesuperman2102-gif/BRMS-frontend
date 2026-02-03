@@ -14,7 +14,7 @@
     "@gorules/jdm-editor": "^1.50.6",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
-    "next": "16.1.6",
+    "next": "^15.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
