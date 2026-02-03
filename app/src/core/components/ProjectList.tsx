@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export type Project = {
   id: string; 
@@ -8,8 +8,8 @@ export type Project = {
   updatedAt: string;
 };
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -18,12 +18,12 @@ import {
   Button,
   IconButton,
   CircularProgress,
-} from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { CreateModal } from './CreateModal';
-import { projectsMock } from './mock_data';
-import { projectsApi } from 'app/src/api/projectsApi';
+} from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { CreateModal } from "./CreateModal";
+import { projectsMock } from "./mock_data";
+import { projectsApi } from "app/src/api/projectsApi";
 
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>(projectsMock);
@@ -53,7 +53,7 @@ export default function ProjectListCard() {
 
       setProjects((prev) => [projectToAdd, ...prev]);
     } catch (error) {
-      console.error('Error creating project:', error);
+      console.error("Error creating project:", error);
       // If API fails, still add to local state for demo purposes
       const now = new Date().toLocaleString();
       const newProject = {
@@ -74,7 +74,7 @@ export default function ProjectListCard() {
       // Remove from local state
       setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
-      console.error('Error deleting project:', error);
+      console.error("Error deleting project:", error);
       // If API fails, still remove from local state
       setProjects((prev) => prev.filter((p) => p.id !== id));
     }
@@ -90,27 +90,28 @@ export default function ProjectListCard() {
         <CardContent
           sx={{
             maxHeight: 500,
-            overflowY: 'auto',
-            scrollbarWidth: 'none',
-            '&::-webkit-scrollbar': { display: 'none' },
-            msOverflowStyle: 'none',
+            overflowY: "auto",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+            msOverflowStyle: "none",
           }}
         >
-          {/* Header */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6">My projects</Typography>
+          {/* Header */}{" "}
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            {" "}
+            <Typography variant="h6">My projects</Typography>{" "}
             <Button variant="contained" onClick={() => setOpenModal(true)}>
-              Create project
-            </Button>
+              {" "}
+              Create project{" "}
+            </Button>{" "}
           </Box>
-
           {/* Table Header */}
           <Box
             sx={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto',
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
               borderBottom: 1,
-              borderColor: 'divider',
+              borderColor: "divider",
               pb: 1,
               mb: 1,
             }}
@@ -122,14 +123,13 @@ export default function ProjectListCard() {
               Actions
             </Typography>
           </Box>
-
           {/* Project List */}
           {loading ? (
-            <Box sx={{ py: 4, textAlign: 'center' }}>
+            <Box sx={{ py: 4, textAlign: "center" }}>
               <CircularProgress />
             </Box>
           ) : projects.length === 0 ? (
-            <Box sx={{ py: 4, textAlign: 'center' }}>
+            <Box sx={{ py: 4, textAlign: "center" }}>
               <Typography variant="body2" color="text.secondary">
                 No projects yet. Create your first project to get started.
               </Typography>
@@ -139,18 +139,18 @@ export default function ProjectListCard() {
               <Box
                 key={project.id}
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto',
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
                   py: 2,
                   borderBottom: 1,
-                  borderColor: 'divider',
+                  borderColor: "divider",
                 }}
               >
                 <Box>
                   <Typography
                     variant="body2"
                     color="primary"
-                    sx={{ cursor: 'pointer', fontWeight: 500 }}
+                    sx={{ cursor: "pointer", fontWeight: 500 }}
                     onClick={() => handleOpenProject(project)}
                   >
                     {project.name}
@@ -187,9 +187,9 @@ export default function ProjectListCard() {
         onCreate={handleCreateProject}
         title="Create New Project"
         fields={[
-          { name: 'name', label: 'Project Name' },
-          { name: 'description', label: 'Description' },
-          { name: 'domain', label: 'Domain' },
+          { name: "name", label: "Project Name" },
+          { name: "description", label: "Description" },
+          { name: "domain", label: "Domain" },
         ]}
       />
     </>

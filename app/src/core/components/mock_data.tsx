@@ -28,6 +28,83 @@ export const projectRulesMock: RuleFile[] = [
     status: 'Archived',
     updatedAt: '1 hour ago',
   },
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+
+  {
+    id: '1',
+    name: 'eligibility-rules.json',
+    version: 'v1.0',
+    status: 'Active',
+    updatedAt: '15 minutes ago',
+  },
+  
 ];
 
 export const projectsMock = [
