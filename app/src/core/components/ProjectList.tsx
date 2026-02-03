@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export type Project = {
   id: number;
@@ -6,8 +6,8 @@ export type Project = {
   updatedAt: string;
 };
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -15,17 +15,18 @@ import {
   Typography,
   Button,
   IconButton,
-} from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { CreateModal } from './CreateModal';
-import { projectsMock } from './mock_data';
+} from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { CreateModal } from "./CreateModal";
+import { projectsMock } from "./mock_data";
+import SectionHeader from "./SectionHeader";
 
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>(projectsMock);
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
-  
+
   const handleCreateProject = (name: string) => {
     const now = new Date().toLocaleString();
     setProjects((prev) => [
@@ -52,27 +53,28 @@ export default function ProjectListCard() {
         <CardContent
           sx={{
             maxHeight: 500,
-            overflowY: 'auto',
-            scrollbarWidth: 'none',
-            '&::-webkit-scrollbar': { display: 'none' },
-            msOverflowStyle: 'none',
+            overflowY: "auto",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+            msOverflowStyle: "none",
           }}
         >
-          {/* Header */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6">My projects</Typography>
-            <Button variant="contained" onClick={() => setOpenModal(true)}>
-              Create project
-            </Button>
-          </Box>
+          <SectionHeader
+            left={<Typography variant="h6">My Projects</Typography>}
+            right={
+              <Button variant="contained" onClick={() => setOpenModal(true)}>
+                Create project
+              </Button>
+            }
+          />
 
           {/* Table Header */}
           <Box
             sx={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto',
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
               borderBottom: 1,
-              borderColor: 'divider',
+              borderColor: "divider",
               pb: 1,
               mb: 1,
             }}
@@ -87,7 +89,7 @@ export default function ProjectListCard() {
 
           {/* Project List */}
           {projects.length === 0 ? (
-            <Box sx={{ py: 4, textAlign: 'center' }}>
+            <Box sx={{ py: 4, textAlign: "center" }}>
               <Typography variant="body2" color="text.secondary">
                 No projects yet. Create your first project to get started.
               </Typography>
@@ -97,22 +99,22 @@ export default function ProjectListCard() {
               <Box
                 key={project.id}
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto',
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
                   py: 2,
                   borderBottom: 1,
-                  borderColor: 'divider',
+                  borderColor: "divider",
                 }}
               >
                 <Box>
                   <Typography
-  variant="body2"
-  color="primary"
-  sx={{ cursor: 'pointer', fontWeight: 500 }}
-  onClick={() => handleOpenProject(project)}
->
-  {project.name}
-</Typography>
+                    variant="body2"
+                    color="primary"
+                    sx={{ cursor: "pointer", fontWeight: 500 }}
+                    onClick={() => handleOpenProject(project)}
+                  >
+                    {project.name}
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">
                     Last updated {project.updatedAt}
                   </Typography>
@@ -123,11 +125,13 @@ export default function ProjectListCard() {
                     size="small"
                     startIcon={<OpenInNewIcon />}
                     onClick={() => handleOpenProject(project)}
-
                   >
                     Open
                   </Button>
-                  <IconButton size="small" onClick={() => handleDelete(project.id)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(project.id)}
+                  >
                     <DeleteOutlineIcon />
                   </IconButton>
                 </Box>

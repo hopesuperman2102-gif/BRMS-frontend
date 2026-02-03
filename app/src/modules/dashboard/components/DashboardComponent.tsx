@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
-import AppBarComponent from '../../../core/components/AppBarComponent';
 import ProjectList from '../../../core/components/ProjectList';
 
 const DashboardComponent: React.FC = () => {
@@ -10,10 +9,6 @@ const DashboardComponent: React.FC = () => {
 
   return (
     <>
-      <AppBarComponent
-        logo={<img src="/logo.svg" height={32} alt="logo" />}
-        organizationName="Business Rules Management"
-      />
 
       {/* Tabs below AppBar */}
       <Box px={3} pt={2}>
