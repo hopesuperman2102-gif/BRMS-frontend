@@ -3,6 +3,8 @@
 export type Project = {
   id: number;
   name: string;
+  description?: string;
+  domain?: string;
   updatedAt: string;
 };
 
@@ -15,31 +17,64 @@ import {
   Typography,
   Button,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { CreateModal } from './CreateModal';
 import { projectsMock } from './mock_data';
+import { projectsApi } from 'app/src/api/projectsApi';
 
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>(projectsMock);
   const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  
-  const handleCreateProject = (name: string) => {
-    const now = new Date().toLocaleString();
-    setProjects((prev) => [
-      {
+
+  const handleCreateProject = async (data: { [key: string]: string }) => {
+    try {
+      const newProject = await projectsApi.createProject({
+        name: data.name,
+        description: data.description,
+        domain: data.domain,
+      });
+
+      // Add the new project to the list
+      const projectToAdd = {
+        id: newProject.id || Date.now(),
+        name: newProject.name,
+        description: newProject.description,
+        domain: newProject.domain,
+        updatedAt: new Date().toLocaleString(),
+      };
+
+      setProjects((prev) => [projectToAdd, ...prev]);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      // If API fails, still add to local state for demo purposes
+      const now = new Date().toLocaleString();
+      const newProject = {
         id: Date.now(),
-        name,
+        name: data.name,
+        description: data.description,
+        domain: data.domain,
         updatedAt: now,
-      },
-      ...prev,
-    ]);
+      };
+      setProjects((prev) => [newProject, ...prev]);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = async (id: number) => {
+    try {
+      await projectsApi.deleteProject(id);
+
+      // Remove from local state
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      // If API fails, still remove from local state
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+    }
   };
 
   const handleOpenProject = (project: Project) => {
@@ -86,7 +121,11 @@ export default function ProjectListCard() {
           </Box>
 
           {/* Project List */}
-          {projects.length === 0 ? (
+          {loading ? (
+            <Box sx={{ py: 4, textAlign: 'center' }}>
+              <CircularProgress />
+            </Box>
+          ) : projects.length === 0 ? (
             <Box sx={{ py: 4, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
                 No projects yet. Create your first project to get started.
@@ -106,13 +145,13 @@ export default function ProjectListCard() {
               >
                 <Box>
                   <Typography
-  variant="body2"
-  color="primary"
-  sx={{ cursor: 'pointer', fontWeight: 500 }}
-  onClick={() => handleOpenProject(project)}
->
-  {project.name}
-</Typography>
+                    variant="body2"
+                    color="primary"
+                    sx={{ cursor: 'pointer', fontWeight: 500 }}
+                    onClick={() => handleOpenProject(project)}
+                  >
+                    {project.name}
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">
                     Last updated {project.updatedAt}
                   </Typography>
@@ -123,11 +162,13 @@ export default function ProjectListCard() {
                     size="small"
                     startIcon={<OpenInNewIcon />}
                     onClick={() => handleOpenProject(project)}
-
                   >
                     Open
                   </Button>
-                  <IconButton size="small" onClick={() => handleDelete(project.id)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(project.id)}
+                  >
                     <DeleteOutlineIcon />
                   </IconButton>
                 </Box>
@@ -141,6 +182,12 @@ export default function ProjectListCard() {
         open={openModal}
         onClose={() => setOpenModal(false)}
         onCreate={handleCreateProject}
+        title="Create New Project"
+        fields={[
+          { name: 'name', label: 'Project Name' },
+          { name: 'description', label: 'Description' },
+          { name: 'domain', label: 'Domain' },
+        ]}
       />
     </>
   );

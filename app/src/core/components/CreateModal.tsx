@@ -8,46 +8,65 @@ import {
   DialogActions,
   Button,
   TextField,
+  Stack,
 } from '@mui/material';
 
 export type CreateModalProps = {
   open: boolean;
   onClose: () => void;
-  onCreate: (name: string) => void;
+  onCreate: (data: { [key: string]: string }) => void;
+  title?: string;
+  fields?: Array<{ name: string; label: string }>;
 };
 
 export function CreateModal({
   open,
   onClose,
   onCreate,
+  title = 'Create project',
+  fields = [{ name: 'name', label: 'Name' }],
 }: CreateModalProps) {
-  const [name, setName] = useState('');
+  const [formData, setFormData] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false);
 
-  const handleCreate = () => {
-    if (!name.trim()) return;
-    onCreate(name.trim());
-    setName('');
+  const handleChange = (fieldName: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
+  };
+
+  const handleCreate = async () => {
+    // Check if all fields have values
+    const hasEmptyFields = fields.some((field) => !formData[field.name]?.trim());
+    if (hasEmptyFields) return;
+
+    setLoading(true);
+    await onCreate(formData);
+    setFormData({});
+    setLoading(false);
     onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create project</DialogTitle>
-
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <TextField
-          label="Project name"
-          fullWidth
-          margin="normal"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <Stack spacing={2} sx={{ mt: 1, minWidth: 400 }}>
+          {fields.map((field, index) => (
+            <TextField
+              key={field.name}
+              autoFocus={index === 0}
+              label={field.label}
+              fullWidth
+              value={formData[field.name] || ''}
+              onChange={(e) => handleChange(field.name, e.target.value)}
+              disabled={loading}
+            />
+          ))}
+        </Stack>
       </DialogContent>
-
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleCreate}>
-          Create
+        <Button onClick={onClose} disabled={loading}>Cancel</Button>
+        <Button onClick={handleCreate} variant="contained" disabled={loading}>
+          {loading ? 'Creating...' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
