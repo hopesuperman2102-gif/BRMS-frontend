@@ -8,8 +8,7 @@ export const projectsApi = {
     domain: string;
   }) => {
     const requestBody = {
-      project_key: "sam",
-      //  change project_key every time some new value to avoid conflict
+      project_key: "latest", // hardcoded for now
       name: data.name,
       description: data.description,
       domain: data.domain,
@@ -34,9 +33,9 @@ export const projectsApi = {
     return await response.json();
   },
 
-  // Get all projects from PostgreSQL
+  // Get all projects (OLD – kept untouched)
   getProjects: async () => {
-    const response = await fetch(`${API_BASE_URL}/projects`, {
+    const response = await fetch(`${API_BASE_URL}/projects/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -52,14 +51,36 @@ export const projectsApi = {
     return await response.json();
   },
 
-  // Delete a project from PostgreSQL
-  deleteProject: async (id: number | string) => {
-    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
+  // ✅ NEW: Get all projects (REAL API)
+  getProjectsView: async () => {
+    const response = await fetch(`${API_BASE_URL}/projects/view/active`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to fetch projects');
+    }
+
+    return await response.json();
+  },
+
+  // Delete a project (BODY-based, matches Postman)
+  deleteProject: async (project_key: string) => {
+    const response = await fetch(`${API_BASE_URL}/projects/delete`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
+      body: JSON.stringify({
+        project_key,
+        deleted_by: 'admin',
+      }),
     });
 
     if (!response.ok) {

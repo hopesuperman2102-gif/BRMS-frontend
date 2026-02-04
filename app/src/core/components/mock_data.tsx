@@ -111,16 +111,19 @@ export const projectsMock = [
   {
     id: '1', 
     name: 'Project Alpha',
+    project_key: 'alpha',  
     updatedAt: '2/1/2026, 10:30 AM',
   },
   {
     id: '2', 
     name: 'Project Beta',
+    project_key: 'beta',  
     updatedAt: '2/2/2026, 2:15 PM',
   },
   {
     id: '3', 
     name: 'Project Gammma',
+    project_key: 'gamma',  
     updatedAt: '2/2/2026, 2:15 PM',
   },
 ];

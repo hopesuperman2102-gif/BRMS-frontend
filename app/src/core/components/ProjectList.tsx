@@ -1,14 +1,15 @@
 "use client";
 
 export type Project = {
-  id: string; 
+  id: string;
+  project_key: string;
   name: string;
   description?: string;
   domain?: string;
   updatedAt: string;
 };
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -22,14 +23,41 @@ import {
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { CreateModal } from "./CreateModal";
-import { projectsMock } from "./mock_data";
 import { projectsApi } from "app/src/api/projectsApi";
 
 export default function ProjectListCard() {
-  const [projects, setProjects] = useState<Project[]>(projectsMock);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await projectsApi.getProjectsView();
+
+        const projectsFromApi: Project[] = response.map((p: any) => ({
+          id: p.id,
+          project_key: p.project_key,
+          name: p.name,
+          description: p.description,
+          domain: p.domain,
+          updatedAt: new Date(
+            p.updated_at || p.created_at
+          ).toLocaleString(),
+        }));
+
+        setProjects(projectsFromApi);
+      } catch (error) {
+        console.error("Failed to load projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const handleCreateProject = async (data: { [key: string]: string }) => {
     try {
@@ -39,12 +67,11 @@ export default function ProjectListCard() {
         domain: data.domain,
       });
 
-      // Extract project from the API response
       const newProject = response.project;
 
-      // Add the new project to the list
-      const projectToAdd = {
+      const projectToAdd: Project = {
         id: newProject.id,
+        project_key: newProject.project_key,
         name: newProject.name,
         description: data.description,
         domain: data.domain,
@@ -54,34 +81,23 @@ export default function ProjectListCard() {
       setProjects((prev) => [projectToAdd, ...prev]);
     } catch (error) {
       console.error("Error creating project:", error);
-      // If API fails, still add to local state for demo purposes
-      const now = new Date().toLocaleString();
-      const newProject = {
-        id: Date.now().toString(),
-        name: data.name,
-        description: data.description,
-        domain: data.domain,
-        updatedAt: now,
-      };
-      setProjects((prev) => [newProject, ...prev]);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (projectKey: string) => {
     try {
-      await projectsApi.deleteProject(id);
+      await projectsApi.deleteProject(projectKey);
 
-      // Remove from local state
-      setProjects((prev) => prev.filter((p) => p.id !== id));
+      setProjects((prev) =>
+        prev.filter((p) => p.project_key !== projectKey)
+      );
     } catch (error) {
       console.error("Error deleting project:", error);
-      // If API fails, still remove from local state
-      setProjects((prev) => prev.filter((p) => p.id !== id));
     }
   };
 
   const handleOpenProject = (project: Project) => {
-    router.push(`/dashboard/${project.id}/rules`);
+    router.push(`/dashboard/${project.project_key}/rules`);
   };
 
   return (
@@ -96,16 +112,13 @@ export default function ProjectListCard() {
             msOverflowStyle: "none",
           }}
         >
-          {/* Header */}{" "}
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-            {" "}
-            <Typography variant="h6">My projects</Typography>{" "}
+            <Typography variant="h6">My projects</Typography>
             <Button variant="contained" onClick={() => setOpenModal(true)}>
-              {" "}
-              Create project{" "}
-            </Button>{" "}
+              Create project
+            </Button>
           </Box>
-          {/* Table Header */}
+
           <Box
             sx={{
               display: "grid",
@@ -123,7 +136,7 @@ export default function ProjectListCard() {
               Actions
             </Typography>
           </Box>
-          {/* Project List */}
+
           {loading ? (
             <Box sx={{ py: 4, textAlign: "center" }}>
               <CircularProgress />
@@ -170,7 +183,7 @@ export default function ProjectListCard() {
                   </Button>
                   <IconButton
                     size="small"
-                    onClick={() => handleDelete(project.id)}
+                    onClick={() => handleDelete(project.project_key)}
                   >
                     <DeleteOutlineIcon />
                   </IconButton>
