@@ -2,79 +2,199 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Skeleton,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import CdfTable from "../../../core/components/CdfTable";
-import {
-  projectRulesMock,
-  projectsMock,
-  RuleFile,
-} from "../../../core/components/mock_data"; // adjust path if needed
 import SectionHeader from "app/src/core/components/SectionHeader";
+import { CreateModal } from "../../../core/components/CreateModal";
+import { rulesApi } from "app/src/api/rulesApi";
+import { projectsApi } from "app/src/api/projectsApi";
+import { RuleFile } from "../pages/types/rulesTypes";
 
 export default function ProjectRuleComponent() {
-  const { folderId } = useParams<{ folderId: string }>();
+  const { project_key } = useParams<{ project_key: string }>();
   const router = useRouter();
 
   const [rules, setRules] = useState<RuleFile[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  /* ---------- Mock API (replace later) ---------- */
+  const [openCreate, setOpenCreate] = useState(false);
+  const [editRule, setEditRule] = useState<RuleFile | null>(null);
+
+  const [projectName, setProjectName] = useState<string>("");
+
+  // ✅ FIXED TYPE
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [menuRule, setMenuRule] = useState<RuleFile | null>(null);
+
+  /* ---------- Fetch PROJECT NAME ---------- */
   useEffect(() => {
-    setRules(projectRulesMock);
-  }, [folderId]);
+    if (!project_key) return;
 
-  const project = projectsMock.find((p) => p.id.toString() === folderId);
+    const fetchProjectName = async () => {
+      try {
+        const projects = await projectsApi.getProjectsView();
+        const project = projects.find(
+          (p: any) => p.project_key === project_key
+        );
+        if (project?.name) setProjectName(project.name);
+      } catch (err) {
+        console.error("Project fetch error", err);
+      }
+    };
 
-  /* ---------- Table Headers ---------- */
-  const headers = ["File Name", "ID", "Version", "Status", "Last updated"];
+    fetchProjectName();
+  }, [project_key]);
 
-  /* ---------- Table Rows ---------- */
+  /* ---------- Fetch RULES ---------- */
+  const loadRules = async () => {
+    const data = await rulesApi.getProjectRules(project_key);
+
+    setRules(
+      data.map((item: any) => ({
+        id: item.rule_key,
+        name: item.name,
+        version: "-",
+        status: item.status,
+        updatedAt: item.created_at,
+      }))
+    );
+  };
+
+  useEffect(() => {
+    if (project_key) loadRules();
+  }, [project_key]);
+
+  /* ---------- Menu handlers (TYPE FIX HERE) ---------- */
+  const openMenu = (
+    e: React.MouseEvent<HTMLElement>,
+    rule: RuleFile
+  ) => {
+    setAnchorEl(e.currentTarget);
+    setMenuRule(rule);
+  };
+
+  const closeMenu = () => {
+    setAnchorEl(null);
+    setMenuRule(null);
+  };
+
+  /* ---------- Delete ---------- */
+  const handleDelete = async () => {
+    if (!menuRule) return;
+    await rulesApi.deleteRule(menuRule.id);
+    closeMenu();
+    loadRules();
+  };
+
+  /* ---------- Edit ---------- */
+  const handleEdit = () => {
+    setEditRule(menuRule);
+    closeMenu();
+  };
+
+  /* ---------- Table ---------- */
+  const headers = ["Rule Name", "Version", "Status", "Last updated", ""];
+
   const rows = rules.map((rule) => ({
-    "File Name": rule.name,
-    ID: rule.id,
+    "Rule Name": rule.name,
     Version: rule.version,
     Status: rule.status,
     "Last updated": rule.updatedAt,
+    "": (
+      <IconButton onClick={(e) => openMenu(e, rule)}>
+        <MoreVertIcon />
+      </IconButton>
+    ),
   }));
 
-  /* ---------- Row Click ---------- */
-  const handleRowClick = (_: any, index: number) => {
-    setSelectedIndex(index);
+  /* ---------- Create / Update ---------- */
+  const handleCreateOrUpdate = async (data: { [key: string]: string }) => {
+    if (editRule) {
+      await rulesApi.updateRule({
+        rule_key: editRule.id,
+        name: data.name,
+        description: data.description,
+        updated_by: "admin",
+      });
+      setEditRule(null);
+    } else {
+      await rulesApi.createRule({
+        project_key,
+        name: data.name,
+        description: data.description,
+      });
+    }
 
-    const selectedRule = rules[index];
-    router.push(`/dashboard/${folderId}/rules/${selectedRule.id}/editor`);
+    loadRules();
   };
 
   return (
     <Card>
       <CardContent>
-        {/* ---------- Header (fixed) ---------- */}
         <SectionHeader
           left={
             <Typography variant="h6">
-              {project?.name ?? `Project ${folderId}`}
+              {projectName ? (
+                projectName
+              ) : (
+                <Skeleton
+                  variant="text"
+                  width={120}
+                  sx={{ display: "inline-block" }}
+                />
+              )}
             </Typography>
+          }
+          right={
+            <Button variant="contained" onClick={() => setOpenCreate(true)}>
+              CREATE RULE
+            </Button>
           }
         />
 
-        {/* ---------- Scrollable Table ONLY ---------- */}
-        <Box
-          sx={{
-            maxHeight: 500,
-            overflowY: "auto",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          }}
-        >
+        <Box sx={{ maxHeight: 500, overflowY: "auto" }}>
           <CdfTable
             headers={headers}
             rows={rows}
             selectedRowIndex={selectedIndex}
-            onRowClick={handleRowClick}
+            onRowClick={() => {}}
           />
         </Box>
+
+        {/* ---------- Three-dot Menu ---------- */}
+        <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={closeMenu}>
+          <MenuItem onClick={handleEdit}>Edit</MenuItem>
+          <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+            Delete
+          </MenuItem>
+        </Menu>
+
+        {/* ---------- Create / Edit Modal ---------- */}
+        <CreateModal
+          open={openCreate || !!editRule}
+          onClose={() => {
+            setOpenCreate(false);
+            setEditRule(null);
+          }}
+          title={editRule ? "Edit Rule" : "Create Rule"}
+          fields={[
+            { name: "name", label: "Rule Name" },
+            { name: "description", label: "Description" },
+          ]}
+          onCreate={handleCreateOrUpdate}
+        />
       </CardContent>
     </Card>
   );
