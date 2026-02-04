@@ -22,12 +22,22 @@ import {
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { CreateModal } from "./CreateModal";
 import { projectsApi } from "app/src/api/projectsApi";
 
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [openModal, setOpenModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editProject, setEditProject] = useState<Project | null>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const openMenu = Boolean(menuAnchorEl);
+
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -67,8 +77,10 @@ export default function ProjectListCard() {
         domain: data.domain,
       });
 
+      // Extract projects from the API response
       const newProject = response.project;
 
+      // Adds the new project to the list
       const projectToAdd: Project = {
         id: newProject.id,
         project_key: newProject.project_key,
@@ -84,7 +96,7 @@ export default function ProjectListCard() {
     }
   };
 
-  const handleDelete = async (projectKey: string) => {
+   const handleDelete = async (projectKey: string) => {
     try {
       await projectsApi.deleteProject(projectKey);
 
@@ -95,6 +107,45 @@ export default function ProjectListCard() {
       console.error("Error deleting project:", error);
     }
   };
+
+  const handleUpdateProject = async (data: { [key: string]: string }) => {
+  if (!editProject) return;
+
+  await projectsApi.updateProject(editProject.project_key, {
+    name: data.name,
+    description: data.description,
+    domain: data.domain,
+  });
+
+  // To update UI after successfull update
+  setProjects((prev) =>
+    prev.map((p) =>
+      p.project_key === editProject.project_key
+        ? {
+            ...p,
+            name: data.name,
+            description: data.description,
+            domain: data.domain,
+            updatedAt: new Date().toLocaleString(),
+          }
+        : p
+    )
+  );
+};
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    project: Project,
+  ) => {
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedProject(project);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedProject(null);
+  };
+
 
   const handleOpenProject = (project: Project) => {
     router.push(`/dashboard/${project.project_key}/rules`);
@@ -119,6 +170,7 @@ export default function ProjectListCard() {
             </Button>
           </Box>
 
+          {/* Table Header */}
           <Box
             sx={{
               display: "grid",
@@ -137,6 +189,7 @@ export default function ProjectListCard() {
             </Typography>
           </Box>
 
+          {/* Project List */}
           {loading ? (
             <Box sx={{ py: 4, textAlign: "center" }}>
               <CircularProgress />
@@ -187,24 +240,57 @@ export default function ProjectListCard() {
                   >
                     <DeleteOutlineIcon />
                   </IconButton>
+                  <IconButton
+                      size="small"
+                      onClick={(e) => handleMenuOpen(e, project)}
+                    >
+                      <MoreHorizIcon />
+                    </IconButton>
                 </Box>
               </Box>
             ))
           )}
         </CardContent>
       </Card>
+      <Menu anchorEl={menuAnchorEl} open={openMenu} onClose={handleMenuClose}>
+        <MenuItem
+  onClick={() => {
+    setEditProject(selectedProject);
+    setIsEditMode(true);
+    setOpenModal(true);
+    handleMenuClose();
+  }}
+>
+  Edit
+</MenuItem>
+      </Menu>
 
       <CreateModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        onCreate={handleCreateProject}
-        title="Create New Project"
-        fields={[
-          { name: "name", label: "Project Name" },
-          { name: "description", label: "Description" },
-          { name: "domain", label: "Domain" },
-        ]}
-      />
+  open={openModal}
+  onClose={() => {
+    setOpenModal(false);
+    setIsEditMode(false);
+    setEditProject(null);
+  }}
+  onCreate={isEditMode ? handleUpdateProject : handleCreateProject}
+  title={isEditMode ? "Edit Project" : "Create Project"}
+  submitLabel={isEditMode ? "Save" : "Create"}
+  fields={[
+    { name: "name", label: "Project Name" },
+    { name: "description", label: "Description" },
+    { name: "domain", label: "Domain" },
+  ]}
+  initialValues={
+    isEditMode && editProject
+      ? {
+          name: editProject.name,
+          description: editProject.description ?? "",
+          domain: editProject.domain ?? "",
+        }
+      : {}
+  }
+/>
     </>
   );
 }
+ 
