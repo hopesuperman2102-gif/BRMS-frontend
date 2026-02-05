@@ -1,7 +1,9 @@
+// app/src/features/rules/pages/JdmEditorWithSimulator.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Box } from '@mui/material';
 import AlertComponent from '../../../core/components/Alert';
 import { RepoItem } from '../../../core/types/commonTypes';
@@ -13,8 +15,6 @@ import RepositorySidebar from 'app/src/core/components/RepositorySidebar';
 export default function JdmEditorWithSimulator() {
   const { project_key } = useParams<{ project_key: string }>();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const ruleIdFromUrl = searchParams.get('rule');
 
   const [items, setItems] = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -28,44 +28,54 @@ export default function JdmEditorWithSimulator() {
     if (!project_key) return;
 
     const fetchProject = async () => {
-      const projects = await projectsApi.getProjectsView();
-      const project = projects.find(
-        (p: any) => p.project_key === project_key
-      );
-      if (project?.name) setProjectName(project.name);
+      try {
+        const projects = await projectsApi.getProjectsView();
+        const project = projects.find(
+          (p: any) => p.project_key === project_key
+        );
+        if (project?.name) setProjectName(project.name);
+      } catch (error) {
+        console.error('Error fetching project:', error);
+      }
     };
 
     fetchProject();
   }, [project_key]);
 
-  /* ---------- Fetch rules ---------- */
+  /* ---------- Fetch rules list only (without graph data) ---------- */
   useEffect(() => {
     if (!project_key) return;
 
     const fetchRules = async () => {
-      const data = await rulesApi.getProjectRules(project_key);
+      try {
+        const data = await rulesApi.getProjectRules(project_key);
 
-      const treeItems: RepoItem[] = data.map((rule: any) => ({
-        id: rule.rule_key,
-        name: rule.name,
-        type: 'file' as const,
-        graph: rule.graph || {},
-      }));
+        // Don't load graph here - just basic info
+        const treeItems: RepoItem[] = data.map((rule: any) => ({
+          id: rule.rule_key,
+          name: rule.name,
+          type: 'file' as const,
+          graph: {}, // Empty graph initially
+        }));
 
-      setItems(treeItems);
+        setItems(treeItems);
 
-      // Auto-select rule from URL
-      if (ruleIdFromUrl) {
-        const foundRule = treeItems.find((item) => String(item.id) === ruleIdFromUrl);
-        if (foundRule) {
-          setSelectedId(foundRule.id);
-          setOpenFiles([foundRule.id]);
+        // Auto-select rule from sessionStorage
+        const storedRuleId = sessionStorage.getItem('activeRuleId');
+        if (storedRuleId) {
+          const foundRule = treeItems.find((item) => String(item.id) === storedRuleId);
+          if (foundRule) {
+            setSelectedId(foundRule.id);
+            setOpenFiles([foundRule.id]);
+          }
         }
+      } catch (error) {
+        console.error('Error fetching rules:', error);
       }
     };
 
     fetchRules();
-  }, [project_key, ruleIdFromUrl]);
+  }, [project_key]);
 
   const handleSelectItem = (item: RepoItem) => {
     if (item.type === 'file') {
@@ -73,8 +83,9 @@ export default function JdmEditorWithSimulator() {
       if (!openFiles.includes(item.id)) {
         setOpenFiles([...openFiles, item.id]);
       }
-      // Update URL
-      router.push(`/dashboard/${project_key}/rules/editor?rule=${item.id}`);
+      // Store in sessionStorage
+      sessionStorage.setItem('activeRuleId', String(item.id));
+      sessionStorage.setItem('activeRuleName', item.name);
     }
   };
 
