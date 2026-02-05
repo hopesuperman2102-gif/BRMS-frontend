@@ -1,17 +1,23 @@
+// app/src/features/rules/pages/Editor.tsx
+
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Select, MenuItem, Button, FormControl, Typography } from '@mui/material';
 import { RepoItem } from '../../../core/types/commonTypes';
 import { EditorProps } from '../types/JdmEditorTypes';
 import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
+import { ruleVersionsApi, RuleVersion } from 'app/src/api/ruleVersionsApi';
 
 export default function Editor({
   items,
-  selectedId, }: EditorProps) {
-  // Mock data for dropdown - will come from backend later
-  const [selectedVersion, setSelectedVersion] = useState('v1.0.0');
-  const mockVersions = ['v1.0.0', 'v1.0.1', 'v1.1.0', 'v2.0.0'];
+  selectedId,
+}: EditorProps) {
+  const [selectedVersion, setSelectedVersion] = useState('');
+  const [versions, setVersions] = useState<RuleVersion[]>([]);
+  const [currentGraph, setCurrentGraph] = useState<any>(null);
+  const [isVersionsLoading, setIsVersionsLoading] = useState(false);
+  const [isCommitting, setIsCommitting] = useState(false);
 
   const findItem = (list: RepoItem[], id: number): RepoItem | null => {
     for (const i of list) {
@@ -24,16 +30,143 @@ export default function Editor({
     return null;
   };
 
-  const handleGraphChange = (value: any) => {
-    console.log('Graph changed:', value);
-  };
-
-  const handleCommit = () => {
-    console.log('Committing changes for version:', selectedVersion);
-    // Backend commit logic will go here
-  };
-
   const selectedItem = selectedId ? findItem(items, selectedId) : null;
+
+  // Fetch versions ONLY when a specific rule is selected
+  useEffect(() => {
+    if (!selectedItem) {
+      setVersions([]);
+      setSelectedVersion('');
+      setCurrentGraph(null);
+      return;
+    }
+
+    const fetchVersionsForSelectedRule = async () => {
+      setIsVersionsLoading(true);
+      try {
+        console.log(`Fetching versions for rule: ${selectedItem.id}`);
+        
+        // Only call list API once for THIS rule only
+        const versionsList = await ruleVersionsApi.listVersions(String(selectedItem.id));
+
+        if (versionsList && versionsList.length > 0) {
+          console.log(`Found ${versionsList.length} versions for rule ${selectedItem.id}`);
+          setVersions(versionsList);
+          
+          // Set the latest version (first in array) as selected
+          const latestVersion = versionsList[0];
+          setSelectedVersion(latestVersion.version);
+          
+          // Load the graph for the latest version
+          if (latestVersion.jdm) {
+            setCurrentGraph(latestVersion.jdm);
+          } else {
+            // If no JDM in the version list response, fetch it
+            try {
+              const versionData = await ruleVersionsApi.getVersionData(
+                String(selectedItem.id),
+                latestVersion.version
+              );
+              setCurrentGraph(versionData.jdm || {});
+            } catch (error) {
+              console.error('Error loading version data:', error);
+              setCurrentGraph({});
+            }
+          }
+        } else {
+          // No versions exist for this rule
+          console.log(`No versions found for rule ${selectedItem.id}`);
+          setVersions([]);
+          setSelectedVersion('');
+          setCurrentGraph({});
+        }
+      } catch (error) {
+        console.error('Error fetching versions:', error);
+        // If API fails, show empty editor
+        setVersions([]);
+        setSelectedVersion('');
+        setCurrentGraph({});
+      } finally {
+        setIsVersionsLoading(false);
+      }
+    };
+
+    fetchVersionsForSelectedRule();
+  }, [selectedItem?.id]); // Only trigger when selectedItem.id changes
+
+  // Handle version change in dropdown
+  const handleVersionChange = async (version: string) => {
+    if (!selectedItem) return;
+    
+    setSelectedVersion(version);
+    
+    // Check if JDM is already in the versions list
+    const versionObj = versions.find((v) => v.version === version);
+    if (versionObj && versionObj.jdm) {
+      setCurrentGraph(versionObj.jdm);
+      return;
+    }
+    
+    // Otherwise fetch it
+    try {
+      const versionData = await ruleVersionsApi.getVersionData(
+        String(selectedItem.id),
+        version
+      );
+      if (versionData && versionData.jdm) {
+        setCurrentGraph(versionData.jdm);
+      }
+    } catch (error) {
+      console.error('Error loading version data:', error);
+      alert('Failed to load version data');
+    }
+  };
+
+  const handleGraphChange = (value: any) => {
+    setCurrentGraph(value);
+  };
+
+  const handleCommit = async () => {
+    if (!selectedItem || !currentGraph) {
+      console.error('No item selected or no graph data');
+      return;
+    }
+
+    setIsCommitting(true);
+    try {
+      console.log(`Committing changes for rule: ${selectedItem.id}`);
+      
+      // Create new version
+      await ruleVersionsApi.createVersion({
+        rule_key: String(selectedItem.id),
+        jdm: currentGraph,
+      });
+
+      console.log('Version created successfully');
+      
+      // Refresh versions list to get the newly created version
+      const updatedVersions = await ruleVersionsApi.listVersions(String(selectedItem.id));
+
+      if (updatedVersions && updatedVersions.length > 0) {
+        setVersions(updatedVersions);
+        // Set the latest version as selected (first item in array)
+        const latestVersion = updatedVersions[0];
+        setSelectedVersion(latestVersion.version);
+        
+        console.log(`New version created: ${latestVersion.version}`);
+      }
+
+      // Show success message
+      alert(`Changes committed successfully! New version: ${updatedVersions[0]?.version || 'unknown'}`);
+    } catch (error) {
+      console.error('Error committing changes:', error);
+      alert('Failed to commit changes. Please try again.');
+    } finally {
+      setIsCommitting(false);
+    }
+  };
+
+  const isDropdownDisabled = versions.length === 0;
 
   return (
     <Box
@@ -77,35 +210,50 @@ export default function Editor({
             <FormControl size="small" sx={{ minWidth: 150 }}>
               <Select
                 value={selectedVersion}
-                onChange={(e) => setSelectedVersion(e.target.value)}
+                onChange={(e) => handleVersionChange(e.target.value)}
+                disabled={isDropdownDisabled || isVersionsLoading}
+                displayEmpty
                 sx={{
-                  bgcolor: '#fff',
+                  bgcolor: isDropdownDisabled ? '#f3f4f6' : '#fff',
                   '& .MuiOutlinedInput-notchedOutline': {
                     borderColor: '#d1d5db',
                   },
                 }}
               >
-                {mockVersions.map((version) => (
-                  <MenuItem key={version} value={version}>
-                    {version}
+                {versions.length === 0 ? (
+                  <MenuItem value="" disabled>
+                    {isVersionsLoading ? 'Loading...' : 'No versions'}
                   </MenuItem>
-                ))}
+                ) : (
+                  versions.map((version) => (
+                    <MenuItem 
+                      key={version.version} 
+                      value={version.version}
+                    >
+                      {version.version}
+                    </MenuItem>
+                  ))
+                )}
               </Select>
             </FormControl>
 
             <Button
               variant="contained"
               onClick={handleCommit}
+              disabled={!selectedItem || !currentGraph || isCommitting}
               sx={{
                 bgcolor: '#4f46e5',
                 '&:hover': {
                   bgcolor: '#4338ca',
                 },
+                '&:disabled': {
+                  bgcolor: '#d1d5db',
+                },
                 textTransform: 'none',
                 px: 3,
               }}
             >
-              Commit Changes
+              {isCommitting ? 'Committing...' : 'Commit Changes'}
             </Button>
           </Box>
         </Box>
@@ -113,10 +261,36 @@ export default function Editor({
         {/* Editor content */}
         {selectedId && selectedItem?.type === 'file' ? (
           <Box sx={{ flex: 1, overflow: 'hidden' }}>
-            <JdmEditorComponent
-              value={selectedItem?.graph}
-              onChange={handleGraphChange}
-            />
+            {isVersionsLoading ? (
+              <Box
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#9ca3af',
+                }}
+              >
+                Loading versions...
+              </Box>
+            ) : currentGraph !== null ? (
+              <JdmEditorComponent
+                value={currentGraph}
+                onChange={handleGraphChange}
+              />
+            ) : (
+              <Box
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#9ca3af',
+                }}
+              >
+                Loading editor...
+              </Box>
+            )}
           </Box>
         ) : (
           <Box

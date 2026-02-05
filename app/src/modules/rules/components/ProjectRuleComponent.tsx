@@ -1,3 +1,5 @@
+// app/src/features/projects/components/ProjectRuleComponent.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -20,7 +22,7 @@ import SectionHeader from "app/src/core/components/SectionHeader";
 import { CreateModal } from "../../../core/components/CreateModal";
 import { rulesApi } from "app/src/api/rulesApi";
 import { projectsApi } from "app/src/api/projectsApi";
-import { RuleFile } from "../pages/types/rulesTypes";
+import { RuleFile } from "../../rules/pages/types/rulesTypes";
 
 export default function ProjectRuleComponent() {
   const { project_key } = useParams<{ project_key: string }>();
@@ -58,24 +60,28 @@ export default function ProjectRuleComponent() {
 
   /* ---------- Fetch RULES ---------- */
   const loadRules = async () => {
-    const data = await rulesApi.getProjectRules(project_key);
+    try {
+      const data = await rulesApi.getProjectRules(project_key);
 
-    setRules(
-      data.map((item: any) => ({
-        id: item.rule_key,
-        name: item.name,
-        version: "-",
-        status: item.status,
-        updatedAt: item.created_at,
-      }))
-    );
+      setRules(
+        data.map((item: any) => ({
+          id: item.rule_key,
+          name: item.name,
+          version: "-",
+          status: item.status,
+          updatedAt: item.created_at,
+        }))
+      );
+    } catch (error) {
+      console.error("Error loading rules:", error);
+    }
   };
 
   useEffect(() => {
     if (project_key) loadRules();
   }, [project_key]);
 
-  /* ---------- Menu handlers (TYPE FIX HERE) ---------- */
+  /* ---------- Menu handlers ---------- */
   const openMenu = (
     e: React.MouseEvent<HTMLElement>,
     rule: RuleFile
@@ -92,9 +98,13 @@ export default function ProjectRuleComponent() {
   /* ---------- Delete ---------- */
   const handleDelete = async () => {
     if (!menuRule) return;
-    await rulesApi.deleteRule(menuRule.id);
-    closeMenu();
-    loadRules();
+    try {
+      await rulesApi.deleteRule(menuRule.id);
+      closeMenu();
+      loadRules();
+    } catch (error) {
+      console.error("Error deleting rule:", error);
+    }
   };
 
   /* ---------- Edit ---------- */
@@ -116,9 +126,9 @@ export default function ProjectRuleComponent() {
           "&:hover": { textDecoration: "underline" },
         }}
         onClick={() => {
-          sessionStorage.setItem("activeRuleName", rule.name); 
+          sessionStorage.setItem("activeRuleName", rule.name);
+          sessionStorage.setItem("activeRuleId", rule.id);
           router.push(`/dashboard/${project_key}/rules/editor?rule=${rule.id}`);
-
         }}
       >
         {rule.name}
@@ -139,27 +149,29 @@ export default function ProjectRuleComponent() {
     ),
   }));
 
-
-
   /* ---------- Create / Update ---------- */
   const handleCreateOrUpdate = async (data: { [key: string]: string }) => {
-    if (editRule) {
-      await rulesApi.updateRule({
-        rule_key: editRule.id,
-        name: data.name,
-        description: data.description,
-        updated_by: "admin",
-      });
-      setEditRule(null);
-    } else {
-      await rulesApi.createRule({
-        project_key,
-        name: data.name,
-        description: data.description,
-      });
-    }
+    try {
+      if (editRule) {
+        await rulesApi.updateRule({
+          rule_key: editRule.id,
+          name: data.name,
+          description: data.description,
+          updated_by: "admin",
+        });
+        setEditRule(null);
+      } else {
+        await rulesApi.createRule({
+          project_key,
+          name: data.name,
+          description: data.description,
+        });
+      }
 
-    loadRules();
+      loadRules();
+    } catch (error) {
+      console.error("Error creating/updating rule:", error);
+    }
   };
 
   return (
@@ -192,7 +204,6 @@ export default function ProjectRuleComponent() {
             rows={rows}
             selectedRowIndex={selectedIndex}
             onRowClick={() => {}}
-
           />
         </Box>
 
