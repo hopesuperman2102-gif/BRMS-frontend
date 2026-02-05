@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState,useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -17,8 +17,6 @@ export type CreateModalProps = {
   onCreate: (data: { [key: string]: string }) => void;
   title?: string;
   fields?: Array<{ name: string; label: string }>;
-  initialValues?: { [key: string]: string };
-  submitLabel?: string; // NEW
 };
 
 export function CreateModal({
@@ -27,10 +25,7 @@ export function CreateModal({
   onCreate,
   title = 'Create project',
   fields = [{ name: 'name', label: 'Name' }],
-  initialValues = {},
-  submitLabel = 'Create', // DEFAULT
 }: CreateModalProps) {
-
   const [formData, setFormData] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
@@ -38,13 +33,7 @@ export function CreateModal({
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
   };
 
-  useEffect(() => {
-  if (open) {
-    setFormData(initialValues);
-  }
-}, [open, initialValues]);
-
-  const handleSubmit = async () => {
+  const handleCreate = async () => {
     // Check if all fields have values
     const hasEmptyFields = fields.some((field) => !formData[field.name]?.trim());
     if (hasEmptyFields) return;
@@ -76,11 +65,10 @@ export function CreateModal({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" disabled={loading}>
-          {loading ? `${submitLabel}...` : submitLabel}
+        <Button onClick={handleCreate} variant="contained" disabled={loading}>
+          {loading ? 'Creating...' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
- 
