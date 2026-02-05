@@ -204,8 +204,7 @@ export default function ProjectRuleComponent() {
             Delete
           </MenuItem>
         </Menu>
-
-        {/* ---------- Create / Edit Modal ---------- */}
+        
         <CreateModal
           open={openCreate || !!editRule}
           onClose={() => {
