@@ -34,7 +34,6 @@ export default function ProjectRuleComponent() {
 
   const [projectName, setProjectName] = useState<string>("");
 
-  // ✅ FIXED TYPE
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [menuRule, setMenuRule] = useState<RuleFile | null>(null);
 
@@ -108,16 +107,39 @@ export default function ProjectRuleComponent() {
   const headers = ["Rule Name", "Version", "Status", "Last updated", ""];
 
   const rows = rules.map((rule) => ({
-    "Rule Name": rule.name,
+    "Rule Name": (
+      <Typography
+        sx={{
+          color: "#4f46e5",
+          cursor: "pointer",
+          fontWeight: 500,
+          "&:hover": { textDecoration: "underline" },
+        }}
+        onClick={() => {
+          sessionStorage.setItem("activeRuleName", rule.name); 
+          router.push(`/dashboard/${project_key}/rules/editor?rule=${rule.id}`);
+
+        }}
+      >
+        {rule.name}
+      </Typography>
+    ),
     Version: rule.version,
     Status: rule.status,
     "Last updated": rule.updatedAt,
     "": (
-      <IconButton onClick={(e) => openMenu(e, rule)}>
+      <IconButton
+        onClick={(e) => {
+          e.stopPropagation();
+          openMenu(e, rule);
+        }}
+      >
         <MoreVertIcon />
       </IconButton>
     ),
   }));
+
+
 
   /* ---------- Create / Update ---------- */
   const handleCreateOrUpdate = async (data: { [key: string]: string }) => {
@@ -170,6 +192,7 @@ export default function ProjectRuleComponent() {
             rows={rows}
             selectedRowIndex={selectedIndex}
             onRowClick={() => {}}
+
           />
         </Box>
 

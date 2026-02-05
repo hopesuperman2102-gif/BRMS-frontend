@@ -2,7 +2,6 @@
 
 import { Box } from '@mui/material';
 import { RepoItem } from '../../../core/types/commonTypes';
-import ProjectTabs from '../../../core/components/ProjectTabs';
 import { EditorProps } from '../types/JdmEditorTypes';
 import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
 
@@ -23,27 +22,14 @@ export default function Editor({
     return null;
   };
 
-  const handleSelectFile = (id: number) => {
-    // This is just for tab switching, selection is handled by RepositoryPanel
-  };
-
   const handleCloseFile = (id: number) => {
     setOpenFiles((prev) => prev.filter((x) => x !== id));
   };
 
   const handleGraphChange = (value: any) => {
-    // Update the graph in your items state
-    // You'll need to implement this based on your state management
     console.log('Graph changed:', value);
   };
 
-  const handleFileNameChange = (name: string) => {
-    // Update the file name in your items state
-    // You'll need to implement this based on your state management
-    console.log('File name changed:', name);
-  };
-
-  const openedFiles = openFiles.map((id) => findItem(items, id)).filter(Boolean) as RepoItem[];
   const selectedItem = selectedId ? findItem(items, selectedId) : null;
 
   return (
@@ -55,7 +41,6 @@ export default function Editor({
         overflow: 'hidden',
       }}
     >
-      {/* Main container with border radius and overflow hidden */}
       <Box
         sx={{
           height: '100%',
@@ -67,7 +52,6 @@ export default function Editor({
           minWidth: 0,
         }}
       >
-        {/* Tabs container with constrained width */}
         <Box
           sx={{
             minWidth: 0,
@@ -75,12 +59,6 @@ export default function Editor({
             flexShrink: 0,
           }}
         >
-          <ProjectTabs
-            projects={openedFiles}
-            activeProjectId={selectedId}
-            onSelect={handleSelectFile}
-            onClose={handleCloseFile}
-          />
         </Box>
 
         {selectedId && selectedItem?.type === 'file' && (

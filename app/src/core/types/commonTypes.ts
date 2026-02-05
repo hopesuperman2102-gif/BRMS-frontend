@@ -43,6 +43,7 @@ export type ProjectTabsProps = {
 };
 
 export type RepositorySidebarProps = {
+  projectName: string;
   items: RepoItem[];
   selectedId: number | null;
   expandedFolders: Set<number>;
