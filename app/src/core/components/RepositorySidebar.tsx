@@ -2,11 +2,11 @@
 
 import { Box, Typography, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import AddIcon from '@mui/icons-material/Add';
-import RepoTree from './RepoTree';
 import { RepositorySidebarProps } from '../types/commonTypes';
+import RepoTree from './RepoTree';
 
 export default function RepositorySidebar({
+  projectName,       
   items,
   selectedId,
   expandedFolders,
@@ -39,20 +39,18 @@ export default function RepositorySidebar({
             flexShrink: 0,
           }}
         >
-          <Typography fontWeight={600}>Repository</Typography>
+          <Typography fontWeight={600}>
+            {projectName}
+          </Typography>
 
           <Box>
             <IconButton size="small">
               <SearchIcon fontSize="small" />
             </IconButton>
-
-            <IconButton size="small" onClick={(e) => onAddClick(e.currentTarget)}>
-              <AddIcon fontSize="small" />
-            </IconButton>
           </Box>
         </Box>
 
-        {/* Tree */}
+        {/* Repo tree */}
         <Box sx={{ flex: 1, overflowY: 'auto' }}>
           <RepoTree
             items={items}

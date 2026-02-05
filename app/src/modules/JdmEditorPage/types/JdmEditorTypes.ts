@@ -1,6 +1,8 @@
 import { RepoItem } from "../../../core/types/commonTypes";
 
 export type ProjectTreeProps = {
+  projectName: string;
+
   items: RepoItem[];
   setItems: React.Dispatch<React.SetStateAction<RepoItem[]>>;
   selectedId: number | null;

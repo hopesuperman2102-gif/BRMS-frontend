@@ -27,28 +27,18 @@ export default function RepoTree({
 
         return (
           <Box key={item.id}>
-            {/* Item Row */}
             <Box
               onClick={() => {
-                if (isFolder) {
-                  onToggleFolder(item.id);
-                }
+                if (isFolder) onToggleFolder(item.id);
                 onSelectItem(item);
               }}
               draggable
               onDragStart={() => onDragStart(item)}
               onDrop={(e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                if (isFolder) {
-                  onDropOnFolder(item);
-                }
+                if (isFolder) onDropOnFolder(item);
               }}
-              onDragOver={(e) => {
-                if (isFolder) {
-                  e.preventDefault();
-                }
-              }}
+              onDragOver={(e) => isFolder && e.preventDefault()}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -59,49 +49,24 @@ export default function RepoTree({
                 cursor: 'pointer',
                 bgcolor: isSelected ? '#eef2ff' : 'transparent',
                 borderLeft: isSelected ? '2px solid #6366f1' : '2px solid transparent',
-                '&:hover': {
-                  bgcolor: isSelected ? '#eef2ff' : '#f8fafc',
-                },
+                '&:hover': { bgcolor: '#f8fafc' },
               }}
             >
-              {/* Expand/Collapse Icon */}
               {isFolder && (
-                <Box sx={{ width: 16, height: 16, display: 'flex', alignItems: 'center' }}>
-                  {isExpanded ? (
-                    <ExpandMoreIcon sx={{ fontSize: 16, color: '#6b7280' }} />
-                  ) : (
-                    <ChevronRightIcon sx={{ fontSize: 16, color: '#6b7280' }} />
-                  )}
+                <Box sx={{ width: 16 }}>
+                  {isExpanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                 </Box>
               )}
 
-              {/* Icon */}
-              <Box sx={{ display: 'flex', alignItems: 'center', ml: isFolder ? 0 : 2 }}>
-                {isFolder ? (
-                  isExpanded ? (
-                    <FolderOpenIcon sx={{ fontSize: 18, color: '#f59e0b' }} />
-                  ) : (
-                    <FolderIcon sx={{ fontSize: 18, color: '#f59e0b' }} />
-                  )
-                ) : (
-                  <InsertDriveFileIcon sx={{ fontSize: 18, color: '#6b7280' }} />
-                )}
-              </Box>
+              {isFolder ? (
+                isExpanded ? <FolderOpenIcon /> : <FolderIcon />
+              ) : (
+                <InsertDriveFileIcon />
+              )}
 
-              {/* Name */}
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  fontWeight: isSelected ? 500 : 400,
-                  color: isSelected ? '#4f46e5' : '#111827',
-                  userSelect: 'none',
-                }}
-              >
-                {item.name}
-              </Typography>
+              <Typography fontSize={13}>{item.name}</Typography>
             </Box>
 
-            {/* Children */}
             {isFolder && isExpanded && item.children && (
               <RepoTree
                 items={item.children}
