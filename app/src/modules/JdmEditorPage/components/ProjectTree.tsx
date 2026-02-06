@@ -22,7 +22,6 @@ import { rulesApi } from "app/src/api/rulesApi";
 import { projectsApi } from "app/src/api/projectsApi";
 import { RuleFile } from "../../rules/pages/types/rulesTypes";
 
-
 export default function ProjectRuleComponent() {
   const { project_key } = useParams<{ project_key: string }>();
   const router = useRouter();
@@ -59,28 +58,29 @@ export default function ProjectRuleComponent() {
 
   /* ---------- Fetch RULES ---------- */
   const loadRules = async () => {
-    const data = await rulesApi.getProjectRules(project_key);
+    try {
+      const data = await rulesApi.getProjectRules(project_key);
 
-    setRules(
-      data.map((item: any) => ({
-        id: item.rule_key,
-        name: item.name,
-        version: "-",
-        status: item.status,
-        updatedAt: item.created_at,
-      }))
-    );
+      setRules(
+        data.map((item: any) => ({
+          id: item.rule_key,
+          name: item.name,
+          version: "-",
+          status: item.status,
+          updatedAt: item.created_at,
+        }))
+      );
+    } catch (error) {
+      console.error("Error loading rules:", error);
+    }
   };
 
   useEffect(() => {
     if (project_key) loadRules();
   }, [project_key]);
 
-  /* ---------- Menu handlers (TYPE FIX HERE) ---------- */
-  const openMenu = (
-    e: React.MouseEvent<HTMLElement>,
-    rule: RuleFile
-  ) => {
+  /* ---------- Menu handlers ---------- */
+  const openMenu = (e: React.MouseEvent<HTMLElement>, rule: RuleFile) => {
     setAnchorEl(e.currentTarget);
     setMenuRule(rule);
   };
@@ -93,9 +93,13 @@ export default function ProjectRuleComponent() {
   /* ---------- Delete ---------- */
   const handleDelete = async () => {
     if (!menuRule) return;
-    await rulesApi.deleteRule(menuRule.id);
-    closeMenu();
-    loadRules();
+    try {
+      await rulesApi.deleteRule(menuRule.id);
+      closeMenu();
+      loadRules();
+    } catch (error) {
+      console.error("Error deleting rule:", error);
+    }
   };
 
   /* ---------- Edit ---------- */
@@ -118,7 +122,7 @@ export default function ProjectRuleComponent() {
         }}
         onClick={() => {
           sessionStorage.setItem("activeRuleName", rule.name);
-          sessionStorage.setItem("activeRuleId", rule.id); // ADDED THIS LINE
+          sessionStorage.setItem("activeRuleId", rule.id);
           router.push(`/dashboard/${project_key}/rules/editor`);
         }}
       >
@@ -140,27 +144,52 @@ export default function ProjectRuleComponent() {
     ),
   }));
 
-
-
   /* ---------- Create / Update ---------- */
-  const handleCreateOrUpdate = async (data: { [key: string]: string }) => {
-    if (editRule) {
-      await rulesApi.updateRule({
-        rule_key: editRule.id,
-        name: data.name,
-        description: data.description,
-        updated_by: "admin",
-      });
-      setEditRule(null);
-    } else {
-      await rulesApi.createRule({
-        project_key,
-        name: data.name,
-        description: data.description,
-      });
-    }
+  const handleCreateOrUpdate = async (
+    data: { [key: string]: string }
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (editRule) {
+        // Update existing rule
+        await rulesApi.updateRule({
+          rule_key: editRule.id,
+          name: data.name,
+          description: data.description,
+          updated_by: "admin",
+        });
+        setEditRule(null);
+        loadRules();
+        return { success: true };
+      } else {
+        // Check for duplicate rule name before creating
+        const existingRules = await rulesApi.getProjectRules(project_key);
+        const nameExists = existingRules.some(
+          (r: any) => r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
+        );
 
-    loadRules();
+        if (nameExists) {
+          return {
+            success: false,
+            error: "Rule name already exists. Please use a different name.",
+          };
+        }
+
+        // Create new rule
+        await rulesApi.createRule({
+          project_key,
+          name: data.name,
+          description: data.description,
+        });
+        loadRules();
+        return { success: true };
+      }
+    } catch (error: any) {
+      console.error("Error in handleCreateOrUpdate:", error);
+      return {
+        success: false,
+        error: error.message || "An error occurred",
+      };
+    }
   };
 
   return (
@@ -193,7 +222,6 @@ export default function ProjectRuleComponent() {
             rows={rows}
             selectedRowIndex={selectedIndex}
             onRowClick={() => {}}
-
           />
         </Box>
 
@@ -204,7 +232,7 @@ export default function ProjectRuleComponent() {
             Delete
           </MenuItem>
         </Menu>
-        
+
         <CreateModal
           open={openCreate || !!editRule}
           onClose={() => {

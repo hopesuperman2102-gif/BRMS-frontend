@@ -31,7 +31,7 @@ export const projectsApi = {
   },
 
   // Get all projects
-    getProjectsView: async () => {
+  getProjectsView: async () => {
     const response = await fetch(`${API_BASE_URL}/projects/view/active`, {
       method: 'GET',
       headers: {
@@ -72,31 +72,43 @@ export const projectsApi = {
 
   // Update Project Details
   updateProject: async (
-  project_key: string,
-  data: {
-    name: string;
-    description?: string;
-    domain?: string;
-  }
-) => {
-  const response = await fetch(`${API_BASE_URL}/projects/update`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      project_key,    
-      ...data,
-      updated_by: 'admin',
-    }),
-  });
+    project_key: string,
+    data: {
+      name: string;
+      description?: string;
+      domain?: string;
+    }
+  ) => {
+    const response = await fetch(`${API_BASE_URL}/projects/update`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        project_key,
+        ...data,
+        updated_by: 'admin',
+      }),
+    });
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.detail || 'Failed to update project');
-  }
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.detail || 'Failed to update project');
+    }
 
-  return response.json();
-  }
+    return response.json();
+  },
 
+  // Check if project name exists
+  checkProjectNameExists: async (name: string): Promise<boolean> => {
+    try {
+      const projects = await projectsApi.getProjectsView();
+      return projects.some(
+        (p: any) => p.name.toLowerCase().trim() === name.toLowerCase().trim()
+      );
+    } catch (error) {
+      console.error('Error checking project name:', error);
+      throw error;
+    }
+  },
 };

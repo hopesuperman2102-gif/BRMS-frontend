@@ -150,9 +150,12 @@ export default function ProjectRuleComponent() {
   }));
 
   /* ---------- Create / Update ---------- */
-  const handleCreateOrUpdate = async (data: { [key: string]: string }) => {
+  const handleCreateOrUpdate = async (
+    data: { [key: string]: string }
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       if (editRule) {
+        // Update existing rule
         await rulesApi.updateRule({
           rule_key: editRule.id,
           name: data.name,
@@ -160,17 +163,37 @@ export default function ProjectRuleComponent() {
           updated_by: "admin",
         });
         setEditRule(null);
+        loadRules();
+        return { success: true };
       } else {
+        // Check for duplicate rule name before creating
+        const existingRules = await rulesApi.getProjectRules(project_key);
+        const nameExists = existingRules.some(
+          (r: any) => r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
+        );
+
+        if (nameExists) {
+          return {
+            success: false,
+            error: "Rule name already exists. Please use a different name.",
+          };
+        }
+
+        // Create new rule
         await rulesApi.createRule({
           project_key,
           name: data.name,
           description: data.description,
         });
+        loadRules();
+        return { success: true };
       }
-
-      loadRules();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating/updating rule:", error);
+      return {
+        success: false,
+        error: error.message || "An error occurred",
+      };
     }
   };
 

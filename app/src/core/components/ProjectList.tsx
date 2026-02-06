@@ -61,24 +61,49 @@ export default function ProjectListCard() {
     fetchProjects();
   }, []);
 
-  const handleCreateOrUpdate = async (data: { [key: string]: string }) => {
-    if (editProject) {
-      await projectsApi.updateProject(editProject.project_key, {
-        name: data.name,
-        description: data.description,
-        domain: data.domain,
-      });
+  const handleCreateOrUpdate = async (
+    data: { [key: string]: string }
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (editProject) {
+        // Update existing project
+        await projectsApi.updateProject(editProject.project_key, {
+          name: data.name,
+          description: data.description,
+          domain: data.domain,
+        });
 
-      setEditProject(null);
-      fetchProjects(); // 👈 see next fix
-    } else {
-      const response = await projectsApi.createProject({
-        name: data.name,
-        description: data.description,
-        domain: data.domain,
-      });
+        setEditProject(null);
+        await fetchProjects();
+        return { success: true };
+      } else {
+        // Check for duplicate name before creating
+        const nameExists = await projectsApi.checkProjectNameExists(data.name);
 
-      setProjects((prev) => [response.project, ...prev]);
+        if (nameExists) {
+          // Return error to show under input field
+          return { 
+            success: false, 
+            error: "Project name already exists. Please use a different name." 
+          };
+        }
+
+        // Create new project
+        const response = await projectsApi.createProject({
+          name: data.name,
+          description: data.description,
+          domain: data.domain,
+        });
+
+        await fetchProjects();
+        return { success: true };
+      }
+    } catch (error: any) {
+      console.error("Error in handleCreateOrUpdate:", error);
+      return { 
+        success: false, 
+        error: error.message || "An error occurred" 
+      };
     }
   };
 
@@ -106,7 +131,7 @@ export default function ProjectListCard() {
         prev.filter((p) => p.project_key !== selectedProject.project_key),
       );
       handleMenuClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting project:", error);
     }
   };
@@ -222,7 +247,7 @@ export default function ProjectListCard() {
           setEditProject(null);
         }}
         onCreate={handleCreateOrUpdate}
-        title={editProject ? "Edit Project" : "Create Rule"}
+        title={editProject ? "Edit Project" : "Create Project"}
         fields={[
           { name: "name", label: "Project Name" },
           { name: "description", label: "Description" },
