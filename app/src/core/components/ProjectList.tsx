@@ -17,83 +17,104 @@ import {
   Box,
   Typography,
   Button,
-  IconButton,
   CircularProgress,
+  Menu,
+  MenuItem,
 } from "@mui/material";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { CreateModal } from "./CreateModal";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import IconButton from "@mui/material/IconButton";
 import { projectsApi } from "app/src/api/projectsApi";
 
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [openModal, setOpenModal] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [editProject, setEditProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await projectsApi.getProjectsView();
+
+      const projectsFromApi: Project[] = response.map((p: any) => ({
+        id: p.id,
+        project_key: p.project_key,
+        name: p.name,
+        description: p.description,
+        domain: p.domain,
+        updatedAt: new Date(p.updated_at || p.created_at).toLocaleString(),
+      }));
+
+      setProjects(projectsFromApi);
+    } catch (error) {
+      console.error("Failed to load projects:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
-        const response = await projectsApi.getProjectsView();
-
-        const projectsFromApi: Project[] = response.map((p: any) => ({
-          id: p.id,
-          project_key: p.project_key,
-          name: p.name,
-          description: p.description,
-          domain: p.domain,
-          updatedAt: new Date(
-            p.updated_at || p.created_at
-          ).toLocaleString(),
-        }));
-
-        setProjects(projectsFromApi);
-      } catch (error) {
-        console.error("Failed to load projects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProjects();
   }, []);
 
-  const handleCreateProject = async (data: { [key: string]: string }) => {
-    try {
+  const handleCreateOrUpdate = async (data: { [key: string]: string }) => {
+    if (editProject) {
+      await projectsApi.updateProject(editProject.project_key, {
+        name: data.name,
+        description: data.description,
+        domain: data.domain,
+      });
+
+      setEditProject(null);
+      fetchProjects(); // 👈 see next fix
+    } else {
       const response = await projectsApi.createProject({
         name: data.name,
         description: data.description,
         domain: data.domain,
       });
 
-      const newProject = response.project;
-
-      const projectToAdd: Project = {
-        id: newProject.id,
-        project_key: newProject.project_key,
-        name: newProject.name,
-        description: data.description,
-        domain: data.domain,
-        updatedAt: new Date(newProject.created_at).toLocaleString(),
-      };
-
-      setProjects((prev) => [projectToAdd, ...prev]);
-    } catch (error) {
-      console.error("Error creating project:", error);
+      setProjects((prev) => [response.project, ...prev]);
     }
   };
 
-  const handleDelete = async (projectKey: string) => {
-    try {
-      await projectsApi.deleteProject(projectKey);
+  /* ---------- Menu handlers ---------- */
 
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    project: Project,
+  ) => {
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedProject(project);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedProject(null);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedProject) return;
+
+    try {
+      await projectsApi.deleteProject(selectedProject.project_key);
       setProjects((prev) =>
-        prev.filter((p) => p.project_key !== projectKey)
+        prev.filter((p) => p.project_key !== selectedProject.project_key),
       );
+      handleMenuClose();
     } catch (error) {
       console.error("Error deleting project:", error);
     }
+  };
+
+  const handleEdit = () => {
+    if (!selectedProject) return;
+    setEditProject(selectedProject);
+    handleMenuClose();
   };
 
   const handleOpenProject = (project: Project) => {
@@ -172,33 +193,36 @@ export default function ProjectListCard() {
                     Last updated {project.updatedAt}
                   </Typography>
                 </Box>
-
-                <Box>
-                  <Button
-                    size="small"
-                    startIcon={<OpenInNewIcon />}
-                    onClick={() => handleOpenProject(project)}
-                  >
-                    Open
-                  </Button>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDelete(project.project_key)}
-                  >
-                    <DeleteOutlineIcon />
-                  </IconButton>
-                </Box>
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleMenuOpen(e, project)}
+                >
+                  <MoreVertIcon fontSize="small" />
+                </IconButton>
               </Box>
             ))
           )}
         </CardContent>
       </Card>
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleEdit}>Edit</MenuItem>
+        <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+          Delete
+        </MenuItem>
+      </Menu>
 
       <CreateModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        onCreate={handleCreateProject}
-        title="Create New Project"
+        open={openModal || !!editProject}
+        onClose={() => {
+          setOpenModal(false);
+          setEditProject(null);
+        }}
+        onCreate={handleCreateOrUpdate}
+        title={editProject ? "Edit Project" : "Create Rule"}
         fields={[
           { name: "name", label: "Project Name" },
           { name: "description", label: "Description" },
