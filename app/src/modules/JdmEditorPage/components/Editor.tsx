@@ -1,5 +1,3 @@
-// app/src/features/rules/pages/Editor.tsx
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,6 +6,7 @@ import { RepoItem } from '../../../core/types/commonTypes';
 import { EditorProps } from '../types/JdmEditorTypes';
 import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
 import { ruleVersionsApi, RuleVersion } from 'app/src/api/ruleVersionsApi';
+import { useAlertStore } from '../../../core/components/Alert';
 
 export default function Editor({
   items,
@@ -18,6 +17,7 @@ export default function Editor({
   const [currentGraph, setCurrentGraph] = useState<any>(null);
   const [isVersionsLoading, setIsVersionsLoading] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
+  const { showAlert } = useAlertStore();
 
   const findItem = (list: RepoItem[], id: number): RepoItem | null => {
     for (const i of list) {
@@ -82,6 +82,7 @@ export default function Editor({
         }
       } catch (error) {
         console.error('Error fetching versions:', error);
+        showAlert('Error fetching versions', 'error');
         // If API fails, show empty editor
         setVersions([]);
         setSelectedVersion('');
@@ -118,7 +119,7 @@ export default function Editor({
       }
     } catch (error) {
       console.error('Error loading version data:', error);
-      alert('Failed to load version data');
+      showAlert('Failed to load version data', 'error');
     }
   };
 
@@ -129,6 +130,7 @@ export default function Editor({
   const handleCommit = async () => {
     if (!selectedItem || !currentGraph) {
       console.error('No item selected or no graph data');
+      showAlert('No item selected or no graph data', 'error');
       return;
     }
 
@@ -154,13 +156,14 @@ export default function Editor({
         setSelectedVersion(latestVersion.version);
         
         console.log(`New version created: ${latestVersion.version}`);
+        
+        showAlert(`Changes committed successfully! New version: ${latestVersion.version}`, 'success');
+      } else {
+        showAlert('Changes committed successfully!', 'success');
       }
-
-      // Show success message
-      alert(`Changes committed successfully! New version: ${updatedVersions[0]?.version || 'unknown'}`);
     } catch (error) {
       console.error('Error committing changes:', error);
-      alert('Failed to commit changes. Please try again.');
+      showAlert('Failed to commit changes. Please try again.', 'error');
     } finally {
       setIsCommitting(false);
     }
@@ -188,7 +191,7 @@ export default function Editor({
           minWidth: 0,
         }}
       >
-        {/* Top bar with file name (left) and dropdown + commit button (right) */}
+        {/* Top bar with rule name and dropdown + commit button */}
         <Box
           sx={{
             display: 'flex',
@@ -200,7 +203,6 @@ export default function Editor({
             flexShrink: 0,
           }}
         >
-          {/* Left side - File name */}
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             {selectedItem ? selectedItem.name : 'Select a file'}
           </Typography>
