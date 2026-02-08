@@ -58,6 +58,7 @@ export default function ProjectRuleComponent() {
 
   /* ---------- Fetch RULES ---------- */
   const loadRules = async () => {
+    if (!project_key) return;
     try {
       const data = await rulesApi.getProjectRules(project_key);
 
@@ -148,6 +149,9 @@ export default function ProjectRuleComponent() {
   const handleCreateOrUpdate = async (
     data: { [key: string]: string }
   ): Promise<{ success: boolean; error?: string }> => {
+    if (!project_key) {
+      return { success: false, error: "Project key is missing" };
+    }
     try {
       if (editRule) {
         // Update existing rule

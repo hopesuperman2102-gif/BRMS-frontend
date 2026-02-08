@@ -58,6 +58,7 @@ export default function ProjectRuleComponent() {
 
   /* ---------- Fetch RULES ---------- */
   const loadRules = async () => {
+    if (!project_key) return;
     try {
       const data = await rulesApi.getProjectRules(project_key);
 
@@ -124,6 +125,7 @@ export default function ProjectRuleComponent() {
           "&:hover": { textDecoration: "underline" },
         }}
         onClick={() => {
+          if (!project_key) return;
           sessionStorage.setItem("activeRuleName", rule.name);
           sessionStorage.setItem("activeRuleId", rule.id);
           navigate(`/dashboard/${project_key}/rules/editor?rule=${rule.id}`);
@@ -151,6 +153,9 @@ export default function ProjectRuleComponent() {
   const handleCreateOrUpdate = async (
     data: { [key: string]: string }
   ): Promise<{ success: boolean; error?: string }> => {
+    if (!project_key) {
+      return { success: false, error: "Project key is missing" };
+    }
     try {
       // Check for duplicate rule name
       const existingRules = await rulesApi.getProjectRules(project_key);
