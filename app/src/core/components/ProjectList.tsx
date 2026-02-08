@@ -66,6 +66,21 @@ export default function ProjectListCard() {
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       if (editProject) {
+        // When editing: check if name exists in OTHER projects (not the current one)
+        const allProjects = await projectsApi.getProjectsView();
+        const nameExistsInOtherProject = allProjects.some(
+          (p: any) => 
+            p.project_key !== editProject.project_key && 
+            p.name.toLowerCase().trim() === data.name.toLowerCase().trim()
+        );
+
+        if (nameExistsInOtherProject) {
+          return { 
+            success: false, 
+            error: "Project name already exists. Please use a different name." 
+          };
+        }
+
         // Update existing project
         await projectsApi.updateProject(editProject.project_key, {
           name: data.name,
@@ -77,11 +92,10 @@ export default function ProjectListCard() {
         await fetchProjects();
         return { success: true };
       } else {
-        // Check for duplicate name before creating
+        // When creating: check if name exists in ANY project
         const nameExists = await projectsApi.checkProjectNameExists(data.name);
 
         if (nameExists) {
-          // Return error to show under input field
           return { 
             success: false, 
             error: "Project name already exists. Please use a different name." 
@@ -89,7 +103,7 @@ export default function ProjectListCard() {
         }
 
         // Create new project
-        const response = await projectsApi.createProject({
+        await projectsApi.createProject({
           name: data.name,
           description: data.description,
           domain: data.domain,

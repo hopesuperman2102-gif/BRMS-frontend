@@ -1,5 +1,3 @@
-// app/src/features/projects/components/ProjectRuleComponent.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -154,7 +152,24 @@ export default function ProjectRuleComponent() {
     data: { [key: string]: string }
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      // Check for duplicate rule name
+      const existingRules = await rulesApi.getProjectRules(project_key);
+      
       if (editRule) {
+        // When editing: check if name exists in OTHER rules 
+        const nameExistsInOtherRule = existingRules.some(
+          (r: any) => 
+            r.rule_key !== editRule.id && 
+            r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
+        );
+
+        if (nameExistsInOtherRule) {
+          return {
+            success: false,
+            error: "Rule name already exists. Please use a different name.",
+          };
+        }
+
         // Update existing rule
         await rulesApi.updateRule({
           rule_key: editRule.id,
@@ -166,8 +181,7 @@ export default function ProjectRuleComponent() {
         loadRules();
         return { success: true };
       } else {
-        // Check for duplicate rule name before creating
-        const existingRules = await rulesApi.getProjectRules(project_key);
+        // When creating: check if name exists in ANY rule
         const nameExists = existingRules.some(
           (r: any) => r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
         );

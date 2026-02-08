@@ -1,9 +1,7 @@
-// app/src/features/rules/pages/JdmEditorWithSimulator.tsx
-
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Box } from '@mui/material';
 import AlertComponent from '../../../core/components/Alert';
 import { RepoItem } from '../../../core/types/commonTypes';
@@ -15,6 +13,7 @@ import RepositorySidebar from 'app/src/core/components/RepositorySidebar';
 export default function JdmEditorWithSimulator() {
   const { project_key } = useParams<{ project_key: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [items, setItems] = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -60,13 +59,17 @@ export default function JdmEditorWithSimulator() {
 
         setItems(treeItems);
 
-        // Auto-select rule from sessionStorage
-        const storedRuleId = sessionStorage.getItem('activeRuleId');
-        if (storedRuleId) {
-          const foundRule = treeItems.find((item) => String(item.id) === storedRuleId);
+        // Check URL parameter first, then sessionStorage
+        const ruleFromUrl = searchParams.get('rule');
+        const ruleIdToSelect = ruleFromUrl || sessionStorage.getItem('activeRuleId');
+        
+        if (ruleIdToSelect) {
+          const foundRule = treeItems.find((item) => String(item.id) === ruleIdToSelect);
           if (foundRule) {
             setSelectedId(foundRule.id);
             setOpenFiles([foundRule.id]);
+            sessionStorage.setItem('activeRuleId', String(foundRule.id));
+            sessionStorage.setItem('activeRuleName', foundRule.name);
           }
         }
       } catch (error) {
@@ -75,7 +78,7 @@ export default function JdmEditorWithSimulator() {
     };
 
     fetchRules();
-  }, [project_key]);
+  }, [project_key, searchParams]);
 
   const handleSelectItem = (item: RepoItem) => {
     if (item.type === 'file') {
@@ -86,6 +89,11 @@ export default function JdmEditorWithSimulator() {
       // Store in sessionStorage
       sessionStorage.setItem('activeRuleId', String(item.id));
       sessionStorage.setItem('activeRuleName', item.name);
+      
+      // Update URL with rule parameter
+      router.push(`/dashboard/${project_key}/rules/editor?rule=${item.id}`, {
+        scroll: false,
+      });
     }
   };
 
