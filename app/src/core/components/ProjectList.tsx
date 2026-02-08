@@ -10,7 +10,7 @@ export type Project = {
 };
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -33,7 +33,7 @@ export default function ProjectListCard() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const fetchProjects = async () => {
     try {
@@ -157,7 +157,7 @@ export default function ProjectListCard() {
   };
 
   const handleOpenProject = (project: Project) => {
-    router.push(`/dashboard/${project.project_key}/rules`);
+    navigate(`/dashboard/${project.project_key}/rules`);
   };
 
   return (

@@ -1,0 +1,18 @@
+import { ReactNode } from 'react';
+
+export enum Layout {
+  MAIN = 'main',
+  AUTH = 'auth',
+  NONE = 'none',
+}
+
+export type AppRoute = {
+  path: string;
+  element?: React.ComponentType<any> | ReactNode;
+  layout?: Layout | string;
+  children?: AppRoute[];
+  metadata?: {
+    title?: string;
+    description?: string;
+  };
+};

@@ -2,6 +2,7 @@
 
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
+import AppRouter from './src/core/components/AppRouter';
 
 export default function Providers({
   children,
@@ -11,7 +12,7 @@ export default function Providers({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {children}
+      <AppRouter />
     </ThemeProvider>
   );
 }

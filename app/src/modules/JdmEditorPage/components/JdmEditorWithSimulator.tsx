@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 import AlertComponent from '../../../core/components/Alert';
 import { RepoItem } from '../../../core/types/commonTypes';
@@ -12,8 +12,8 @@ import RepositorySidebar from 'app/src/core/components/RepositorySidebar';
 
 export default function JdmEditorWithSimulator() {
   const { project_key } = useParams<{ project_key: string }>();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [items, setItems] = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -91,8 +91,8 @@ export default function JdmEditorWithSimulator() {
       sessionStorage.setItem('activeRuleName', item.name);
       
       // Update URL with rule parameter
-      router.push(`/dashboard/${project_key}/rules/editor?rule=${item.id}`, {
-        scroll: false,
+      navigate(`/dashboard/${project_key}/rules/editor?rule=${item.id}`, {
+        replace: true,
       });
     }
   };

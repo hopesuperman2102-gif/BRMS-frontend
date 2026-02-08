@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
@@ -24,7 +24,7 @@ import { RuleFile } from "../../rules/pages/types/rulesTypes";
 
 export default function ProjectRuleComponent() {
   const { project_key } = useParams<{ project_key: string }>();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const [rules, setRules] = useState<RuleFile[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -126,7 +126,7 @@ export default function ProjectRuleComponent() {
         onClick={() => {
           sessionStorage.setItem("activeRuleName", rule.name);
           sessionStorage.setItem("activeRuleId", rule.id);
-          router.push(`/dashboard/${project_key}/rules/editor?rule=${rule.id}`);
+          navigate(`/dashboard/${project_key}/rules/editor?rule=${rule.id}`);
         }}
       >
         {rule.name}
