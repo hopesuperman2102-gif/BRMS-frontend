@@ -2,6 +2,7 @@
 
 import { Box, Typography, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { RepositorySidebarProps } from '../types/commonTypes';
 import RepoTree from './RepoTree';
 
@@ -15,6 +16,7 @@ export default function RepositorySidebar({
   onAddClick,
   onDragStart,
   onDropOnFolder,
+  onBackClick,
 }: RepositorySidebarProps) {
   return (
     <Box sx={{ width: 280, height: '100vh', p: 1.5, bgcolor: '#e5e9f7' }}>
@@ -39,9 +41,22 @@ export default function RepositorySidebar({
             flexShrink: 0,
           }}
         >
-          <Typography fontWeight={600}>
-            {projectName}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {onBackClick && (
+              <IconButton
+                size="small"
+                onClick={onBackClick}
+                sx={{
+                  '&:hover': { bgcolor: 'grey.100' },
+                }}
+              >
+                <ArrowBackIcon fontSize="small" />
+              </IconButton>
+            )}
+            <Typography fontWeight={600}>
+              {projectName}
+            </Typography>
+          </Box>
 
           <Box>
             <IconButton size="small">

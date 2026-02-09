@@ -126,6 +126,11 @@ export default function JdmEditorWithSimulator() {
         onAddClick={() => {}}
         onDragStart={handleDragStart}
         onDropOnFolder={handleDropOnFolder}
+        onBackClick={() => {
+          if (project_key) {
+            navigate(`/dashboard/${project_key}/rules`);
+          }
+        }}
       />
 
       <Editor

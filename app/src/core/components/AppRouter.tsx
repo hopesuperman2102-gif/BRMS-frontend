@@ -8,6 +8,7 @@ import type { AppRoute } from '../types/routeTypes';
 import { Layout } from '../types/routeTypes';
 
 // Import route definitions from modules
+import '../../modules/auth/routes';
 import '../../modules/dashboard/routes';
 import '../../modules/rules/routes';
 import '../../modules/JdmEditorPage/routes';

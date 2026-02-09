@@ -14,6 +14,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import CdfTable from "../../../core/components/CdfTable";
 import SectionHeader from "app/src/core/components/SectionHeader";
@@ -221,17 +222,27 @@ export default function ProjectRuleComponent() {
       <CardContent>
         <SectionHeader
           left={
-            <Typography variant="h6">
-              {projectName ? (
-                projectName
-              ) : (
-                <Skeleton
-                  variant="text"
-                  width={120}
-                  sx={{ display: "inline-block" }}
-                />
-              )}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <IconButton
+                onClick={() => navigate("/dashboard")}
+                sx={{
+                  "&:hover": { bgcolor: "grey.100" },
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <Typography variant="h6">
+                {projectName ? (
+                  projectName
+                ) : (
+                  <Skeleton
+                    variant="text"
+                    width={120}
+                    sx={{ display: "inline-block" }}
+                  />
+                )}
+              </Typography>
+            </Box>
           }
           right={
             <Button variant="contained" onClick={() => setOpenCreate(true)}>
