@@ -42,7 +42,7 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
             <Chip
               label={`TOTAL RULES: ${totalRules.toLocaleString()}`}
               sx={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',
                 color: 'white',
                 fontWeight: 700,
                 px: 2,

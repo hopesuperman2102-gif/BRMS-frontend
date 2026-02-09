@@ -72,11 +72,11 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
             py: 2.5,
             fontSize: '1.1rem',
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',
             boxShadow: 3,
             '&:hover': {
               boxShadow: 6,
-              background: 'linear-gradient(135deg, #5568d3 0%, #6a3f94 100%)',
+              background: 'linear-gradient(135deg, #5443B8 0%, #14192F 100%)',
             }
           }}
         >

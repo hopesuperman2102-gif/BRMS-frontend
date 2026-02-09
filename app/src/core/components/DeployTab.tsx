@@ -98,7 +98,7 @@ const DeployTab = () => {
             </Typography>
           </GlassCard>
 
-          <GlassCard sx={{ flex: 1, p: 3, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
+          <GlassCard sx={{ flex: 1, p: 3, background: "linear-gradient(135deg, #6552D0 0%, #17203D 100%)" }}>
             <Typography variant="h6" sx={{ color: "#fff", fontWeight: 700 }}>
               Quick Action
             </Typography>
@@ -110,7 +110,7 @@ const DeployTab = () => {
               fullWidth 
               sx={{ 
                 bgcolor: "#fff", 
-                color: "#764ba2", 
+                color: "#6552D0", 
                 fontWeight: 700,
                 borderRadius: "10px",
                 py: 1.5,

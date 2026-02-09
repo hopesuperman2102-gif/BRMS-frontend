@@ -7,6 +7,7 @@ import { EditorProps } from '../types/JdmEditorTypes';
 import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
 import { ruleVersionsApi, RuleVersion } from 'app/src/api/ruleVersionsApi';
 import { useAlertStore } from '../../../core/components/Alert';
+import { brmsTheme } from '../../../core/theme/brmsTheme';
 
 export default function Editor({
   items,
@@ -175,17 +176,15 @@ export default function Editor({
     <Box
       sx={{
         flex: 1,
-        p: 1.5,
         minWidth: 0,
         overflow: 'hidden',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(20px)',
       }}
     >
       <Box
         sx={{
           height: '100%',
-          bgcolor: '#fff',
-          borderRadius: 2,
-          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           minWidth: 0,
@@ -197,13 +196,27 @@ export default function Editor({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            px: 2,
-            py: 0.2,
-            borderBottom: '1px solid #e5e7eb',
+            px: 2.5,
+            py: 1.8,
+            background: 'linear-gradient(135deg, rgba(101, 82, 208, 0.05) 0%, rgba(23, 32, 61, 0.02) 50%, rgba(255, 255, 255, 0.9) 100%)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
             flexShrink: 0,
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.02)',
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 700,
+              background: brmsTheme.gradients.primary,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontSize: '1.1rem',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+            }}
+          >
             {selectedItem ? selectedItem.name : 'Select a file'}
           </Typography>
 
@@ -216,9 +229,18 @@ export default function Editor({
                 disabled={isDropdownDisabled || isVersionsLoading}
                 displayEmpty
                 sx={{
-                  bgcolor: isDropdownDisabled ? '#f3f4f6' : '#fff',
+                  bgcolor: isDropdownDisabled ? '#f3f4f6' : 'rgba(255, 255, 255, 0.9)',
+                  borderRadius: 2,
+                  backdropFilter: 'blur(20px)',
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#d1d5db',
+                    borderColor: 'rgba(101, 82, 208, 0.2)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(101, 82, 208, 0.4)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: brmsTheme.colors.primary,
+                    borderWidth: '2px',
                   },
                 }}
               >
@@ -244,15 +266,22 @@ export default function Editor({
               onClick={handleCommit}
               disabled={!selectedItem || !currentGraph || isCommitting}
               sx={{
-                bgcolor: '#4f46e5',
+                background: brmsTheme.gradients.primary,
+                boxShadow: brmsTheme.shadows.primarySoft,
+                borderRadius: 2,
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  bgcolor: '#4338ca',
+                  boxShadow: brmsTheme.shadows.primaryHover,
+                  background: brmsTheme.gradients.primaryHover,
+                  transform: 'translateY(-1px)',
                 },
                 '&:disabled': {
-                  bgcolor: '#d1d5db',
+                  background: '#d1d5db',
+                  boxShadow: 'none',
                 },
                 textTransform: 'none',
                 px: 3,
+                fontWeight: 700,
               }}
             >
               {isCommitting ? 'Committing...' : 'Commit Changes'}

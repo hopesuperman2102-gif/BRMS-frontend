@@ -44,12 +44,21 @@ export default function RepoTree({
                 alignItems: 'center',
                 gap: 0.5,
                 px: 1.5,
-                py: 0.75,
+                py: 0.85,
                 pl: 1.5 + depth * 1.5,
                 cursor: 'pointer',
-                bgcolor: isSelected ? '#eef2ff' : 'transparent',
-                borderLeft: isSelected ? '2px solid #6366f1' : '2px solid transparent',
-                '&:hover': { bgcolor: '#f8fafc' },
+                bgcolor: isSelected 
+                  ? 'linear-gradient(90deg, rgba(101, 82, 208, 0.1) 0%, rgba(23, 32, 61, 0.05) 100%)' 
+                  : 'transparent',
+                borderLeft: isSelected ? '3px solid #6552D0' : '3px solid transparent',
+                borderRadius: 2,
+                transition: 'all 0.2s ease',
+                '&:hover': { 
+                  bgcolor: isSelected 
+                    ? 'linear-gradient(90deg, rgba(101, 82, 208, 0.15) 0%, rgba(23, 32, 61, 0.08) 100%)' 
+                    : 'rgba(101, 82, 208, 0.05)',
+                  transform: 'translateX(2px)',
+                },
               }}
             >
               {isFolder && (
@@ -64,7 +73,15 @@ export default function RepoTree({
                 <InsertDriveFileIcon />
               )}
 
-              <Typography fontSize={13}>{item.name}</Typography>
+              <Typography 
+                fontSize={13}
+                sx={{
+                  fontWeight: isSelected ? 600 : 400,
+                  color: isSelected ? '#6552D0' : '#475569',
+                }}
+              >
+                {item.name}
+              </Typography>
             </Box>
 
             {isFolder && isExpanded && item.children && (

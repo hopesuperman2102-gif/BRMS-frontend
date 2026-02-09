@@ -1,7 +1,7 @@
 'use client';
  
 import { useState, useEffect } from 'react';
-import { Typography, CircularProgress, Box, Alert } from '@mui/material';
+import { Typography, CircularProgress, Box, Alert, Paper } from '@mui/material';
 import { CollapsibleTable } from 'app/src/core/components/CollapsibleTable';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -316,10 +316,21 @@ export default function RulesTable() {
   }
  
   return (
-    <CollapsibleTable
-      columns={columns}
-      sections={sections}
-      getRowId={(row) => row.id}
-    />
+    <Box
+      sx={{
+        borderRadius: 4,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: 2,
+        overflow: 'hidden',
+      }}
+    >
+      <CollapsibleTable
+        columns={columns}
+        sections={sections}
+        getRowId={(row) => row.id}
+      />
+    </Box>
   );
 }

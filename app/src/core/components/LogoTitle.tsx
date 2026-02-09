@@ -15,7 +15,14 @@ const LogoTitle: React.FC<LogoTitleProps> = ({
   return (
     <Box display="flex" alignItems="center" gap={1.5}>
       {logo}
-      <Typography variant="h6" fontWeight={600}>
+      <Typography 
+        variant="h6" 
+        sx={{
+          fontWeight: 700,
+          color: 'white',
+          letterSpacing: '0.05em',
+        }}
+      >
         {organizationName}
       </Typography>
     </Box>

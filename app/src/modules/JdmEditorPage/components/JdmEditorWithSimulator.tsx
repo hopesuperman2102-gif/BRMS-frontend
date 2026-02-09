@@ -115,7 +115,25 @@ export default function JdmEditorWithSimulator() {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#e5e9f7' }}>
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        height: '100vh',
+        background: 'linear-gradient(135deg, #f0f4ff 0%, #ffffff 50%, #f8faff 100%)',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 20% 30%, rgba(101, 82, 208, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(23, 32, 61, 0.05) 0%, transparent 50%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        },
+      }}
+    >
       <RepositorySidebar
         projectName={projectName}
         items={items}

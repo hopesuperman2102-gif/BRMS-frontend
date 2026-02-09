@@ -25,6 +25,7 @@ import { CreateModal } from "./CreateModal";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import IconButton from "@mui/material/IconButton";
 import { projectsApi } from "app/src/api/projectsApi";
+import { brmsTheme } from '../theme/brmsTheme';
 
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -162,19 +163,68 @@ export default function ProjectListCard() {
 
   return (
     <>
-      <Card>
+      <Card
+        elevation={2}
+        sx={{
+          borderRadius: 4,
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+        }}
+      >
         <CardContent
           sx={{
+            p: 3,
             maxHeight: 500,
             overflowY: "auto",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-            msOverflowStyle: "none",
+            '&::-webkit-scrollbar': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: brmsTheme.scrollbars.thumb,
+              borderRadius: '3px',
+              '&:hover': {
+                background: brmsTheme.scrollbars.thumbHover,
+              },
+            },
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-            <Typography variant="h6">My projects</Typography>
-            <Button variant="contained" onClick={() => setOpenModal(true)}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+            <Typography 
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                background: brmsTheme.gradients.primary,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+              }}
+            >
+              My projects
+            </Typography>
+            <Button 
+              variant="contained" 
+              onClick={() => setOpenModal(true)}
+              sx={{
+                background: brmsTheme.gradients.primary,
+                boxShadow: brmsTheme.shadows.primarySoft,
+                borderRadius: 2,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  boxShadow: brmsTheme.shadows.primaryHover,
+                  background: brmsTheme.gradients.primaryHover,
+                  transform: 'translateY(-1px)',
+                },
+              }}
+            >
               Create project
             </Button>
           </Box>
@@ -183,16 +233,31 @@ export default function ProjectListCard() {
             sx={{
               display: "grid",
               gridTemplateColumns: "1fr auto",
-              borderBottom: 1,
-              borderColor: "divider",
-              pb: 1,
-              mb: 1,
+              borderBottom: '2px solid rgba(101, 82, 208, 0.1)',
+              pb: 1.5,
+              mb: 2,
             }}
           >
-            <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              sx={{
+                color: 'text.secondary',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
               Name
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              sx={{
+                color: 'text.secondary',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
               Actions
             </Typography>
           </Box>
@@ -215,26 +280,50 @@ export default function ProjectListCard() {
                   display: "grid",
                   gridTemplateColumns: "1fr auto",
                   py: 2,
-                  borderBottom: 1,
-                  borderColor: "divider",
+                  px: 1,
+                  borderBottom: '1px solid rgba(101, 82, 208, 0.1)',
+                  borderRadius: 2,
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    bgcolor: 'rgba(101, 82, 208, 0.05)',
+                    transform: 'translateX(4px)',
+                  },
                 }}
               >
                 <Box>
                   <Typography
                     variant="body2"
-                    color="primary"
-                    sx={{ cursor: "pointer", fontWeight: 500 }}
+                    sx={{ 
+                      cursor: "pointer", 
+                      fontWeight: 600,
+                      color: '#6552D0',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        color: '#5443B8',
+                      },
+                    }}
                     onClick={() => handleOpenProject(project)}
                   >
                     {project.name}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      color: 'text.secondary',
+                      fontSize: '0.75rem',
+                    }}
+                  >
                     Last updated {project.updatedAt}
                   </Typography>
                 </Box>
                 <IconButton
                   size="small"
                   onClick={(e) => handleMenuOpen(e, project)}
+                  sx={{
+                    '&:hover': {
+                      bgcolor: 'rgba(101, 82, 208, 0.1)',
+                    },
+                  }}
                 >
                   <MoreVertIcon fontSize="small" />
                 </IconButton>

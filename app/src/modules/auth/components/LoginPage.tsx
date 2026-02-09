@@ -19,6 +19,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { brmsTheme } from '../../../core/theme/brmsTheme';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: brmsTheme.gradients.primary,
         position: 'relative',
         overflow: 'hidden',
         '&::before': {
@@ -74,7 +75,7 @@ export default function LoginPage() {
           position: 'absolute',
           width: '100%',
           height: '100%',
-          background: 'radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.3) 0%, transparent 50%)',
+          background: 'radial-gradient(circle at 20% 50%, rgba(101, 82, 208, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(23, 32, 61, 0.3) 0%, transparent 50%)',
           pointerEvents: 'none',
         },
       }}
@@ -86,12 +87,13 @@ export default function LoginPage() {
             borderRadius: 4,
             overflow: 'hidden',
             background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
           }}
         >
           <Box
             sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: brmsTheme.gradients.primary,
               py: 4,
               px: 3,
               textAlign: 'center',
@@ -142,10 +144,10 @@ export default function LoginPage() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#667eea',
+                      borderColor: brmsTheme.colors.primary,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#667eea',
+                      borderColor: brmsTheme.colors.primary,
                     },
                   },
                 }}
@@ -182,10 +184,10 @@ export default function LoginPage() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#667eea',
+                      borderColor: brmsTheme.colors.primary,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#667eea',
+                      borderColor: brmsTheme.colors.primary,
                     },
                   },
                 }}
@@ -196,7 +198,7 @@ export default function LoginPage() {
                   component={Link}
                   to="/forgot-password"
                   sx={{
-                    color: '#667eea',
+                    color: brmsTheme.colors.primary,
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     fontWeight: 500,
@@ -217,17 +219,19 @@ export default function LoginPage() {
                 sx={{
                   py: 1.5,
                   borderRadius: 2,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: brmsTheme.gradients.primary,
                   textTransform: 'none',
                   fontSize: '1rem',
-                  fontWeight: 600,
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                  fontWeight: 700,
+                  boxShadow: brmsTheme.shadows.primarySoft,
+                  transition: 'all 0.2s ease',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #6a4190 100%)',
-                    boxShadow: '0 6px 20px rgba(102, 126, 234, 0.5)',
+                    background: brmsTheme.gradients.primaryHover,
+                    boxShadow: brmsTheme.shadows.primaryHover,
+                    transform: 'translateY(-1px)',
                   },
                   '&:disabled': {
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: brmsTheme.gradients.primary,
                     opacity: 0.6,
                   },
                 }}
@@ -248,7 +252,7 @@ export default function LoginPage() {
                     component={Link}
                     to="/signup"
                     sx={{
-                      color: '#667eea',
+                      color: brmsTheme.colors.primary,
                       textDecoration: 'none',
                       fontWeight: 600,
                       '&:hover': {
