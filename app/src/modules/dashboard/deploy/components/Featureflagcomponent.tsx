@@ -61,7 +61,6 @@ export default function FeatureFlagComponent() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)',
         p: 4
       }}
     >
