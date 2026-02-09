@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import ProjectList from '../../../core/components/ProjectList';
 import DeployTab from 'app/src/core/components/DeployTab';
+import RulesTable from './RulesTable';
 
 const DashboardComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
@@ -28,8 +29,8 @@ const DashboardComponent: React.FC = () => {
         {tab === 0 && <ProjectList />}
 
         {tab === 1 && (
-          <Box>Rules content coming soon</Box>
-        )}
+          <RulesTable/>
+          )}
 
         {tab === 2 && (
           <DeployTab />
