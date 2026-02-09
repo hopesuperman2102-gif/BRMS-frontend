@@ -263,9 +263,9 @@ export default function ProjectListCard() {
         onCreate={handleCreateOrUpdate}
         title={editProject ? "Edit Project" : "Create Project"}
         fields={[
-          { name: "name", label: "Project Name" },
-          { name: "description", label: "Description" },
-          { name: "domain", label: "Domain" },
+          { name: "name", label: "Project Name", required: true },
+          { name: "description", label: "Description"},
+          { name: "domain", label: "Domain"},
         ]}
       />
     </>
