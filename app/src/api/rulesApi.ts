@@ -6,6 +6,8 @@ export const rulesApi = {
     project_key: string;
     name: string;
     description: string;
+    //type?: 'file' | 'folder'; //for folder structure 
+    //parent_id?: string | null; 
   }) => {
     const response = await fetch(`${API_BASE_URL}/rules/create`, {
       method: 'POST',
@@ -68,6 +70,8 @@ export const rulesApi = {
     name: string;
     description: string;
     updated_by: string;
+    //type?: 'file' | 'folder';      // NEW - Optional for folder structure
+    //parent_id?: string | null;
   }) => {
     const response = await fetch(`${API_BASE_URL}/rules/update`, {
       method: 'PUT',
@@ -85,4 +89,27 @@ export const rulesApi = {
 
     return await response.json();
   },
+
+  // ---------- Get Rule Versions ----------
+getRuleVersions: async (rule_key: string) => {
+  const response = await fetch(
+    `${API_BASE_URL}/rule-versions/list`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ rule_key }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Failed to fetch rule versions');
+  }
+
+  return await response.json();
+},
+
 };

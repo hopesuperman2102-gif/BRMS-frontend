@@ -59,23 +59,49 @@ export default function ProjectRuleComponent() {
 
   /* ---------- Fetch RULES ---------- */
   const loadRules = async () => {
-    if (!project_key) return;
-    try {
-      const data = await rulesApi.getProjectRules(project_key);
+  if (!project_key) return;
 
-      setRules(
-        data.map((item: any) => ({
-          id: item.rule_key,
-          name: item.name,
-          version: "-",
-          status: item.status,
-          updatedAt: item.created_at,
-        }))
-      );
-    } catch (error) {
-      console.error("Error loading rules:", error);
-    }
-  };
+  try {
+    const data = await rulesApi.getProjectRules(project_key);
+
+    // Fetch versions for each rule in parallel
+    const rulesWithVersions = await Promise.all(
+      data.map(async (item: any) => {
+        try {
+          const versions = await rulesApi.getRuleVersions(item.rule_key);
+
+          // Pick latest version (first item since backend returns latest first)
+          const latestVersion =
+            versions && versions.length > 0
+              ? versions[0].version
+              : '-';
+
+          return {
+            id: item.rule_key,
+            name: item.name,
+            version: latestVersion,
+            status: item.status,
+            updatedAt: item.updated_at,
+          };
+        } catch {
+          // Fail-safe: don’t break UI if version API fails
+          return {
+            id: item.rule_key,
+            name: item.name,
+            version: '-',
+            status: item.status,
+            updatedAt: item.updated_at,
+          };
+        }
+      })
+    );
+
+    setRules(rulesWithVersions);
+  } catch (error) {
+    console.error("Error loading rules:", error);
+  }
+};
+
 
   useEffect(() => {
     if (project_key) loadRules();
