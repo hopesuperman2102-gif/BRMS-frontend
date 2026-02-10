@@ -1,6 +1,8 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
 import DashboardPage from '../page/DashboardPage';
+import CreateProjectPage from '../components/CreateProjectPage';
+
 
 const dashboardRoutes: AppRoute[] = [
   {
@@ -9,7 +11,14 @@ const dashboardRoutes: AppRoute[] = [
     layout: 'main',
     metadata: {
       title: 'Dashboard',
-      description: 'Main dashboard page',
+    },
+  },
+  {
+    path: '/dashboard/createproject',
+    element: CreateProjectPage,
+    layout: 'main',
+    metadata: {
+      title: 'Create Project',
     },
   },
 ];

@@ -48,13 +48,9 @@ const DashboardComponent: React.FC = () => {
       <Box p={3}>
         {tab === 0 && <ProjectList />}
 
-        {tab === 1 && (
-          <RulesTable/>
-          )}
+        {tab === 1 && <RulesTable />}
 
-        {tab === 2 && (
-          <FeatureFlagComponent />
-        )}
+        {tab === 2 && <FeatureFlagComponent />}
       </Box>
     </>
   );
