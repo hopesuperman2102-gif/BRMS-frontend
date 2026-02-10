@@ -21,11 +21,11 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { CreateModal } from "./CreateModal";
+import { CreateModal } from "../../../core/components/CreateModal";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import IconButton from "@mui/material/IconButton";
 import { projectsApi } from "app/src/api/projectsApi";
-import { brmsTheme } from '../theme/brmsTheme';
+import { brmsTheme } from '../../../core/theme/brmsTheme';
 
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -197,7 +197,7 @@ export default function ProjectListCard() {
               variant="h6"
               sx={{
                 fontWeight: 700,
-                background: brmsTheme.gradients.primary,
+                background: brmsTheme.colors.primaryDark,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -295,8 +295,8 @@ export default function ProjectListCard() {
                     variant="body2"
                     sx={{ 
                       cursor: "pointer", 
-                      fontWeight: 600,
-                      color: '#6552D0',
+                      fontWeight: 400,
+                      color: brmsTheme.colors.primaryDark,
                       transition: 'all 0.2s ease',
                       '&:hover': {
                         color: '#5443B8',

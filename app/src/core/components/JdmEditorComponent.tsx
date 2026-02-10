@@ -23,7 +23,13 @@ const JdmConfigProvider = dynamic(
 );
 
 // Custom Simulator Panel Component
-function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => void; onClear: () => void }) {
+function CustomSimulatorPanel({ 
+  onRun, 
+  onClear 
+}: { 
+  onRun: (context: any) => Promise<any>; 
+  onClear: () => void 
+}) {
   const [context, setContext] = useState('{\n  \n}');
   const [result, setResult] = useState<any>(null);
   const [activeTab, setActiveTab] = useState(0);
@@ -34,22 +40,21 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
       setIsRunning(true);
       const parsedContext = JSON.parse(context);
       
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Call the API through the onRun callback
+      const apiResult = await onRun(parsedContext);
       
-      const mockResult = {
-        result: parsedContext,
+      // Set the result from the API
+      setResult({
+        result: apiResult,
         performance: '1.2ms',
         status: 'success'
-      };
-      setResult(mockResult);
+      });
       setActiveTab(0);
-      onRun(parsedContext);
       setIsRunning(false);
     } catch (e) {
-      console.error('Invalid JSON:', e);
+      console.error('Error during simulation:', e);
       setResult({
-        error: 'Invalid JSON format',
+        error: 'Simulation failed',
         message: (e as Error).message,
         status: 'error'
       });
@@ -259,7 +264,6 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
           >
             <Tab label="Output" />
             <Tab label="Input" />
-            <Tab label="Trace" />
           </Tabs>
           <Box sx={{ flex: 1, p: 2, overflow: 'auto', bgcolor: '#fafbfc' }}>
             {activeTab === 0 && (
@@ -377,58 +381,6 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
                 {context}
               </Paper>
             )}
-            {activeTab === 2 && (
-              <Box 
-                sx={{ 
-                  textAlign: 'center', 
-                  py: 4,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 1.5
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    bgcolor: '#f6f8fa',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px dashed #e1e4e8',
-                  }}
-                >
-                  <CodeIcon sx={{ fontSize: 24, color: '#959da5' }} />
-                </Box>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: '#586069',
-                    fontSize: '0.875rem',
-                    fontWeight: 500
-                  }}
-                >
-                  Run a request to see the node trace in action
-                </Typography>
-                <Typography 
-                  component="a"
-                  href="#" 
-                  sx={{ 
-                    color: '#6552D0',
-                    fontSize: '0.8125rem',
-                    textDecoration: 'none',
-                    fontWeight: 600,
-                    '&:hover': {
-                      textDecoration: 'underline',
-                    }
-                  }}
-                >
-                  Learn more →
-                </Typography>
-              </Box>
-            )}
           </Box>
         </Box>
       </Box>
@@ -436,16 +388,31 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
   );
 }
 
-export default function JdmEditorComponent({ value, onChange }: JdmEditorProps) {
+interface JdmEditorComponentProps extends JdmEditorProps {
+  onSimulatorRun?: (jdm: any, context: any) => Promise<any>;
+}
+
+export default function JdmEditorComponent({ value, onChange, onSimulatorRun }: JdmEditorComponentProps) {
   const [simulation, setSimulation] = useState<any>();
 
-  const handleSimulationRun = (context: any) => {
+  const handleSimulationRun = async (context: any): Promise<any> => {
     console.log('Running simulation with context:', context);
-    // TODO: Call your backend API here
-    // const response = await fetch('/api/simulate', {
-    //   method: 'POST',
-    //   body: JSON.stringify({ context, content: value })
-    // });
+    console.log('Current JDM graph:', value);
+    
+    if (!onSimulatorRun) {
+      console.warn('No onSimulatorRun handler provided');
+      return null;
+    }
+
+    try {
+      const result = await onSimulatorRun(value, context);
+      console.log('Simulation result:', result);
+      setSimulation(result);
+      return result;
+    } catch (error) {
+      console.error('Error executing simulation:', error);
+      throw error;
+    }
   };
 
   const handleSimulationClear = () => {

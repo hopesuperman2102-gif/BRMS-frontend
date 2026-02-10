@@ -8,6 +8,7 @@ import { RepoItem } from '../../../core/types/commonTypes';
 import Editor from './Editor';
 import { rulesApi } from 'app/src/api/rulesApi';
 import { projectsApi } from 'app/src/api/projectsApi';
+import { executionApi } from 'app/src/api/executionApi';
 import RepositorySidebar from 'app/src/core/components/RepositorySidebar';
 
 export default function JdmEditorWithSimulator() {
@@ -114,6 +115,21 @@ export default function JdmEditorWithSimulator() {
     console.log('Dropped on folder:', folder);
   };
 
+  /* ---------- Simulator API Call ---------- */
+  const handleSimulatorRun = async (jdm: any, context: any): Promise<any> => {
+    console.log('Running simulation with context:', context);
+    console.log('Current JDM graph:', jdm);
+    
+    try {
+      const result = await executionApi.execute(jdm, context);
+      console.log('Execution result:', result);
+      return result;
+    } catch (error) {
+      console.error('Error executing simulation:', error);
+      throw error;
+    }
+  };
+
   return (
     <Box 
       sx={{ 
@@ -156,6 +172,7 @@ export default function JdmEditorWithSimulator() {
         selectedId={selectedId}
         openFiles={openFiles}
         setOpenFiles={setOpenFiles}
+        onSimulatorRun={handleSimulatorRun}
       />
 
       <AlertComponent />

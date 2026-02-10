@@ -9,10 +9,15 @@ import { ruleVersionsApi, RuleVersion } from 'app/src/api/ruleVersionsApi';
 import { useAlertStore } from '../../../core/components/Alert';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 
+interface EditorPropsExtended extends EditorProps {
+  onSimulatorRun: (jdm: any, context: any) => Promise<any>;
+}
+
 export default function Editor({
   items,
   selectedId,
-}: EditorProps) {
+  onSimulatorRun,
+}: EditorPropsExtended) {
   const [selectedVersion, setSelectedVersion] = useState('');
   const [versions, setVersions] = useState<RuleVersion[]>([]);
   const [currentGraph, setCurrentGraph] = useState<any>(null);
@@ -308,6 +313,7 @@ export default function Editor({
               <JdmEditorComponent
                 value={currentGraph}
                 onChange={handleGraphChange}
+                onSimulatorRun={onSimulatorRun}
               />
             ) : (
               <Box
