@@ -9,6 +9,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ClearIcon from '@mui/icons-material/Clear';
 import CodeIcon from '@mui/icons-material/Code';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { brmsTheme } from '../theme/brmsTheme';
 
 // Client-only imports
 const DecisionGraph = dynamic(
@@ -109,27 +110,27 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Button
+                <Button
                 variant="contained"
                 size="small"
                 onClick={handleRun}
                 disabled={isRunning}
                 startIcon={<PlayArrowIcon sx={{ fontSize: 14 }} />}
                 sx={{
-                  bgcolor: '#667eea',
-                  color: 'white',
+                  bgcolor: brmsTheme.colors.primary,
+                  color: brmsTheme.colors.textOnPrimary,
                   fontWeight: 600,
                   textTransform: 'none',
                   px: 1.5,
                   py: 0.25,
                   borderRadius: '4px',
-                  boxShadow: '0 1px 3px rgba(102, 126, 234, 0.3)',
+                  boxShadow: brmsTheme.shadows.primarySoft,
                   fontSize: '0.75rem',
                   letterSpacing: '0.02em',
                   minHeight: 26,
                   '&:hover': { 
-                    bgcolor: '#5a5fcf',
-                    boxShadow: '0 2px 4px rgba(102, 126, 234, 0.4)',
+                    bgcolor: brmsTheme.colors.primaryHover,
+                    boxShadow: brmsTheme.shadows.primaryHover,
                   },
                   '&:disabled': {
                     bgcolor: '#b3b9f0',
@@ -176,8 +177,8 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
                 borderRadius: '8px',
                 overflow: 'hidden',
                 '&:focus-within': {
-                  borderColor: '#667eea',
-                  boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                  borderColor: brmsTheme.colors.primary,
+                  boxShadow: '0 0 0 3px rgba(101, 82, 208, 0.1)',
                 },
                 transition: 'all 0.2s ease',
               }}
@@ -234,7 +235,7 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
               '& .MuiTabs-indicator': {
                 height: 2,
                 borderRadius: '2px 2px 0 0',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: brmsTheme.gradients.primary,
               },
               '& .MuiTab-root': {
                 minHeight: 40,
@@ -246,11 +247,11 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
                 letterSpacing: '-0.01em',
                 py: 0.75,
                 '&.Mui-selected': {
-                  color: '#667eea',
+                  color: brmsTheme.colors.primary,
                 },
                 '&:hover': {
                   color: '#24292e',
-                  bgcolor: 'rgba(102, 126, 234, 0.05)',
+                  bgcolor: 'rgba(101, 82, 208, 0.05)',
                 },
                 transition: 'all 0.2s ease',
               }
@@ -415,7 +416,7 @@ function CustomSimulatorPanel({ onRun, onClear }: { onRun: (context: any) => voi
                   component="a"
                   href="#" 
                   sx={{ 
-                    color: '#667eea',
+                    color: '#6552D0',
                     fontSize: '0.8125rem',
                     textDecoration: 'none',
                     fontWeight: 600,

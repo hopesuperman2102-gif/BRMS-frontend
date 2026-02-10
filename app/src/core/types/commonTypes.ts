@@ -52,6 +52,7 @@ export type RepositorySidebarProps = {
   onAddClick: (el: HTMLElement) => void;
   onDragStart: (item: RepoItem) => void;
   onDropOnFolder: (folder: RepoItem) => void;
+  onBackClick?: () => void;
 };
 
 export type RepoTreeProps = {
