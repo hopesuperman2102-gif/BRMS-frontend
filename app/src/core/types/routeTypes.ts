@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 export enum Layout {
   MAIN = 'main',
@@ -8,7 +8,7 @@ export enum Layout {
 
 export type AppRoute = {
   path: string;
-  element?: React.ComponentType<any> | ReactNode;
+  element?: ComponentType<unknown> | ReactNode;
   layout?: Layout | string;
   children?: AppRoute[];
   metadata?: {

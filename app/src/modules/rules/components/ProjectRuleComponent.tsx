@@ -45,9 +45,7 @@ export default function ProjectRuleComponent() {
     const fetchProjectName = async () => {
       try {
         const projects = await projectsApi.getProjectsView();
-        const project = projects.find(
-          (p: any) => p.project_key === project_key
-        );
+        const project = projects.find((p) => p.project_key === project_key);
         if (project?.name) setProjectName(project.name);
       } catch (err) {
         console.error("Project fetch error", err);
@@ -58,53 +56,58 @@ export default function ProjectRuleComponent() {
   }, [project_key]);
 
   /* ---------- Fetch RULES ---------- */
+  type ApiRule = {
+    rule_key: string;
+    name: string;
+    status: string;
+    updated_at: string;
+  };
+
   const loadRules = async () => {
-  if (!project_key) return;
+    if (!project_key) return;
+    try {
+      const data = (await rulesApi.getProjectRules(project_key)) as ApiRule[];
 
-  try {
-    const data = await rulesApi.getProjectRules(project_key);
+      // Fetch versions for each rule in parallel
+      const rulesWithVersions = await Promise.all(
+        data.map(async (item) => {
+          try {
+            const versions = await rulesApi.getRuleVersions(item.rule_key);
 
-    // Fetch versions for each rule in parallel
-    const rulesWithVersions = await Promise.all(
-      data.map(async (item: any) => {
-        try {
-          const versions = await rulesApi.getRuleVersions(item.rule_key);
+            // Pick latest version (first item since backend returns latest first)
+            const latestVersion =
+              versions && versions.length > 0 ? versions[0].version : "-";
 
-          // Pick latest version (first item since backend returns latest first)
-          const latestVersion =
-            versions && versions.length > 0
-              ? versions[0].version
-              : '-';
+            return {
+              id: item.rule_key,
+              name: item.name,
+              version: latestVersion,
+              status: item.status as RuleFile["status"],
+              updatedAt: item.updated_at,
+            } as RuleFile;
+          } catch {
+            // Fail-safe: don’t break UI if version API fails
+            return {
+              id: item.rule_key,
+              name: item.name,
+              version: "-",
+              status: item.status as RuleFile["status"],
+              updatedAt: item.updated_at,
+            } as RuleFile;
+          }
+        })
+      );
 
-          return {
-            id: item.rule_key,
-            name: item.name,
-            version: latestVersion,
-            status: item.status,
-            updatedAt: item.updated_at,
-          };
-        } catch {
-          // Fail-safe: don’t break UI if version API fails
-          return {
-            id: item.rule_key,
-            name: item.name,
-            version: '-',
-            status: item.status,
-            updatedAt: item.updated_at,
-          };
-        }
-      })
-    );
-
-    setRules(rulesWithVersions);
-  } catch (error) {
-    console.error("Error loading rules:", error);
-  }
-};
-
+      setRules(rulesWithVersions);
+    } catch (error) {
+      console.error("Error loading rules:", error);
+    }
+  };
 
   useEffect(() => {
-    if (project_key) loadRules();
+    if (project_key) {
+      void loadRules();
+    }
   }, [project_key]);
 
   /* ---------- Menu handlers ---------- */
@@ -185,15 +188,20 @@ export default function ProjectRuleComponent() {
     }
     try {
       // Check for duplicate rule name
-      const existingRules = await rulesApi.getProjectRules(project_key);
+      const existingRules = (await rulesApi.getProjectRules(project_key)) as {
+        rule_key: string;
+        name: string;
+      }[];
       
       if (editRule) {
         // When editing: check if name exists in OTHER rules 
-        const nameExistsInOtherRule = existingRules.some(
-          (r: any) => 
-            r.rule_key !== editRule.id && 
-            r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
-        );
+        const nameExistsInOtherRule = existingRules.some((r) => {
+          const normalizedName = r.name.toLowerCase().trim();
+          return (
+            r.rule_key !== editRule.id &&
+            normalizedName === data.name.toLowerCase().trim()
+          );
+        });
 
         if (nameExistsInOtherRule) {
           return {
@@ -214,9 +222,10 @@ export default function ProjectRuleComponent() {
         return { success: true };
       } else {
         // When creating: check if name exists in ANY rule
-        const nameExists = existingRules.some(
-          (r: any) => r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
-        );
+        const nameExists = existingRules.some((r) => {
+          const normalizedName = r.name.toLowerCase().trim();
+          return normalizedName === data.name.toLowerCase().trim();
+        });
 
         if (nameExists) {
           return {

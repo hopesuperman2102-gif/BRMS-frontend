@@ -1,12 +1,19 @@
 {
   "name": "brms-next",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "cross-env NEXT_PUBLIC_ENV=development next dev",
+    "dev:prod": "cross-env NEXT_PUBLIC_ENV=production next dev",
+    "build": "cross-env NEXT_PUBLIC_ENV=production next build",
+    "build:dev": "cross-env NEXT_PUBLIC_ENV=development next build",
+    "build:prod": "cross-env NEXT_PUBLIC_ENV=production next build",
     "start": "next start",
-    "lint": "eslint"
+    "start:dev": "cross-env NEXT_PUBLIC_ENV=development next start",
+    "start:prod": "cross-env NEXT_PUBLIC_ENV=production next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf .next out node_modules/.cache"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -26,8 +33,10 @@
     "@types/node": "^20",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Box, Select, MenuItem, Button, FormControl, Typography } from '@mui/material';
-import { RepoItem } from '../../../core/types/commonTypes';
+import { RepoItem, JsonObject } from '../../../core/types/commonTypes';
+import type { DecisionGraphType } from '@gorules/jdm-editor';
+import type { ExecuteResponse } from 'app/src/api/executionApi';
 import { EditorProps } from '../types/JdmEditorTypes';
 import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
 import { ruleVersionsApi, RuleVersion } from 'app/src/api/ruleVersionsApi';
@@ -10,8 +12,13 @@ import { useAlertStore } from '../../../core/components/Alert';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 
 interface EditorPropsExtended extends EditorProps {
-  onSimulatorRun: (jdm: any, context: any) => Promise<any>;
+  onSimulatorRun: (jdm: DecisionGraphType, context: JsonObject) => Promise<ExecuteResponse>;
 }
+
+const EMPTY_GRAPH: DecisionGraphType = {
+  nodes: [],
+  edges: [],
+};
 
 export default function Editor({
   items,
@@ -20,7 +27,7 @@ export default function Editor({
 }: EditorPropsExtended) {
   const [selectedVersion, setSelectedVersion] = useState('');
   const [versions, setVersions] = useState<RuleVersion[]>([]);
-  const [currentGraph, setCurrentGraph] = useState<any>(null);
+  const [currentGraph, setCurrentGraph] = useState<DecisionGraphType | null>(null);
   const [isVersionsLoading, setIsVersionsLoading] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
   const { showAlert } = useAlertStore();
@@ -73,10 +80,10 @@ export default function Editor({
                 String(selectedItem.id),
                 latestVersion.version
               );
-              setCurrentGraph(versionData.jdm || {});
+              setCurrentGraph(versionData.jdm ?? null);
             } catch (error) {
               console.error('Error loading version data:', error);
-              setCurrentGraph({});
+              setCurrentGraph(null);
             }
           }
         } else {
@@ -84,15 +91,16 @@ export default function Editor({
           console.log(`No versions found for rule ${selectedItem.id}`);
           setVersions([]);
           setSelectedVersion('');
-          setCurrentGraph({});
+          // Show an empty editor so user can start drawing immediately
+          setCurrentGraph(EMPTY_GRAPH);
         }
       } catch (error) {
         console.error('Error fetching versions:', error);
         showAlert('Error fetching versions', 'error');
-        // If API fails, show empty editor
+        // If API fails, show empty editor so user can still work
         setVersions([]);
         setSelectedVersion('');
-        setCurrentGraph({});
+        setCurrentGraph(EMPTY_GRAPH);
       } finally {
         setIsVersionsLoading(false);
       }
@@ -129,7 +137,7 @@ export default function Editor({
     }
   };
 
-  const handleGraphChange = (value: any) => {
+  const handleGraphChange = (value: DecisionGraphType) => {
     setCurrentGraph(value);
   };
 

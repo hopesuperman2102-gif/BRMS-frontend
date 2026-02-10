@@ -40,8 +40,8 @@ export default function ProjectListCard() {
       setLoading(true);
       const response = await projectsApi.getProjectsView();
 
-      const projectsFromApi: Project[] = response.map((p: any) => ({
-        id: p.id,
+      const projectsFromApi: Project[] = response.map((p) => ({
+        id: String(p.id),
         project_key: p.project_key,
         name: p.name,
         description: p.description,

@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { Paper, Typography, Box } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 
 interface CardProps {
@@ -11,23 +12,28 @@ interface CardProps {
   className?: string;
   delay?: number;
   animate?: boolean;
-  sx?: any;
+  sx?: SxProps<Theme>;
 }
 
-export const Card: React.FC<CardProps> = ({ 
-  children, 
-  className = '', 
+// Pre-create motion component to avoid creating components during render
+const MotionPaper = motion(Paper);
+
+export const Card: React.FC<CardProps> = ({
+  children,
+  className = '',
   delay = 0,
   animate = true,
-  sx = {}
+  sx = {},
 }) => {
-  const Component = animate ? motion(Paper) : Paper;
-  
-  const animationProps = animate ? {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { delay }
-  } : {};
+  const Component = animate ? MotionPaper : Paper;
+
+  const animationProps = animate
+    ? {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        transition: { delay },
+      }
+    : {};
 
   return (
     <Component
@@ -39,7 +45,7 @@ export const Card: React.FC<CardProps> = ({
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255, 255, 255, 0.3)',
-        ...sx
+        ...sx,
       }}
       className={className}
     >

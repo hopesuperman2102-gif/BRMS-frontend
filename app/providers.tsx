@@ -18,6 +18,7 @@ export default function Providers({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppRouter />
+      {children}
     </ThemeProvider>
   );
 }

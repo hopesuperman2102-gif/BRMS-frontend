@@ -22,8 +22,8 @@ export default function MoveConfirmDialog({
       <DialogTitle>Confirm Move</DialogTitle>
       <DialogContent>
         <Typography>
-          Are you sure you want to move <strong>"{itemName}"</strong> to{' '}
-          <strong>"{targetName}"</strong>?
+          Are you sure you want to move <strong>&quot;{itemName}&quot;</strong> to{' '}
+          <strong>&quot;{targetName}&quot;</strong>?
         </Typography>
       </DialogContent>
       <DialogActions>

@@ -19,14 +19,6 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({
   logo,
   organizationName,
 }) => {
-  const handleProjectSelect = (value: string) => {
-    if (value === 'new') {
-      console.log('Add new project');
-      return;
-    }
-    console.log('Selected project:', value);
-  };
-
   return (
     <AppBar 
       position="static" 

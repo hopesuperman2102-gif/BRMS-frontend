@@ -40,7 +40,7 @@ export default function CreateRulePage() {
     const loadRule = async () => {
       try {
         const rules = await rulesApi.getProjectRules(project_key);
-        const rule = rules.find((r: any) => r.rule_key === ruleKey);
+        const rule = rules.find((r) => r.rule_key === ruleKey);
 
         if (!rule) {
           setError('Rule not found');
@@ -75,9 +75,8 @@ export default function CreateRulePage() {
       const existingRules = await rulesApi.getProjectRules(project_key!);
 
       const duplicate = existingRules.some(
-        (r: any) =>
-          r.name.toLowerCase().trim() ===
-            form.name.toLowerCase().trim() &&
+        (r) =>
+          r.name.toLowerCase().trim() === form.name.toLowerCase().trim() &&
           r.rule_key !== ruleKey
       );
 
@@ -106,8 +105,10 @@ export default function CreateRulePage() {
       }
 
       navigate(`/dashboard/${project_key}/rules`);
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Something went wrong';
+      setError(message);
     } finally {
       setLoading(false);
     }

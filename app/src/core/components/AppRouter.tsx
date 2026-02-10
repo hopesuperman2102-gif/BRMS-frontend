@@ -14,7 +14,7 @@ import '../../modules/rules/routes';
 import '../../modules/JdmEditorPage/routes';
 
 function RouteWrapper({ route }: { route: AppRoute }) {
-  const Element = route.element as React.ComponentType<any>;
+  const Element = route.element as React.ComponentType<unknown>;
   
   if (!Element) {
     return null;
@@ -25,7 +25,7 @@ function RouteWrapper({ route }: { route: AppRoute }) {
     return (
       <PageWrapper>
         <AppBarComponent
-          logo={<img src="/logo.svg" height={32} alt="logo" />}
+          logo={<img src="/Logo.svg" height={32} alt="logo" />}
           organizationName="Business Rules Management"
         />
         <Element />

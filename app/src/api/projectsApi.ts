@@ -1,4 +1,19 @@
-const API_BASE_URL = 'http://127.0.0.1:8000';
+// src/api/projectsApi.ts
+
+import { ENV } from '../config/env';
+
+const API_BASE_URL = ENV.API_BASE_URL;
+
+export interface ProjectView {
+  id: string;
+  project_key: string;
+  name: string;
+  description?: string;
+  domain?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export const projectsApi = {
   // Creates a new project
@@ -13,7 +28,11 @@ export const projectsApi = {
       domain: data.domain,
     };
 
-    const response = await fetch(`${API_BASE_URL}/projects/create`, {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Creating project:', requestBody);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,12 +46,22 @@ export const projectsApi = {
       throw new Error(errorData.detail || 'Failed to create project');
     }
 
-    return await response.json();
+    const result = await response.json();
+    
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Project created:', result);
+    }
+
+    return result;
   },
 
   // Get all projects
-  getProjectsView: async () => {
-    const response = await fetch(`${API_BASE_URL}/projects/view/active`, {
+  getProjectsView: async (): Promise<ProjectView[]> => {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Fetching active projects');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/view/active`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -45,12 +74,22 @@ export const projectsApi = {
       throw new Error(errorData.detail || 'Failed to fetch projects');
     }
 
-    return await response.json();
+    const result = (await response.json()) as ProjectView[];
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Projects fetched:', result.length);
+    }
+
+    return result;
   },
 
   // Delete a project
   deleteProject: async (project_key: string) => {
-    const response = await fetch(`${API_BASE_URL}/projects/delete`, {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Deleting project:', project_key);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/delete`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -67,7 +106,13 @@ export const projectsApi = {
       throw new Error(errorData.detail || 'Failed to delete project');
     }
 
-    return await response.json();
+    const result = await response.json();
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Project deleted:', project_key);
+    }
+
+    return result;
   },
 
   // Update Project Details
@@ -79,7 +124,11 @@ export const projectsApi = {
       domain?: string;
     }
   ) => {
-    const response = await fetch(`${API_BASE_URL}/projects/update`, {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Updating project:', project_key, data);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/update`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +145,13 @@ export const projectsApi = {
       throw new Error(err.detail || 'Failed to update project');
     }
 
-    return response.json();
+    const result = await response.json();
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Project updated:', result);
+    }
+
+    return result;
   },
 
   // Check if project name exists
@@ -104,11 +159,18 @@ export const projectsApi = {
     try {
       const projects = await projectsApi.getProjectsView();
       return projects.some(
-        (p: any) => p.name.toLowerCase().trim() === name.toLowerCase().trim()
+        (p) => p.name.toLowerCase().trim() === name.toLowerCase().trim()
       );
     } catch (error) {
-      console.error('Error checking project name:', error);
+      if (ENV.ENABLE_LOGGING) {
+        console.error('❌ Error checking project name:', error);
+      }
       throw error;
     }
   },
 };
+
+// Log API endpoint in development
+if (ENV.DEBUG_MODE) {
+  console.log('📡 Projects API Base URL:', API_BASE_URL);
+}

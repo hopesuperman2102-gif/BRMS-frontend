@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import '@gorules/jdm-editor/dist/style.css';
-import { JdmEditorProps } from '../types/commonTypes';
+import { JdmEditorProps, JsonObject } from '../types/commonTypes';
+import type { ExecuteResponse } from '../../api/executionApi';
 import { Box, Button, TextField, Typography, Tabs, Tab, Paper, IconButton, Chip } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -23,31 +24,32 @@ const JdmConfigProvider = dynamic(
 );
 
 // Custom Simulator Panel Component
-function CustomSimulatorPanel({ 
-  onRun, 
-  onClear 
-}: { 
-  onRun: (context: any) => Promise<any>; 
-  onClear: () => void 
-}) {
+interface CustomSimulatorPanelProps {
+  onRun: (context: JsonObject) => Promise<ExecuteResponse>;
+  onClear: () => void;
+}
+
+function CustomSimulatorPanel({
+  onRun,
+  onClear,
+}: CustomSimulatorPanelProps) {
   const [context, setContext] = useState('{\n  \n}');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ExecuteResponse | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
 
   const handleRun = async () => {
     try {
       setIsRunning(true);
-      const parsedContext = JSON.parse(context);
+      const parsedContext = JSON.parse(context) as JsonObject;
       
       // Call the API through the onRun callback
       const apiResult = await onRun(parsedContext);
-      
-      // Set the result from the API
+
+      // Set the result from the API, defaulting status to success
       setResult({
-        result: apiResult,
-        performance: '1.2ms',
-        status: 'success'
+        ...apiResult,
+        status: apiResult.status ?? 'success',
       });
       setActiveTab(0);
       setIsRunning(false);
@@ -56,8 +58,8 @@ function CustomSimulatorPanel({
       setResult({
         error: 'Simulation failed',
         message: (e as Error).message,
-        status: 'error'
-      });
+        status: 'error',
+      } as ExecuteResponse);
       setIsRunning(false);
     }
   };
@@ -340,15 +342,15 @@ function CustomSimulatorPanel({
                   >
                     <PlayArrowIcon sx={{ fontSize: 24, color: '#959da5' }} />
                   </Box>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
+                  <Typography
+                    variant="body2"
+                    sx={{
                       color: '#586069',
                       fontSize: '0.875rem',
-                      fontWeight: 500
+                      fontWeight: 500,
                     }}
                   >
-                    Click "Run" to execute simulation
+                    Click &quot;Run&quot; to execute simulation
                   </Typography>
                   <Typography 
                     variant="caption" 
@@ -389,25 +391,26 @@ function CustomSimulatorPanel({
 }
 
 interface JdmEditorComponentProps extends JdmEditorProps {
-  onSimulatorRun?: (jdm: any, context: any) => Promise<any>;
+  onSimulatorRun?: (jdm: JdmEditorProps['value'], context: JsonObject) => Promise<ExecuteResponse>;
 }
 
-export default function JdmEditorComponent({ value, onChange, onSimulatorRun }: JdmEditorComponentProps) {
-  const [simulation, setSimulation] = useState<any>();
-
-  const handleSimulationRun = async (context: any): Promise<any> => {
+export default function JdmEditorComponent({
+  value,
+  onChange,
+  onSimulatorRun,
+}: JdmEditorComponentProps) {
+  const handleSimulationRun = async (context: JsonObject): Promise<ExecuteResponse> => {
     console.log('Running simulation with context:', context);
     console.log('Current JDM graph:', value);
     
     if (!onSimulatorRun) {
       console.warn('No onSimulatorRun handler provided');
-      return null;
+      return {} as ExecuteResponse;
     }
 
     try {
       const result = await onSimulatorRun(value, context);
       console.log('Simulation result:', result);
-      setSimulation(result);
       return result;
     } catch (error) {
       console.error('Error executing simulation:', error);
@@ -416,16 +419,15 @@ export default function JdmEditorComponent({ value, onChange, onSimulatorRun }: 
   };
 
   const handleSimulationClear = () => {
-    setSimulation(undefined);
+    // Nothing to clear in DecisionGraph, only local panel state
   };
 
   return (
     <JdmConfigProvider>
       <div style={{ width: '100%', height: '100%' }}>
-        <DecisionGraph 
-          value={value} 
+        <DecisionGraph
+          value={value}
           onChange={onChange}
-          simulate={simulation}
           panels={[
             {
               id: 'simulator',

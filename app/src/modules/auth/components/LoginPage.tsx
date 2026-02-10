@@ -247,7 +247,7 @@ export default function LoginPage() {
 
               <Box sx={{ textAlign: 'center' }}>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <Typography
                     component={Link}
                     to="/signup"

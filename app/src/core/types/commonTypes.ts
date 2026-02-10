@@ -1,11 +1,18 @@
 import { AlertColor } from "@mui/material";
+import type { DecisionGraphType } from "@gorules/jdm-editor";
+
+// Generic JSON-like types used across API payloads
+export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
+export interface JsonObject {
+  [key: string]: JsonValue;
+}
 
 export type RepoItem = {
   id: number;
   name: string;
   type: 'file' | 'folder';
   children?: RepoItem[];
-  graph?: any;
+  graph?: DecisionGraphType;
 };
 
 export type MoveConfirmDialogProps = {
@@ -17,8 +24,8 @@ export type MoveConfirmDialogProps = {
 };
 
 export type JdmEditorProps = {
-  value: any;
-  onChange: (val: any) => void;
+  value: DecisionGraphType;
+  onChange: (val: DecisionGraphType) => void;
 };
 
 export type CreateItemDialogProps = {

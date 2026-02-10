@@ -22,6 +22,13 @@ import { rulesApi } from "app/src/api/rulesApi";
 import { projectsApi } from "app/src/api/projectsApi";
 import { RuleFile } from "../../rules/pages/types/rulesTypes";
 
+type ApiRule = {
+  rule_key: string;
+  name: string;
+  status: string;
+  created_at: string;
+};
+
 export default function ProjectRuleComponent() {
   const { project_key } = useParams<{ project_key: string }>();
   const navigate = useNavigate();
@@ -44,9 +51,7 @@ export default function ProjectRuleComponent() {
     const fetchProjectName = async () => {
       try {
         const projects = await projectsApi.getProjectsView();
-        const project = projects.find(
-          (p: any) => p.project_key === project_key
-        );
+        const project = projects.find((p) => p.project_key === project_key);
         if (project?.name) setProjectName(project.name);
       } catch (err) {
         console.error("Project fetch error", err);
@@ -57,27 +62,28 @@ export default function ProjectRuleComponent() {
   }, [project_key]);
 
   /* ---------- Fetch RULES ---------- */
-  const loadRules = async () => {
-    if (!project_key) return;
-    try {
-      const data = await rulesApi.getProjectRules(project_key);
-
-      setRules(
-        data.map((item: any) => ({
-          id: item.rule_key,
-          name: item.name,
-          version: "-",
-          status: item.status,
-          updatedAt: item.created_at,
-        }))
-      );
-    } catch (error) {
-      console.error("Error loading rules:", error);
-    }
-  };
-
   useEffect(() => {
-    if (project_key) loadRules();
+    if (!project_key) return;
+
+    const loadRules = async () => {
+      try {
+        const data = (await rulesApi.getProjectRules(project_key)) as ApiRule[];
+
+        setRules(
+          data.map((item) => ({
+            id: item.rule_key,
+            name: item.name,
+            version: "-",
+            status: item.status,
+            updatedAt: item.created_at,
+          }))
+        );
+      } catch (error) {
+        console.error("Error loading rules:", error);
+      }
+    };
+
+    loadRules();
   }, [project_key]);
 
   /* ---------- Menu handlers ---------- */

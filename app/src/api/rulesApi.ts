@@ -1,4 +1,8 @@
-const API_BASE_URL = 'http://127.0.0.1:8000';
+// src/api/rulesApi.ts
+
+import { ENV } from '../config/env';
+
+const API_BASE_URL = ENV.API_BASE_URL;
 
 export const rulesApi = {
   // ---------- Create Rule ----------
@@ -9,7 +13,11 @@ export const rulesApi = {
     //type?: 'file' | 'folder'; //for folder structure 
     //parent_id?: string | null; 
   }) => {
-    const response = await fetch(`${API_BASE_URL}/rules/create`, {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Creating rule:', data);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/rules/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,12 +31,22 @@ export const rulesApi = {
       throw new Error(errorData.detail || 'Failed to create rule');
     }
 
-    return await response.json();
+    const result = await response.json();
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Rule created:', result);
+    }
+
+    return result;
   },
 
   // ---------- Get Rules By Project ----------
   getProjectRules: async (project_key: string) => {
-    const response = await fetch(`${API_BASE_URL}/rules/project/list`, {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Fetching rules for project:', project_key);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/rules/project/list`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,12 +60,22 @@ export const rulesApi = {
       throw new Error(errorData.detail || 'Failed to fetch rules');
     }
 
-    return await response.json();
+    const result = await response.json();
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Rules fetched:', result.length);
+    }
+
+    return result;
   },
 
   // ---------- Delete Rule ----------
   deleteRule: async (rule_key: string) => {
-    const response = await fetch(`${API_BASE_URL}/rules/delete`, {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Deleting rule:', rule_key);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/rules/delete`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +89,13 @@ export const rulesApi = {
       throw new Error(errorData.detail || 'Failed to delete rule');
     }
 
-    return await response.json();
+    const result = await response.json();
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Rule deleted:', rule_key);
+    }
+
+    return result;
   },
 
   // ---------- Update Rule ----------
@@ -73,7 +107,11 @@ export const rulesApi = {
     //type?: 'file' | 'folder';      // NEW - Optional for folder structure
     //parent_id?: string | null;
   }) => {
-    const response = await fetch(`${API_BASE_URL}/rules/update`, {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Updating rule:', data);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/rules/update`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -87,29 +125,49 @@ export const rulesApi = {
       throw new Error(errorData.detail || 'Failed to update rule');
     }
 
-    return await response.json();
+    const result = await response.json();
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Rule updated:', result);
+    }
+
+    return result;
   },
 
   // ---------- Get Rule Versions ----------
-getRuleVersions: async (rule_key: string) => {
-  const response = await fetch(
-    `${API_BASE_URL}/rule-versions/list`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({ rule_key }),
+  getRuleVersions: async (rule_key: string) => {
+    if (ENV.ENABLE_LOGGING) {
+      console.log('🔄 Fetching versions for rule:', rule_key);
     }
-  );
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || 'Failed to fetch rule versions');
-  }
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/rule-versions/list`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ rule_key }),
+      }
+    );
 
-  return await response.json();
-},
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to fetch rule versions');
+    }
 
+    const result = await response.json();
+
+    if (ENV.ENABLE_LOGGING) {
+      console.log('✅ Rule versions fetched:', result.length);
+    }
+
+    return result;
+  },
 };
+
+// Log API endpoint in development
+if (ENV.DEBUG_MODE) {
+  console.log('📡 Rules API Base URL:', API_BASE_URL);
+}

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 import AlertComponent from '../../../core/components/Alert';
-import { RepoItem } from '../../../core/types/commonTypes';
+import { RepoItem, JsonObject } from '../../../core/types/commonTypes';
+import type { DecisionGraphType } from '@gorules/jdm-editor';
 import Editor from './Editor';
 import { rulesApi } from 'app/src/api/rulesApi';
 import { projectsApi } from 'app/src/api/projectsApi';
@@ -20,7 +21,6 @@ export default function JdmEditorWithSimulator() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [openFiles, setOpenFiles] = useState<number[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
-  const [draggedItem, setDraggedItem] = useState<RepoItem | null>(null);
   const [projectName, setProjectName] = useState<string>('');
 
   /* ---------- Fetch project name ---------- */
@@ -31,7 +31,7 @@ export default function JdmEditorWithSimulator() {
       try {
         const projects = await projectsApi.getProjectsView();
         const project = projects.find(
-          (p: any) => p.project_key === project_key
+          (p) => p.project_key === project_key
         );
         if (project?.name) setProjectName(project.name);
       } catch (error) {
@@ -48,14 +48,19 @@ export default function JdmEditorWithSimulator() {
 
     const fetchRules = async () => {
       try {
-        const data = await rulesApi.getProjectRules(project_key);
+        type ApiRule = {
+          rule_key: number;
+          name: string;
+        };
+
+        const data = (await rulesApi.getProjectRules(project_key)) as ApiRule[];
 
         // Don't load graph here - just basic info
-        const treeItems: RepoItem[] = data.map((rule: any) => ({
+        const treeItems: RepoItem[] = data.map((rule) => ({
           id: rule.rule_key,
           name: rule.name,
           type: 'file' as const,
-          graph: {}, // Empty graph initially
+          graph: undefined, // Graph is loaded lazily per version
         }));
 
         setItems(treeItems);
@@ -107,16 +112,19 @@ export default function JdmEditorWithSimulator() {
     });
   };
 
-  const handleDragStart = (item: RepoItem) => {
-    setDraggedItem(item);
+  const handleDragStart = (_item: RepoItem) => {
+    // Drag-and-drop not implemented yet
   };
 
-  const handleDropOnFolder = (folder: RepoItem) => {
-    console.log('Dropped on folder:', folder);
+  const handleDropOnFolder = (_folder: RepoItem) => {
+    // Drag-and-drop not implemented yet
   };
 
   /* ---------- Simulator API Call ---------- */
-  const handleSimulatorRun = async (jdm: any, context: any): Promise<any> => {
+  const handleSimulatorRun = async (
+    jdm: DecisionGraphType,
+    context: JsonObject
+  ) => {
     console.log('Running simulation with context:', context);
     console.log('Current JDM graph:', jdm);
     

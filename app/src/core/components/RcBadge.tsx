@@ -7,6 +7,7 @@ import { Chip, Box } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { RuleStatus, DeploymentStatus } from 'app/src/modules/dashboard/deploy/types/featureFlagTypes';
 
+type StatusKey = RuleStatus | DeploymentStatus | 'veatus';
 
 interface BadgeProps {
   status: RuleStatus | DeploymentStatus;
@@ -15,11 +16,11 @@ interface BadgeProps {
 }
 
 export const Badge: React.FC<BadgeProps> = ({ status, label, showDot = false }) => {
-  const styles: Record<string, any> = {
+  const styles: Record<StatusKey, { bgcolor: string; color: string }> = {
     active: { bgcolor: 'success.light', color: 'success.dark' },
     inactive: { bgcolor: 'grey.200', color: 'grey.700' },
     pending: { bgcolor: 'warning.light', color: 'warning.dark' },
-    veatus: { bgcolor: 'grey.300', color: 'grey.700' }
+    veatus: { bgcolor: 'grey.300', color: 'grey.700' },
   };
 
   const displayLabel = label || status.charAt(0).toUpperCase() + status.slice(1);

@@ -69,7 +69,7 @@ export default function RulesTable() {
       setError(null);
  
       // Fetch all projects
-      const projectsResponse = await fetch(`${API_BASE_URL}/projects/view/active`, {
+      const projectsResponse = await fetch(`${API_BASE_URL}/api/v1/projects/view/active`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });

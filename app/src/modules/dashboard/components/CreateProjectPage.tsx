@@ -41,7 +41,7 @@ export default function CreateProjectPage() {
       try {
         const projects = await projectsApi.getProjectsView();
         const project = projects.find(
-          (p: any) => p.project_key === projectKey
+          (p) => p.project_key === projectKey
         );
 
         if (!project) {
@@ -86,9 +86,10 @@ export default function CreateProjectPage() {
       //  Duplicate name validation
       const allProjects = await projectsApi.getProjectsView();
 
-      const duplicate = allProjects.some((p: any) =>
-        p.name.toLowerCase().trim() === form.name.toLowerCase().trim() &&
-        p.project_key !== projectKey 
+      const duplicate = allProjects.some(
+        (p) =>
+          p.name.toLowerCase().trim() === form.name.toLowerCase().trim() &&
+          p.project_key !== projectKey
       );
 
       if (duplicate) {
