@@ -115,7 +115,7 @@ export default function CreateProjectPage() {
         });
       }
 
-      navigate('/dashboard');
+      navigate('/hub');
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Something went wrong');
@@ -185,7 +185,7 @@ export default function CreateProjectPage() {
         <Box display="flex" justifyContent="flex-end" gap={2}>
           <Button
             variant="text"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/hub')}
           >
             Cancel
           </Button>

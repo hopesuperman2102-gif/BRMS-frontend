@@ -132,7 +132,7 @@ export default function ProjectRuleComponent() {
   const handleEdit = () => {
     if (!menuRule) return;
     navigate(
-      `/dashboard/${project_key}/rules/createrules?key=${menuRule.id}`
+      `/hub/${project_key}/rules/createrules?key=${menuRule.id}`
     );
     closeMenu();
   };
@@ -145,7 +145,7 @@ export default function ProjectRuleComponent() {
         sx={{ cursor: 'pointer', color: '#4f46e5' }}
         onClick={() =>
           navigate(
-            `/dashboard/${project_key}/rules/editor?rule=${rule.id}`
+            `/hub/${project_key}/rules/editor?rule=${rule.id}`
           )
         }
       >
@@ -168,7 +168,7 @@ export default function ProjectRuleComponent() {
         <SectionHeader
           left={
             <Box display="flex" alignItems="center" gap={1}>
-              <IconButton onClick={() => navigate('/dashboard')}>
+              <IconButton onClick={() => navigate('/hub')}>
                 <ArrowBackIcon />
               </IconButton>
               <Typography variant="h6">
@@ -181,7 +181,7 @@ export default function ProjectRuleComponent() {
               variant="contained"
               onClick={() =>
                 navigate(
-                  `/dashboard/${project_key}/rules/createrules`
+                  `/hub/${project_key}/rules/createrules`
                 )
               }
             >

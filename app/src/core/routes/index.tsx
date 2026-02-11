@@ -3,7 +3,7 @@ import type { AppRoute } from '../types/routeTypes';
 
 // Import route definitions from modules
 // These imports will automatically execute registerRoutes() when the modules are loaded
-import '../../modules/dashboard/routes';
+import '../../modules/hub/routes';
 import '../../modules/rules/routes';
 import '../../modules/JdmEditorPage/routes';
 

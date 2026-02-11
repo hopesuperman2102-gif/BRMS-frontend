@@ -1,20 +1,20 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
-import DashboardPage from '../page/DashboardPage';
 import CreateProjectPage from '../components/CreateProjectPage';
+import HubPage from '../page/HubPage';
 
 
-const dashboardRoutes: AppRoute[] = [
+const hubRoutes: AppRoute[] = [
   {
-    path: '/dashboard',
-    element: DashboardPage,
+    path: '/hub',
+    element: HubPage,
     layout: 'main',
     metadata: {
-      title: 'Dashboard',
+      title: 'Hub',
     },
   },
   {
-    path: '/dashboard/createproject',
+    path: '/hub/createproject',
     element: CreateProjectPage,
     layout: 'main',
     metadata: {
@@ -23,6 +23,5 @@ const dashboardRoutes: AppRoute[] = [
   },
 ];
 
-registerRoutes(dashboardRoutes);
-
-export default dashboardRoutes;
+registerRoutes(hubRoutes);
+export default hubRoutes;
