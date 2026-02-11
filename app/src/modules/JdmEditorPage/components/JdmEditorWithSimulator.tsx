@@ -97,7 +97,7 @@ export default function JdmEditorWithSimulator() {
       sessionStorage.setItem('activeRuleName', item.name);
       
       // Update URL with rule parameter
-      navigate(`/dashboard/${project_key}/rules/editor?rule=${item.id}`, {
+      navigate(`/hub/${project_key}/rules/editor?rule=${item.id}`, {
         replace: true,
       });
     }
@@ -170,7 +170,7 @@ export default function JdmEditorWithSimulator() {
         onDropOnFolder={handleDropOnFolder}
         onBackClick={() => {
           if (project_key) {
-            navigate(`/dashboard/${project_key}/rules`);
+            navigate(`/hub/${project_key}/rules`);
           }
         }}
       />

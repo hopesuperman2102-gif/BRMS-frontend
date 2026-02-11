@@ -9,7 +9,7 @@ import { Card } from 'app/src/core/components/RcCard';
 const mockTitles = [
   'Login Feature',
   'Payment Gateway',
-  'Dashboard Redesign',
+  'Redesign',
   'Live Chat',
   'Email Notifications',
   'Dark Mode',

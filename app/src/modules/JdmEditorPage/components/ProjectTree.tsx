@@ -137,7 +137,7 @@ export default function ProjectRuleComponent() {
         onClick={() => {
           sessionStorage.setItem("activeRuleName", rule.name);
           sessionStorage.setItem("activeRuleId", rule.id);
-          navigate(`/dashboard/${project_key}/rules/editor`);
+          navigate(`/hub/${project_key}/rules/editor`);
         }}
       >
         {rule.name}

@@ -10,7 +10,7 @@ import { Layout } from '../types/routeTypes';
 
 // Import route definitions from modules
 import '../../modules/auth/routes';
-import '../../modules/dashboard/routes';
+import '../../modules/hub/routes';
 import '../../modules/rules/routes';
 import '../../modules/JdmEditorPage/routes';
 
@@ -84,7 +84,7 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/hub" replace />} />
         {renderRoutes(routes)}
       </Routes>
     </BrowserRouter>

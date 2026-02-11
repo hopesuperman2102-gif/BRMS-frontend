@@ -104,13 +104,13 @@ export default function ProjectListCard() {
   const handleEdit = () => {
     if (!selectedProject) return;
 
-    navigate(`/dashboard/createproject?key=${selectedProject.project_key}`);
+    navigate(`/hub/createproject?key=${selectedProject.project_key}`);
     handleMenuClose();
   };
 
 
   const handleOpenProject = (project: Project) => {
-    navigate(`/dashboard/${project.project_key}/rules`);
+    navigate(`/hub/${project.project_key}/rules`);
   };
 
   return (
@@ -150,7 +150,7 @@ export default function ProjectListCard() {
 
             <Button
               variant="contained"
-              onClick={() => navigate("/dashboard/createproject")}
+              onClick={() => navigate("/hub/createproject")}
               sx={{
                 background: brmsTheme.gradients.primary,
                 boxShadow: brmsTheme.shadows.primarySoft,

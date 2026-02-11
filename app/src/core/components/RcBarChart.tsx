@@ -5,7 +5,8 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
-import { RuleChange } from 'app/src/modules/dashboard/deploy/types/featureFlagTypes';
+import { RuleChange } from 'app/src/modules/hub/deploy/types/featureFlagTypes';
+
 
 
 interface BarChartProps {

@@ -6,7 +6,7 @@ import ProjectList from './ProjectList';
 import RulesTable from './RulesTable';
 import FeatureFlagComponent from '../deploy/components/Featureflagcomponent';
 
-const DashboardComponent: React.FC = () => {
+const HubComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
 
   return (
@@ -55,5 +55,5 @@ const DashboardComponent: React.FC = () => {
   );
 };
 
-export default DashboardComponent;
+export default HubComponent;
 

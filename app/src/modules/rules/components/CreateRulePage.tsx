@@ -112,7 +112,7 @@ export default function CreateRulePage() {
         });
       }
 
-      navigate(`/dashboard/${project_key}/rules`);
+      navigate(`/hub/${project_key}/rules`);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Something went wrong';
@@ -180,7 +180,7 @@ export default function CreateRulePage() {
           <Button
             variant="text"
             onClick={() =>
-              navigate(`/dashboard/${project_key}/rules`)
+              navigate(`/hub/${project_key}/rules`)
             }
           >
             Cancel
