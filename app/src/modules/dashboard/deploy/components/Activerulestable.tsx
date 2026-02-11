@@ -79,7 +79,7 @@ export const ActiveRulesTable: React.FC<ActiveRulesTableProps> = ({
             <TableBody>
               {rules.map((rule, idx) => (
                 <MotionTableRow
-                  key={rule.id}
+                  key={rule.id ?? `rule-${idx}`}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 * idx }}

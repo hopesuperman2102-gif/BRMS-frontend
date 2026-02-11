@@ -44,10 +44,11 @@ export default function Editor({
   };
 
   const selectedItem = selectedId ? findItem(items, selectedId) : null;
+  const selectedItemId = selectedItem?.id;
 
   // Fetch versions ONLY when a specific rule is selected
   useEffect(() => {
-    if (!selectedItem) {
+    if (!selectedItemId) {
       setVersions([]);
       setSelectedVersion('');
       setCurrentGraph(null);
@@ -57,13 +58,13 @@ export default function Editor({
     const fetchVersionsForSelectedRule = async () => {
       setIsVersionsLoading(true);
       try {
-        console.log(`Fetching versions for rule: ${selectedItem.id}`);
+        console.log(`Fetching versions for rule: ${selectedItemId}`);
         
         // Only call list API once for THIS rule only
-        const versionsList = await ruleVersionsApi.listVersions(String(selectedItem.id));
+        const versionsList = await ruleVersionsApi.listVersions(String(selectedItemId));
 
         if (versionsList && versionsList.length > 0) {
-          console.log(`Found ${versionsList.length} versions for rule ${selectedItem.id}`);
+          console.log(`Found ${versionsList.length} versions for rule ${selectedItemId}`);
           setVersions(versionsList);
           
           // Set the latest version (first in array) as selected
@@ -77,7 +78,7 @@ export default function Editor({
             // If no JDM in the version list response, fetch it
             try {
               const versionData = await ruleVersionsApi.getVersionData(
-                String(selectedItem.id),
+                String(selectedItemId),
                 latestVersion.version
               );
               setCurrentGraph(versionData.jdm ?? null);
@@ -88,7 +89,7 @@ export default function Editor({
           }
         } else {
           // No versions exist for this rule
-          console.log(`No versions found for rule ${selectedItem.id}`);
+          console.log(`No versions found for rule ${selectedItemId}`);
           setVersions([]);
           setSelectedVersion('');
           // Show an empty editor so user can start drawing immediately
@@ -107,7 +108,7 @@ export default function Editor({
     };
 
     fetchVersionsForSelectedRule();
-  }, [selectedItem?.id]); // Only trigger when selectedItem.id changes
+  }, [selectedItemId, showAlert]); // Only trigger when selected rule changes
 
   // Handle version change in dropdown
   const handleVersionChange = async (version: string) => {

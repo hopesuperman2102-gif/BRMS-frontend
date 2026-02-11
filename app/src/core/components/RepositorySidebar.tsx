@@ -19,6 +19,7 @@ export default function RepositorySidebar({
   onDropOnFolder,
   onBackClick,
 }: RepositorySidebarProps) {
+  void onAddClick;
   return (
     <Box 
       sx={{ 

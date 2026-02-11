@@ -17,6 +17,14 @@ type FormState = {
   description: string;
 };
 
+type ApiRule = {
+  rule_key: string;
+  name: string;
+  description?: string;
+  status: string;
+  created_at: string;
+};
+
 export default function CreateRulePage() {
   const navigate = useNavigate();
   const { project_key } = useParams<{ project_key: string }>();
@@ -39,7 +47,7 @@ export default function CreateRulePage() {
 
     const loadRule = async () => {
       try {
-        const rules = await rulesApi.getProjectRules(project_key);
+        const rules = (await rulesApi.getProjectRules(project_key)) as ApiRule[];
         const rule = rules.find((r) => r.rule_key === ruleKey);
 
         if (!rule) {
@@ -71,8 +79,8 @@ export default function CreateRulePage() {
     try {
       setLoading(true);
 
-      // 🔒 Duplicate name check
-      const existingRules = await rulesApi.getProjectRules(project_key!);
+      //  Duplicate name check
+      const existingRules = (await rulesApi.getProjectRules(project_key!)) as ApiRule[];
 
       const duplicate = existingRules.some(
         (r) =>
@@ -86,7 +94,7 @@ export default function CreateRulePage() {
         return;
       }
 
-      // ✏️ Edit
+      //  Edit
       if (isEditMode && ruleKey) {
         await rulesApi.updateRule({
           rule_key: ruleKey,

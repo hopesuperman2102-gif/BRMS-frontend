@@ -3,12 +3,9 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Chip, IconButton, Breadcrumbs, Link } from '@mui/material';
+import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
-import PersonIcon from '@mui/icons-material/Person';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { BreadcrumbItem, Environment } from '../types/featureFlagTypes';
+import { Environment } from '../types/featureFlagTypes';
 import { Card } from 'app/src/core/components/RcCard';
 import Dropdown from 'app/src/core/components/Dropdown';
 import { projectItems } from '../mock_data';
@@ -27,6 +24,7 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
   activeEnvironment,
   onEnvironmentClick
 }) => {
+  void activeEnvironment;
   const getEnvColor = (env: Environment) => {
     if (env === 'PROD') return { bgcolor: 'error.main', color: 'white' };
     if (env === 'QA') return { bgcolor: 'primary.main', color: 'white' };

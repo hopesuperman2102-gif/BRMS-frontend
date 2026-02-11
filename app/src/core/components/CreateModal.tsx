@@ -38,7 +38,8 @@ export function CreateModal({
     if (errorMessage) setErrorMessage('');
     if (fieldErrors[fieldName]) {
       setFieldErrors((prev) => {
-        const { [fieldName]: _, ...rest } = prev;
+        const rest = { ...prev };
+        delete rest[fieldName];
         return rest;
       });
     }

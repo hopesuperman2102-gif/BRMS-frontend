@@ -112,11 +112,11 @@ export default function JdmEditorWithSimulator() {
     });
   };
 
-  const handleDragStart = (_item: RepoItem) => {
+  const handleDragStart = () => {
     // Drag-and-drop not implemented yet
   };
 
-  const handleDropOnFolder = (_folder: RepoItem) => {
+  const handleDropOnFolder = () => {
     // Drag-and-drop not implemented yet
   };
 

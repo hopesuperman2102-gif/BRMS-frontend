@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -22,7 +22,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 
 export default function LoginPage() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',

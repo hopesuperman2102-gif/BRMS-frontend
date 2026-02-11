@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -34,7 +34,7 @@ export default function ProjectRuleComponent() {
   const navigate = useNavigate();
 
   const [rules, setRules] = useState<RuleFile[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedIndex] = useState<number | null>(null);
 
   const [openCreate, setOpenCreate] = useState(false);
   const [editRule, setEditRule] = useState<RuleFile | null>(null);
@@ -43,6 +43,32 @@ export default function ProjectRuleComponent() {
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [menuRule, setMenuRule] = useState<RuleFile | null>(null);
+
+  const mapRuleStatus = (status: string): RuleFile["status"] => {
+    const upper = status.toUpperCase();
+    if (upper === "ACTIVE") return "Active";
+    if (upper === "ARCHIVED") return "Archived";
+    return "Draft";
+  };
+
+  const loadRules = useCallback(async () => {
+    if (!project_key) return;
+    try {
+      const data = (await rulesApi.getProjectRules(project_key)) as ApiRule[];
+
+      setRules(
+        data.map((item) => ({
+          id: item.rule_key,
+          name: item.name,
+          version: "-",
+          status: mapRuleStatus(item.status),
+          updatedAt: item.created_at,
+        }))
+      );
+    } catch (error) {
+      console.error("Error loading rules:", error);
+    }
+  }, [project_key]);
 
   /* ---------- Fetch PROJECT NAME ---------- */
   useEffect(() => {
@@ -63,28 +89,9 @@ export default function ProjectRuleComponent() {
 
   /* ---------- Fetch RULES ---------- */
   useEffect(() => {
-    if (!project_key) return;
-
-    const loadRules = async () => {
-      try {
-        const data = (await rulesApi.getProjectRules(project_key)) as ApiRule[];
-
-        setRules(
-          data.map((item) => ({
-            id: item.rule_key,
-            name: item.name,
-            version: "-",
-            status: item.status,
-            updatedAt: item.created_at,
-          }))
-        );
-      } catch (error) {
-        console.error("Error loading rules:", error);
-      }
-    };
-
-    loadRules();
-  }, [project_key]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadRules();
+  }, [loadRules]);
 
   /* ---------- Menu handlers ---------- */
   const openMenu = (e: React.MouseEvent<HTMLElement>, rule: RuleFile) => {
@@ -172,9 +179,9 @@ export default function ProjectRuleComponent() {
         return { success: true };
       } else {
         // Check for duplicate rule name before creating
-        const existingRules = await rulesApi.getProjectRules(project_key);
+        const existingRules = await rulesApi.getProjectRules(project_key) as { name: string }[];
         const nameExists = existingRules.some(
-          (r: any) => r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
+          (r) => r.name.toLowerCase().trim() === data.name.toLowerCase().trim()
         );
 
         if (nameExists) {
@@ -193,11 +200,13 @@ export default function ProjectRuleComponent() {
         loadRules();
         return { success: true };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error in handleCreateOrUpdate:", error);
+      const message =
+        error instanceof Error ? error.message : "An error occurred";
       return {
         success: false,
-        error: error.message || "An error occurred",
+        error: message,
       };
     }
   };

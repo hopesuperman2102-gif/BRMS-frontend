@@ -3,12 +3,10 @@
 'use client';
 
 import React from 'react';
-import { Box, Checkbox, Typography, Button, Divider } from '@mui/material';
+import { Box, Checkbox, Typography, Divider } from '@mui/material';
 import { motion } from 'framer-motion';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import { Rule } from '../types/featureFlagTypes';
-import { Badge } from 'app/src/core/components/RcBadge';
 import { Card, CardHeader } from 'app/src/core/components/RcCard';
 import Dropdown from 'app/src/core/components/Dropdown';
 import { projectItems } from '../mock_data';
@@ -33,7 +31,7 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {rules.map((rule, idx) => (
           <motion.div
-            key={rule.id}
+            key={rule.id ?? `rule-${idx}`}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 + idx * 0.1 }}

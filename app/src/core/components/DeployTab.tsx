@@ -16,7 +16,7 @@ import { styled } from "@mui/material/styles";
 import CdfTable from "./CdfTable";
 
 // Styled Components for that "Aesthetic" look
-const GlassCard = styled(Card)(({ theme }) => ({
+const GlassCard = styled(Card)(() => ({
   background: "rgba(255, 255, 255, 0.8)",
   backdropFilter: "blur(12px)",
   borderRadius: "16px",

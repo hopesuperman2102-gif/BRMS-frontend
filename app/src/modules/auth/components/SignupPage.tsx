@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -24,7 +24,6 @@ import { brmsTheme } from '../../../core/theme/brmsTheme';
 
 
 export default function SignupPage() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',

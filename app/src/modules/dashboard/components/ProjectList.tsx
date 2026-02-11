@@ -40,14 +40,26 @@ export default function ProjectListCard() {
       setLoading(true);
       const response = await projectsApi.getProjectsView();
 
-      const projectsFromApi: Project[] = response.map((p) => ({
-        id: String(p.id),
-        project_key: p.project_key,
-        name: p.name,
-        description: p.description,
-        domain: p.domain,
-        updatedAt: new Date(p.updated_at || p.created_at).toLocaleString(),
-      }));
+      const projectsFromApi: Project[] = response.map((p) => {
+        const updatedAtSource =
+          (p.updated_at as string | number | Date | undefined) ??
+          (p.created_at as string | number | Date | undefined) ??
+          "";
+
+        const updatedAt =
+          updatedAtSource !== ""
+            ? new Date(updatedAtSource).toLocaleString()
+            : "";
+
+        return {
+          id: String(p.id),
+          project_key: p.project_key,
+          name: p.name,
+          description: p.description,
+          domain: p.domain,
+          updatedAt,
+        };
+      });
 
       setProjects(projectsFromApi);
     } catch (error) {

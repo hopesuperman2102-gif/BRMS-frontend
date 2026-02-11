@@ -1,7 +1,7 @@
 'use client';
  
-import { useState, useEffect } from 'react';
-import { Typography, CircularProgress, Box, Alert, Paper } from '@mui/material';
+import { useState, useEffect, useCallback } from 'react';
+import { Typography, CircularProgress, Box, Alert } from '@mui/material';
 import { CollapsibleTable } from 'app/src/core/components/CollapsibleTable';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -59,11 +59,79 @@ export default function RulesTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
  
-  useEffect(() => {
-    fetchAllData();
-  }, []);
- 
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
+    const fetchRuleVersions = async (rule_key: string): Promise<RuleVersion[]> => {
+      try {
+        const versionsResponse = await fetch(`${API_BASE_URL}/api/v1/rule-versions/list`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rule_key }),
+        });
+    
+        if (!versionsResponse.ok) return [];
+    
+        return await versionsResponse.json();
+      } catch (error) {
+        console.error(`Error fetching versions for rule ${rule_key}:`, error);
+        return [];
+      }
+    };
+
+    const fetchProjectRules = async (project: Project): Promise<ProjectRuleRow[]> => {
+      try {
+        // Fetch rules for project
+        const rulesResponse = await fetch(`${API_BASE_URL}/api/v1/rules/project/list`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_key: project.project_key }),
+        });
+    
+        if (!rulesResponse.ok) return [];
+    
+        const rules: Rule[] = await rulesResponse.json();
+        // If no rules returned, return empty array
+        if (rules.length === 0) return [];
+    
+        // Fetch versions for each rule and create rows
+        const allRows: ProjectRuleRow[] = [];
+    
+        for (const rule of rules) {
+          const versions = await fetchRuleVersions(rule.rule_key);
+    
+          if (versions.length > 0) {
+            // Creates a row for each version
+            versions.forEach((version) => {
+              allRows.push({
+                id: `${rule.rule_key}-${version.version}`,
+                name: rule.name,
+                version: version.version,
+                projectStatus: mapStatus(rule.status),
+                approvalStatus: 'Pending',
+                rule_key: rule.rule_key,
+                project_key: project.project_key,
+              });
+            });
+          } else {
+            // If No versions found
+            allRows.push({
+              id: `${rule.rule_key}-NA`,
+              name: rule.name,
+              version: 'N/A',
+              projectStatus: mapStatus(rule.status),
+              approvalStatus: 'Pending',
+              rule_key: rule.rule_key,
+              project_key: project.project_key,
+            });
+          }
+        }
+    
+        return allRows;
+      } catch (error) {
+        console.error(`Error fetching rules for project ${project.project_key}:`, error);
+        return [];
+      }
+    };
+
     try {
       setLoading(true);
       setError(null);
@@ -114,79 +182,11 @@ export default function RulesTable() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
  
-  const fetchProjectRules = async (project: Project): Promise<ProjectRuleRow[]> => {
-    try {
-      // Fetch rules for project
-      const rulesResponse = await fetch(`${API_BASE_URL}/rules/project/list`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_key: project.project_key }),
-      });
- 
-      if (!rulesResponse.ok) return [];
- 
-      const rules: Rule[] = await rulesResponse.json();
-      // If no rules returned, return empty array
-      if (rules.length === 0) return [];
- 
-      // Fetch versions for each rule and create rows
-      const allRows: ProjectRuleRow[] = [];
- 
-      for (const rule of rules) {
-        const versions = await fetchRuleVersions(rule.rule_key);
- 
-        if (versions.length > 0) {
-          // Creates a row for each version
-          versions.forEach((version) => {
-            allRows.push({
-              id: `${rule.rule_key}-${version.version}`,
-              name: rule.name,
-              version: version.version,
-              projectStatus: mapStatus(rule.status),
-              approvalStatus: 'Pending',
-              rule_key: rule.rule_key,
-              project_key: project.project_key,
-            });
-          });
-        } else {
-          // If No versions found
-          allRows.push({
-            id: `${rule.rule_key}-NA`,
-            name: rule.name,
-            version: 'N/A',
-            projectStatus: mapStatus(rule.status),
-            approvalStatus: 'Pending',
-            rule_key: rule.rule_key,
-            project_key: project.project_key,
-          });
-        }
-      }
- 
-      return allRows;
-    } catch (error) {
-      console.error(`Error fetching rules for project ${project.project_key}:`, error);
-      return [];
-    }
-  };
- 
-  const fetchRuleVersions = async (rule_key: string): Promise<RuleVersion[]> => {
-    try {
-      const versionsResponse = await fetch(`${API_BASE_URL}/rule-versions/list`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rule_key }),
-      });
- 
-      if (!versionsResponse.ok) return [];
- 
-      return await versionsResponse.json();
-    } catch (error) {
-      console.error(`Error fetching versions for rule ${rule_key}:`, error);
-      return [];
-    }
-  };
+  useEffect(() => {
+    void fetchAllData();
+  }, [fetchAllData]);
  
   const handleStatusChange = (
     projectKey: string,

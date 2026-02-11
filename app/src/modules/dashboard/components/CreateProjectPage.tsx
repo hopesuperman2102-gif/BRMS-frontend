@@ -54,7 +54,7 @@ export default function CreateProjectPage() {
           description: project.description || '',
           domain: project.domain || '',
         });
-      } catch (err) {
+      } catch {
         setError('Failed to load project');
       }
     };
@@ -116,8 +116,12 @@ export default function CreateProjectPage() {
       }
 
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Something went wrong');
+      } else {
+        setError('Something went wrong');
+      }
     } finally {
       setLoading(false);
     }

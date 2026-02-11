@@ -1,5 +1,5 @@
 import { DropdownItem } from "app/src/core/components/Dropdown";
-import { BreadcrumbItem, DashboardStats, DeploymentHistory, Environment, Rule } from "./types/featureFlagTypes";
+import { DashboardStats, DeploymentHistory, Environment, Rule } from "./types/featureFlagTypes";
 
 // Mock Data - Replace with actual API calls
 export const mockStats: DashboardStats = {

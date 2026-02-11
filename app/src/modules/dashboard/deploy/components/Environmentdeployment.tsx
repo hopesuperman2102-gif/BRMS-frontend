@@ -1,9 +1,9 @@
 // app/src/modules/feature-flags/components/EnvironmentDeployment.tsx
 
 'use client';
-
+ 
 import React from 'react';
-import { Box, Button, Typography, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Button, Typography, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { motion } from 'framer-motion';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { Environment } from '../types/featureFlagTypes';

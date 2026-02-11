@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import ProjectList from './ProjectList';
-import DeployTab from 'app/src/core/components/DeployTab';
 import RulesTable from './RulesTable';
 import FeatureFlagComponent from '../deploy/components/Featureflagcomponent';
 

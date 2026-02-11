@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -28,7 +28,7 @@ export default function ProjectRuleComponent() {
   const navigate = useNavigate();
 
   const [rules, setRules] = useState<RuleFile[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedIndex] = useState<number | null>(null);
 
   const [openCreate, setOpenCreate] = useState(false);
   const [editRule, setEditRule] = useState<RuleFile | null>(null);
@@ -62,22 +62,22 @@ export default function ProjectRuleComponent() {
     status: string;
     updated_at: string;
   };
-
-  const loadRules = async () => {
+ 
+  const loadRules = useCallback(async () => {
     if (!project_key) return;
     try {
       const data = (await rulesApi.getProjectRules(project_key)) as ApiRule[];
-
+ 
       // Fetch versions for each rule in parallel
       const rulesWithVersions = await Promise.all(
         data.map(async (item) => {
           try {
             const versions = await rulesApi.getRuleVersions(item.rule_key);
-
+ 
             // Pick latest version (first item since backend returns latest first)
             const latestVersion =
               versions && versions.length > 0 ? versions[0].version : "-";
-
+ 
             return {
               id: item.rule_key,
               name: item.name,
@@ -97,18 +97,22 @@ export default function ProjectRuleComponent() {
           }
         })
       );
-
+ 
       setRules(rulesWithVersions);
     } catch (error) {
       console.error("Error loading rules:", error);
     }
-  };
-
-  useEffect(() => {
-    if (project_key) {
-      void loadRules();
-    }
   }, [project_key]);
+ 
+  useEffect(() => {
+    if (!project_key) return;
+
+    const timeoutId = setTimeout(() => {
+      void loadRules();
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [project_key, loadRules]);
 
   /* ---------- Menu handlers ---------- */
   const openMenu = (
@@ -243,11 +247,13 @@ export default function ProjectRuleComponent() {
         loadRules();
         return { success: true };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating/updating rule:", error);
+      const message =
+        error instanceof Error ? error.message : "An error occurred";
       return {
         success: false,
-        error: error.message || "An error occurred",
+        error: message,
       };
     }
   };
