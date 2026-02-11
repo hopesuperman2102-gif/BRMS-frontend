@@ -43,6 +43,7 @@ export default function ProjectRuleComponent() {
   const [projectName, setProjectName] = useState('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [menuRule, setMenuRule] = useState<RuleFile | null>(null);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   /* ---------- Project name ---------- */
   useEffect(() => {
@@ -56,39 +57,54 @@ export default function ProjectRuleComponent() {
   }, [project_key]);
 
   /* ---------- Rules ---------- */
-  const loadRules = async () => {
+  useEffect(() => {
     if (!project_key) return;
 
-    const data = await rulesApi.getProjectRules(project_key);
-    const rows = await Promise.all(
-      data.map(async (r: RuleResponse) => {
-        try {
-          const versions = await rulesApi.getRuleVersions(r.rule_key);
-          return {
-            id: r.rule_key,
-            name: r.name,
-            version: versions?.[0]?.version ?? '-',
-            status: r.status,
-            updatedAt: r.updated_at,
-          };
-        } catch {
-          return {
-            id: r.rule_key,
-            name: r.name,
-            version: '-',
-            status: r.status,
-            updatedAt: r.updated_at,
-          };
+    let isMounted = true;
+
+    const fetchRules = async () => {
+      try {
+        const data = await rulesApi.getProjectRules(project_key);
+        const rows = await Promise.all(
+          data.map(async (r: RuleResponse) => {
+            try {
+              const versions = await rulesApi.getRuleVersions(r.rule_key);
+              return {
+                id: r.rule_key,
+                name: r.name,
+                version: versions?.[0]?.version ?? '-',
+                status: r.status,
+                updatedAt: r.updated_at,
+              };
+            } catch {
+              return {
+                id: r.rule_key,
+                name: r.name,
+                version: '-',
+                status: r.status,
+                updatedAt: r.updated_at,
+              };
+            }
+          })
+        );
+
+        if (isMounted) {
+          setRules(rows);
         }
-      })
-    );
+      } catch (error) {
+        console.error('Failed to fetch rules:', error);
+        if (isMounted) {
+          setRules([]);
+        }
+      }
+    };
 
-    setRules(rows);
-  };
+    fetchRules();
 
-  useEffect(() => {
-    loadRules();
-  }, [project_key]);
+    return () => {
+      isMounted = false;
+    };
+  }, [project_key, refetchTrigger]);
 
   /* ---------- Menu ---------- */
   const openMenu = (e: React.MouseEvent<HTMLElement>, rule: RuleFile) => {
@@ -103,9 +119,14 @@ export default function ProjectRuleComponent() {
 
   const handleDelete = async () => {
     if (!menuRule) return;
-    await rulesApi.deleteRule(menuRule.id);
-    closeMenu();
-    loadRules();
+    try {
+      await rulesApi.deleteRule(menuRule.id);
+      closeMenu();
+      // Trigger refetch by incrementing the counter
+      setRefetchTrigger((prev) => prev + 1);
+    } catch (error) {
+      console.error('Failed to delete rule:', error);
+    }
   };
 
   const handleEdit = () => {

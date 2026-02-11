@@ -28,6 +28,7 @@ const mockTitles = [
 // Automatically convert titles into card data
 const mockData = mockTitles.map((title, index) => ({
   name: title,
+  id: index, // Add unique id for key prop
 }));
 
 export default function FeatureFlagsCardsPage() {
@@ -54,9 +55,10 @@ export default function FeatureFlagsCardsPage() {
           mx: 'auto',
         }}
       >
-        {mockData.map((item, index) => (
+        {mockData.map((item) => (
           <Card
-            delay={index * 0.03}
+            key={item.id}
+            delay={item.id * 0.03}
             sx={{
               background: '#ffffff',
               border: `1px solid rgba(101, 82, 208, 0.1)`,
