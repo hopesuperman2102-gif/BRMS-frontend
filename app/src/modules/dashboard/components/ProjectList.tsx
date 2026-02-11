@@ -91,7 +91,7 @@ export default function ProjectListCard() {
     if (!selectedProject) return;
 
     try {
-      await projectsApi.deleteProject(selectedProject.project_key);
+      await projectsApi.deleteProject(selectedProject.project_key,"admin");
       setProjects((prev) =>
         prev.filter((p) => p.project_key !== selectedProject.project_key)
       );

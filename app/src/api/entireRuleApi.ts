@@ -29,7 +29,7 @@ export const rulesTableApi = {
       console.log('🔄 [RulesTable] Fetching active projects');
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/view/active`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/?status=ACTIVE`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -57,13 +57,12 @@ export const rulesTableApi = {
       console.log('🔄 [RulesTable] Fetching rules for project:', project_key);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/rules/project/list`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}/rules`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ project_key }),
     });
 
     if (!response.ok) {
@@ -87,14 +86,13 @@ export const rulesTableApi = {
     }
 
     const response = await fetch(
-      `${API_BASE_URL}/api/v1/rule-versions/list`,
+      `${API_BASE_URL}/api/v1/rules/${rule_key}/versions`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ rule_key }),
       }
     );
 
