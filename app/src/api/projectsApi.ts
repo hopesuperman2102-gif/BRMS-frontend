@@ -32,7 +32,7 @@ export const projectsApi = {
       console.log('🔄 Creating project:', requestBody);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/create`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export const projectsApi = {
       console.log('🔄 Fetching active projects');
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/view/active`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/?status=ACTIVE`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -84,21 +84,17 @@ export const projectsApi = {
   },
 
   // Delete a project
-  deleteProject: async (project_key: string) => {
+  deleteProject: async (project_key: string, deleted_by: string) => {
     if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Deleting project:', project_key);
+      console.log(' Deleting project:', project_key);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/delete`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}?deleted_by=${deleted_by}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        project_key,
-        deleted_by: 'admin',
-      }),
     });
 
     if (!response.ok) {
@@ -128,13 +124,12 @@ export const projectsApi = {
       console.log('🔄 Updating project:', project_key, data);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/update`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        project_key,
         ...data,
         updated_by: 'admin',
       }),

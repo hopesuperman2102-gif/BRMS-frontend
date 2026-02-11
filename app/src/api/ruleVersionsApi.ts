@@ -82,9 +82,7 @@ export const ruleVersionsApi = {
 
   listVersions: async (rule_key: string): Promise<RuleVersion[]> => {
     try {
-      const response = await axiosInstance.post('/api/v1/rule-versions/list', {
-        rule_key,
-      });
+      const response = await axiosInstance.get(`/api/v1/rules/${rule_key}/versions`,);
       return response.data;
     } catch (error) {
       console.error('Error fetching rule versions:', error);
@@ -97,7 +95,7 @@ export const ruleVersionsApi = {
    */
   createVersion: async (data: CreateRuleVersionRequest): Promise<RuleVersion> => {
     try {
-      const response = await axiosInstance.post('/api/v1/rule-versions/create', data);
+      const response = await axiosInstance.post(`/api/v1/rules/${data.rule_key}/versions`, data);
       return response.data as RuleVersion;
     } catch (error) {
       console.error('Error creating rule version:', error);
@@ -105,18 +103,17 @@ export const ruleVersionsApi = {
     }
   },
 
-  /**
-   * Get a specific version's JDM data
-   */
+  
+   // Get a specific version's JDM data
+   
   getVersionData: async (
     rule_key: string,
     version: string
   ): Promise<{ jdm: DecisionGraphType }> => {
     try {
-      const response = await axiosInstance.post('/api/v1/rule-versions/get', {
-        rule_key,
-        version,
-      });
+      const response = await axiosInstance.get(`api/v1/rules/${rule_key}/versions/${version}`,
+ 
+      );
       return response.data as { jdm: DecisionGraphType };
     } catch (error) {
       console.error('Error fetching version data:', error);

@@ -17,7 +17,7 @@ export const rulesApi = {
       console.log('🔄 Creating rule:', data);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/rules/create`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${data.project_key}/rules`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export const rulesApi = {
     const result = await response.json();
 
     if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Rule created:', result);
+      console.log('Rule created:', result);
     }
 
     return result;
@@ -43,16 +43,15 @@ export const rulesApi = {
   // ---------- Get Rules By Project ----------
   getProjectRules: async (project_key: string) => {
     if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Fetching rules for project:', project_key);
+      console.log(' Fetching rules for project:', project_key);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/rules/project/list`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}/rules`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ project_key }),
     });
 
     if (!response.ok) {
@@ -63,7 +62,7 @@ export const rulesApi = {
     const result = await response.json();
 
     if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Rules fetched:', result.length);
+      console.log(' Rules fetched:', result.length);
     }
 
     return result;
@@ -75,7 +74,7 @@ export const rulesApi = {
       console.log('🔄 Deleting rule:', rule_key);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/rules/delete`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/rules/${rule_key}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +110,7 @@ export const rulesApi = {
       console.log('🔄 Updating rule:', data);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/rules/update`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/rules/${data.rule_key}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -141,14 +140,13 @@ export const rulesApi = {
     }
 
     const response = await fetch(
-      `${API_BASE_URL}/api/v1/rule-versions/list`,
+      `${API_BASE_URL}/api/v1/rules/${rule_key}/versions`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ rule_key }),
       }
     );
 

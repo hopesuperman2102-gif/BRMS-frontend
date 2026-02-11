@@ -33,7 +33,7 @@ export const executionApi = {
         console.log('🔄 Executing decision graph:', { jdm, input });
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/execution/execute`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/execution/simulate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
