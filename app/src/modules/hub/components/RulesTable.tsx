@@ -67,7 +67,9 @@ export default function RulesTable() {
                 name: rule.name,
                 version: version.version,
                 projectStatus: mapStatus(rule.status),
-                approvalStatus: 'Pending',
+                approvalStatus: mapApprovalStatus(
+  (version.status as 'APPROVED' | 'REJECTED' | 'PENDING') ?? 'PENDING'
+),
                 rule_key: rule.rule_key,
                 project_key: project.project_key,
               });
@@ -140,32 +142,60 @@ export default function RulesTable() {
     void fetchAllData();
   }, [fetchAllData]);
 
-  const handleStatusChange = (
-    projectKey: string,
-    ruleId: string,
-    status: 'Approved' | 'Rejected'
-  ) => {
+  const handleStatusChange = async (
+  projectKey: string,
+  ruleId: string,
+  ruleKey: string,
+  version: string,
+  status: 'Approved' | 'Rejected'
+) => {
+  try {
+    const action = status === 'Approved' ? 'APPROVED' : 'REJECTED';
+
+    const response = await rulesTableApi.reviewRuleVersion(
+      ruleKey,
+      version,
+      action,
+      'qa_user'
+    );
+
+    const updatedStatus = mapApprovalStatus(response.status);
+
     setSections((prev) =>
       prev.map((project) =>
         project.key === projectKey
           ? {
               ...project,
               rows: project.rows.map((rule) =>
-                rule.id === ruleId ? { ...rule, approvalStatus: status } : rule
+                rule.id === ruleId
+                  ? { ...rule, approvalStatus: updatedStatus }
+                  : rule
               ),
             }
           : project
       )
     );
-  };
+  } catch (error) {
+    console.error('Approval update failed:', error);
+  }
+};
+
+  const mapApprovalStatus = (
+  status: 'APPROVED' | 'REJECTED' | 'PENDING'
+): 'Approved' | 'Rejected' | 'Pending' => {
+  if (status === 'APPROVED') return 'Approved';
+  if (status === 'REJECTED') return 'Rejected';
+  return 'Pending';
+};
+
 
   const columns = [
     {
       key: 'name',
       label: 'Rule Name',
       render: (row: ProjectRuleRow) => (
-        <Typography>{row.name}</Typography>
-      ),
+  <Typography sx={{ pl: 2 }}>{row.name}</Typography>
+),
     },
     {
       key: 'version',
@@ -207,7 +237,13 @@ export default function RulesTable() {
                 sx={{ cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default' }}
                 onClick={() =>
                   row.approvalStatus === 'Pending' &&
-                  handleStatusChange(row.project_key, row.id, 'Approved')
+                  handleStatusChange(
+  row.project_key,
+  row.id,
+  row.rule_key,
+  row.version,
+  'Approved'
+)
                 }
               />
             )}
@@ -218,7 +254,14 @@ export default function RulesTable() {
                 sx={{ cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default' }}
                 onClick={() =>
                   row.approvalStatus === 'Pending' &&
-                  handleStatusChange(row.project_key, row.id, 'Rejected')
+                  handleStatusChange(
+  row.project_key,
+  row.id,
+  row.rule_key,
+  row.version,
+  'Rejected'
+)
+
                 }
               />
             )}

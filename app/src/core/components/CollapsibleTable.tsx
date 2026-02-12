@@ -38,28 +38,39 @@ export function CollapsibleTable<T extends Record<string, React.ReactNode>>({
   getRowId,
 }: CdfCollapsibleTableProps<T>) {
   // Store multiple open sections in an object
-  const [openSections, setOpenSections] = React.useState<Record<string, boolean>>(() =>
-    sections.reduce(
-      (acc, s) => {
-        acc[s.key] = true; // All sections open by default
-        return acc;
-      },
-      {} as Record<string, boolean>
-    )
-  );
+  const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({});
+
+React.useEffect(() => {
+  const initialState: Record<string, boolean> = {};
+  sections.forEach((s) => {
+    initialState[s.key] = false; // all closed
+  });
+  setOpenSections(initialState);
+}, [sections]);
 
   const toggleSection = (key: string) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
+    <TableContainer
+  component={Paper}
+  sx={{
+    maxHeight: '70vh', // responsive height
+    overflowY: 'auto',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+  }}
+>
+      <Table stickyHeader>
         <TableBody>
           {sections.map((section, sectionIndex) => (
             <React.Fragment key={section.key}>
               {/* SECTION HEADER ROW */}
-              <TableRow>
+              <TableRow >
                 <TableCell width={48}>
                   <IconButton size="small" onClick={() => toggleSection(section.key)}>
                     {openSections[section.key] ? (
@@ -72,13 +83,16 @@ export function CollapsibleTable<T extends Record<string, React.ReactNode>>({
 
                 {section.showHeader || sectionIndex === 0 ? (
                   columns.map((col, colIndex) => (
-                    <TableCell key={String(col.key)}>
+                    <TableCell key={String(col.key) }>
                       {colIndex === 0 ? (
-                        <Typography variant="body2">{section.title}</Typography>
+                        <Typography variant="subtitle1" fontWeight={560}>
+  {section.title}
+</Typography>
                       ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          {col.label}
-                        </Typography>
+                        <Typography variant="subtitle1" color="text.secondary">
+  {col.label}
+</Typography>
+
                       )}
                     </TableCell>
                   ))
@@ -92,7 +106,11 @@ export function CollapsibleTable<T extends Record<string, React.ReactNode>>({
               {/* SECTION ROWS */}
               {openSections[section.key] &&
                 section.rows.map((row) => (
-                  <TableRow key={getRowId(row)}>
+                  <TableRow key={getRowId(row)} sx={{
+    '&:hover': {
+      backgroundColor: '#f9fafb',
+    },
+  }}>
                     {/* empty cell for expand icon column */}
                     <TableCell width={48} />
 

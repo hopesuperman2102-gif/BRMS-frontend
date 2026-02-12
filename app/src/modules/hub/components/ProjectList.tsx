@@ -1,14 +1,4 @@
 "use client";
-
-export type Project = {
-  id: string;
-  project_key: string;
-  name: string;
-  description?: string;
-  domain?: string;
-  updatedAt: string;
-};
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,17 +10,28 @@ import {
   CircularProgress,
   Menu,
   MenuItem,
+  Pagination,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import IconButton from "@mui/material/IconButton";
 import { projectsApi } from "app/src/api/projectsApi";
 import { brmsTheme } from "../../../core/theme/brmsTheme";
 
+export type Project = {
+  id: string;
+  project_key: string;
+  name: string;
+  description?: string;
+  domain?: string;
+  updatedAt: string;
+};
+
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
 
@@ -72,6 +73,14 @@ export default function ProjectListCard() {
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  const rowsPerPage = 5;
+  const totalPages = Math.ceil(projects.length / rowsPerPage);
+
+  const paginatedProjects = projects.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
 
   /* ---------- Menu handlers ---------- */
   const handleMenuOpen = (
@@ -124,18 +133,7 @@ export default function ProjectListCard() {
           border: "1px solid rgba(255, 255, 255, 0.3)",
         }}
       >
-        <CardContent
-          sx={{
-            p: 3,
-            maxHeight: 500,
-            overflowY: "auto",
-            "&::-webkit-scrollbar": { width: "6px" },
-            "&::-webkit-scrollbar-thumb": {
-              background: brmsTheme.scrollbars.thumb,
-              borderRadius: "3px",
-            },
-          }}
-        >
+        <CardContent sx={{ p: 3 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
             <Typography
               variant="h6"
@@ -165,41 +163,59 @@ export default function ProjectListCard() {
               <CircularProgress />
             </Box>
           ) : (
-            projects.map((project) => (
-              <Box
-                key={project.id}
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr auto",
-                  py: 2,
-                  borderBottom: "1px solid rgba(0,0,0,0.05)",
-                }}
-              >
-                <Box>
-                  <Typography
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => handleOpenProject(project)}
-                  >
-                    {project.name}
-                  </Typography>
-                  <Typography variant="caption">
-                    Last updated {project.updatedAt}
-                  </Typography>
-                </Box>
-
-                <IconButton
-                  size="small"
-                  onClick={(e) => handleMenuOpen(e, project)}
+            <>
+              {paginatedProjects.map((project) => (
+                <Box
+                  key={project.id}
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto",
+                    py: 2,
+                    borderBottom: "1px solid rgba(0,0,0,0.05)",
+                  }}
                 >
-                  <MoreVertIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            ))
+                  <Box>
+                    <Typography
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => handleOpenProject(project)}
+                    >
+                      {project.name}
+                    </Typography>
+                    <Typography variant="caption">
+                      Last updated {project.updatedAt}
+                    </Typography>
+                  </Box>
+
+                  <IconButton
+                    size="small"
+                    onClick={(e) => handleMenuOpen(e, project)}
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+
+              {totalPages > 1 && (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={(_, value) => setPage(value)}
+                    color="primary"
+                    shape="rounded"
+                  />
+                </Box>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
 
-      <Menu anchorEl={menuAnchorEl} open={!!menuAnchorEl} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={!!menuAnchorEl}
+        onClose={handleMenuClose}
+      >
         <MenuItem onClick={handleEdit}>Edit</MenuItem>
         <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
           Delete

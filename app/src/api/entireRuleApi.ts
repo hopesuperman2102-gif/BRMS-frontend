@@ -19,79 +19,62 @@ export type Rule = {
 
 export type RuleVersion = {
   version: string;
+  status?: 'APPROVED' | 'REJECTED' | 'PENDING';
 };
 
 // API functions for RulesTable
 export const rulesTableApi = {
   // Get Active Projects
   getActiveProjects: async (): Promise<Project[]> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 [RulesTable] Fetching active projects');
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/?status=ACTIVE`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/projects/?status=ACTIVE`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || 'Failed to fetch projects');
     }
 
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ [RulesTable] Active projects fetched:', result.length);
-    }
-
-    return result;
+    return response.json();
   },
 
   // Get Rules for a Project
   getProjectRules: async (project_key: string): Promise<Rule[]> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 [RulesTable] Fetching rules for project:', project_key);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}/rules`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/projects/${project_key}/rules`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || 'Failed to fetch rules');
     }
 
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ [RulesTable] Rules fetched:', result.length);
-    }
-
-    return result;
+    return response.json();
   },
 
   // Get Rule Versions
   getRuleVersions: async (rule_key: string): Promise<RuleVersion[]> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 [RulesTable] Fetching versions for rule:', rule_key);
-    }
-
     const response = await fetch(
       `${API_BASE_URL}/api/v1/rules/${rule_key}/versions`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -101,17 +84,40 @@ export const rulesTableApi = {
       throw new Error(errorData.detail || 'Failed to fetch rule versions');
     }
 
-    const result = await response.json();
+    return response.json();
+  },
 
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ [RulesTable] Rule versions fetched:', result.length);
+  // Review (Approve / Reject) Rule Version
+  reviewRuleVersion: async (
+    rule_key: string,
+    version: string,
+    action: 'APPROVED' | 'REJECTED',
+    reviewed_by: string
+  ): Promise<{
+    rule_key: string;
+    version: string;
+    status: 'APPROVED' | 'REJECTED' | 'PENDING';
+  }> => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/rules/${rule_key}/versions/${version}/review`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          reviewed_by,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to update approval status');
     }
 
-    return result;
+    return response.json();
   },
 };
-
-// Log API endpoint in development
-if (ENV.DEBUG_MODE) {
-  console.log('📡 [RulesTable] API Base URL:', API_BASE_URL);
-}
