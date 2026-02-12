@@ -13,6 +13,8 @@ import '../../modules/auth/routes';
 import '../../modules/hub/routes';
 import '../../modules/rules/routes';
 import '../../modules/JdmEditorPage/routes';
+import '../../modules/vertical/routes';
+import '../../modules/dashboard/routes';
 
 function RouteWrapper({ route }: { route: AppRoute }) {
   const Element = route.element as React.ComponentType<unknown>;

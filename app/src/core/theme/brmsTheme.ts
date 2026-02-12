@@ -7,6 +7,12 @@ export const brmsTheme = {
     primaryHover: '#5443B8',
     primaryDark: '#17203D',
     textOnPrimary: '#ffffff',
+    textPrimary: '#1f2937',
+    textSecondary: '#6b7280',
+    success: '#2e7d32',
+    info: '#1976d2',
+    warning: '#ed6c02',
+    error: '#d32f2f',
   },
   gradients: {
     primary: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',

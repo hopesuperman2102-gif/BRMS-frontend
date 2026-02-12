@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import IconButton from "@mui/material/IconButton";
-import { projectsApi } from "app/src/api/projectsApi";
+import { projectsApi } from "app/src/modules/hub/api/projectsApi";
 import { brmsTheme } from "../../../core/theme/brmsTheme";
 
 export type Project = {

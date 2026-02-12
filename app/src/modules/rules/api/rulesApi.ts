@@ -1,6 +1,6 @@
 // src/api/rulesApi.ts
 
-import { ENV } from '../config/env';
+import { ENV } from '../../../config/env';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
@@ -10,6 +10,7 @@ export const rulesApi = {
     project_key: string;
     name: string;
     description: string;
+    directory?: string; // Optional for folder structure
     //type?: 'file' | 'folder'; //for folder structure 
     //parent_id?: string | null; 
   }) => {
@@ -23,7 +24,7 @@ export const rulesApi = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({name: data.name, description: data.description, directory: data.directory || '', }),
     });
 
     if (!response.ok) {

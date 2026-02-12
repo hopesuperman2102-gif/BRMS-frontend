@@ -1,6 +1,6 @@
 // src/api/rulesTableApi.ts
 
-import { ENV } from '../config/env';
+import { ENV } from '../../../config/env';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 

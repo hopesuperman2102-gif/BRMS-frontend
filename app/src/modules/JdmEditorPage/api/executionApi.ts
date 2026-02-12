@@ -1,8 +1,8 @@
 // src/api/executionApi.ts
 
-import { ENV } from '../config/env';
+import { ENV } from '../../../config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import type { JsonObject, JsonValue } from '../core/types/commonTypes';
+import type { JsonObject, JsonValue } from '../../../core/types/commonTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 

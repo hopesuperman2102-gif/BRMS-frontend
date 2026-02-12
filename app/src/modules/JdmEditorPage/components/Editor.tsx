@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { Box, Select, MenuItem, Button, FormControl, Typography } from '@mui/material';
 import { RepoItem, JsonObject } from '../../../core/types/commonTypes';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import type { ExecuteResponse } from 'app/src/api/executionApi';
+import type { ExecuteResponse } from 'app/src/modules/JdmEditorPage/api/executionApi';
 import { EditorProps } from '../types/JdmEditorTypes';
 import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
-import { ruleVersionsApi, RuleVersion } from 'app/src/api/ruleVersionsApi';
+import { ruleVersionsApi, RuleVersion } from 'app/src/modules/JdmEditorPage/api/ruleVersionsApi';
 import { useAlertStore } from '../../../core/components/Alert';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 

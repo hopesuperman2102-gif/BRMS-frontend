@@ -10,7 +10,7 @@ import {
   Alert,
 } from '@mui/material';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { rulesApi } from 'app/src/api/rulesApi';
+import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 
 type FormState = {
   name: string;

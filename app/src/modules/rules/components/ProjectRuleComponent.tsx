@@ -18,8 +18,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import CdfTable from '../../../core/components/CdfTable';
 import SectionHeader from 'app/src/core/components/SectionHeader';
-import { rulesApi } from 'app/src/api/rulesApi';
-import { projectsApi } from 'app/src/api/projectsApi';
+import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
+import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 import { RuleFile } from '../../rules/pages/types/rulesTypes';
 
 // Type definitions for API responses
