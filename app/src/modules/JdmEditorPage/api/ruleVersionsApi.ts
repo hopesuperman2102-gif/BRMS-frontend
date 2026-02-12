@@ -1,7 +1,7 @@
 // src/api/ruleVersionsApi.ts
 
 import axios from 'axios';
-import { ENV } from '../config/env';
+import { ENV } from '../../../config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 
 const BASE_URL = ENV.API_BASE_URL;

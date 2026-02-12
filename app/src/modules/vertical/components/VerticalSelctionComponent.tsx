@@ -31,7 +31,7 @@ const mockData = mockTitles.map((title, index) => ({
   id: index, // Add unique id for key prop
 }));
 
-export default function FeatureFlagsCardsPage() {
+export default function VerticalSelectionComponent() {
   return (
     <Box
       sx={{

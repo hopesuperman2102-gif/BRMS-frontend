@@ -7,7 +7,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { Project, rulesTableApi, RuleVersion } from 'app/src/api/entireRuleApi';
+import { Project, rulesTableApi, RuleVersion } from 'app/src/modules/hub/api/entireRuleApi';
 
 
 

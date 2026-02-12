@@ -4,7 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import '@gorules/jdm-editor/dist/style.css';
 import { JdmEditorProps, JsonObject } from '../types/commonTypes';
-import type { ExecuteResponse } from '../../api/executionApi';
+import type { ExecuteResponse } from '../../modules/JdmEditorPage/api/executionApi';
 import { Box, Button, TextField, Typography, Tabs, Tab, Paper, Chip } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ClearIcon from '@mui/icons-material/Clear';

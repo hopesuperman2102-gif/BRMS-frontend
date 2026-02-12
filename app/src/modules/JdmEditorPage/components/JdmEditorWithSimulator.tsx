@@ -7,9 +7,9 @@ import AlertComponent from '../../../core/components/Alert';
 import { RepoItem, JsonObject } from '../../../core/types/commonTypes';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 import Editor from './Editor';
-import { rulesApi } from 'app/src/api/rulesApi';
-import { projectsApi } from 'app/src/api/projectsApi';
-import { executionApi } from 'app/src/api/executionApi';
+import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
+import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
+import { executionApi } from 'app/src/modules/JdmEditorPage/api/executionApi';
 import RepositorySidebar from 'app/src/core/components/RepositorySidebar';
 
 export default function JdmEditorWithSimulator() {
