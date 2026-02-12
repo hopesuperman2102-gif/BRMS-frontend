@@ -2,7 +2,6 @@ import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
 import LoginPage from '../components/LoginPage';
 import SignupPage from '../components/SignupPage';
-import VerticalSelectionPage from '../../vertical/components/VerticalSelctionComponent';
 
 const authRoutes: AppRoute[] = [
   {

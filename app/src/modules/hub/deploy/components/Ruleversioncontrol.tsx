@@ -7,7 +7,7 @@ import { Box, Checkbox, Typography, Divider } from '@mui/material';
 import { motion } from 'framer-motion';
 
 import { Rule } from '../types/featureFlagTypes';
-import { Card, CardHeader } from 'app/src/core/components/RcCard';
+import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 import Dropdown from 'app/src/core/components/Dropdown';
 import { projectItems } from '../mock_data';
 
@@ -25,7 +25,7 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
   delay = 0.5
 }) => {
   return (
-    <Card delay={delay}>
+    <RcCard delay={delay}>
       <CardHeader title="Rule & Version Control" />
       
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -83,6 +83,6 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
       </Box>
 
       <Divider sx={{ my: 3 }} />
-    </Card>
+    </RcCard>
   );
 };

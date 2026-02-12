@@ -18,7 +18,7 @@ interface CardProps {
 // Pre-create motion component to avoid creating components during render
 const MotionPaper = motion(Paper);
 
-export const Card: React.FC<CardProps> = ({
+export const RcCard: React.FC<CardProps> = ({
   children,
   className = '',
   delay = 0,

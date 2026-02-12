@@ -1,11 +1,11 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
-import Dashboard from '../../dashboard/components/MainDashboard';
+import DashboardPage from '../pages/DashboardPage';
 
 const authRoutes: AppRoute[] = [
   {
     path: '/dashboard',
-    element: Dashboard,
+    element: DashboardPage,
     layout: 'main',
     metadata: {
       title: 'Dashboard',
