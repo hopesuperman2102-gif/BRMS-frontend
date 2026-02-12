@@ -1,3 +1,4 @@
+import { PendingActionsRounded, ToggleOnSharp, RuleOutlined, AccountTreeOutlined } from 'node_modules/@mui/icons-material';
 import StatCard from './StatCard';
 
 const Stats = () => {
@@ -8,7 +9,7 @@ const Stats = () => {
       subtitle: 'In Fleet',
       trend: '+12%',
       trendUp: true,
-      icon: '∑📂',
+      icon: AccountTreeOutlined,
       gradient: 'linear-gradient(135deg, #6552D0 20%, #17203D 100%)',
     },
     {
@@ -17,7 +18,7 @@ const Stats = () => {
       subtitle: 'Ongoing',
       trend: '+8%',
       trendUp: true,
-      icon: '∑📜',
+      icon: RuleOutlined,
       gradient: 'linear-gradient(135deg, #1976d2 20%, #0d47a1 100%)',
     },
     {
@@ -26,7 +27,7 @@ const Stats = () => {
       subtitle: 'Running Now',
       trend: '+5%',
       trendUp: true,
-      icon: '🚀',
+      icon: ToggleOnSharp,
       gradient: 'linear-gradient(135deg, #2e7d32 20%, #1b5e20 100%)',
     },
     {
@@ -35,7 +36,7 @@ const Stats = () => {
       subtitle: 'In Queue',
       trend: '-3%',
       trendUp: false,
-      icon: '⏳',
+      icon: PendingActionsRounded,
       gradient: 'linear-gradient(135deg, #ed6c02 20%, #c77700 100%)',
     },
   ];

@@ -1,4 +1,4 @@
-// app/src/modules/feature-flags/types/featureFlagTypes.ts
+
 
 export type Environment = 'DEV' | 'QA' | 'PROD';
 

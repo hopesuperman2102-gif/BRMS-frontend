@@ -5,7 +5,8 @@
 import React from 'react';
 import { Chip, Box } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { DeploymentStatus, RuleStatus } from 'app/src/modules/hub/deploy/types/featureFlagTypes';
+import { DeploymentStatus, RuleStatus } from 'app/src/modules/deploy/types/featureFlagTypes';
+
 
 
 type StatusKey = RuleStatus | DeploymentStatus | 'veatus';

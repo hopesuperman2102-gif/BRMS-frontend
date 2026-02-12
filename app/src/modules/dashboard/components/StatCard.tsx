@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { TrendingUp, TrendingDown } from "lucide-react";
 import { RcCard } from "app/src/core/components/RcCard";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
 import { StatCardProps } from "../dashboardTypes";
@@ -9,9 +8,8 @@ const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
   subtitle,
-  trend,
-  trendUp,
-  icon,
+
+  icon: Icon,
   gradient,
 }) => {
   return (
@@ -76,49 +74,9 @@ const StatCard: React.FC<StatCardProps> = ({
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
           }}
         >
-          {icon}
+          <Icon sx={{ fontSize: 28, color: "#fff" }} />
+
         </Box>
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          p: 1.5,
-          background: trendUp
-            ? "rgba(46, 125, 50, 0.1)"
-            : "rgba(211, 47, 47, 0.1)",
-          borderRadius: 2,
-        }}
-      >
-        {trendUp ? (
-          <TrendingUp size={16} color={brmsTheme.colors.success} />
-        ) : (
-          <TrendingDown size={16} color={brmsTheme.colors.error} />
-        )}
-
-        <Typography
-          sx={{
-            fontSize: "0.875rem",
-            fontWeight: 700,
-            color: trendUp
-              ? brmsTheme.colors.success
-              : brmsTheme.colors.error,
-          }}
-        >
-          {trend}
-        </Typography>
-
-        <Typography
-          sx={{
-            fontSize: "0.75rem",
-            color: brmsTheme.colors.textSecondary,
-            ml: "auto",
-          }}
-        >
-          vs last month
-        </Typography>
       </Box>
     </RcCard>
   );
