@@ -5,6 +5,7 @@ import { Box, Tabs, Tab } from '@mui/material';
 import ProjectList from './ProjectList';
 import RulesTable from './RulesTable';
 import FeatureFlagComponent from '../../deploy/components/DeployTabComponent';
+import DeployTabPage from '../../deploy/page/DeployTabPage';
 
 const HubComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
@@ -49,7 +50,7 @@ const HubComponent: React.FC = () => {
 
         {tab === 1 && <RulesTable />}
 
-        {tab === 2 && <FeatureFlagComponent />}
+        {tab === 2 && <DeployTabPage />}
       </Box>
     </>
   );
