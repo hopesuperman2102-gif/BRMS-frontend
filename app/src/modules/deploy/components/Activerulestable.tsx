@@ -1,5 +1,3 @@
-// app/src/modules/feature-flags/components/ActiveRulesTable.tsx
-
 'use client';
 
 import React from 'react';
@@ -19,7 +17,7 @@ import { motion } from 'framer-motion';
 import UndoIcon from '@mui/icons-material/Undo';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { DeploymentHistory } from '../types/featureFlagTypes';
-import { Card, CardHeader } from 'app/src/core/components/RcCard';
+import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 import { Badge } from 'app/src/core/components/RcBadge';
 
 interface ActiveRulesTableProps {
@@ -44,7 +42,7 @@ export const ActiveRulesTable: React.FC<ActiveRulesTableProps> = ({
   const MotionTableRow = motion(TableRow);
 
   return (
-    <Card delay={delay}>
+    <RcCard delay={delay}>
       <CardHeader title="Environment-Specific Rule Listing & History" />
       
       <Box sx={{ mb: 3 }}>
@@ -160,6 +158,6 @@ export const ActiveRulesTable: React.FC<ActiveRulesTableProps> = ({
       <Typography variant="h6" fontWeight={600} color="text.primary">
         Deployment History for {environment}
       </Typography>
-    </Card>
+    </RcCard>
   );
 };

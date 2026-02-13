@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { Card } from 'app/src/core/components/RcCard';
+import { RcCard } from 'app/src/core/components/RcCard';
 import { DeploymentHealth } from '../types/featureFlagTypes';
 
 interface DeploymentHealthCardProps {
@@ -32,7 +32,7 @@ export const DeploymentHealthCard: React.FC<DeploymentHealthCardProps> = ({
   let offset = 0;
 
   return (
-    <Card delay={delay}>
+    <RcCard delay={delay}>
       {/* Title */}
       <Typography
         variant="subtitle2"
@@ -117,6 +117,6 @@ export const DeploymentHealthCard: React.FC<DeploymentHealthCardProps> = ({
           </Box>
         ))}
       </Box>
-    </Card>
+    </RcCard>
   );
 };

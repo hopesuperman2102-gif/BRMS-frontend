@@ -7,7 +7,7 @@ import { Button, Typography, ToggleButtonGroup, ToggleButton } from '@mui/materi
 import { motion } from 'framer-motion';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { Environment } from '../types/featureFlagTypes';
-import { Card, CardHeader } from 'app/src/core/components/RcCard';
+import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 
 
 interface EnvironmentDeploymentProps {
@@ -30,7 +30,7 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
   delay = 0.5
 }) => {
   return (
-    <Card delay={delay}>
+    <RcCard delay={delay}>
       <CardHeader title="Environment & Deployment Action" />
       
       <ToggleButtonGroup
@@ -87,6 +87,6 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
       <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mt: 2 }}>
         Last deployed <strong>{lastDeployedTime}</strong> by <strong>{lastDeployedBy}</strong>
       </Typography>
-    </Card>
+    </RcCard>
   );
 };

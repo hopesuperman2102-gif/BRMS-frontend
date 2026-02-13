@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Typography } from '@mui/material';
-import { Card } from 'app/src/core/components/RcCard';
+import { RcCard } from 'app/src/core/components/RcCard';
 
 interface PendingSyncsCardProps {
   title: string;
@@ -20,7 +20,7 @@ export const PendingSyncsCard: React.FC<PendingSyncsCardProps> = ({
   delay = 0.2,
 }) => {
   return (
-    <Card delay={delay}>
+    <RcCard delay={delay}>
       <Typography
         variant="subtitle2"
         sx={{
@@ -54,6 +54,6 @@ export const PendingSyncsCard: React.FC<PendingSyncsCardProps> = ({
           {timestamp}
         </Typography>
       )}
-    </Card>
+    </RcCard>
   );
 };

@@ -11,7 +11,7 @@ import { ControlSection } from './Controlsection';
 import { HistorySection } from './Historysection';
 import { environments, mockActiveRules, mockRules, mockStats } from '../mock_data';
 
-export default function FeatureFlagComponent() {
+export default function DeployTabComponent() {
   const [selectedEnvironment, setSelectedEnvironment] = useState<Environment>('QA');
   const [selectedRules, setSelectedRules] = useState<Set<string>>(new Set());
   const [selectedHistoryRules, setSelectedHistoryRules] = useState<Set<string>>(new Set());

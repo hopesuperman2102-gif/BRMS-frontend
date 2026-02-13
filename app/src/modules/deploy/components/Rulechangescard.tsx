@@ -5,7 +5,7 @@
 import React from 'react';
 import { Typography } from '@mui/material';
 import { RuleChange } from '../types/featureFlagTypes';
-import { Card } from 'app/src/core/components/RcCard';
+import { RcCard } from 'app/src/core/components/RcCard';
 import { BarChart } from 'app/src/core/components/RcBarChart';
 
 
@@ -19,7 +19,7 @@ export const RuleChangesCard: React.FC<RuleChangesCardProps> = ({
   delay = 0.4
 }) => {
   return (
-    <Card delay={delay}>
+    <RcCard delay={delay}>
       <Typography 
         variant="subtitle2" 
         sx={{ 
@@ -33,6 +33,6 @@ export const RuleChangesCard: React.FC<RuleChangesCardProps> = ({
         Rule Changes (24H)
       </Typography>
       <BarChart data={changes} height={96} />
-    </Card>
+    </RcCard>
   );
 };

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { Card } from 'app/src/core/components/RcCard';
+import { RcCard } from 'app/src/core/components/RcCard';
 
 // Just add or remove titles here
 const mockTitles = [
@@ -56,7 +56,7 @@ export default function VerticalSelectionComponent() {
         }}
       >
         {mockData.map((item) => (
-          <Card
+          <RcCard
             key={item.id}
             delay={item.id * 0.03}
             sx={{
@@ -92,7 +92,7 @@ export default function VerticalSelectionComponent() {
                 background: brmsTheme.gradients.primary,
               }}
             />
-          </Card>
+          </RcCard>
         ))}
       </Box>
     </Box>

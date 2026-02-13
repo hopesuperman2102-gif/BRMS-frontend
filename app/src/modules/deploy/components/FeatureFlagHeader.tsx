@@ -6,7 +6,7 @@ import React from 'react';
 import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Environment } from '../types/featureFlagTypes';
-import { Card } from 'app/src/core/components/RcCard';
+import { RcCard } from 'app/src/core/components/RcCard';
 import Dropdown from 'app/src/core/components/Dropdown';
 import { projectItems } from '../mock_data';
 
@@ -32,7 +32,7 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
   };
 
   return (
-    <Card delay={0} sx={{ mb: 3 }}>
+    <RcCard delay={0} sx={{ mb: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Left Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -84,6 +84,6 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
 
         </Box>
       </Box>
-    </Card>
+    </RcCard>
   );
 };

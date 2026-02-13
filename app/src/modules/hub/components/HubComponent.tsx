@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import ProjectList from './ProjectList';
 import RulesTable from './RulesTable';
-import FeatureFlagComponent from '../deploy/components/Featureflagcomponent';
+import FeatureFlagComponent from '../../deploy/components/DeployTabComponent';
 
 const HubComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
