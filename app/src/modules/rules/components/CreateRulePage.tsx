@@ -27,6 +27,7 @@ type ApiRule = {
 
 export default function CreateRulePage() {
   const navigate = useNavigate();
+  const { verticalId } = useParams(); 
   const { project_key } = useParams<{ project_key: string }>();
   const [searchParams] = useSearchParams();
 
@@ -112,7 +113,7 @@ export default function CreateRulePage() {
         });
       }
 
-      navigate(`/hub/${project_key}/rules`);
+      navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Something went wrong';
@@ -180,7 +181,7 @@ export default function CreateRulePage() {
           <Button
             variant="text"
             onClick={() =>
-              navigate(`/hub/${project_key}/rules`)
+              navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`)
             }
           >
             Cancel

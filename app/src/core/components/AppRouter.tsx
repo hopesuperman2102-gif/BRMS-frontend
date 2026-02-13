@@ -86,7 +86,7 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/hub" replace />} />
+        <Route path="/" element={<Navigate to="/vertical" replace />} />
         {renderRoutes(routes)}
       </Routes>
     </BrowserRouter>

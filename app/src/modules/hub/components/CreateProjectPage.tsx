@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -20,6 +20,7 @@ type FormState = {
 
 export default function CreateProjectPage() {
   const navigate = useNavigate();
+  const { verticalId } = useParams(); 
   const [searchParams] = useSearchParams();
   const projectKey = searchParams.get('key');
   const isEditMode = Boolean(projectKey);
@@ -115,7 +116,7 @@ export default function CreateProjectPage() {
         });
       }
 
-      navigate('/hub');
+      navigate(`/vertical/${verticalId}/dashboard/hub`);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Something went wrong');
@@ -185,7 +186,7 @@ export default function CreateProjectPage() {
         <Box display="flex" justifyContent="flex-end" gap={2}>
           <Button
             variant="text"
-            onClick={() => navigate('/hub')}
+            onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub`)}
           >
             Cancel
           </Button>
