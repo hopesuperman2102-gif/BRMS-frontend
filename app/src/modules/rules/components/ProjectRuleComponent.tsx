@@ -38,6 +38,7 @@ interface ProjectResponse {
 export default function ProjectRuleComponent() {
   const { project_key } = useParams<{ project_key: string }>();
   const navigate = useNavigate();
+  const { verticalId } = useParams(); 
 
   const [rules, setRules] = useState<RuleFile[]>([]);
   const [projectName, setProjectName] = useState('');
@@ -132,7 +133,7 @@ export default function ProjectRuleComponent() {
   const handleEdit = () => {
     if (!menuRule) return;
     navigate(
-      `/hub/${project_key}/rules/createrules?key=${menuRule.id}`
+      `/vertical/${verticalId}/dashboard//hub/${project_key}/rules/createrules?key=${menuRule.id}`
     );
     closeMenu();
   };
@@ -145,7 +146,7 @@ export default function ProjectRuleComponent() {
         sx={{ cursor: 'pointer', color: '#4f46e5' }}
         onClick={() =>
           navigate(
-            `/hub/${project_key}/rules/editor?rule=${rule.id}`
+            `/vertical/${verticalId}/dashboard/hub/${project_key}/rules/editor?rule=${rule.id}`
           )
         }
       >
@@ -168,7 +169,7 @@ export default function ProjectRuleComponent() {
         <SectionHeader
           left={
             <Box display="flex" alignItems="center" gap={1}>
-              <IconButton onClick={() => navigate('/hub')}>
+              <IconButton onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub`)}>
                 <ArrowBackIcon />
               </IconButton>
               <Typography variant="h6">
@@ -181,7 +182,7 @@ export default function ProjectRuleComponent() {
               variant="contained"
               onClick={() =>
                 navigate(
-                  `/hub/${project_key}/rules/createrules`
+                  `/vertical/${verticalId}/dashboard/hub/${project_key}/rules/createrules`
                 )
               }
             >

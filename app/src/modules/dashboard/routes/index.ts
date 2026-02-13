@@ -2,9 +2,9 @@ import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
 import DashboardPage from '../pages/DashboardPage';
 
-const authRoutes: AppRoute[] = [
+const dashboardRoutes: AppRoute[] = [
   {
-    path: '/dashboard',
+    path: '/vertical/:verticalId/dashboard',
     element: DashboardPage,
     layout: 'main',
     metadata: {
@@ -12,9 +12,8 @@ const authRoutes: AppRoute[] = [
       description: 'Dashboard page',
     },
   },
-
 ];
 
-registerRoutes(authRoutes);
+registerRoutes(dashboardRoutes);
 
-export default authRoutes;
+export default dashboardRoutes;

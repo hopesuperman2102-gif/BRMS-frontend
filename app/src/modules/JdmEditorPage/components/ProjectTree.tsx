@@ -32,6 +32,7 @@ type ApiRule = {
 export default function ProjectRuleComponent() {
   const { project_key } = useParams<{ project_key: string }>();
   const navigate = useNavigate();
+  const { verticalId } = useParams(); 
 
   const [rules, setRules] = useState<RuleFile[]>([]);
   const [selectedIndex] = useState<number | null>(null);
@@ -137,7 +138,7 @@ export default function ProjectRuleComponent() {
         onClick={() => {
           sessionStorage.setItem("activeRuleName", rule.name);
           sessionStorage.setItem("activeRuleId", rule.id);
-          navigate(`/hub/${project_key}/rules/editor`);
+          navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules/editor`);
         }}
       >
         {rule.name}

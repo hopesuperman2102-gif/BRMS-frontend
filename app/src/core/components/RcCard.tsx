@@ -13,6 +13,7 @@ interface CardProps {
   delay?: number;
   animate?: boolean;
   sx?: SxProps<Theme>;
+  onClick?: () => void; 
 }
 
 // Pre-create motion component to avoid creating components during render
@@ -24,6 +25,7 @@ export const RcCard: React.FC<CardProps> = ({
   delay = 0,
   animate = true,
   sx = {},
+  onClick, // Add this line
 }) => {
   const Component = animate ? MotionPaper : Paper;
 
@@ -39,6 +41,7 @@ export const RcCard: React.FC<CardProps> = ({
     <Component
       {...animationProps}
       elevation={2}
+      onClick={onClick} // Add this line
       sx={{
         p: 3,
         borderRadius: 4,
@@ -81,6 +84,3 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ title, subtitle }) => {
     </Box>
   );
 };
-
-
-

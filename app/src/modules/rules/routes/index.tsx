@@ -6,7 +6,7 @@ import CreateRulePage from '../components/CreateRulePage';
 
 const rulesRoutes: AppRoute[] = [
   {
-    path: '/hub/:project_key/rules',
+    path: '/vertical/:verticalId/dashboard/hub/:project_key/rules',
     element: ProjectRulePage,
     layout: 'main',
     metadata: {
@@ -15,7 +15,7 @@ const rulesRoutes: AppRoute[] = [
     },
   },
   {
-    path: '/hub/:project_key/rules/editor',
+    path: '/vertical/:verticalId/dashboard/hub/:project_key/rules/editor',
     element: JdmEditorWithSimulator,
     layout: 'none',
     metadata: {
@@ -24,7 +24,7 @@ const rulesRoutes: AppRoute[] = [
     },
   },
   {
-    path: '/hub/:project_key/rules/createrules',
+    path: '/vertical/:verticalId/dashboard/hub/:project_key/rules/createrules',
     element: CreateRulePage,
     layout: 'none',
     metadata: {

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -34,6 +34,7 @@ export default function ProjectListCard() {
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
+  const { verticalId } = useParams(); 
 
   /* ---------- Fetch projects ---------- */
   const fetchProjects = async () => {
@@ -113,13 +114,13 @@ export default function ProjectListCard() {
   const handleEdit = () => {
     if (!selectedProject) return;
 
-    navigate(`/hub/createproject?key=${selectedProject.project_key}`);
+    navigate(`/vertical/${verticalId}/dashboard/hub/createproject?key=${selectedProject.project_key}`);
     handleMenuClose();
   };
 
 
   const handleOpenProject = (project: Project) => {
-    navigate(`/hub/${project.project_key}/rules`);
+    navigate(`/vertical/${verticalId}/dashboard/hub/${project.project_key}/rules`);
   };
 
   return (
@@ -148,7 +149,7 @@ export default function ProjectListCard() {
 
             <Button
               variant="contained"
-              onClick={() => navigate("/hub/createproject")}
+              onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub/createproject`)}
               sx={{
                 background: brmsTheme.gradients.primary,
                 boxShadow: brmsTheme.shadows.primarySoft,

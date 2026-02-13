@@ -3,10 +3,9 @@ import { registerRoutes } from '../../../core/routeRegistry';
 import CreateProjectPage from '../components/CreateProjectPage';
 import HubPage from '../page/HubPage';
 
-
 const hubRoutes: AppRoute[] = [
   {
-    path: '/hub',
+    path: '/vertical/:verticalId/dashboard/hub',
     element: HubPage,
     layout: 'main',
     metadata: {
@@ -14,7 +13,7 @@ const hubRoutes: AppRoute[] = [
     },
   },
   {
-    path: '/hub/createproject',
+    path: '/vertical/:verticalId/dashboard/hub/createproject',
     element: CreateProjectPage,
     layout: 'main',
     metadata: {

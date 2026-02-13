@@ -1,8 +1,9 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
-import VerticalSelectionPage from '../../vertical/components/VerticalSelctionComponent';
+import VerticalSelectionPage from '../pages/VerticalSelectionPage';
 
-const authRoutes: AppRoute[] = [
+
+const verticalRoutes: AppRoute[] = [
   {
     path: '/vertical',
     element: VerticalSelectionPage,
@@ -12,9 +13,8 @@ const authRoutes: AppRoute[] = [
       description: 'Vertical selection page',
     },
   },
-
 ];
 
-registerRoutes(authRoutes);
+registerRoutes(verticalRoutes);
 
-export default authRoutes;
+export default verticalRoutes;

@@ -1,8 +1,19 @@
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { RcCard } from 'app/src/core/components/RcCard';
 
-
 const DashboardHeader = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { verticalId } = useParams();
+  const verticalName = location.state?.verticalName || 'Real-time monitoring';
+
+  const handleHubClick = () => {
+    navigate(`/vertical/${verticalId}/dashboard/hub`, { 
+      state: { verticalName } 
+    });
+  };
+
   return (
     <RcCard sx={{ mb: 3 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -24,11 +35,12 @@ const DashboardHeader = () => {
               margin: '4px 0 0 0',
             }}
           >
-            Real-time monitoring
+            {verticalName}
           </p>
         </div>
 
         <button
+          onClick={handleHubClick}
           style={{
             padding: '12px 24px',
             background: 'white',

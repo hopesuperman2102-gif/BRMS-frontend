@@ -1,37 +1,37 @@
 'use client';
-
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { RcCard } from 'app/src/core/components/RcCard';
 
-// Just add or remove titles here
-const mockTitles = [
-  'Login Feature',
-  'Payment Gateway',
-  'Redesign',
-  'Live Chat',
-  'Email Notifications',
-  'Dark Mode',
-  'User Roles',
-  'Reports Module',
-  'Multi Tenant Support',
-  'Audit Logs',
-  'API Rate Limiting',
-  'File Upload',
-  'User Roles',
-  'Reports Module',
-  'Multi Tenant Support',
-  'Audit Logs',
+// Mock data - this will come from backend
+const mockData = [
+  { id: 'vertical-1', name: 'Login Feature' },
+  { id: 'vertical-2', name: 'Payment Gateway' },
+  { id: 'vertical-3', name: 'Redesign' },
+  { id: 'vertical-4', name: 'Live Chat' },
+  { id: 'vertical-5', name: 'Email Notifications' },
+  { id: 'vertical-6', name: 'Dark Mode' },
+  { id: 'vertical-7', name: 'User Roles' },
+  { id: 'vertical-8', name: 'Reports Module' },
+  { id: 'vertical-9', name: 'Multi Tenant Support' },
+  { id: 'vertical-10', name: 'Audit Logs' },
+  { id: 'vertical-11', name: 'API Rate Limiting' },
+  { id: 'vertical-12', name: 'File Upload' },
+  { id: 'vertical-13', name: 'User Roles' },
+  { id: 'vertical-14', name: 'Reports Module' },
+  { id: 'vertical-15', name: 'Multi Tenant Support' },
+  { id: 'vertical-16', name: 'Audit Logs' },
 ];
 
-// Automatically convert titles into card data
-const mockData = mockTitles.map((title, index) => ({
-  name: title,
-  id: index, // Add unique id for key prop
-}));
-
 export default function VerticalSelectionComponent() {
+  const navigate = useNavigate();
+
+  const handleCardClick = (item: { name: string; id: string }) => {
+    navigate(`/vertical/${item.id}/dashboard`, { state: { verticalName: item.name } });
+  };
+
   return (
     <Box
       sx={{
@@ -55,16 +55,16 @@ export default function VerticalSelectionComponent() {
           mx: 'auto',
         }}
       >
-        {mockData.map((item) => (
+        {mockData.map((item, index) => (
           <RcCard
             key={item.id}
-            delay={item.id * 0.03}
+            delay={index * 0.03}
+            onClick={() => handleCardClick(item)}
             sx={{
               background: '#ffffff',
               border: `1px solid rgba(101, 82, 208, 0.1)`,
               transition: 'all 0.3s ease',
               cursor: 'pointer',
-
               '&:hover': {
                 boxShadow: brmsTheme.shadows.primaryHover,
                 transform: 'translateY(-6px)',
@@ -82,8 +82,6 @@ export default function VerticalSelectionComponent() {
             >
               {item.name}
             </Typography>
-
-
             <Box
               sx={{
                 mt: 4,

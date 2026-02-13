@@ -16,6 +16,7 @@ export default function JdmEditorWithSimulator() {
   const { project_key } = useParams<{ project_key: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { verticalId } = useParams(); 
 
   const [items, setItems] = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -97,7 +98,7 @@ export default function JdmEditorWithSimulator() {
       sessionStorage.setItem('activeRuleName', item.name);
       
       // Update URL with rule parameter
-      navigate(`/hub/${project_key}/rules/editor?rule=${item.id}`, {
+      navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules/editor?rule=${item.id}`, {
         replace: true,
       });
     }
@@ -170,7 +171,7 @@ export default function JdmEditorWithSimulator() {
         onDropOnFolder={handleDropOnFolder}
         onBackClick={() => {
           if (project_key) {
-            navigate(`/hub/${project_key}/rules`);
+            navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`);
           }
         }}
       />
