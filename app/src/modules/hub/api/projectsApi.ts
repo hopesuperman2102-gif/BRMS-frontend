@@ -20,12 +20,14 @@ export const projectsApi = {
   createProject: async (data: {
     name: string;
     description: string;
+    vertical_key: string; 
     domain: string;
   }) => {
     const requestBody = {
       name: data.name,
       description: data.description,
       domain: data.domain,
+      vertical_key: data.vertical_key, 
     };
 
     if (ENV.ENABLE_LOGGING) {

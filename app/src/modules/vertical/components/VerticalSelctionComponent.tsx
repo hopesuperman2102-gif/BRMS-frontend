@@ -1,35 +1,29 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { RcCard } from 'app/src/core/components/RcCard';
-
-// Mock data - this will come from backend
-const mockData = [
-  { id: 'vertical-1', name: 'Login Feature' },
-  { id: 'vertical-2', name: 'Payment Gateway' },
-  { id: 'vertical-3', name: 'Redesign' },
-  { id: 'vertical-4', name: 'Live Chat' },
-  { id: 'vertical-5', name: 'Email Notifications' },
-  { id: 'vertical-6', name: 'Dark Mode' },
-  { id: 'vertical-7', name: 'User Roles' },
-  { id: 'vertical-8', name: 'Reports Module' },
-  { id: 'vertical-9', name: 'Multi Tenant Support' },
-  { id: 'vertical-10', name: 'Audit Logs' },
-  { id: 'vertical-11', name: 'API Rate Limiting' },
-  { id: 'vertical-12', name: 'File Upload' },
-  { id: 'vertical-13', name: 'User Roles' },
-  { id: 'vertical-14', name: 'Reports Module' },
-  { id: 'vertical-15', name: 'Multi Tenant Support' },
-  { id: 'vertical-16', name: 'Audit Logs' },
-];
+import { verticalsApi, VerticalView } from '../api/verticalsApi';
 
 export default function VerticalSelectionComponent() {
   const navigate = useNavigate();
+  const [verticals, setVerticals] = useState<VerticalView[]>([]);
 
-  const handleCardClick = (item: { name: string; id: string }) => {
-    navigate(`/vertical/${item.id}/dashboard`, { state: { verticalName: item.name } });
+  useEffect(() => {
+    // Fetch verticals from API
+    verticalsApi
+      .getVerticalsView()
+      .then((data) => {
+        setVerticals(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching verticals:', error);
+      });
+  }, []);
+
+  const handleCardClick = (item: VerticalView) => {
+    navigate(`/vertical/${item.id}/dashboard`, { state: { verticalName: item.vertical_name } });
   };
 
   return (
@@ -55,7 +49,7 @@ export default function VerticalSelectionComponent() {
           mx: 'auto',
         }}
       >
-        {mockData.map((item, index) => (
+        {verticals.map((item, index) => (
           <RcCard
             key={item.id}
             delay={index * 0.03}
@@ -80,7 +74,7 @@ export default function VerticalSelectionComponent() {
                 color: brmsTheme.colors.primaryDark,
               }}
             >
-              {item.name}
+              {item.vertical_name}
             </Typography>
             <Box
               sx={{

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
+import { verticalsApi } from '../../vertical/api/verticalsApi';
 
 type FormState = {
   name: string;
@@ -109,10 +110,20 @@ export default function CreateProjectPage() {
       }
       //  Create
       else {
+        if (!verticalId) {
+          setError('Vertical ID is missing');
+          setLoading(false);
+          return;
+        }
+
+        // Get vertical_key from verticalId
+        const verticalKey = await verticalsApi.getVerticalKeyById(verticalId);
+
         await projectsApi.createProject({
           name: form.name,
           description: form.description,
           domain: form.domain,
+          vertical_key: verticalKey,
         });
       }
 
