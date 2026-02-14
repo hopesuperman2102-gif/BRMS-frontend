@@ -16,7 +16,7 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-import CdfTable from '../../../core/components/CdfTable';
+import RcTable from '../../../core/components/RcTable';
 import SectionHeader from 'app/src/core/components/SectionHeader';
 import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
@@ -191,7 +191,7 @@ export default function ProjectRuleComponent() {
           }
         />
 
-        <CdfTable headers={headers} rows={rows} />
+        <RcTable headers={headers} rows={rows} />
 
         <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={closeMenu}>
           <MenuItem onClick={handleEdit}>Edit</MenuItem>

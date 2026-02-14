@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import ProjectList from './ProjectList';
 import RulesTable from './RulesTable';
-import FeatureFlagComponent from '../../deploy/components/DeployTabComponent';
 import DeployTabPage from '../../deploy/page/DeployTabPage';
 
 const HubComponent: React.FC = () => {

@@ -12,31 +12,31 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-export type CdfColumn<T> = {
+export type RcColumn<T> = {
   key: keyof T | string;
   label: string;
   align?: 'left' | 'right' | 'center';
   render?: (row: T) => React.ReactNode;
 };
 
-export type CdfSection<T> = {
+export type RcSection<T> = {
   showHeader: boolean;
   key: string;
   title: string;
   rows: T[];
 };
 
-export interface CdfCollapsibleTableProps<T> {
-  columns: CdfColumn<T>[];
-  sections: CdfSection<T>[];
+export interface RcCollapsibleTableProps<T> {
+  columns: RcColumn<T>[];
+  sections: RcSection<T>[];
   getRowId: (row: T) => string | number;
 }
 
-export function CollapsibleTable<T extends Record<string, React.ReactNode>>({
+export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
   columns,
   sections,
   getRowId,
-}: CdfCollapsibleTableProps<T>) {
+}: RcCollapsibleTableProps<T>) {
   // Store multiple open sections in an object
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({});
 
@@ -86,12 +86,12 @@ React.useEffect(() => {
                     <TableCell key={String(col.key) }>
                       {colIndex === 0 ? (
                         <Typography variant="subtitle1" fontWeight={560}>
-  {section.title}
-</Typography>
+                          {section.title}
+                        </Typography>
                       ) : (
                         <Typography variant="subtitle1" color="text.secondary">
-  {col.label}
-</Typography>
+                          {col.label}
+                        </Typography>
 
                       )}
                     </TableCell>
@@ -107,10 +107,10 @@ React.useEffect(() => {
               {openSections[section.key] &&
                 section.rows.map((row) => (
                   <TableRow key={getRowId(row)} sx={{
-    '&:hover': {
-      backgroundColor: '#f9fafb',
-    },
-  }}>
+                    '&:hover': {
+                      backgroundColor: '#f9fafb',
+                    },
+                  }}>
                     {/* empty cell for expand icon column */}
                     <TableCell width={48} />
 

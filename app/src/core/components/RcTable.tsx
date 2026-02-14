@@ -10,7 +10,7 @@ import {
 import { styled } from "@mui/material/styles";
 import type { ReactNode } from "react";
 
-export type CdfTableProps = {
+export type RcTableProps = {
   headers: readonly string[];
   rows: Record<string, ReactNode>[];
   onRowClick?: (row: Record<string, ReactNode>, index: number) => void;
@@ -64,7 +64,7 @@ const StyledTableRow = styled(TableRow, {
 
 // ---------------- COMPONENT ----------------
 
-const CdfTable: React.FC<CdfTableProps> = ({
+const RcTable: React.FC<RcTableProps> = ({
   headers,
   rows,
   onRowClick,
@@ -134,4 +134,4 @@ const CdfTable: React.FC<CdfTableProps> = ({
   );
 };
 
-export default CdfTable;
+export default RcTable;

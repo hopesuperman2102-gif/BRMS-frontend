@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Typography, CircularProgress, Box, Alert } from '@mui/material';
-import { CollapsibleTable } from 'app/src/core/components/CollapsibleTable';
+import { RcCollapsibleTable } from 'app/src/core/components/RcCollapsibleTable';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Project, rulesTableApi, RuleVersion } from 'app/src/modules/hub/api/entireRuleApi';
-
-
 
 // Types
 type ProjectRuleRow = {
@@ -68,8 +66,8 @@ export default function RulesTable() {
                 version: version.version,
                 projectStatus: mapStatus(rule.status),
                 approvalStatus: mapApprovalStatus(
-  (version.status as 'APPROVED' | 'REJECTED' | 'PENDING') ?? 'PENDING'
-),
+                (version.status as 'APPROVED' | 'REJECTED' | 'PENDING') ?? 'PENDING'
+              ),
                 rule_key: rule.rule_key,
                 project_key: project.project_key,
               });
@@ -143,12 +141,12 @@ export default function RulesTable() {
   }, [fetchAllData]);
 
   const handleStatusChange = async (
-  projectKey: string,
-  ruleId: string,
-  ruleKey: string,
-  version: string,
-  status: 'Approved' | 'Rejected'
-) => {
+    projectKey: string,
+    ruleId: string,
+    ruleKey: string,
+    version: string,
+    status: 'Approved' | 'Rejected'
+  ) => {
   try {
     const action = status === 'Approved' ? 'APPROVED' : 'REJECTED';
 
@@ -194,8 +192,8 @@ export default function RulesTable() {
       key: 'name',
       label: 'Rule Name',
       render: (row: ProjectRuleRow) => (
-  <Typography sx={{ pl: 2 }}>{row.name}</Typography>
-),
+      <Typography sx={{ pl: 2 }}>{row.name}</Typography>
+    ),
     },
     {
       key: 'version',
@@ -238,12 +236,12 @@ export default function RulesTable() {
                 onClick={() =>
                   row.approvalStatus === 'Pending' &&
                   handleStatusChange(
-  row.project_key,
-  row.id,
-  row.rule_key,
-  row.version,
-  'Approved'
-)
+                    row.project_key,
+                    row.id,
+                    row.rule_key,
+                    row.version,
+                    'Approved'
+                  )
                 }
               />
             )}
@@ -255,12 +253,12 @@ export default function RulesTable() {
                 onClick={() =>
                   row.approvalStatus === 'Pending' &&
                   handleStatusChange(
-  row.project_key,
-  row.id,
-  row.rule_key,
-  row.version,
-  'Rejected'
-)
+                    row.project_key,
+                    row.id,
+                    row.rule_key,
+                    row.version,
+                    'Rejected'
+                  )
 
                 }
               />
@@ -296,7 +294,7 @@ export default function RulesTable() {
   }
 
   return (
-    <CollapsibleTable
+    <RcCollapsibleTable
       sections={sections}
       columns={columns}
       getRowId={(row) => row.id}

@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-import CdfTable from "../../../core/components/CdfTable";
+import CdfTable from "../../../core/components/RcTable";
 import SectionHeader from "app/src/core/components/SectionHeader";
 import { CreateModal } from "../../../core/components/CreateModal";
 import { rulesApi } from "app/src/modules/rules/api/rulesApi";
