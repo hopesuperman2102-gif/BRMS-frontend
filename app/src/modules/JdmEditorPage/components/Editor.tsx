@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Select, MenuItem, Button, FormControl, Typography } from '@mui/material';
+import { Box, Select, MenuItem, Button, FormControl, Typography, Divider } from '@mui/material';
 import { RepoItem, JsonObject } from '../../../core/types/commonTypes';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 import type { ExecuteResponse } from 'app/src/modules/JdmEditorPage/api/executionApi';
@@ -9,7 +9,8 @@ import { EditorProps } from '../types/JdmEditorTypes';
 import JdmEditorComponent from '../../../core/components/JdmEditorComponent';
 import { ruleVersionsApi, RuleVersion } from 'app/src/modules/JdmEditorPage/api/ruleVersionsApi';
 import { useAlertStore } from '../../../core/components/Alert';
-import { brmsTheme } from '../../../core/theme/brmsTheme';
+import SaveIcon from '@mui/icons-material/Save';
+import HistoryIcon from '@mui/icons-material/History';
 
 interface EditorPropsExtended extends EditorProps {
   onSimulatorRun: (jdm: DecisionGraphType, context: JsonObject) => Promise<ExecuteResponse>;
@@ -192,81 +193,95 @@ export default function Editor({
         flex: 1,
         minWidth: 0,
         overflow: 'hidden',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(20px)',
+        backgroundColor: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
+      {/* Header Bar - Enterprise Clean */}
       <Box
         sx={{
-          height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          minWidth: 0,
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          px: 3,
+          py: 2,
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e5e7eb',
+          flexShrink: 0,
+          minHeight: 64,
         }}
       >
-        {/* Top bar with rule name and dropdown + commit button */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            px: 2.5,
-            py: 1.8,
-            background: 'linear-gradient(135deg, rgba(101, 82, 208, 0.05) 0%, rgba(23, 32, 61, 0.02) 50%, rgba(255, 255, 255, 0.9) 100%)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
-            flexShrink: 0,
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.02)',
-          }}
-        >
+        {/* Left - Rule Name */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Typography 
             variant="h6" 
             sx={{ 
-              fontWeight: 700,
-              background: brmsTheme.gradients.primary,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              fontSize: '1.1rem',
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase',
+              fontWeight: 600,
+              color: '#111827',
+              fontSize: '1rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              letterSpacing: '-0.01em',
             }}
           >
-            {selectedItem ? selectedItem.name : 'Select a file'}
+            {selectedItem ? selectedItem.name : 'Select a rule to begin'}
           </Typography>
+        </Box>
 
-          {/* Right side - Dropdown and Commit button */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <FormControl size="small" sx={{ minWidth: 150 }}>
+        {/* Right - Version Control */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Version Selector */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <HistoryIcon sx={{ fontSize: 18, color: '#6b7280' }} />
+            <FormControl size="small" sx={{ minWidth: 160 }}>
               <Select
                 value={selectedVersion}
                 onChange={(e) => handleVersionChange(e.target.value)}
                 disabled={isDropdownDisabled || isVersionsLoading}
                 displayEmpty
                 sx={{
-                  bgcolor: isDropdownDisabled ? '#f3f4f6' : 'rgba(255, 255, 255, 0.9)',
-                  borderRadius: 2,
-                  backdropFilter: 'blur(20px)',
+                  height: 36,
+                  backgroundColor: '#f9fafb',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  color: '#374151',
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(101, 82, 208, 0.2)',
+                    border: 'none',
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(101, 82, 208, 0.4)',
+                  '&:hover': {
+                    backgroundColor: '#f3f4f6',
+                    borderColor: '#d1d5db',
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: brmsTheme.colors.primary,
-                    borderWidth: '2px',
+                  '&.Mui-focused': {
+                    backgroundColor: '#ffffff',
+                    borderColor: '#3b82f6',
+                    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
                   },
+                  '&.Mui-disabled': {
+                    backgroundColor: '#f9fafb',
+                    color: '#9ca3af',
+                  },
+                  transition: 'all 0.15s ease',
                 }}
               >
                 {versions.length === 0 ? (
                   <MenuItem value="" disabled>
-                    {isVersionsLoading ? 'Loading...' : 'No versions'}
+                    {isVersionsLoading ? 'Loading versions...' : 'No versions available'}
                   </MenuItem>
                 ) : (
                   versions.map((version) => (
                     <MenuItem 
                       key={version.version} 
                       value={version.version}
+                      sx={{
+                        fontSize: '0.875rem',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        fontWeight: 500,
+                        py: 1,
+                      }}
                     >
                       {version.version}
                     </MenuItem>
@@ -274,38 +289,51 @@ export default function Editor({
                 )}
               </Select>
             </FormControl>
-
-            <Button
-              variant="contained"
-              onClick={handleCommit}
-              disabled={!selectedItem || !currentGraph || isCommitting}
-              sx={{
-                background: brmsTheme.gradients.primary,
-                boxShadow: brmsTheme.shadows.primarySoft,
-                borderRadius: 2,
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  boxShadow: brmsTheme.shadows.primaryHover,
-                  background: brmsTheme.gradients.primaryHover,
-                  transform: 'translateY(-1px)',
-                },
-                '&:disabled': {
-                  background: '#d1d5db',
-                  boxShadow: 'none',
-                },
-                textTransform: 'none',
-                px: 3,
-                fontWeight: 700,
-              }}
-            >
-              {isCommitting ? 'Committing...' : 'Commit Changes'}
-            </Button>
           </Box>
-        </Box>
 
-        {/* Editor content */}
+          <Divider orientation="vertical" flexItem sx={{ my: 0.5, backgroundColor: '#e5e7eb' }} />
+
+          {/* Commit Button */}
+          <Button
+            variant="contained"
+            onClick={handleCommit}
+            disabled={!selectedItem || !currentGraph || isCommitting}
+            startIcon={<SaveIcon sx={{ fontSize: 18 }} />}
+            sx={{
+              height: 36,
+              backgroundColor: '#3b82f6',
+              color: '#ffffff',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              px: 2.5,
+              borderRadius: '6px',
+              boxShadow: 'none',
+              letterSpacing: '-0.01em',
+              '&:hover': {
+                backgroundColor: '#2563eb',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+              },
+              '&:active': {
+                backgroundColor: '#1d4ed8',
+              },
+              '&:disabled': {
+                backgroundColor: '#e5e7eb',
+                color: '#9ca3af',
+              },
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {isCommitting ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Editor Content Area */}
+      <Box sx={{ flex: 1, overflow: 'hidden', backgroundColor: '#fafafa' }}>
         {selectedId && selectedItem?.type === 'file' ? (
-          <Box sx={{ flex: 1, overflow: 'hidden' }}>
+          <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {isVersionsLoading ? (
               <Box
                 sx={{
@@ -313,10 +341,34 @@ export default function Editor({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#9ca3af',
+                  flexDirection: 'column',
+                  gap: 2,
                 }}
               >
-                Loading versions...
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    border: '3px solid #e5e7eb',
+                    borderTopColor: '#3b82f6',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    '@keyframes spin': {
+                      '0%': { transform: 'rotate(0deg)' },
+                      '100%': { transform: 'rotate(360deg)' },
+                    },
+                  }}
+                />
+                <Typography 
+                  sx={{ 
+                    color: '#6b7280',
+                    fontSize: '0.875rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    fontWeight: 500,
+                  }}
+                >
+                  Loading versions...
+                </Typography>
               </Box>
             ) : currentGraph !== null ? (
               <JdmEditorComponent
@@ -331,10 +383,34 @@ export default function Editor({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#9ca3af',
+                  flexDirection: 'column',
+                  gap: 2,
                 }}
               >
-                Loading editor...
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    border: '3px solid #e5e7eb',
+                    borderTopColor: '#3b82f6',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    '@keyframes spin': {
+                      '0%': { transform: 'rotate(0deg)' },
+                      '100%': { transform: 'rotate(360deg)' },
+                    },
+                  }}
+                />
+                <Typography 
+                  sx={{ 
+                    color: '#6b7280',
+                    fontSize: '0.875rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    fontWeight: 500,
+                  }}
+                >
+                  Loading editor...
+                </Typography>
               </Box>
             )}
           </Box>
@@ -345,10 +421,52 @@ export default function Editor({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#9ca3af',
+              flexDirection: 'column',
+              gap: 1.5,
+              py: 8,
             }}
           >
-            Select a file to edit
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: '12px',
+                backgroundColor: '#f3f4f6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '6px',
+                  backgroundColor: '#e5e7eb',
+                }}
+              />
+            </Box>
+            <Typography 
+              sx={{ 
+                color: '#111827',
+                fontSize: '0.9375rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontWeight: 600,
+              }}
+            >
+              No rule selected
+            </Typography>
+            <Typography 
+              sx={{ 
+                color: '#6b7280',
+                fontSize: '0.875rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontWeight: 400,
+              }}
+            >
+              Select a rule from the sidebar to begin editing
+            </Typography>
           </Box>
         )}
       </Box>

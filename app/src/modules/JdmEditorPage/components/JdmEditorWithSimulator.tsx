@@ -144,45 +144,54 @@ export default function JdmEditorWithSimulator() {
       sx={{ 
         display: 'flex', 
         height: '100vh',
-        background: 'linear-gradient(135deg, #f0f4ff 0%, #ffffff 50%, #f8faff 100%)',
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'radial-gradient(circle at 20% 30%, rgba(101, 82, 208, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(23, 32, 61, 0.05) 0%, transparent 50%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        },
+        backgroundColor: '#fafafa',
+        overflow: 'hidden',
       }}
     >
-      <RepositorySidebar
-        projectName={projectName}
-        items={items}
-        selectedId={selectedId}
-        expandedFolders={expandedFolders}
-        onToggleFolder={handleToggleFolder}
-        onSelectItem={handleSelectItem}
-        onAddClick={() => {}}
-        onDragStart={handleDragStart}
-        onDropOnFolder={handleDropOnFolder}
-        onBackClick={() => {
-          if (project_key) {
-            navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`);
-          }
+      {/* Sidebar Container with Border */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          borderRight: '1px solid #e5e7eb',
+          backgroundColor: '#ffffff',
         }}
-      />
+      >
+        <RepositorySidebar
+          projectName={projectName}
+          items={items}
+          selectedId={selectedId}
+          expandedFolders={expandedFolders}
+          onToggleFolder={handleToggleFolder}
+          onSelectItem={handleSelectItem}
+          onAddClick={() => {}}
+          onDragStart={handleDragStart}
+          onDropOnFolder={handleDropOnFolder}
+          onBackClick={() => {
+            if (project_key) {
+              navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`);
+            }
+          }}
+        />
+      </Box>
 
-      <Editor
-        items={items}
-        selectedId={selectedId}
-        openFiles={openFiles}
-        setOpenFiles={setOpenFiles}
-        onSimulatorRun={handleSimulatorRun}
-      />
+      {/* Editor Container */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        <Editor
+          items={items}
+          selectedId={selectedId}
+          openFiles={openFiles}
+          setOpenFiles={setOpenFiles}
+          onSimulatorRun={handleSimulatorRun}
+        />
+      </Box>
 
       <AlertComponent />
     </Box>

@@ -7,7 +7,7 @@ import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Environment } from '../types/featureFlagTypes';
 import { RcCard } from 'app/src/core/components/RcCard';
-import Dropdown from 'app/src/core/components/Dropdown';
+import RcDropdown from 'app/src/core/components/RcDropdown';
 import { projectItems } from '../mock_data';
 
 
@@ -51,7 +51,7 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
             />
           </motion.div>
           
-          <Dropdown
+          <RcDropdown
             label="Project"
             items={projectItems}
             onSelect={() => {

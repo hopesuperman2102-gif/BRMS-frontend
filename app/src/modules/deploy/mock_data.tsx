@@ -1,4 +1,4 @@
-import { DropdownItem } from "app/src/core/components/Dropdown";
+import { RcDropdownItem } from "app/src/core/components/RcDropdown";
 import { DashboardStats, DeploymentHistory, Environment, Rule } from "./types/featureFlagTypes";
 
 // Mock Data - Replace with actual API calls
@@ -71,7 +71,7 @@ export interface Project {
   name: string;
 }
 
-export const projectItems: DropdownItem[] = [
+export const projectItems: RcDropdownItem[] = [
   {
     label: 'Apollo',
     value: 'apollo',

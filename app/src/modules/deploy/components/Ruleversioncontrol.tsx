@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 
 import { Rule } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
-import Dropdown from 'app/src/core/components/Dropdown';
+import RcDropdown from 'app/src/core/components/RcDropdown';
 import { projectItems } from '../mock_data';
 
 interface RuleVersionControlProps {
@@ -50,7 +50,7 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
                   </Typography>
                   
                   {rule.status === 'veatus' && (
-                    <Dropdown
+                    <RcDropdown
                         label="Project"
                         items={projectItems}
                         onSelect={() => {
@@ -59,7 +59,7 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
                   )}
                   
                   {rule.status === 'pending' && (
-                    <Dropdown
+                    <RcDropdown
                         label="Project"
                         items={projectItems}
                         onSelect={() => {
@@ -68,7 +68,7 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
                   )}
                   
                   {rule.status === 'active' && rule.version && (
-                    <Dropdown
+                    <RcDropdown
                         label="Project"
                         items={projectItems}
                         onSelect={() => {
