@@ -52,24 +52,24 @@ export default function RepositorySidebar({
               size="small"
               onClick={onBackClick}
               sx={{
-                width: 32,
-                height: 32,
-                color: '#6b7280',
-                backgroundColor: '#f9fafb',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                '&:hover': { 
-                  backgroundColor: '#f3f4f6',
-                  borderColor: '#d1d5db',
-                },
-                transition: 'all 0.15s ease',
-              }}
+              width: 36,
+              height: 36,
+              borderRadius: '10px',
+              backgroundColor: 'rgba(101, 82, 208, 0.08)',
+              color: '#6552D0',
+              transition: 'all 0.2s',
+              flexShrink: 0,
+              '&:hover': {
+                backgroundColor: 'rgba(101, 82, 208, 0.15)',
+                transform: 'translateX(-2px)',
+              },
+            }}
             >
               <ArrowBackIcon sx={{ fontSize: 18 }} />
             </IconButton>
           )}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, minWidth: 0 }}>
-            <AccountTree sx={{ fontSize: 20, color: '#3b82f6', flexShrink: 0 }} />
+            <AccountTree sx={{ fontSize: 20, color: '#6552D0', flexShrink: 0 }} />
             <Typography 
               sx={{
                 color: '#111827',
@@ -85,43 +85,6 @@ export default function RepositorySidebar({
               {projectName}
             </Typography>
           </Box>
-        </Box>
-
-        {/* Search Bar */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#f9fafb',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            px: 1.5,
-            py: 0.75,
-            transition: 'all 0.15s ease',
-            '&:focus-within': {
-              backgroundColor: '#ffffff',
-              borderColor: '#3b82f6',
-              boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
-            },
-            '&:hover': {
-              borderColor: '#d1d5db',
-            },
-          }}
-        >
-          <SearchIcon sx={{ fontSize: 18, color: '#9ca3af', mr: 1 }} />
-          <InputBase
-            placeholder="Search rules..."
-            sx={{
-              flex: 1,
-              fontSize: '0.8125rem',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              color: '#111827',
-              '& input::placeholder': {
-                color: '#9ca3af',
-                opacity: 1,
-              },
-            }}
-          />
         </Box>
       </Box>
 

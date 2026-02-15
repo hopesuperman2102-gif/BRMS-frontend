@@ -124,13 +124,13 @@ export default function CustomSimulatorPanel({
               fontSize: '0.8125rem',
               fontWeight: 600,
               textTransform: 'none',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#6552D0',
               color: '#ffffff',
               borderRadius: '6px',
               px: 2,
               boxShadow: 'none',
               '&:hover': {
-                backgroundColor: '#2563eb',
+                backgroundColor: '#6552D0',
                 boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
               },
               '&:disabled': {

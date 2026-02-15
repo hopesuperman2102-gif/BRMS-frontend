@@ -14,8 +14,10 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import IconButton from "@mui/material/IconButton";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { projectsApi } from "app/src/modules/hub/api/projectsApi";
 import { brmsTheme } from "../../../core/theme/brmsTheme";
+import AccountTree from "@mui/icons-material/AccountTree";
 
 export type Project = {
   id: string;
@@ -126,84 +128,218 @@ export default function ProjectListCard() {
   return (
     <>
       <Card
-        elevation={2}
+        elevation={0}
         sx={{
-          borderRadius: 4,
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          backdropFilter: "blur(20px)",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: '16px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #E5E7EB',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
         }}
       >
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              My projects
-            </Typography>
+        <CardContent sx={{ p: 2 }}>
+          {/* Header */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: 'center', mb: 2 }}>
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
+                <AccountTree sx={{ fontSize: 20, color: '#6552D0', flexShrink: 0 }} />
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    color: '#6552D0',
+                    letterSpacing: '-0.01em',
+                    fontSize: '1.125rem',
+                  }}
+                >
+                  Projects
+                </Typography>
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#6B7280',
+                  fontSize: '0.8125rem',
+                }}
+              >
+                Manage and organize your projects
+              </Typography>
+            </Box>
 
             <Button
               variant="contained"
               onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub/createproject`)}
               sx={{
                 background: brmsTheme.gradients.primary,
-                boxShadow: brmsTheme.shadows.primarySoft,
+                borderRadius: '8px',
+                px: 2,
+                py: 0.75,
+                textTransform: 'none',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                boxShadow: '0 4px 12px rgba(101, 82, 208, 0.25)',
+                '&:hover': {
+                  background: brmsTheme.gradients.primaryHover,
+                  boxShadow: '0 6px 16px rgba(101, 82, 208, 0.35)',
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s',
               }}
             >
-              Create project
+              + Create Project
             </Button>
           </Box>
 
           {loading ? (
             <Box textAlign="center" py={4}>
-              <CircularProgress />
+              <CircularProgress sx={{ color: brmsTheme.colors.primary }} />
+            </Box>
+          ) : paginatedProjects.length === 0 ? (
+            <Box
+              sx={{
+                textAlign: 'center',
+                py: 4,
+                px: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: '50%',
+                  backgroundColor: '#F3F4F6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto',
+                  mb: 1.5,
+                }}
+              >
+                <FolderOpenIcon sx={{ fontSize: 28, color: '#9CA3AF' }} />
+              </Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  color: '#374151',
+                  mb: 0.5,
+                  fontSize: '0.9375rem',
+                }}
+              >
+                No projects yet
+              </Typography>
+              <Typography
+                sx={{
+                  color: '#6B7280',
+                  fontSize: '0.8125rem',
+                }}
+              >
+                Get started by creating your first project
+              </Typography>
             </Box>
           ) : (
             <>
-              {paginatedProjects.map((project) => (
-                <Box
-                  key={project.id}
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr auto",
-                    py: 2,
-                    borderBottom: "1px solid rgba(0,0,0,0.05)",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      sx={{ cursor: "pointer" }}
-                      onClick={() => handleOpenProject(project)}
-                    >
-                      {project.name}
-                    </Typography>
-                    <Typography variant="caption">
-                      Last updated {project.updatedAt}
-                    </Typography>
-                  </Box>
-
-                  <IconButton
-                    size="small"
-                    onClick={(e) => handleMenuOpen(e, project)}
+              {/* Project Cards */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {paginatedProjects.map((project) => (
+                  <Box
+                    key={project.id}
+                    sx={{
+                      borderRadius: '10px',
+                      border: '1px solid #E5E7EB',
+                      backgroundColor: '#FAFAFA',
+                      p: 2,
+                      transition: 'all 0.2s',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        borderColor: brmsTheme.colors.primary,
+                        backgroundColor: '#ffffff',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 16px rgba(101, 82, 208, 0.1)',
+                      },
+                    }}
+                    onClick={() => handleOpenProject(project)}
                   >
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ))}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <Box sx={{ flex: 1 }}>
+                        {/* Project Name */}
+                        <Box sx={{ mb: 0.75 }}>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              color: '#111827',
+                              fontSize: '0.9375rem',
+                            }}
+                          >
+                            {project.name}
+                          </Typography>
+                        </Box>
 
+                        {/* Footer Info */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Typography
+                              sx={{
+                                color: '#9CA3AF',
+                                fontSize: '0.75rem',
+                              }}
+                            >
+                              Last updated
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: '#6B7280',
+                                fontSize: '0.75rem',
+                                fontWeight: 500,
+                              }}
+                            >
+                              {project.updatedAt}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Menu Button */}
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMenuOpen(e, project);
+                        }}
+                        sx={{
+                          ml: 1.5,
+                          width: 32,
+                          height: 32,
+                          borderRadius: '6px',
+                          backgroundColor: 'transparent',
+                          '&:hover': {
+                            backgroundColor: '#F3F4F6',
+                          },
+                        }}
+                      >
+                        <MoreVertIcon sx={{ fontSize: 18, color: '#6B7280' }} />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Pagination */}
               {totalPages > 1 && (
                 <Box display="flex" justifyContent="center" mt={2}>
                   <Pagination
                     count={totalPages}
                     page={page}
                     onChange={(_, value) => setPage(value)}
-                    color="primary"
-                    shape="rounded"
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        borderRadius: '6px',
+                        fontWeight: 500,
+                        fontSize: '0.875rem',
+                        '&.Mui-selected': {
+                          background: brmsTheme.gradients.primary,
+                        },
+                      },
+                    }}
                   />
                 </Box>
               )}
@@ -216,9 +352,37 @@ export default function ProjectListCard() {
         anchorEl={menuAnchorEl}
         open={!!menuAnchorEl}
         onClose={handleMenuClose}
+        sx={{
+          '& .MuiPaper-root': {
+            borderRadius: '10px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            minWidth: '140px',
+          },
+        }}
       >
-        <MenuItem onClick={handleEdit}>Edit</MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+        <MenuItem
+          onClick={handleEdit}
+          sx={{
+            fontSize: '0.875rem',
+            py: 1.25,
+            '&:hover': {
+              backgroundColor: '#F9FAFB',
+            },
+          }}
+        >
+          Edit
+        </MenuItem>
+        <MenuItem
+          onClick={handleDelete}
+          sx={{
+            color: '#DC2626',
+            fontSize: '0.875rem',
+            py: 1.25,
+            '&:hover': {
+              backgroundColor: '#FEE2E2',
+            },
+          }}
+        >
           Delete
         </MenuItem>
       </Menu>

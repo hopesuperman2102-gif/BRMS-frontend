@@ -301,7 +301,7 @@ export default function Editor({
             startIcon={<SaveIcon sx={{ fontSize: 18 }} />}
             sx={{
               height: 36,
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#6552D0',
               color: '#ffffff',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               fontSize: '0.875rem',
@@ -325,7 +325,7 @@ export default function Editor({
               transition: 'all 0.15s ease',
             }}
           >
-            {isCommitting ? 'Saving...' : 'Save Changes'}
+            {isCommitting ? 'Saving...' : 'Commit Changes'}
           </Button>
         </Box>
       </Box>

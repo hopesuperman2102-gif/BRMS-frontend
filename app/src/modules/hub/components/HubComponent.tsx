@@ -95,7 +95,7 @@ const HubComponent: React.FC = () => {
             },
           }}
         >
-          <Tab label="My Projects" />
+          <Tab label="Projects" />
           <Tab label="Rules" />
           <Tab label="Deploy" />
         </Tabs>
