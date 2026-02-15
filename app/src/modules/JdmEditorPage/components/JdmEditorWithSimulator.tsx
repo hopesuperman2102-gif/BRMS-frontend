@@ -142,55 +142,70 @@ export default function JdmEditorWithSimulator() {
   return (
     <Box 
       sx={{ 
-        display: 'flex', 
-        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
         backgroundColor: '#fafafa',
-        overflow: 'hidden',
+        p: 2,
       }}
     >
-      {/* Sidebar Container with Border */}
+      {/* Card Wrapper */}
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'column',
-          borderRight: '1px solid #e5e7eb',
+          width: '100%',
+          height: 'calc(100vh - 32px)',
           backgroundColor: '#ffffff',
-        }}
-      >
-        <RepositorySidebar
-          projectName={projectName}
-          items={items}
-          selectedId={selectedId}
-          expandedFolders={expandedFolders}
-          onToggleFolder={handleToggleFolder}
-          onSelectItem={handleSelectItem}
-          onAddClick={() => {}}
-          onDragStart={handleDragStart}
-          onDropOnFolder={handleDropOnFolder}
-          onBackClick={() => {
-            if (project_key) {
-              navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`);
-            }
-          }}
-        />
-      </Box>
-
-      {/* Editor Container */}
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06)',
           overflow: 'hidden',
         }}
       >
-        <Editor
-          items={items}
-          selectedId={selectedId}
-          openFiles={openFiles}
-          setOpenFiles={setOpenFiles}
-          onSimulatorRun={handleSimulatorRun}
-        />
+        {/* Sidebar Container with Border */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: '1px solid #e5e7eb',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          <RepositorySidebar
+            projectName={projectName}
+            items={items}
+            selectedId={selectedId}
+            expandedFolders={expandedFolders}
+            onToggleFolder={handleToggleFolder}
+            onSelectItem={handleSelectItem}
+            onAddClick={() => {}}
+            onDragStart={handleDragStart}
+            onDropOnFolder={handleDropOnFolder}
+            onBackClick={() => {
+              if (project_key) {
+                navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`);
+              }
+            }}
+          />
+        </Box>
+
+        {/* Editor Container */}
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          <Editor
+            items={items}
+            selectedId={selectedId}
+            openFiles={openFiles}
+            setOpenFiles={setOpenFiles}
+            onSimulatorRun={handleSimulatorRun}
+          />
+        </Box>
       </Box>
 
       <AlertComponent />

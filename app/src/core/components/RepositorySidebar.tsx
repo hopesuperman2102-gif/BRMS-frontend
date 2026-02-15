@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Typography, IconButton, InputBase, Divider } from '@mui/material';
+import { Box, Typography, IconButton, InputBase} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';

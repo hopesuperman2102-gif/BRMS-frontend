@@ -11,7 +11,6 @@ export default function VerticalSelectionComponent() {
   const [verticals, setVerticals] = useState<VerticalView[]>([]);
 
   useEffect(() => {
-    // Fetch verticals from API
     verticalsApi
       .getVerticalsView()
       .then((data) => {
@@ -35,7 +34,6 @@ export default function VerticalSelectionComponent() {
         py: 8,
       }}
     >
-      {/* Grid */}
       <Box
         sx={{
           display: 'grid',
@@ -56,16 +54,35 @@ export default function VerticalSelectionComponent() {
             onClick={() => handleCardClick(item)}
             sx={{
               background: '#ffffff',
-              border: `1px solid rgba(101, 82, 208, 0.1)`,
-              transition: 'all 0.3s ease',
+              border: 'none',
+              borderRadius: '20px',
+              position: 'relative',
+              overflow: 'hidden',
               cursor: 'pointer',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: brmsTheme.gradients.primary,
+                transform: 'scaleX(0)',
+                transformOrigin: 'left',
+                transition: 'transform 0.4s ease',
+              },
               '&:hover': {
-                boxShadow: brmsTheme.shadows.primaryHover,
-                transform: 'translateY(-6px)',
-                borderColor: brmsTheme.colors.primary,
+                transform: 'translateY(-8px)',
+                boxShadow: '0 20px 40px rgba(101, 82, 208, 0.2)',
+                '&::before': {
+                  transform: 'scaleX(1)',
+                },
               },
             }}
           >
+            
             <Typography
               variant="h6"
               sx={{
@@ -76,14 +93,38 @@ export default function VerticalSelectionComponent() {
             >
               {item.vertical_name}
             </Typography>
+
+            {/* Bottom accent */}
             <Box
               sx={{
                 mt: 4,
-                height: 6,
-                borderRadius: 3,
-                background: brmsTheme.gradients.primary,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
               }}
-            />
+            >
+              <Box
+                sx={{
+                  flex: 1,
+                  height: 2,
+                  borderRadius: 2,
+                  background: `linear-gradient(90deg, ${brmsTheme.colors.primary}40 0%, transparent 100%)`,
+                }}
+              />
+              <Box
+                component="span"
+                sx={{
+                  color: brmsTheme.colors.primary,
+                  fontSize: '1.2rem',
+                  transition: 'transform 0.3s ease',
+                  '.MuiCard-root:hover &': {
+                    transform: 'translateX(4px)',
+                  },
+                }}
+              >
+                →
+              </Box>
+            </Box>
           </RcCard>
         ))}
       </Box>
