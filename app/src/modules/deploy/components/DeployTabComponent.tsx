@@ -64,7 +64,7 @@ export default function DeployTabComponent() {
         p: 4
       }}
     >
-      <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+      <Box sx={{ maxWidth: 1600, mx: 'auto' }}>
         {/* Header */}
         <FeatureFlagHeader
           totalRules={mockStats.totalRules}

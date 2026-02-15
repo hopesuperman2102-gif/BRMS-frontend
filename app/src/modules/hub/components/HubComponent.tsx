@@ -1,19 +1,77 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Tabs, Tab, IconButton, Typography } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ProjectList from './ProjectList';
 import RulesTable from './RulesTable';
 import DeployTabPage from '../../deploy/page/DeployTabPage';
+import { verticalsApi } from '../../vertical/api/verticalsApi';
 
 const HubComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
+  const navigate = useNavigate();
+  const { verticalId } = useParams();
+  const [verticalName, setVerticalName] = useState<string>('');
+
+  useEffect(() => {
+    if (!verticalId) return;
+
+    const fetchVerticalName = async () => {
+      try {
+        const verticals = await verticalsApi.getVerticalsView();
+        const vertical = verticals.find((v) => String(v.id) === verticalId);
+        if (vertical) {
+          setVerticalName(vertical.vertical_name);
+        }
+      } catch (error) {
+        console.error('Error fetching vertical:', error);
+      }
+    };
+
+    fetchVerticalName();
+  }, [verticalId]);
 
   return (
     <>
-
-      {/* Tabs below AppBar */}
+      {/* Back Button and Vertical Name */}
       <Box px={3} pt={2}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+          <IconButton
+            onClick={() => navigate(`/vertical/${verticalId}/dashboard`)}
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: '10px',
+              backgroundColor: 'rgba(101, 82, 208, 0.08)',
+              color: '#6552D0',
+              transition: 'all 0.2s',
+              flexShrink: 0,
+              '&:hover': {
+                backgroundColor: 'rgba(101, 82, 208, 0.15)',
+                transform: 'translateX(-2px)',
+              },
+            }}
+          >
+            <ArrowBackIcon sx={{ fontSize: 20 }} />
+          </IconButton>
+
+          {verticalName && (
+            <Typography
+              sx={{
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                color: '#374151',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {verticalName}
+            </Typography>
+          )}
+        </Box>
+
+        {/* Tabs */}
         <Tabs
           value={tab}
           onChange={(_, newValue) => setTab(newValue)}
@@ -56,4 +114,3 @@ const HubComponent: React.FC = () => {
 };
 
 export default HubComponent;
-

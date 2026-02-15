@@ -169,10 +169,31 @@ export default function ProjectRuleComponent() {
         <SectionHeader
           left={
             <Box display="flex" alignItems="center" gap={1}>
-              <IconButton onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub`)}>
-                <ArrowBackIcon />
+              <IconButton
+                onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub`)}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '10px',
+                  backgroundColor: 'rgba(101, 82, 208, 0.08)',
+                  color: '#6552D0',
+                  transition: 'all 0.2s',
+                  flexShrink: 0,
+                  '&:hover': {
+                    backgroundColor: 'rgba(101, 82, 208, 0.15)',
+                    transform: 'translateX(-2px)',
+                  },
+                }}
+              >
+              <ArrowBackIcon sx={{ fontSize: 20 }} />
               </IconButton>
-              <Typography variant="h6">
+              <Typography 
+              sx={{
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                color: '#374151',
+                whiteSpace: 'nowrap',
+              }}>
                 {projectName || <Skeleton width={120} />}
               </Typography>
             </Box>
