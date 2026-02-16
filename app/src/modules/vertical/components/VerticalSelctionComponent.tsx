@@ -22,7 +22,7 @@ export default function VerticalSelectionComponent() {
   }, []);
 
   const handleCardClick = (item: VerticalView) => {
-    navigate(`/vertical/${item.id}/dashboard`, { state: { verticalName: item.vertical_name } });
+    navigate(`/vertical/${item.vertical_key}/dashboard`, { state: { verticalName: item.vertical_name } });
   };
 
   return (

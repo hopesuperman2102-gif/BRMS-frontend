@@ -5,7 +5,7 @@ import CreateRulePage from '../components/CreateRulePage';
 
 const rulesRoutes: AppRoute[] = [
   {
-    path: '/vertical/:verticalId/dashboard/hub/:project_key/rules',
+    path: '/vertical/:vertical_Key/dashboard/hub/:project_key/rules',
     element: ProjectRulePage,
     layout: 'main',
     metadata: {
@@ -15,7 +15,7 @@ const rulesRoutes: AppRoute[] = [
   },
 
   {
-    path: '/vertical/:verticalId/dashboard/hub/:project_key/rules/createrules',
+    path: '/vertical/:vertical_Key/dashboard/hub/:project_key/rules/createrules',
     element: CreateRulePage,
     layout: 'main',
     metadata: {

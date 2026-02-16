@@ -4,7 +4,7 @@ import DashboardPage from '../pages/DashboardPage';
 
 const dashboardRoutes: AppRoute[] = [
   {
-    path: '/vertical/:verticalId/dashboard',
+    path: '/vertical/:vertical_Key/dashboard',
     element: DashboardPage,
     layout: 'main',
     metadata: {

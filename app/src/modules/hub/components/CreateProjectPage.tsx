@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
-import { verticalsApi } from '../../vertical/api/verticalsApi';
 
 type FormState = {
   name: string;
@@ -21,7 +20,7 @@ type FormState = {
 
 export default function CreateProjectPage() {
   const navigate = useNavigate();
-  const { verticalId } = useParams(); 
+  const { vertical_Key } = useParams(); 
   const [searchParams] = useSearchParams();
   const projectKey = searchParams.get('key');
   const isEditMode = Boolean(projectKey);
@@ -41,7 +40,7 @@ export default function CreateProjectPage() {
 
     const fetchProject = async () => {
       try {
-        const projects = await projectsApi.getProjectsView();
+        const projects = await projectsApi.getProjectsView(vertical_Key!);
         const project = projects.find(
           (p) => p.project_key === projectKey
         );
@@ -62,7 +61,7 @@ export default function CreateProjectPage() {
     };
 
     fetchProject();
-  }, [projectKey]);
+  }, [projectKey, vertical_Key]);
 
   /* ---------- Field change ---------- */
   const handleChange = (
@@ -86,7 +85,7 @@ export default function CreateProjectPage() {
       setLoading(true);
 
       //  Duplicate name validation
-      const allProjects = await projectsApi.getProjectsView();
+      const allProjects = await projectsApi.getProjectsView(vertical_Key!);
 
       const duplicate = allProjects.some(
         (p) =>
@@ -110,24 +109,15 @@ export default function CreateProjectPage() {
       }
       //  Create
       else {
-        if (!verticalId) {
-          setError('Vertical ID is missing');
-          setLoading(false);
-          return;
-        }
-
-        // Get vertical_key from verticalId
-        const verticalKey = await verticalsApi.getVerticalKeyById(verticalId);
-
         await projectsApi.createProject({
           name: form.name,
           description: form.description,
           domain: form.domain,
-          vertical_key: verticalKey,
+          vertical_key: vertical_Key!,
         });
       }
 
-      navigate(`/vertical/${verticalId}/dashboard/hub`);
+      navigate(`/vertical/${vertical_Key}/dashboard/hub`);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Something went wrong');
@@ -395,7 +385,7 @@ export default function CreateProjectPage() {
           >
             <Button
               variant="outlined"
-              onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub`)}
+              onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
               sx={{
                 borderRadius: '10px',
                 px: 3,

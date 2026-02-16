@@ -30,9 +30,8 @@ type ApiRule = {
 };
 
 export default function ProjectRuleComponent() {
-  const { project_key } = useParams<{ project_key: string }>();
+  const { project_key, vertical_Key } = useParams<{ project_key: string; vertical_Key: string }>();
   const navigate = useNavigate();
-  const { verticalId } = useParams(); 
 
   const [rules, setRules] = useState<RuleFile[]>([]);
   const [selectedIndex] = useState<number | null>(null);
@@ -73,11 +72,11 @@ export default function ProjectRuleComponent() {
 
   /* ---------- Fetch PROJECT NAME ---------- */
   useEffect(() => {
-    if (!project_key) return;
+    if (!project_key || !vertical_Key) return;
 
     const fetchProjectName = async () => {
       try {
-        const projects = await projectsApi.getProjectsView();
+        const projects = await projectsApi.getProjectsView(vertical_Key);
         const project = projects.find((p) => p.project_key === project_key);
         if (project?.name) setProjectName(project.name);
       } catch (err) {
@@ -86,7 +85,7 @@ export default function ProjectRuleComponent() {
     };
 
     fetchProjectName();
-  }, [project_key]);
+  }, [project_key, vertical_Key]);
 
   /* ---------- Fetch RULES ---------- */
   useEffect(() => {
@@ -136,9 +135,10 @@ export default function ProjectRuleComponent() {
           "&:hover": { textDecoration: "underline" },
         }}
         onClick={() => {
+          if (!vertical_Key) return;
           sessionStorage.setItem("activeRuleName", rule.name);
           sessionStorage.setItem("activeRuleId", rule.id);
-          navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules/editor`);
+          navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/editor`);
         }}
       >
         {rule.name}

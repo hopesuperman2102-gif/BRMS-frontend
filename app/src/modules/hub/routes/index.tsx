@@ -7,7 +7,7 @@ import DeployTabPage from '../../deploy/page/DeployTabPage';
 
 const hubRoutes: AppRoute[] = [
   {
-    path: '/vertical/:verticalId/dashboard/hub',
+    path: '/vertical/:vertical_Key/dashboard/hub',
     element: HubPage,
     layout: 'main',
     metadata: {
@@ -15,7 +15,7 @@ const hubRoutes: AppRoute[] = [
     },
   },
   {
-    path: '/vertical/:verticalId/dashboard/hub/createproject',
+    path: '/vertical/:vertical_Key/dashboard/hub/createproject',
     element: CreateProjectPage,
     layout: 'main',
     metadata: {
@@ -23,7 +23,7 @@ const hubRoutes: AppRoute[] = [
     },
   },
   {
-    path: '/vertical/:verticalId/dashboard/hub/allrules',
+    path: '/vertical/:vertical_Key/dashboard/hub/allrules',
     element: RulesTable,
     layout: 'main',
     metadata: {

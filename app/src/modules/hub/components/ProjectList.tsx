@@ -36,13 +36,13 @@ export default function ProjectListCard() {
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
-  const { verticalId } = useParams(); 
+  const { vertical_Key } = useParams();
 
   /* ---------- Fetch projects ---------- */
-  const fetchProjects = async () => {
+  const fetchProjects = async (vertical_key: string) => {
     try {
       setLoading(true);
-      const response = await projectsApi.getProjectsView();
+      const response = await projectsApi.getProjectsView(vertical_key);
 
       const projectsFromApi: Project[] = response.map((p) => {
         const updatedAtSource =
@@ -74,8 +74,8 @@ export default function ProjectListCard() {
   };
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    fetchProjects(vertical_Key!);
+  }, [vertical_Key]);
 
   const rowsPerPage = 5;
   const totalPages = Math.ceil(projects.length / rowsPerPage);
@@ -103,7 +103,7 @@ export default function ProjectListCard() {
     if (!selectedProject) return;
 
     try {
-      await projectsApi.deleteProject(selectedProject.project_key,"admin");
+      await projectsApi.deleteProject(selectedProject.project_key, "admin");
       setProjects((prev) =>
         prev.filter((p) => p.project_key !== selectedProject.project_key)
       );
@@ -116,13 +116,12 @@ export default function ProjectListCard() {
   const handleEdit = () => {
     if (!selectedProject) return;
 
-    navigate(`/vertical/${verticalId}/dashboard/hub/createproject?key=${selectedProject.project_key}`);
+    navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject?key=${selectedProject.project_key}`);
     handleMenuClose();
   };
 
-
   const handleOpenProject = (project: Project) => {
-    navigate(`/vertical/${verticalId}/dashboard/hub/${project.project_key}/rules`);
+    navigate(`/vertical/${vertical_Key}/dashboard/hub/${project.project_key}/rules`);
   };
 
   return (
@@ -167,7 +166,7 @@ export default function ProjectListCard() {
 
             <Button
               variant="contained"
-              onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub/createproject`)}
+              onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject`)}
               sx={{
                 background: brmsTheme.gradients.primary,
                 borderRadius: '8px',

@@ -1,7 +1,6 @@
 'use client';
 
-import { Box, Typography, IconButton, InputBase} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Typography, IconButton} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import { RepositorySidebarProps } from '../types/commonTypes';

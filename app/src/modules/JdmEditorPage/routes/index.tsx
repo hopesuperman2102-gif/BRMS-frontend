@@ -4,7 +4,7 @@ import JdmEditorWithSimulator from '../components/JdmEditorWithSimulator';
 
 const jdmEditorRoutes: AppRoute[] = [
   {
-    path: '/vertical/:verticalId/dashboard/hub/:project_key/rules/editor',
+    path: '/vertical/:vertical_Key/dashboard/hub/:project_key/rules/editor',
     element: JdmEditorWithSimulator,
     layout: 'none',
     metadata: {

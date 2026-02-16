@@ -13,10 +13,9 @@ import { executionApi } from 'app/src/modules/JdmEditorPage/api/executionApi';
 import RepositorySidebar from 'app/src/core/components/RepositorySidebar';
 
 export default function JdmEditorWithSimulator() {
-  const { project_key } = useParams<{ project_key: string }>();
+  const { project_key, vertical_Key } = useParams<{ project_key: string; vertical_Key: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { verticalId } = useParams(); 
 
   const [items, setItems] = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -30,7 +29,7 @@ export default function JdmEditorWithSimulator() {
 
     const fetchProject = async () => {
       try {
-        const projects = await projectsApi.getProjectsView();
+        const projects = await projectsApi.getProjectsView(vertical_Key!);
         const project = projects.find(
           (p) => p.project_key === project_key
         );
@@ -41,7 +40,7 @@ export default function JdmEditorWithSimulator() {
     };
 
     fetchProject();
-  }, [project_key]);
+  }, [project_key, vertical_Key]);
 
   /* ---------- Fetch rules list only (without graph data) ---------- */
   useEffect(() => {
@@ -98,7 +97,7 @@ export default function JdmEditorWithSimulator() {
       sessionStorage.setItem('activeRuleName', item.name);
       
       // Update URL with rule parameter
-      navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules/editor?rule=${item.id}`, {
+      navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/editor?rule=${item.id}`, {
         replace: true,
       });
     }
@@ -183,7 +182,7 @@ export default function JdmEditorWithSimulator() {
             onDropOnFolder={handleDropOnFolder}
             onBackClick={() => {
               if (project_key) {
-                navigate(`/vertical/${verticalId}/dashboard/hub/${project_key}/rules`);
+                navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules`);
               }
             }}
           />

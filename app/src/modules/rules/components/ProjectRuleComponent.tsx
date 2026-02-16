@@ -36,9 +36,8 @@ interface ProjectResponse {
 }
 
 export default function ProjectRuleComponent() {
-  const { project_key } = useParams<{ project_key: string }>();
+  const { project_key, vertical_Key } = useParams<{ project_key: string; vertical_Key: string }>();
   const navigate = useNavigate();
-  const { verticalId } = useParams(); 
 
   const [rules, setRules] = useState<RuleFile[]>([]);
   const [projectName, setProjectName] = useState('');
@@ -49,13 +48,14 @@ export default function ProjectRuleComponent() {
   /* ---------- Project name ---------- */
   useEffect(() => {
     if (!project_key) return;
-    projectsApi.getProjectsView().then((projects: ProjectResponse[]) => {
+    
+    projectsApi.getProjectsView(vertical_Key!).then((projects: ProjectResponse[]) => {
       const project = projects.find(
         (p: ProjectResponse) => p.project_key === project_key
       );
       if (project?.name) setProjectName(project.name);
     });
-  }, [project_key]);
+  }, [project_key, vertical_Key]);
 
   /* ---------- Rules ---------- */
   useEffect(() => {
@@ -132,8 +132,9 @@ export default function ProjectRuleComponent() {
 
   const handleEdit = () => {
     if (!menuRule) return;
+    
     navigate(
-      `/vertical/${verticalId}/dashboard//hub/${project_key}/rules/createrules?key=${menuRule.id}`
+      `/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/createrules?key=${menuRule.id}`
     );
     closeMenu();
   };
@@ -144,11 +145,11 @@ export default function ProjectRuleComponent() {
     'Rule Name': (
       <Typography
         sx={{ cursor: 'pointer', color: '#4f46e5' }}
-        onClick={() =>
+        onClick={() => {
           navigate(
-            `/vertical/${verticalId}/dashboard/hub/${project_key}/rules/editor?rule=${rule.id}`
-          )
-        }
+            `/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/editor?rule=${rule.id}`
+          );
+        }}
       >
         {rule.name}
       </Typography>
@@ -170,7 +171,7 @@ export default function ProjectRuleComponent() {
           left={
             <Box display="flex" alignItems="center" gap={1}>
               <IconButton
-                onClick={() => navigate(`/vertical/${verticalId}/dashboard/hub`)}
+                onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
                 sx={{
                   width: 36,
                   height: 36,
@@ -201,9 +202,9 @@ export default function ProjectRuleComponent() {
           right={
             <Button
               variant="contained"
-              onClick={() =>
+              onClick={() => 
                 navigate(
-                  `/vertical/${verticalId}/dashboard/hub/${project_key}/rules/createrules`
+                  `/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/createrules`
                 )
               }
             >

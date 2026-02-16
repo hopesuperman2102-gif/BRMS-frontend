@@ -58,12 +58,12 @@ export const projectsApi = {
   },
 
   // Get all projects
-  getProjectsView: async (): Promise<ProjectView[]> => {
+  getProjectsView: async (vertical_key: string): Promise<ProjectView[]> => {
     if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Fetching active projects');
+      console.log('🔄 Fetching active projects for vertical:', vertical_key);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/?status=ACTIVE`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/projects/vertical/${vertical_key}/?status=ACTIVE`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -152,9 +152,9 @@ export const projectsApi = {
   },
 
   // Check if project name exists
-  checkProjectNameExists: async (name: string): Promise<boolean> => {
+  checkProjectNameExists: async (name: string , vertical_key: string): Promise<boolean> => {
     try {
-      const projects = await projectsApi.getProjectsView();
+      const projects = await projectsApi.getProjectsView(vertical_key);
       return projects.some(
         (p) => p.name.toLowerCase().trim() === name.toLowerCase().trim()
       );

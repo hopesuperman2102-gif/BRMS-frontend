@@ -5,11 +5,11 @@ import { RcCard } from 'app/src/core/components/RcCard';
 const DashboardHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { verticalId } = useParams();
+  const { vertical_Key } = useParams();
   const verticalName = location.state?.verticalName || 'Real-time monitoring';
 
   const handleHubClick = () => {
-    navigate(`/vertical/${verticalId}/dashboard/hub`, { 
+    navigate(`/vertical/${vertical_Key}/dashboard/hub`, { 
       state: { verticalName } 
     });
   };

@@ -12,16 +12,16 @@ import { verticalsApi } from '../../vertical/api/verticalsApi';
 const HubComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
   const navigate = useNavigate();
-  const { verticalId } = useParams();
+  const { vertical_Key } = useParams();
   const [verticalName, setVerticalName] = useState<string>('');
 
   useEffect(() => {
-    if (!verticalId) return;
+    if (!vertical_Key) return;
 
     const fetchVerticalName = async () => {
       try {
         const verticals = await verticalsApi.getVerticalsView();
-        const vertical = verticals.find((v) => String(v.id) === verticalId);
+        const vertical = verticals.find((v) => String(v.id) === vertical_Key);
         if (vertical) {
           setVerticalName(vertical.vertical_name);
         }
@@ -31,7 +31,7 @@ const HubComponent: React.FC = () => {
     };
 
     fetchVerticalName();
-  }, [verticalId]);
+  }, [vertical_Key]);
 
   return (
     <>
@@ -39,7 +39,7 @@ const HubComponent: React.FC = () => {
       <Box px={3} pt={2}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
           <IconButton
-            onClick={() => navigate(`/vertical/${verticalId}/dashboard`)}
+            onClick={() => navigate(`/vertical/${vertical_Key}/dashboard`)}
             sx={{
               width: 36,
               height: 36,
