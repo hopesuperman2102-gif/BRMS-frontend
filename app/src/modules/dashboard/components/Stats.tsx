@@ -1,41 +1,43 @@
-import { PendingActionsRounded, ToggleOnSharp, RuleOutlined, AccountTreeOutlined } from 'node_modules/@mui/icons-material';
 import StatCard from './StatCard';
+import AccountTreeOutlined from '@mui/icons-material/AccountTreeOutlined';
+import RuleOutlined from '@mui/icons-material/RuleOutlined';
+import ToggleOnSharp from '@mui/icons-material/ToggleOnSharp';
+import PendingActionsRounded from '@mui/icons-material/PendingActionsRounded';
 
-const Stats = () => {
+interface Props {
+  totalActiveProjects: number;
+  totalRules: number;
+  activeRules: number;
+  pendingRules: number;
+}
+
+const Stats = ({ totalActiveProjects, totalRules, activeRules, pendingRules }: Props) => {
   const stats = [
     {
       title: 'Total Projects',
-      value: '248',
+      value: totalActiveProjects,
       subtitle: 'In Fleet',
-      trend: '+12%',
-      trendUp: true,
       icon: AccountTreeOutlined,
       gradient: 'linear-gradient(135deg, #6552D0 20%, #17203D 100%)',
     },
     {
       title: 'Total Rules',
-      value: '121',
+      value: totalRules,
       subtitle: 'Ongoing',
-      trend: '+8%',
-      trendUp: true,
       icon: RuleOutlined,
       gradient: 'linear-gradient(135deg, #1976d2 20%, #0d47a1 100%)',
     },
     {
       title: 'Active Rules',
-      value: '87',
+      value: activeRules,
       subtitle: 'Running Now',
-      trend: '+5%',
-      trendUp: true,
       icon: ToggleOnSharp,
       gradient: 'linear-gradient(135deg, #2e7d32 20%, #1b5e20 100%)',
     },
     {
       title: 'Pending Rules',
-      value: '34',
+      value: pendingRules,
       subtitle: 'In Queue',
-      trend: '-3%',
-      trendUp: false,
       icon: PendingActionsRounded,
       gradient: 'linear-gradient(135deg, #ed6c02 20%, #c77700 100%)',
     },

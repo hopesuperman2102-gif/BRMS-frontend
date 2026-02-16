@@ -1,10 +1,10 @@
 
 export interface StatCardProps {
   title: string;
-  value: string;
+  value: number;
   subtitle: string;
-  trend: string;
-  trendUp: boolean;
+  trend?: string;
+  trendUp?: boolean;
   icon: React.ElementType;
   gradient: string;
 }

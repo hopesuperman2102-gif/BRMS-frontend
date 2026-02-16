@@ -7,12 +7,17 @@ import DeployedRulesChart from "../components/DeployedRulesChart";
 import RulesCreatedChart from "../components/RulesCreatedChart";
 import StatsSection from "../components/Stats";
 import { verticalsApi } from '../../vertical/api/verticalsApi';
+import { dashboardApi, DashboardSummary } from '../api/dashboardApi';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { verticalId } = useParams();
   const [verticalName, setVerticalName] = useState<string>('');
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [selectedRulesCreatedYear, setSelectedRulesCreatedYear] = useState<number>(2026);
+  const [selectedDeployedRulesYear, setSelectedDeployedRulesYear] = useState<number>(2026);
 
+  // Fetch Vertical Name
   useEffect(() => {
     if (!verticalId) return;
 
@@ -31,6 +36,20 @@ const DashboardPage = () => {
     fetchVerticalName();
   }, [verticalId]);
 
+  // 🔥 Fetch Dashboard Summary
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const data = await dashboardApi.getSummary();
+        setSummary(data);
+      } catch (error) {
+        console.error("Error fetching dashboard summary:", error);
+      }
+    };
+
+    fetchSummary();
+  }, []);
+
   return (
     <div
       style={{
@@ -40,10 +59,9 @@ const DashboardPage = () => {
       }}
     >
       <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-        {/* Back Button and Vertical Name */}
+        
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-          <IconButton
-            onClick={() => navigate('/vertical')}
+          <IconButton onClick={() => navigate('/vertical')}
             sx={{
               width: 36,
               height: 36,
@@ -56,14 +74,14 @@ const DashboardPage = () => {
                 backgroundColor: 'rgba(101, 82, 208, 0.15)',
                 transform: 'translateX(-2px)',
               },
-            }}
-          >
+            }}>
+                     
             <ArrowBackIcon sx={{ fontSize: 20 }} />
           </IconButton>
 
           {verticalName && (
-            <Typography
-              sx={{
+            <Typography 
+            sx={{
                 fontSize: '0.95rem',
                 fontWeight: 600,
                 color: '#374151',
@@ -76,7 +94,14 @@ const DashboardPage = () => {
         </Box>
 
         <DashboardHeader />
-        <StatsSection />
+
+        {/* 🔥 Pass API Data */}
+        <StatsSection 
+          totalActiveProjects={summary?.total_active_projects ?? 0}
+          totalRules={summary?.total_rules ?? 0}
+          activeRules={summary?.active_rules ?? 0}
+          pendingRules={summary?.pending_rules ?? 0}
+        />
 
         <div
           style={{
@@ -86,8 +111,16 @@ const DashboardPage = () => {
             marginBottom: '24px',
           }}
         >
-          <RulesCreatedChart />
-          <DeployedRulesChart />
+          <RulesCreatedChart 
+            data={summary?.monthly_rule_creations || []} 
+            selectedYear={selectedRulesCreatedYear}
+            onYearChange={setSelectedRulesCreatedYear}
+          />
+          <DeployedRulesChart 
+            data={summary?.monthly_deployments || []} 
+            selectedYear={selectedDeployedRulesYear}
+            onYearChange={setSelectedDeployedRulesYear}
+          />
         </div>
       </div>
     </div>
