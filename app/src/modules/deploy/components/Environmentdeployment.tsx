@@ -1,14 +1,14 @@
 // app/src/modules/feature-flags/components/EnvironmentDeployment.tsx
 
 'use client';
- 
+
 import React from 'react';
-import { Button, Typography, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { Environment } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
-
 
 interface EnvironmentDeploymentProps {
   environments: Environment[];
@@ -18,6 +18,7 @@ interface EnvironmentDeploymentProps {
   lastDeployedBy?: string;
   lastDeployedTime?: string;
   delay?: number;
+  sx?: SxProps<Theme>;
 }
 
 export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
@@ -25,14 +26,13 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
   selectedEnvironment,
   onEnvironmentChange,
   onDeploy,
-  lastDeployedBy = 'John Doe',
-  lastDeployedTime = '2m ago',
-  delay = 0.5
+  delay = 0.5,
+  sx,
 }) => {
   return (
-    <RcCard delay={delay}>
+    <RcCard delay={delay} sx={sx}>
       <CardHeader title="Environment & Deployment Action" />
-      
+
       <ToggleButtonGroup
         value={selectedEnvironment}
         exclusive
@@ -50,10 +50,8 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
               '&.Mui-selected': {
                 bgcolor: 'primary.main',
                 color: 'white',
-                '&:hover': {
-                  bgcolor: 'primary.dark'
-                }
-              }
+                '&:hover': { bgcolor: 'primary.dark' },
+              },
             }}
           >
             {env}
@@ -77,16 +75,12 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
             '&:hover': {
               boxShadow: 6,
               background: 'linear-gradient(135deg, #5443B8 0%, #14192F 100%)',
-            }
+            },
           }}
         >
           Deploy to {selectedEnvironment}
         </Button>
       </motion.div>
-
-      <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mt: 2 }}>
-        Last deployed <strong>{lastDeployedTime}</strong> by <strong>{lastDeployedBy}</strong>
-      </Typography>
     </RcCard>
   );
 };

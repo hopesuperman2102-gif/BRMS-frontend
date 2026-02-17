@@ -6,10 +6,12 @@ import { RcCard } from "app/src/core/components/RcCard";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
 import { MonthlyData } from "../api/dashboardApi";
 
+
 interface Props {
   data: MonthlyData[];
   selectedYear: number;
   onYearChange: (year: number) => void;
+  height?: number;
 }
 
 const getBarColor = (index: number): string => {
@@ -20,37 +22,31 @@ const getBarColor = (index: number): string => {
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange }) => {
-  const currentYear = 2026;
+const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange, height = 200 }) => {
+  const currentYear = new Date().getFullYear();
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
 
-  // Generate years from 2026 to 2051 (26 years total)
   const availableYears = useMemo(() => {
     const years = [];
     for (let i = 0; i < 26; i++) {
       years.push(currentYear + i);
     }
     return years;
-  }, []);
+  }, [currentYear]);
 
-  // Get unique years that have data
   const yearsWithData = useMemo(() => {
     return [...new Set(data.map(item => item.year))];
   }, [data]);
 
-  // Filter data by selected year and create full 12-month dataset
   const chartData = useMemo(() => {
     const yearData = data.filter(item => item.year === selectedYear);
-    
-    // Create array with all 12 months
     return monthNames.map((month, index) => {
       const monthNumber = index + 1;
       const dataPoint = yearData.find(item => item.month === monthNumber);
-      
       return {
-        month: month,
+        month,
         year: selectedYear,
-        value: dataPoint ? dataPoint.total : 0
+        value: dataPoint ? dataPoint.total : 0,
       };
     });
   }, [data, selectedYear]);
@@ -59,14 +55,7 @@ const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange }
 
   return (
     <RcCard>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          mb: 3,
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
         <Box>
           <Typography sx={{ fontSize: "1.25rem", fontWeight: 700 }}>
             Rules Created
@@ -76,32 +65,23 @@ const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange }
           </Typography>
         </Box>
 
-        <Select 
-          value={selectedYear} 
+        <Select
+          value={selectedYear}
           onChange={(e) => onYearChange(Number(e.target.value))}
-          size="small" 
+          size="small"
           sx={{ minWidth: 160 }}
-          MenuProps={{
-            PaperProps: {
-              style: {
-                maxHeight: '5cm',
-              },
-            },
-          }}
+          MenuProps={{ PaperProps: { style: { maxHeight: '5cm' } } }}
         >
           {availableYears.map((year) => (
-            <MenuItem 
-              key={year} 
-              value={year}
-              disabled={!yearsWithData.includes(year)}
-            >
+            <MenuItem key={year} value={year} disabled={!yearsWithData.includes(year)}>
               {year}
             </MenuItem>
           ))}
         </Select>
       </Box>
 
-      <Box sx={{ position: "relative", height: 320 }}>
+      {/* Chart — height controlled by prop */}
+      <Box sx={{ position: "relative", height }}>
 
         {/* Y Axis */}
         <Box
@@ -109,7 +89,7 @@ const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange }
             position: "absolute",
             left: 0,
             top: 0,
-            bottom: "60px",
+            bottom: "40px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
@@ -134,7 +114,7 @@ const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange }
             left: "45px",
             right: 2,
             top: 0,
-            bottom: "60px",
+            bottom: "40px",
             display: "flex",
             alignItems: "flex-end",
             gap: 0.75,
@@ -142,7 +122,6 @@ const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange }
         >
           {chartData.map((item, index) => {
             const heightPercent = (item.value / maxValue) * 100;
-
             return (
               <Box
                 key={index}

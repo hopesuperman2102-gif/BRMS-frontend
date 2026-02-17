@@ -115,6 +115,7 @@ const DashboardPage = () => {
             data={summary?.monthly_rule_creations || []} 
             selectedYear={selectedRulesCreatedYear}
             onYearChange={setSelectedRulesCreatedYear}
+            height={320}
           />
           <DeployedRulesChart 
             data={summary?.monthly_deployments || []} 

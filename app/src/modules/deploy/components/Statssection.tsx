@@ -1,46 +1,61 @@
-// app/src/modules/feature-flags/components/StatsSection.tsx
-
 'use client';
 
 import React from 'react';
 import { Grid } from '@mui/material';
-import { DashboardStats } from '../types/featureFlagTypes';
 import { DeploymentHealthCard } from './Deploymenthealthcard';
 import { PendingSyncsCard } from './Pendingsyncscard';
-import { RuleChangesCard } from './Rulechangescard';
+import { MonthlyData } from '../api/deployApi';
+import RulesCreatedChart from '../../dashboard/components/RulesCreatedChart';
 
 interface StatsSectionProps {
-  stats: DashboardStats;
+  stats: {
+    totalRuleVersions: number;
+    pendingVersions: number;
+    approvedVersions: number;
+    rejectedVersions: number;
+    deployedVersions: number;
+    approvedNotDeployedVersions: number;
+    monthlyDeployments: MonthlyData[];
+  };
+  selectedYear: number;
+  onYearChange: (year: number) => void;
 }
 
-export const StatsSection: React.FC<StatsSectionProps> = ({ stats }) => {
+export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear, onYearChange }) => {
   return (
     <Grid container spacing={3} sx={{ mb: 3 }}>
       <Grid size={{ xs: 12, md: 3 }}>
         <DeploymentHealthCard
           title="Deployment Health"
-          health={stats.deploymentHealth}
+          health={{
+            total: stats.totalRuleVersions,
+            pending: stats.pendingVersions,
+            approved: stats.approvedVersions,
+            rejected: stats.rejectedVersions,
+          }}
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 3 }}>
+      <Grid size={{ xs: 12, md: 2 }}>
         <PendingSyncsCard
           title="Active Rules"
-          value={stats.activeSyncs[0].count}
-          timestamp={stats.activeSyncs[1].lastSync}
+          value={stats.deployedVersions}
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 3 }}>
+      <Grid size={{ xs: 12, md: 2 }}>
         <PendingSyncsCard
           title="Pending Rules"
-          value={stats.pendingSyncs[0].count}
+          value={stats.approvedNotDeployedVersions}
         />
       </Grid>
 
-      <Grid size={{ xs: 12, md: 3 }}>
-        <RuleChangesCard
-          changes={stats.ruleChanges}
+      <Grid size={{ xs: 12, md: 5 }}>
+        <RulesCreatedChart
+          data={stats.monthlyDeployments}
+          selectedYear={selectedYear}
+          onYearChange={onYearChange}
+          height={170}
         />
       </Grid>
     </Grid>

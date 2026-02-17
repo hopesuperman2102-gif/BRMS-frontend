@@ -1,5 +1,5 @@
 import { RcDropdownItem } from "app/src/core/components/RcDropdown";
-import { DashboardStats, DeploymentHistory, Environment, Rule } from "./types/featureFlagTypes";
+import { DashboardStats, DeploymentHistory, Environment } from "./types/featureFlagTypes";
 
 // Mock Data - Replace with actual API calls
 export const mockStats: DashboardStats = {
@@ -26,17 +26,6 @@ export const mockStats: DashboardStats = {
   ]
 };
 
-export const mockRules: Rule[] = [
-  { id: '1', name: 'Feature Flag Beta', status: 'veatus' },
-  { id: '2', name: 'Recommendation Engine v2', status: 'pending' },
-  { 
-    id: '3', 
-    name: 'Payment Gateway Fix', 
-    status: 'active', 
-    version: 'v1.1 (Active)', 
-    latestVersion: 'v1.2 (Latest)' 
-  }
-];
 
 export const mockActiveRules: DeploymentHistory[] = [
   {

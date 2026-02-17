@@ -1,5 +1,3 @@
-// app/src/modules/feature-flags/components/FeatureFlagHeader.tsx
-
 'use client';
 
 import React from 'react';
@@ -7,12 +5,13 @@ import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Environment } from '../types/featureFlagTypes';
 import { RcCard } from 'app/src/core/components/RcCard';
-import RcDropdown from 'app/src/core/components/RcDropdown';
-import { projectItems } from '../mock_data';
-
+import RcDropdown, { RcDropdownItem } from 'app/src/core/components/RcDropdown';
 
 interface FeatureFlagHeaderProps {
   totalRules: number;
+  projectItems: RcDropdownItem[];
+  selectedProject: string;
+  onProjectSelect: (value: string) => void;
   environments: Environment[];
   activeEnvironment?: Environment;
   onEnvironmentClick?: (env: Environment) => void;
@@ -20,11 +19,15 @@ interface FeatureFlagHeaderProps {
 
 export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
   totalRules,
+  projectItems,
+  selectedProject,
+  onProjectSelect,
   environments,
   activeEnvironment,
   onEnvironmentClick
 }) => {
   void activeEnvironment;
+
   const getEnvColor = (env: Environment) => {
     if (env === 'PROD') return { bgcolor: 'error.main', color: 'white' };
     if (env === 'QA') return { bgcolor: 'primary.main', color: 'white' };
@@ -52,10 +55,9 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
           </motion.div>
           
           <RcDropdown
-            label="Project"
+            label={selectedProject}
             items={projectItems}
-            onSelect={() => {
-            }}
+            onSelect={onProjectSelect}
           />
         </Box>
 
