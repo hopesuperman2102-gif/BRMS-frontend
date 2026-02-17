@@ -35,7 +35,7 @@ const DashboardHeader = () => {
               margin: '4px 0 0 0',
             }}
           >
-            {verticalName}
+            Real-time insights into your business rules performance and health
           </p>
         </div>
 

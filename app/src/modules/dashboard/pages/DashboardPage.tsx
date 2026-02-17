@@ -11,7 +11,7 @@ import { dashboardApi, DashboardSummary } from '../api/dashboardApi';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const { verticalId } = useParams();
+  const { vertical_Key } = useParams();
   const [verticalName, setVerticalName] = useState<string>('');
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [selectedRulesCreatedYear, setSelectedRulesCreatedYear] = useState<number>(2026);
@@ -19,12 +19,12 @@ const DashboardPage = () => {
 
   // Fetch Vertical Name
   useEffect(() => {
-    if (!verticalId) return;
+    if (!vertical_Key) return;
 
     const fetchVerticalName = async () => {
       try {
         const verticals = await verticalsApi.getVerticalsView();
-        const vertical = verticals.find((v) => String(v.id) === verticalId);
+        const vertical = verticals.find((v) => v.vertical_key === vertical_Key);
         if (vertical) {
           setVerticalName(vertical.vertical_name);
         }
@@ -34,7 +34,7 @@ const DashboardPage = () => {
     };
 
     fetchVerticalName();
-  }, [verticalId]);
+  }, [vertical_Key]);
 
   // 🔥 Fetch Dashboard Summary
   useEffect(() => {
