@@ -1,12 +1,11 @@
-'use client';
+"use client";
 
-import { Box, Typography } from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { RepoTreeProps } from '../types/commonTypes';
+import { Box, Typography } from "@mui/material";
+import FolderIcon from "@mui/icons-material/Folder";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { RepoTreeProps } from "../types/commonTypes";
 
 export default function RepoTree({
   items,
@@ -23,7 +22,7 @@ export default function RepoTree({
       {items.map((item) => {
         const isSelected = item.id === selectedId;
         const isExpanded = expandedFolders.has(item.id);
-        const isFolder = item.type === 'folder';
+        const isFolder = item.type === "folder";
 
         return (
           <Box key={item.id}>
@@ -40,50 +39,93 @@ export default function RepoTree({
               }}
               onDragOver={(e) => isFolder && e.preventDefault()}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5,
+                display: "flex",
+                alignItems: "center",
+                gap: 0.75,
                 px: 1.5,
-                py: 0.85,
+                py: 0.6,
                 pl: 1.5 + depth * 1.5,
-                cursor: 'pointer',
-                bgcolor: isSelected 
-                  ? 'linear-gradient(90deg, rgba(101, 82, 208, 0.1) 0%, rgba(23, 32, 61, 0.05) 100%)' 
-                  : 'transparent',
-                borderLeft: isSelected ? '3px solid #6552D0' : '3px solid transparent',
-                borderRadius: 2,
-                transition: 'all 0.2s ease',
-                '&:hover': { 
-                  bgcolor: isSelected 
-                    ? 'linear-gradient(90deg, rgba(101, 82, 208, 0.15) 0%, rgba(23, 32, 61, 0.08) 100%)' 
-                    : 'rgba(101, 82, 208, 0.05)',
-                  transform: 'translateX(2px)',
+                cursor: "pointer",
+                backgroundColor: isSelected
+                  ? "rgba(101, 82, 208, 0.08)"
+                  : "transparent",
+                borderLeft: isSelected
+                  ? "2px solid #6552D0"
+                  : "2px solid transparent",
+                transition: "all 0.15s ease",
+                "&:hover": {
+                  backgroundColor: isSelected
+                    ? "rgba(101, 82, 208, 0.12)"
+                    : "rgba(0, 0, 0, 0.03)",
                 },
               }}
             >
-              {isFolder && (
-                <Box sx={{ width: 16 }}>
-                  {isExpanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                </Box>
-              )}
-
-              {isFolder ? (
-                isExpanded ? <FolderOpenIcon /> : <FolderIcon />
-              ) : (
-                <InsertDriveFileIcon />
-              )}
-
-              <Typography 
-                fontSize={13}
+              {/* Chevron for folders */}
+              <Box
                 sx={{
-                  fontWeight: isSelected ? 600 : 400,
-                  color: isSelected ? '#6552D0' : '#475569',
+                  width: 14,
+                  height: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  color: "#9ca3af",
+                }}
+              >
+                {isFolder &&
+                  (isExpanded ? (
+                    <ExpandMoreIcon sx={{ fontSize: 14 }} />
+                  ) : (
+                    <ChevronRightIcon sx={{ fontSize: 14 }} />
+                  ))}
+              </Box>
+
+              {/* File/Folder Icon */}
+              {isFolder ? (
+                <FolderIcon
+                  sx={{
+                    fontSize: 16,
+                    color: "#f59e0b",
+                    flexShrink: 0,
+                    transform: isExpanded ? "scale(1.05)" : "scale(1)",
+                    transition: "0.15s ease",
+                  }}
+                />
+              ) : (
+                <InsertDriveFileIcon
+                  sx={{
+                    fontSize: 15,
+                    color: isSelected ? "#6552D0" : "#94a3b8",
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+
+              {/* Name */}
+              <Typography
+                fontSize={13}
+                color="#6552D0"
+                sx={{
+                  fontSize: "0.8125rem",
+                  fontWeight: isSelected ? 600 : isFolder ? 500 : 400,
+                  color: isSelected
+                    ? "#6552D0"
+                    : isFolder
+                      ? "#1e293b"
+                      : "#475569",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  letterSpacing: "-0.01em",
+                  fontFamily:
+                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 }}
               >
                 {item.name}
               </Typography>
             </Box>
 
+            {/* Recursive children */}
             {isFolder && isExpanded && item.children && (
               <RepoTree
                 items={item.children}

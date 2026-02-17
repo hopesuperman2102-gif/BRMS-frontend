@@ -33,7 +33,7 @@ export default function Editor({
   const [isCommitting, setIsCommitting] = useState(false);
   const { showAlert } = useAlertStore();
 
-  const findItem = (list: RepoItem[], id: number): RepoItem | null => {
+  const findItem = (list: RepoItem[], id: string| number): RepoItem | null => {
     for (const i of list) {
       if (i.id === id) return i;
       if (i.children) {

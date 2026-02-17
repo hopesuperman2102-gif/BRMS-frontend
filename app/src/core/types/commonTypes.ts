@@ -7,14 +7,6 @@ export interface JsonObject {
   [key: string]: JsonValue;
 }
 
-export type RepoItem = {
-  id: number;
-  name: string;
-  type: 'file' | 'folder';
-  children?: RepoItem[];
-  graph?: DecisionGraphType;
-};
-
 export type MoveConfirmDialogProps = {
   open: boolean;
   itemName: string;
@@ -49,28 +41,38 @@ export type ProjectTabsProps = {
   onClose: (id: number) => void;
 };
 
+export interface RepoItem {
+  id: string | number;
+  name: string;
+  type: 'file' | 'folder';
+  graph?: DecisionGraphType;
+  children?: RepoItem[];   
+  path?: string;           
+  parentPath?: string;    
+}
+
+export type RepoTreeProps = {
+  items: RepoItem[];
+  selectedId: string | number | null;
+  expandedFolders: Set<string | number>;
+  onToggleFolder: (id: string | number) => void;
+  onSelectItem: (item: RepoItem) => void;
+  onDragStart: (item: RepoItem) => void;
+  onDropOnFolder: (folder: RepoItem) => void;
+  depth?: number;
+};
+
 export type RepositorySidebarProps = {
   projectName: string;
   items: RepoItem[];
-  selectedId: number | null;
-  expandedFolders: Set<number>;
-  onToggleFolder: (id: number) => void;
+  selectedId: string | number | null;            
+  expandedFolders: Set<string | number>;         
+  onToggleFolder: (id: string | number) => void; 
   onSelectItem: (item: RepoItem) => void;
   onAddClick: (el: HTMLElement) => void;
   onDragStart: (item: RepoItem) => void;
   onDropOnFolder: (folder: RepoItem) => void;
   onBackClick?: () => void;
-};
-
-export type RepoTreeProps = {
-  items: RepoItem[];
-  selectedId: number | null;
-  expandedFolders: Set<number>;
-  onToggleFolder: (id: number) => void;
-  onSelectItem: (item: RepoItem) => void;
-  onDragStart: (item: RepoItem) => void;
-  onDropOnFolder: (folder: RepoItem) => void;
-  depth?: number;
 };
 
 export interface AlertState {
