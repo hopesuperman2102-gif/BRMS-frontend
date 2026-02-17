@@ -1,18 +1,8 @@
 import { RepoItem } from "../../../core/types/commonTypes";
 
-export type ProjectTreeProps = {
-  projectName: string;
-
-  items: RepoItem[];
-  setItems: React.Dispatch<React.SetStateAction<RepoItem[]>>;
-  selectedId: number | null;
-  setSelectedId: React.Dispatch<React.SetStateAction<number | null>>;
-  onOpenFile: (id: number) => void;
-};
-
 export type EditorProps = {
   items: RepoItem[];
-  selectedId: number | null;
-  openFiles: number[];
-  setOpenFiles: React.Dispatch<React.SetStateAction<number[]>>;
+  selectedId: string | number | null;
+  openFiles: (string | number)[];               
+  setOpenFiles: (files: (string | number)[]) => void; 
 };

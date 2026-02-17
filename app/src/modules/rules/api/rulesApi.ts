@@ -2,171 +2,180 @@
 
 import { ENV } from '../../../config/env';
 
-const API_BASE_URL = ENV.API_BASE_URL;
+const BASE = ENV.API_BASE_URL;
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface RuleResponse {
+  rule_key: string;
+  project_key: string;
+  name: string;
+  description: string;
+  status: string;
+  created_by: string;
+  created_at: string;
+  updated_by: string | null;
+  updated_at: string;
+  directory?: string;
+  version?: string;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const log = (...args: unknown[]) => {
+  if (ENV.ENABLE_LOGGING) console.log(...args);
+};
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || `HTTP ${response.status}`);
+  }
+  return response.json() as Promise<T>;
+}
+
+const JSON_HEADERS = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+} as const;
+
+// ─── API ──────────────────────────────────────────────────────────────────────
 
 export const rulesApi = {
-  // ---------- Create Rule ----------
+
+  // ── Create Rule ────────────────────────────────────────────────────────────
   createRule: async (data: {
     project_key: string;
     name: string;
     description: string;
-    directory?: string; // Optional for folder structure
-    //type?: 'file' | 'folder'; //for folder structure 
-    //parent_id?: string | null; 
-  }) => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Creating rule:', data);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${data.project_key}/rules`, {
+    directory?: string;
+  }): Promise<RuleResponse> => {
+    log('🔄 Creating rule:', data);
+    const res = await fetch(`${BASE}/api/v1/projects/${data.project_key}/rules`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({name: data.name, description: data.description, directory: data.directory || '', }),
+      headers: JSON_HEADERS,
+      body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to create rule');
-    }
-
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('Rule created:', result);
-    }
-
+    const result = await handleResponse<RuleResponse>(res);
+    log('✅ Rule created:', result);
     return result;
   },
 
-  // ---------- Get Rules By Project ----------
-  getProjectRules: async (project_key: string) => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log(' Fetching rules for project:', project_key);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}/rules`, {
+  // ── Get Rules By Project ───────────────────────────────────────────────────
+  getProjectRules: async (project_key: string): Promise<RuleResponse[]> => {
+    log('📋 Fetching rules for project:', project_key);
+    const res = await fetch(`${BASE}/api/v1/projects/${project_key}/rules`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers: JSON_HEADERS,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch rules');
-    }
-
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log(' Rules fetched:', result.length);
-    }
-
+    const result = await handleResponse<RuleResponse[]>(res);
+    log('✅ Rules fetched:', result.length);
     return result;
   },
 
-  // ---------- Delete Rule ----------
-  deleteRule: async (rule_key: string) => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Deleting rule:', rule_key);
-    }
+  // ── Get Single Rule ────────────────────────────────────────────────────────
+  getRuleDetails: async (rule_key: string): Promise<RuleResponse> => {
+    log('🔄 Fetching rule details:', rule_key);
+    const res = await fetch(`${BASE}/api/v1/rules/${rule_key}`, {
+      method: 'GET',
+      headers: JSON_HEADERS,
+    });
+    const result = await handleResponse<RuleResponse>(res);
+    log('✅ Rule details fetched:', result);
+    return result;
+  },
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/rules/${rule_key}`, {
+  // ── Delete Rule ────────────────────────────────────────────────────────────
+  deleteRule: async (rule_key: string): Promise<unknown> => {
+    log('🗑️ Deleting rule:', rule_key);
+    const res = await fetch(`${BASE}/api/v1/rules/${rule_key}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers: JSON_HEADERS,
       body: JSON.stringify({ rule_key }),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to delete rule');
-    }
-
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Rule deleted:', rule_key);
-    }
-
+    const result = await handleResponse<unknown>(res);
+    log('✅ Rule deleted:', rule_key);
     return result;
   },
 
-  // ---------- Update Rule ----------
+  // ── Update Rule (name / description) ──────────────────────────────────────
   updateRule: async (data: {
     rule_key: string;
     name: string;
     description: string;
     updated_by: string;
-    //type?: 'file' | 'folder';      // NEW - Optional for folder structure
-    //parent_id?: string | null;
-  }) => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Updating rule:', data);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/rules/${data.rule_key}`, {
+  }): Promise<RuleResponse> => {
+    log('🔄 Updating rule:', data);
+    const res = await fetch(`${BASE}/api/v1/rules/${data.rule_key}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers: JSON_HEADERS,
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to update rule');
-    }
-
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Rule updated:', result);
-    }
-
+    const result = await handleResponse<RuleResponse>(res);
+    log('✅ Rule updated:', result);
     return result;
   },
 
-  // ---------- Get Rule Versions ----------
-  getRuleVersions: async (rule_key: string) => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Fetching versions for rule:', rule_key);
-    }
+  // ── Update Rule Directory ──────────────────────────────────────────────────
+  updateRuleDirectory: async (data: {
+    rule_key: string;
+    updated_by: string;
+    directory: string;
+  }): Promise<RuleResponse> => {
+    log('🔄 Updating rule directory:', data);
+    const res = await fetch(`${BASE}/api/v1/rules/${data.rule_key}/directory`, {
+      method: 'PUT',
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ updated_by: data.updated_by, directory: data.directory }),
+    });
+    const result = await handleResponse<RuleResponse>(res);
+    log('✅ Rule directory updated:', result);
+    return result;
+  },
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/rules/${rule_key}/versions`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      }
-    );
+  // ── Update Rule Name + Directory ───────────────────────────────────────────
+  // FIX: was running updateRule and updateRuleDirectory in parallel with
+  // Promise.all — both write the same DB record, creating a race condition.
+  // Sequential calls ensure the second write always sees the first's result.
+  updateRuleNameAndDirectory: async (data: {
+    rule_key: string;
+    name: string;
+    directory: string;
+    description?: string;
+    updated_by: string;
+  }): Promise<{ success: true }> => {
+    log('🔄 Updating rule name and directory:', data);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch rule versions');
-    }
+    await rulesApi.updateRule({
+      rule_key: data.rule_key,
+      name: data.name,
+      description: data.description || '',
+      updated_by: data.updated_by,
+    });
 
-    const result = await response.json();
+    await rulesApi.updateRuleDirectory({
+      rule_key: data.rule_key,
+      updated_by: data.updated_by,
+      directory: data.directory,
+    });
 
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Rule versions fetched:', result.length);
-    }
+    log('✅ Rule name and directory updated');
+    return { success: true };
+  },
 
+  // ── Get Rule Versions ──────────────────────────────────────────────────────
+  getRuleVersions: async (rule_key: string): Promise<{ version: string }[]> => {
+    log('🔄 Fetching versions for rule:', rule_key);
+    const res = await fetch(`${BASE}/api/v1/rules/${rule_key}/versions`, {
+      method: 'GET',
+      headers: JSON_HEADERS,
+    });
+    const result = await handleResponse<{ version: string }[]>(res);
+    log('✅ Rule versions fetched:', result.length);
     return result;
   },
 };
 
-// Log API endpoint in development
 if (ENV.DEBUG_MODE) {
-  console.log('📡 Rules API Base URL:', API_BASE_URL);
+  console.log('📡 Rules API Base URL:', BASE);
 }
