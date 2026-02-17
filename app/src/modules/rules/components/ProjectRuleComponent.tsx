@@ -32,6 +32,7 @@ import RcTable from 'app/src/core/components/RcTable';
 import SectionHeader from 'app/src/core/components/SectionHeader';
 import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
+import { verticalsApi } from '../../vertical/api/verticalsApi'; 
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -86,7 +87,6 @@ const fmtDate = (iso: string): string => {
 };
 
 // ─── FolderNameEditor ─────────────────────────────────────────────────────────
-// Auto-focuses and selects text on mount, matching Windows Explorer behaviour.
 
 function FolderNameEditor({
   folderName,
@@ -102,13 +102,12 @@ function FolderNameEditor({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Defer DOM mutation to after the paint cycle (lint-safe, no setState)
     const id = setTimeout(() => {
       inputRef.current?.focus();
       inputRef.current?.select();
     }, 0);
     return () => clearTimeout(id);
-  }, []); // runs once on mount
+  }, []);
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, py: 0.5 }}>
@@ -137,6 +136,7 @@ export default function ProjectRuleComponent() {
   const navigate = useNavigate();
 
   const [projectName, setProjectName] = useState<string>('');
+  const [verticalName, setVerticalName] = useState<string>(''); // ✅ added
   const [folders, setFolders] = useState<FolderNode[]>([]);
   const [files, setFiles] = useState<FileNode[]>([]);
 
@@ -176,7 +176,6 @@ export default function ProjectRuleComponent() {
       }
     });
 
-    // Preserve any unsaved temporary folders in state
     setFolders((prev) => {
       const tempFolders = prev.filter((f) => f.isTemp);
       return [...Array.from(folderMap.values()), ...tempFolders];
@@ -197,7 +196,6 @@ export default function ProjectRuleComponent() {
   }, []);
 
   // ── One-time URL path initialisation ────────────────────────────────────
-  // didInitFromUrl ref prevents repeated setState calls on re-renders.
 
   const didInitFromUrl = useRef(false);
 
@@ -214,12 +212,24 @@ export default function ProjectRuleComponent() {
       newBreadcrumbs.push({ name: parts[i], path: parts.slice(0, i + 1).join('/') });
     }
 
-    // React 18 batches all three — no cascading renders
     setCurrentPath(pathFromUrl);
     setBreadcrumbs(newBreadcrumbs);
     setSearchParams({}, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally empty — one-time mount initialisation
+  }, []);
+
+  // ── Fetch vertical name ✅ added ─────────────────────────────────────────
+
+  useEffect(() => {
+    if (!vertical_Key) return;
+    verticalsApi
+      .getVerticalsView()
+      .then((verticals) => {
+        const match = verticals.find((v) => v.vertical_key === vertical_Key);
+        if (match) setVerticalName(match.vertical_name);
+      })
+      .catch((err: unknown) => console.error('Vertical fetch error', err));
+  }, [vertical_Key]);
 
   // ── Fetch project name ───────────────────────────────────────────────────
 
@@ -257,11 +267,10 @@ export default function ProjectRuleComponent() {
   }, [project_key, buildTree]);
 
   useEffect(() => {
-    // void keeps the effect body synchronous (satisfies react-hooks/set-state-in-effect)
     void loadRules();
   }, [loadRules, refetchTrigger]);
 
-  // ── Visible items (derived, no state needed) ─────────────────────────────
+  // ── Visible items ────────────────────────────────────────────────────────
 
   const visibleItems: ExplorerItem[] = [
     ...folders.filter((f) => f.parentPath === currentPath),
@@ -318,7 +327,6 @@ export default function ProjectRuleComponent() {
       } else {
         const inside = files.filter((f) => f.path.startsWith(menuItem.path + '/'));
         if (inside.length === 0) {
-          // Empty folder — local-state removal only
           setFolders((prev) => prev.filter((f) => f.path !== menuItem.path));
         } else {
           await Promise.all(inside.map((r) => rulesApi.deleteRule(r.rule_key)));
@@ -385,7 +393,6 @@ export default function ProjectRuleComponent() {
       const rulesToUpdate = files.filter((f) => f.path.startsWith(oldPath + '/'));
 
       if (rulesToUpdate.length === 0) {
-        // Empty / new folder — state only, no API
         setFolders((prev) =>
           prev.map((f) =>
             f.path === editingFolderId
@@ -397,7 +404,6 @@ export default function ProjectRuleComponent() {
         return;
       }
 
-      // Patch every contained rule's directory
       await Promise.all(
         rulesToUpdate.map((rule) =>
           rulesApi.updateRuleDirectory({
@@ -560,6 +566,12 @@ export default function ProjectRuleComponent() {
               >
                 <ArrowBackIcon />
               </IconButton>
+
+              {/* ✅ vertical name > project name breadcrumb */}
+              <Typography sx={{ fontSize: '0.95rem', fontWeight: 600, color: '#374151', whiteSpace: 'nowrap' }}>
+                {verticalName || <Skeleton width={80} />}
+              </Typography>
+              <Typography sx={{ fontSize: '0.95rem', color: '#374151' }}>›</Typography>
               <Typography sx={{ fontSize: '0.95rem', fontWeight: 600, color: '#374151', whiteSpace: 'nowrap' }}>
                 {projectName || <Skeleton width={120} />}
               </Typography>

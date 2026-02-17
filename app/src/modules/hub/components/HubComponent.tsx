@@ -21,7 +21,7 @@ const HubComponent: React.FC = () => {
     const fetchVerticalName = async () => {
       try {
         const verticals = await verticalsApi.getVerticalsView();
-        const vertical = verticals.find((v) => String(v.id) === vertical_Key);
+        const vertical = verticals.find((v) => v.vertical_key === vertical_Key);
         if (vertical) {
           setVerticalName(vertical.vertical_name);
         }
