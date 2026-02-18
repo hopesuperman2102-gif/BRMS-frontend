@@ -21,7 +21,7 @@ import { FileCard } from '../components/FileCard';
 import { FolderCard } from '../components/FolderCard';
 
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
-import { RulesLeftPanel } from './Rulesleftpanel';
+import { RulesLeftPanel } from '../components/Rulesleftpanel';
 import { ExplorerEmptyState } from '../components/Exploreremptystate';
 
 /* ─── Design Tokens ───────────────────────────────────────── */

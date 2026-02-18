@@ -31,8 +31,6 @@ interface RulesLeftPanelProps {
 }
 
 export function RulesLeftPanel({
-  projectName,
-  verticalName,
   folders,
   files,
   hoveredRule,
