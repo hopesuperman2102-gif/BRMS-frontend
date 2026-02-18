@@ -42,11 +42,15 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({});
 
   React.useEffect(() => {
-    const initialState: Record<string, boolean> = {};
-    sections.forEach((s) => {
-      initialState[s.key] = false;
+    setOpenSections((prev) => {
+      const next: Record<string, boolean> = { ...prev };
+      sections.forEach((s) => {
+        if (!(s.key in next)) {
+          next[s.key] = false;
+        }
+      });
+      return next;
     });
-    setOpenSections(initialState);
   }, [sections]);
 
   const toggleSection = (key: string) => {
@@ -87,10 +91,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                 }}
                 onClick={() => toggleSection(section.key)}
               >
-                <TableCell
-                  width={56}
-                  sx={{ border: 'none', py: 2, pl: 2 }}
-                >
+                <TableCell width={56} sx={{ border: 'none', py: 2, pl: 2 }}>
                   <Box
                     sx={{
                       width: 28,
@@ -120,10 +121,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
 
                 {section.showHeader || sectionIndex === 0 ? (
                   columns.map((col, colIndex) => (
-                    <TableCell
-                      key={String(col.key)}
-                      sx={{ border: 'none', py: 2 }}
-                    >
+                    <TableCell key={String(col.key)} sx={{ border: 'none', py: 2 }}>
                       {colIndex === 0 ? (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                           <Typography
@@ -167,9 +165,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                   ))
                 ) : (
                   <TableCell colSpan={columns.length} sx={{ border: 'none', py: 2 }}>
-                    <Typography
-                      sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}
-                    >
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}>
                       {section.title}
                     </Typography>
                   </TableCell>
@@ -186,9 +182,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                         ? '2px solid #e8edf3'
                         : '1px solid #f1f5f9',
                       transition: 'background 0.15s ease',
-                      '&:hover': {
-                        backgroundColor: '#fafbff',
-                      },
+                      '&:hover': { backgroundColor: '#fafbff' },
                       animation: 'fadeSlideIn 0.2s ease forwards',
                       animationDelay: `${rowIndex * 0.03}s`,
                       opacity: 0,
@@ -213,12 +207,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                     {columns.map((col) => (
                       <TableCell
                         key={String(col.key)}
-                        sx={{
-                          border: 'none',
-                          py: 1.5,
-                          fontSize: '0.85rem',
-                          color: '#334155',
-                        }}
+                        sx={{ border: 'none', py: 1.5, fontSize: '0.85rem', color: '#334155' }}
                       >
                         {col.render ? col.render(row) : row[col.key as keyof T]}
                       </TableCell>

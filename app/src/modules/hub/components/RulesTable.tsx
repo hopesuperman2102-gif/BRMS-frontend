@@ -8,6 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { Project, rulesTableApi, RuleVersion } from 'app/src/modules/hub/api/entireRuleApi';
+import AlertComponent, { useAlertStore } from 'app/src/core/components/Alert';
 
 // Types
 type ProjectRuleRow = {
@@ -41,6 +42,7 @@ export default function RulesTable() {
   const [sections, setSections] = useState<ProjectSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { showAlert } = useAlertStore();
 
   const fetchAllData = useCallback(async () => {
     const fetchProjectRules = async (project: Project): Promise<ProjectRuleRow[]> => {
@@ -71,7 +73,7 @@ export default function RulesTable() {
             allRows.push({
               id: `${rule.rule_key}-NA`,
               name: rule.name,
-              version: 'N/A',
+              version: '--',
               projectStatus: mapStatus(rule.status),
               approvalStatus: 'Pending',
               rule_key: rule.rule_key,
@@ -221,10 +223,15 @@ export default function RulesTable() {
           <Box sx={{ display: 'flex', gap: 1 }}>
             {/* Approve Button */}
             <Box
-              onClick={() =>
-                row.approvalStatus === 'Pending' &&
-                handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Approved')
-              }
+              onClick={() => {
+                if (row.version === '--') {
+                  showAlert('No version available for this rule. Please create a version before approving.', 'info');
+                  return;
+                }
+                if (row.approvalStatus === 'Pending') {
+                  handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Approved');
+                }
+              }}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -234,7 +241,7 @@ export default function RulesTable() {
                 borderRadius: '20px',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default',
+                cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 ...(row.approvalStatus === 'Approved'
                   ? {
@@ -271,10 +278,15 @@ export default function RulesTable() {
 
             {/* Reject Button */}
             <Box
-              onClick={() =>
-                row.approvalStatus === 'Pending' &&
-                handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Rejected')
-              }
+              onClick={() => {
+                if (row.version === '--') {
+                  showAlert('No version available for this rule. Please create a version before rejecting.', 'info');
+                  return;
+                }
+                if (row.approvalStatus === 'Pending') {
+                  handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Rejected');
+                }
+              }}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -284,7 +296,7 @@ export default function RulesTable() {
                 borderRadius: '20px',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default',
+                cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 ...(row.approvalStatus === 'Rejected'
                   ? {
@@ -348,10 +360,13 @@ export default function RulesTable() {
   }
 
   return (
-    <RcCollapsibleTable
-      sections={sections}
-      columns={columns}
-      getRowId={(row) => row.id}
-    />
+    <>
+      <AlertComponent />
+      <RcCollapsibleTable
+        sections={sections}
+        columns={columns}
+        getRowId={(row) => row.id}
+      />
+    </>
   );
 }
