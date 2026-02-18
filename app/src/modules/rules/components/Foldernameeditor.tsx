@@ -1,49 +1,22 @@
-import { useEffect, useRef } from 'react';
-import { Box, TextField } from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
+'use client';
 
-interface FolderNameEditorProps {
-  folderName: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-}
+import { Box, Typography } from '@mui/material';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
-export function FolderNameEditor({ folderName, onChange, onBlur, onKeyDown }: FolderNameEditorProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const id = setTimeout(() => { inputRef.current?.focus(); inputRef.current?.select(); }, 0);
-    return () => clearTimeout(id);
-  }, []);
-
+export function ExplorerEmptyState() {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, py: 0.5, flex: 1 }}>
-      <Box sx={{
-        width: 32, height: 32, borderRadius: '8px',
-        background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-      }}>
-        <FolderIcon sx={{ color: '#D97706', fontSize: 17 }} />
+    <Box sx={{ textAlign: 'center', py: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+      <Box sx={{ width: 56, height: 56, borderRadius: '12px', background: '#F8FAFC', border: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <FolderOpenIcon sx={{ fontSize: 24, color: '#94A3B8' }} />
       </Box>
-      <TextField
-        inputRef={inputRef}
-        size="small"
-        value={folderName}
-        onChange={onChange}
-        onBlur={onBlur}
-        onKeyDown={onKeyDown}
-        onClick={(e) => e.stopPropagation()}
-        sx={{
-          flex: 1,
-          '& .MuiOutlinedInput-root': {
-            fontSize: '0.875rem', fontWeight: 600, borderRadius: '7px',
-            '& fieldset': { borderColor: '#6552D0' },
-            '&:hover fieldset': { borderColor: '#6552D0' },
-            '&.Mui-focused fieldset': { borderColor: '#6552D0', borderWidth: '1.5px' },
-          },
-        }}
-      />
+      <Box>
+        <Typography sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.9375rem', mb: '4px', letterSpacing: '-0.01em' }}>
+          This folder is empty
+        </Typography>
+        <Typography sx={{ fontSize: '0.8125rem', color: '#94A3B8' }}>
+          Create a rule or folder to get started
+        </Typography>
+      </Box>
     </Box>
   );
 }

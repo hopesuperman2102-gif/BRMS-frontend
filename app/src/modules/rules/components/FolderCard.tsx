@@ -1,9 +1,11 @@
+'use client';
+
 import { Box, Typography, IconButton } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useEffect, useRef } from 'react';
+import { TextField } from '@mui/material';
 import { FolderNode } from '../types/Explorertypes';
-import { FolderNameEditor } from './Foldernameeditor';
-
 
 interface FolderCardProps {
   item: FolderNode;
@@ -16,61 +18,83 @@ interface FolderCardProps {
   onNameKeyDown: (e: React.KeyboardEvent) => void;
 }
 
-export function FolderCard({
-  item, isEditing, editingFolderName,
-  onOpen, onMenuOpen, onNameChange, onNameBlur, onNameKeyDown,
-}: FolderCardProps) {
+function FolderNameEditor({ folderName, onChange, onBlur, onKeyDown }: {
+  folderName: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: () => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const id = setTimeout(() => { inputRef.current?.focus(); inputRef.current?.select(); }, 0);
+    return () => clearTimeout(id);
+  }, []);
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, px: '2px' }}>
+      <Box sx={{ width: 34, height: 34, borderRadius: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <FolderIcon sx={{ color: '#94A3B8', fontSize: 16 }} />
+      </Box>
+      <TextField
+        inputRef={inputRef}
+        size="small"
+        value={folderName}
+        onChange={onChange}
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
+        onClick={(e) => e.stopPropagation()}
+        sx={{
+          flex: 1,
+          '& .MuiOutlinedInput-root': {
+            fontSize: '0.875rem', fontWeight: 600, borderRadius: '6px',
+            fontFamily: '"DM Sans", sans-serif',
+            '& fieldset': { borderColor: '#4F46E5' },
+            '&:hover fieldset': { borderColor: '#4F46E5' },
+            '&.Mui-focused fieldset': { borderColor: '#4F46E5', borderWidth: '1.5px' },
+          },
+        }}
+      />
+    </Box>
+  );
+}
+
+export function FolderCard({ item, isEditing, editingFolderName, onOpen, onMenuOpen, onNameChange, onNameBlur, onNameKeyDown }: FolderCardProps) {
   return (
     <Box
       onClick={() => !isEditing && onOpen()}
       sx={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        px: 2, py: 1.375, borderRadius: '10px',
-        border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA',
-        cursor: isEditing ? 'default' : 'pointer',
-        transition: 'all 0.18s ease',
-        ...(!isEditing && {
-          '&:hover': {
-            borderColor: '#FCD34D', backgroundColor: '#FFFDF7',
-            boxShadow: '0 2px 10px rgba(217, 119, 6, 0.08)',
-            transform: 'translateY(-1px)',
-            '& .folder-action': { opacity: 1 },
-          },
-        }),
+        px: '16px', py: '11px', borderRadius: '8px',
+        border: '1px solid #E2E8F0', backgroundColor: '#FAFBFC',
+        cursor: isEditing ? 'default' : 'pointer', transition: 'all 0.15s',
+        '&:hover': !isEditing ? {
+          borderColor: '#4F46E5',
+          boxShadow: '0 0 0 3px rgba(79,70,229,0.08)',
+          transform: 'translateY(-1px)',
+          '& .folder-action': { opacity: 1 },
+        } : {},
       }}
     >
       {isEditing ? (
-        <FolderNameEditor
-          folderName={editingFolderName}
-          onChange={onNameChange}
-          onBlur={onNameBlur}
-          onKeyDown={onNameKeyDown}
-        />
+        <FolderNameEditor folderName={editingFolderName} onChange={onNameChange} onBlur={onNameBlur} onKeyDown={onNameKeyDown} />
       ) : (
         <>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0 }}>
-            <Box sx={{
-              width: 36, height: 36, borderRadius: '9px', flexShrink: 0,
-              background: 'linear-gradient(145deg, #FEF3C7 0%, #FDE68A 100%)',
-              boxShadow: '0 1px 4px rgba(217,119,6,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <FolderIcon sx={{ color: '#D97706', fontSize: 19 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+            <Box sx={{ width: 34, height: 34, borderRadius: '8px', flexShrink: 0, background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FolderIcon sx={{ color: '#94A3B8', fontSize: 16 }} />
             </Box>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {item.name}
-              </Typography>
-              <Typography sx={{ fontSize: '0.72rem', color: '#B45309', fontWeight: 500 }}>Folder</Typography>
-            </Box>
+            <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem', color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
+              {item.name}
+            </Typography>
           </Box>
           <IconButton
             className="folder-action"
             size="small"
             onClick={(e) => { e.stopPropagation(); onMenuOpen(e); }}
-            sx={{ opacity: 0, width: 30, height: 30, borderRadius: '7px', color: '#9CA3AF', transition: 'all 0.15s', '&:hover': { bgcolor: '#FEF3C7', color: '#D97706' } }}
+            disableRipple
+            sx={{ opacity: 0, ml: '8px', width: 28, height: 28, borderRadius: '6px', color: '#94A3B8', flexShrink: 0, transition: 'all 0.15s', '&:hover': { bgcolor: '#F1F5F9', color: '#475569' } }}
           >
-            <MoreVertIcon sx={{ fontSize: 17 }} />
+            <MoreVertIcon sx={{ fontSize: 16 }} />
           </IconButton>
         </>
       )}

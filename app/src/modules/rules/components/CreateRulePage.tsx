@@ -3,300 +3,369 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography, TextField, Button, Alert } from '@mui/material';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type FormState = {
-  name: string;
-  description: string;
-  directory: string;
+/* ─── Design Tokens (identical to CreateProjectPage) ──────── */
+const T = {
+  bgRoot:      '#0A0C10',
+  bgLeft:      '#0A0C10',
+  bgRight:     '#F7F8FA',
+  indigo:      '#4F46E5',
+  indigoHover: '#4338CA',
+  indigoMuted: 'rgba(79,70,229,0.10)',
+  indigoGlow:  'rgba(79,70,229,0.20)',
+  dTextHigh:   '#FFFFFF',
+  dTextMid:    'rgba(255,255,255,0.45)',
+  dTextLow:    'rgba(255,255,255,0.18)',
+  dBorder:     'rgba(255,255,255,0.06)',
+  lTextHigh:   '#0F172A',
+  lTextMid:    '#475569',
+  lTextLow:    '#94A3B8',
+  lBorder:     '#E2E8F0',
+  lBorderFocus:'#4F46E5',
+  errorBg:     '#FEF2F2',
+  errorBorder: '#FECACA',
+  errorText:   '#B91C1C',
+  errorIcon:   '#F87171',
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+/* ─── Input style factory ─────────────────────────────────── */
+const inputSx = (focused: boolean) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '6px',
+    backgroundColor: '#FFFFFF',
+    transition: 'box-shadow 0.15s, border-color 0.15s',
+    ...(focused && { boxShadow: `0 0 0 3px ${T.indigoGlow}` }),
+    '& fieldset': {
+      borderColor: focused ? T.lBorderFocus : T.lBorder,
+      borderWidth: focused ? '1.5px' : '1px',
+      transition: 'border-color 0.15s',
+    },
+    '&:hover fieldset': { borderColor: focused ? T.lBorderFocus : '#CBD5E1' },
+  },
+  '& .MuiInputBase-input': {
+    fontSize: '0.875rem',
+    fontFamily: '"DM Mono", "Fira Code", monospace',
+    color: T.lTextHigh,
+    padding: '10px 14px',
+    letterSpacing: '0.01em',
+    '&::placeholder': { color: T.lTextLow, opacity: 1, fontFamily: '"DM Mono", monospace' },
+  },
+  '& .MuiInputBase-inputMultiline': {
+    fontSize: '0.875rem',
+    fontFamily: '"DM Mono", "Fira Code", monospace',
+    color: T.lTextHigh,
+    lineHeight: 1.65,
+    letterSpacing: '0.01em',
+  },
+});
 
+/* ─── Label ───────────────────────────────────────────────── */
+const Label = ({ children, required }: { children: React.ReactNode; required?: boolean }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '6px' }}>
+    <Typography sx={{
+      fontSize: '0.6875rem', fontWeight: 600, color: T.lTextMid,
+      letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace',
+    }}>
+      {children}
+    </Typography>
+    {required && (
+      <Typography sx={{
+        fontSize: '0.625rem', fontWeight: 700, color: T.indigo,
+        letterSpacing: '0.07em', textTransform: 'uppercase',
+        fontFamily: '"DM Mono", monospace', opacity: 0.75,
+      }}>
+        required
+      </Typography>
+    )}
+  </Box>
+);
+
+/* ─── Feature item ────────────────────────────────────────── */
+const Feature = ({ children, last }: { children: string; last?: boolean }) => (
+  <Box sx={{
+    display: 'flex', alignItems: 'center', gap: '12px', py: '12px',
+    borderBottom: last ? 'none' : `1px solid ${T.dBorder}`,
+  }}>
+    <Box sx={{ width: '4px', height: '4px', borderRadius: '50%', bgcolor: T.indigo, flexShrink: 0 }} />
+    <Typography sx={{ fontSize: '0.8rem', color: T.dTextMid, fontWeight: 400, lineHeight: 1, letterSpacing: '0.01em' }}>
+      {children}
+    </Typography>
+  </Box>
+);
+
+/* ─── Types ───────────────────────────────────────────────── */
+type FormState = { name: string; description: string; directory: string };
+
+/* ─── Page ────────────────────────────────────────────────── */
 export default function CreateRulePage() {
   const navigate = useNavigate();
-  const { vertical_Key, project_key } = useParams<{
-    vertical_Key: string;
-    project_key: string;
-  }>();
+  const { vertical_Key, project_key } = useParams<{ vertical_Key: string; project_key: string }>();
   const [searchParams] = useSearchParams();
 
-  const ruleKey = searchParams.get('key');           // present in edit mode
-  const directoryParam = searchParams.get('directory'); // parent directory in create mode
-  const isEditMode = Boolean(ruleKey);
+  const ruleKey        = searchParams.get('key');
+  const directoryParam = searchParams.get('directory');
+  const isEditMode     = Boolean(ruleKey);
 
-  const [form, setForm] = useState<FormState>({
-    name: '',
-    description: '',
-    directory: directoryParam || 'rule',
-  });
-
+  const [form, setForm]       = useState<FormState>({ name: '', description: '', directory: directoryParam || 'rule' });
   const [loading, setLoading] = useState(false);
   const [loadingRule, setLoadingRule] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
 
-  // ── Load rule in edit mode ─────────────────────────────────────────────────
-  // REMOVED: dual-path logic that checked `location.state?.ruleDetails` first.
-  // The navigation-state shortcut saved one API call but added two code paths,
-  // a useLocation import, and an extra type cast — not worth the complexity.
-
+  /* Load rule in edit mode */
   useEffect(() => {
     if (!ruleKey) return;
-
-    const fetchRule = async () => {
+    (async () => {
       setLoadingRule(true);
       try {
         const rule = await rulesApi.getRuleDetails(ruleKey);
         if (!rule) { setError('Rule not found'); return; }
-
-        // Strip the file name segment — keep only the parent directory
         const parts = (rule.directory || 'rule').split('/');
         const parentDirectory = parts.slice(0, -1).join('/') || 'rule';
-
-        setForm({
-          name: rule.name,
-          description: rule.description || '',
-          directory: parentDirectory,
-        });
-      } catch {
-        setError('Failed to load rule');
-      } finally {
-        setLoadingRule(false);
-      }
-    };
-
-    void fetchRule();
+        setForm({ name: rule.name, description: rule.description || '', directory: parentDirectory });
+      } catch { setError('Failed to load rule'); }
+      finally   { setLoadingRule(false); }
+    })();
   }, [ruleKey]);
 
-  // ── Submit ────────────────────────────────────────────────────────────────
-
+  /* Submit */
   const handleSubmit = async () => {
     setError(null);
-
     if (!form.name.trim()) { setError('Rule name is required'); return; }
+    if (form.description.length > 300) { setError('Description cannot exceed 300 characters'); return; }
     if (!project_key)      { setError('Project key is missing'); return; }
-
     try {
       setLoading(true);
-
       const fullDirectory = `${form.directory}/${form.name}`;
-
-      // Duplicate-name guard
       const existingRules = await rulesApi.getProjectRules(project_key);
       const duplicate = existingRules.some(
-        (r: RuleResponse) =>
-          r.directory === fullDirectory && r.rule_key !== ruleKey
+        (r: RuleResponse) => r.directory === fullDirectory && r.rule_key !== ruleKey
       );
-
-      if (duplicate) {
-        setError('A rule with that name already exists in this folder');
-        return;
-      }
+      if (duplicate) { setError('A rule with that name already exists in this folder'); return; }
 
       if (isEditMode && ruleKey) {
-        await rulesApi.updateRuleNameAndDirectory({
-          rule_key: ruleKey,
-          name: form.name,
-          directory: fullDirectory,
-          description: form.description,
-          updated_by: 'admin',
-        });
+        await rulesApi.updateRuleNameAndDirectory({ rule_key: ruleKey, name: form.name, directory: fullDirectory, description: form.description, updated_by: 'admin' });
       } else {
-        await rulesApi.createRule({
-          project_key,
-          name: form.name,
-          description: form.description,
-          directory: fullDirectory,
-        });
+        await rulesApi.createRule({ project_key, name: form.name, description: form.description, directory: fullDirectory });
       }
-
-      navigate(
-        `/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules?path=${encodeURIComponent(form.directory)}`
-      );
+      navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules?path=${encodeURIComponent(form.directory)}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  // ── Derived display values ─────────────────────────────────────────────────
-  // FIX: was checking `parts[0] === 'rules'` (plural) but the root segment is
-  //      'rule' (singular), so the label always fell through to the path join.
-
+  /* Location label */
   const locationLabel = (() => {
     const parts = form.directory.split('/');
     if (parts.length === 1 && parts[0] === 'rule') return 'Root';
-    return parts.slice(1).join(' > ') || 'Root';
+    return parts.slice(1).join(' › ') || 'Root';
   })();
 
-  // ── Loading skeleton ───────────────────────────────────────────────────────
-
+  /* Loading state */
   if (loadingRule) {
     return (
-      <Box
-        sx={{
-          minHeight: '100vh',
-          background: '#F8F9FC',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography>Loading rule details…</Typography>
+      <Box sx={{ height: '100vh', background: T.bgRoot, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography sx={{ color: T.dTextMid, fontFamily: '"DM Mono", monospace', fontSize: '0.875rem', letterSpacing: '0.04em' }}>
+          Loading rule…
+        </Typography>
       </Box>
     );
   }
 
-  // ── JSX ───────────────────────────────────────────────────────────────────
-
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: '#F8F9FC',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 4,
-      }}
-    >
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 580,
-          bgcolor: '#ffffff',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)',
-          border: '1px solid #E5E7EB',
-        }}
-      >
-        {/* ── Header ── */}
-        <Box
-          sx={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            px: 4, py: 4, position: 'relative', overflow: 'hidden',
-            '&::before': {
-              content: '""', position: 'absolute',
-              top: -50, right: -50, width: 200, height: 200,
-              borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
-            },
-            '&::after': {
-              content: '""', position: 'absolute',
-              bottom: -30, left: -30, width: 150, height: 150,
-              borderRadius: '50%', background: 'rgba(255,255,255,0.08)',
-            },
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, color: '#fff', position: 'relative', zIndex: 1, letterSpacing: '-0.02em' }}
-          >
-            {isEditMode ? 'Edit Rule' : 'Create New Rule'}
-          </Typography>
-          <Typography
-            sx={{ color: 'rgba(255,255,255,0.9)', mt: 1, fontSize: '0.95rem', position: 'relative', zIndex: 1 }}
-          >
-            {isEditMode
-              ? 'Update your rule information below'
-              : 'Fill in the details to create a new rule'}
+    <Box sx={{ height: '100vh', width: '100%', display: 'flex', overflow: 'hidden', background: T.bgRoot, fontFamily: '"DM Sans", "Inter", sans-serif' }}>
+
+      {/* ══════════════════════════════════════════
+          LEFT PANEL
+      ══════════════════════════════════════════ */}
+      <Box sx={{
+        display: { xs: 'none', lg: 'flex' },
+        flexDirection: 'column',
+        width: '42%',
+        flexShrink: 0,
+        height: '100vh',
+        position: 'relative',
+        overflow: 'hidden',
+        background: T.bgLeft,
+        borderRight: `1px solid ${T.dBorder}`,
+      }}>
+        {/* Glow */}
+        <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.14) 0%, transparent 60%)', pointerEvents: 'none' }} />
+        {/* Dot grid */}
+        <Box sx={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.09, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+
+        <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%', px: '48px', py: '40px' }}>
+
+          {/* Back */}
+          <Box sx={{ flexShrink: 0, mb: 'auto' }}>
+            <Button
+              startIcon={<ArrowBackIcon sx={{ fontSize: '12px !important' }} />}
+              onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules`)}
+              disableRipple
+              sx={{ textTransform: 'none', fontWeight: 500, fontSize: '0.75rem', color: T.dTextMid, px: 0, minWidth: 0, background: 'none', letterSpacing: '0.02em', '&:hover': { color: T.dTextHigh, background: 'none' }, transition: 'color 0.15s' }}
+            >
+              Rules
+            </Button>
+          </Box>
+
+          {/* Hero copy */}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+
+            {/* Mode badge */}
+            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '8px', mb: '24px' }}>
+              <Box sx={{ width: '6px', height: '6px', borderRadius: '50%', bgcolor: T.indigo, boxShadow: `0 0 8px ${T.indigoGlow}` }} />
+              <Typography sx={{ fontSize: '0.625rem', fontWeight: 700, color: T.dTextLow, letterSpacing: '0.16em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace' }}>
+                {isEditMode ? 'Editing · Rule' : 'New · Rule'}
+              </Typography>
+            </Box>
+
+            {/* Headline */}
+            <Typography sx={{ fontSize: 'clamp(2rem, 2.6vw, 2.75rem)', fontWeight: 800, color: T.dTextHigh, lineHeight: 1.05, letterSpacing: '-0.04em', mb: '20px', whiteSpace: 'pre-line' }}>
+              {isEditMode ? 'Refine your\nrule.' : 'Define your\nlogic.'}
+            </Typography>
+
+            {/* Sub-copy */}
+            <Typography sx={{ fontSize: '0.8125rem', color: T.dTextMid, lineHeight: 1.8, mb: '40px', maxWidth: '300px', fontWeight: 400 }}>
+              {isEditMode
+                ? 'Update your rule details to keep your decision logic accurate and your team aligned.'
+                : 'Rules are the building blocks of your decision engine. Name it, describe it, and place it.'}
+            </Typography>
+
+            {/* Feature list */}
+            <Box>
+              {[
+                'Folder-based rule organisation',
+                'Full path tracking & versioning',
+                'Plugs into your JDM decision graph',
+              ].map((label, i) => (
+                <Feature key={label} last={i === 2}>{label}</Feature>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Footer */}
+          <Typography sx={{ fontSize: '0.625rem', color: T.dTextLow, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace', flexShrink: 0, mt: '32px' }}>
+            BRMS Platform · 2025
           </Typography>
         </Box>
+      </Box>
 
-        {/* ── Form ── */}
-        <Box sx={{ px: 4, py: 4 }}>
+      {/* ══════════════════════════════════════════
+          RIGHT PANEL
+      ══════════════════════════════════════════ */}
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', overflow: 'auto', position: 'relative', background: T.bgRight, px: { xs: '24px', sm: '48px', lg: '72px' } }}>
+
+        {/* Mobile back */}
+        <Box sx={{ display: { xs: 'flex', lg: 'none' }, position: 'absolute', top: '20px', left: '20px', zIndex: 2 }}>
+          <Button
+            startIcon={<ArrowBackIcon sx={{ fontSize: '12px !important' }} />}
+            onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules`)}
+            disableRipple
+            sx={{ textTransform: 'none', fontWeight: 500, fontSize: '0.75rem', color: T.indigo, px: 0, minWidth: 0, background: 'none', '&:hover': { color: T.indigoHover, background: 'none' } }}
+          >
+            Rules
+          </Button>
+        </Box>
+
+        {/* Form */}
+        <Box sx={{ width: '100%', maxWidth: '420px', py: '48px' }}>
+
+          {/* Accent bar */}
+          <Box sx={{ width: '32px', height: '2px', borderRadius: '1px', background: T.indigo, mb: '24px', opacity: 0.9 }} />
+
+          {/* Heading */}
+          <Box sx={{ mb: '32px' }}>
+            <Typography sx={{ fontSize: '1.5rem', fontWeight: 800, color: T.lTextHigh, letterSpacing: '-0.03em', lineHeight: 1.1, mb: '8px' }}>
+              {isEditMode ? 'Edit rule' : 'Create rule'}
+            </Typography>
+            <Typography sx={{ fontSize: '0.8125rem', color: T.lTextMid, fontWeight: 400, lineHeight: 1.65 }}>
+              {isEditMode ? 'Update the fields below and save your changes.' : 'Fill in the details below to define your new rule.'}
+            </Typography>
+          </Box>
+
+          {/* Error */}
           {error && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 3, borderRadius: '12px', border: '1px solid #FEE2E2',
-                '& .MuiAlert-icon': { color: '#DC2626' },
-              }}
-            >
+            <Alert severity="error" sx={{ mb: '24px', borderRadius: '6px', py: '6px', background: T.errorBg, border: `1px solid ${T.errorBorder}`, color: T.errorText, fontSize: '0.8125rem', fontWeight: 500, '& .MuiAlert-icon': { color: T.errorIcon, fontSize: '1rem' } }}>
               {error}
             </Alert>
           )}
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Rule Name */}
+          {/* Fields */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+            {/* Rule name */}
             <Box>
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#374151', mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                Rule Name
-                <Box component="span" sx={{ color: '#DC2626' }}>*</Box>
-              </Typography>
+              <Label required>Rule Name</Label>
               <TextField
                 fullWidth
-                required
-                placeholder="Enter rule name"
+                placeholder="e.g. Eligibility Check"
                 value={form.name}
-                onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                sx={fieldSx}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                onFocus={() => setFocused('name')}
+                onBlur={() => setFocused(null)}
+                onKeyDown={(e) => { if (e.key === 'Enter') void handleSubmit(); }}
+                sx={inputSx(focused === 'name')}
               />
             </Box>
 
             {/* Description */}
             <Box>
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: '#374151', mb: 1 }}>
-                Description
-              </Typography>
+              <Label>Description</Label>
               <TextField
                 fullWidth
                 multiline
                 rows={3}
-                placeholder="Describe your rule (optional)"
+                placeholder="Describe what this rule evaluates or decides…"
                 value={form.description}
-                onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                sx={fieldSx}
+                onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                onFocus={() => setFocused('description')}
+                onBlur={() => setFocused(null)}
+                sx={inputSx(focused === 'description')}
               />
+              <Typography sx={{ mt: '4px', fontSize: '0.6875rem', color: form.description.length > 300 ? '#EF4444' : T.lTextLow, fontFamily: '"DM Mono", monospace', textAlign: 'right' }}>
+                {form.description.length}/300
+              </Typography>
             </Box>
 
-            {/* Location */}
-            <Box sx={{ p: 2, borderRadius: '10px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
-                Location
-              </Typography>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 500, color: '#374151' }}>
-                {locationLabel}
-              </Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: '#9CA3AF', mt: 1 }}>
-                Full path:{' '}
-                <Box component="span" sx={{ fontFamily: 'monospace', color: '#6B7280' }}>
-                  {form.directory}/{form.name || '[rule name]'}
-                </Box>
+            {/* Location — read-only */}
+            <Box>
+              <Label>Location</Label>
+              <Box sx={{ borderRadius: '6px', border: `1px solid ${T.lBorder}`, background: '#FFFFFF', px: '14px', py: '12px' }}>
+                <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: T.lTextHigh, mb: '6px', letterSpacing: '-0.01em' }}>
+                  {locationLabel}
+                </Typography>
+                <Typography sx={{ fontSize: '0.6875rem', color: T.lTextLow, fontFamily: '"DM Mono", monospace', letterSpacing: '0.02em' }}>
+                  {form.directory}/{form.name || '[rule-name]'}
+                </Typography>
+              </Box>
+              <Typography sx={{ mt: '6px', fontSize: '0.6875rem', color: T.lTextLow, lineHeight: 1.55, fontFamily: '"DM Mono", monospace' }}>
+                Full path where this rule will be stored.
               </Typography>
             </Box>
           </Box>
 
+          {/* Divider */}
+          <Box sx={{ height: '1px', bgcolor: T.lBorder, mt: '32px', mb: '24px' }} />
+
           {/* Actions */}
-          <Box
-            sx={{
-              display: 'flex', justifyContent: 'flex-end', gap: 2,
-              mt: 4, pt: 3, borderTop: '1px solid #F3F4F6',
-            }}
-          >
+          <Box sx={{ display: 'flex', gap: '10px' }}>
             <Button
-              variant="outlined"
-              onClick={() =>
-                navigate(
-                  `/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules?path=${encodeURIComponent(form.directory)}`
-                )
-              }
-              sx={cancelBtnSx}
+              disableRipple
+              onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules?path=${encodeURIComponent(form.directory)}`)}
+              sx={{ borderRadius: '6px', py: '10px', px: '20px', textTransform: 'none', fontWeight: 600, fontSize: '0.8125rem', color: T.lTextMid, border: `1px solid ${T.lBorder}`, background: '#FFFFFF', whiteSpace: 'nowrap', letterSpacing: '0.01em', '&:hover': { background: '#F1F5F9', borderColor: '#CBD5E1', color: T.lTextHigh }, transition: 'all 0.15s' }}
             >
               Cancel
             </Button>
-
             <Button
-              variant="contained"
+              fullWidth
               disabled={loading}
+              disableRipple
               onClick={handleSubmit}
-              sx={submitBtnSx}
+              sx={{ borderRadius: '6px', py: '10px', textTransform: 'none', fontWeight: 700, fontSize: '0.8125rem', color: '#FFFFFF', letterSpacing: '0.01em', background: T.indigo, boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${T.indigoGlow}`, '&:hover': { background: T.indigoHover, boxShadow: `0 1px 3px rgba(0,0,0,0.16), 0 6px 20px rgba(79,70,229,0.28)`, transform: 'translateY(-1px)' }, '&:disabled': { background: '#E2E8F0', color: '#94A3B8', boxShadow: 'none', transform: 'none' }, transition: 'all 0.15s' }}
             >
-              {loading ? 'Saving…' : isEditMode ? 'Update Rule' : 'Create Rule'}
+              {loading ? 'Saving…' : isEditMode ? 'Save changes' : 'Create rule'}
             </Button>
           </Box>
         </Box>
@@ -304,41 +373,3 @@ export default function CreateRulePage() {
     </Box>
   );
 }
-
-// ─── Shared sx objects (extracted to reduce inline noise) ─────────────────────
-
-const fieldSx = {
-  '& .MuiOutlinedInput-root': {
-    borderRadius: '10px',
-    backgroundColor: '#F9FAFB',
-    transition: 'all 0.2s',
-    '& fieldset': { borderColor: '#E5E7EB' },
-    '&:hover': { backgroundColor: '#fff', '& fieldset': { borderColor: '#9CA3AF' } },
-    '&.Mui-focused': {
-      backgroundColor: '#fff',
-      '& fieldset': { borderColor: '#6552D0', borderWidth: '2px' },
-    },
-  },
-  '& .MuiInputBase-input': { fontSize: '0.95rem' },
-} as const;
-
-const cancelBtnSx = {
-  borderRadius: '10px', px: 3, py: 1.25,
-  textTransform: 'none', fontSize: '0.95rem', fontWeight: 600,
-  borderColor: '#E5E7EB', color: '#6B7280',
-  '&:hover': { borderColor: '#9CA3AF', backgroundColor: '#F9FAFB' },
-} as const;
-
-const submitBtnSx = {
-  borderRadius: '10px', px: 4, py: 1.25,
-  textTransform: 'none', fontSize: '0.95rem', fontWeight: 600,
-  background: brmsTheme.gradients.primary,
-  boxShadow: '0 4px 12px rgba(101,82,208,0.25)',
-  '&:hover': {
-    background: brmsTheme.gradients.primaryHover,
-    boxShadow: '0 6px 16px rgba(101,82,208,0.35)',
-    transform: 'translateY(-1px)',
-  },
-  '&:disabled': { background: '#E5E7EB', color: '#9CA3AF', boxShadow: 'none' },
-  transition: 'all 0.2s',
-} as const;

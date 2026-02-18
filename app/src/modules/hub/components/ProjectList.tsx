@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Card,
-  CardContent,
   Box,
   Typography,
   Button,
@@ -11,13 +9,34 @@ import {
   Menu,
   MenuItem,
   Pagination,
+  IconButton,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import IconButton from "@mui/material/IconButton";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import { projectsApi } from "app/src/modules/hub/api/projectsApi";
-import { brmsTheme } from "../../../core/theme/brmsTheme";
 import AccountTree from "@mui/icons-material/AccountTree";
+import { projectsApi } from "app/src/modules/hub/api/projectsApi";
+
+/* ─── Design Tokens ───────────────────────────────────────── */
+const T = {
+  indigo:       "#4F46E5",
+  indigoHover:  "#4338CA",
+  indigoMuted:  "rgba(79,70,229,0.08)",
+  indigoGlow:   "rgba(79,70,229,0.18)",
+  // Dark left panel
+  bgLeft:       "#0A0C10",
+  dTextHigh:    "#FFFFFF",
+  dTextMid:     "rgba(255,255,255,0.45)",
+  dTextLow:     "rgba(255,255,255,0.18)",
+  dBorder:      "rgba(255,255,255,0.06)",
+  // Light right panel
+  bgRight:      "#F7F8FA",
+  lTextHigh:    "#0F172A",
+  lTextMid:     "#475569",
+  lTextLow:     "#94A3B8",
+  lBorder:      "#E2E8F0",
+  cardBg:       "#FFFFFF",
+  cardHoverBorder: "#4F46E5",
+};
 
 export type Project = {
   id: string;
@@ -32,29 +51,24 @@ export default function ProjectListCard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
 
-  /* ---------- Fetch projects ---------- */
   const fetchProjects = async (vertical_key: string) => {
     try {
       setLoading(true);
       const response = await projectsApi.getProjectsView(vertical_key);
-
       const projectsFromApi: Project[] = response.map((p) => {
         const updatedAtSource =
           (p.updated_at as string | number | Date | undefined) ??
           (p.created_at as string | number | Date | undefined) ??
           "";
-
         const updatedAt =
-          updatedAtSource !== ""
-            ? new Date(updatedAtSource).toLocaleString()
-            : "";
-
+          updatedAtSource !== "" ? new Date(updatedAtSource).toLocaleString() : "";
         return {
           id: String(p.id),
           project_key: p.project_key,
@@ -64,7 +78,6 @@ export default function ProjectListCard() {
           updatedAt,
         };
       });
-
       setProjects(projectsFromApi);
     } catch (error) {
       console.error("Failed to load projects:", error);
@@ -79,29 +92,21 @@ export default function ProjectListCard() {
 
   const rowsPerPage = 5;
   const totalPages = Math.ceil(projects.length / rowsPerPage);
-
   const paginatedProjects = projects.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
 
-  /* ---------- Menu handlers ---------- */
-  const handleMenuOpen = (
-    event: React.MouseEvent<HTMLElement>,
-    project: Project
-  ) => {
-    setMenuAnchorEl(event.currentTarget);
+  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>, project: Project) => {
+    setMenuAnchorEl(e.currentTarget);
     setSelectedProject(project);
   };
-
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
     setSelectedProject(null);
   };
-
   const handleDelete = async () => {
     if (!selectedProject) return;
-
     try {
       await projectsApi.deleteProject(selectedProject.project_key, "admin");
       setProjects((prev) =>
@@ -112,261 +117,531 @@ export default function ProjectListCard() {
       console.error("Error deleting project:", error);
     }
   };
-
   const handleEdit = () => {
     if (!selectedProject) return;
-
-    navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject?key=${selectedProject.project_key}`);
+    navigate(
+      `/vertical/${vertical_Key}/dashboard/hub/createproject?key=${selectedProject.project_key}`
+    );
     handleMenuClose();
   };
-
   const handleOpenProject = (project: Project) => {
     navigate(`/vertical/${vertical_Key}/dashboard/hub/${project.project_key}/rules`);
   };
 
   return (
     <>
-      <Card
-        elevation={0}
+      {/* ══════════════════════════════════════════
+          Outer shell — same split-panel as CreateProject
+      ══════════════════════════════════════════ */}
+      <Box
         sx={{
-          borderRadius: '16px',
-          backgroundColor: '#ffffff',
-          border: '1px solid #E5E7EB',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+          width: "100%",
+          display: "flex",
+          borderRadius: "16px",
+          overflow: "hidden",
+          border: `1px solid ${T.dBorder}`,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+          fontFamily: '"DM Sans", "Inter", sans-serif',
+          height: "calc(100vh - 64px)",  // 64px = AppBar height
         }}
       >
-        <CardContent sx={{ p: 2 }}>
-          {/* Header */}
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: 'center', mb: 2 }}>
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
-                <AccountTree sx={{ fontSize: 20, color: '#6552D0', flexShrink: 0 }} />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 700,
-                    color: '#6552D0',
-                    letterSpacing: '-0.01em',
-                    fontSize: '1.125rem',
-                  }}
-                >
-                  Projects
-                </Typography>
-              </Box>
-              <Typography
-                variant="body2"
+        {/* ─── LEFT PANEL — dark contextual sidebar ─────── */}
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            flexDirection: "column",
+            width: "38%",
+            flexShrink: 0,
+            background: T.bgLeft,
+            borderRight: `1px solid ${T.dBorder}`,
+            position: "relative",
+            overflow: "hidden",
+            px: "36px",
+            py: "32px",
+          }}
+        >
+          {/* Indigo glow */}
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: -80,
+              left: -80,
+              width: 360,
+              height: 360,
+              borderRadius: "50%",
+              background:
+                "radial-gradient(circle, rgba(79,70,229,0.16) 0%, transparent 60%)",
+              pointerEvents: "none",
+            }}
+          />
+          {/* Dot grid */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              opacity: 0.08,
+              backgroundImage:
+                "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+            }}
+          />
+
+          {/* Content */}
+          <Box
+            sx={{
+              position: "relative",
+              zIndex: 1,
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+            }}
+          >
+            {/* Icon + title */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "16px" }}>
+              <Box
                 sx={{
-                  color: '#6B7280',
-                  fontSize: '0.8125rem',
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "8px",
+                  background: "rgba(79,70,229,0.15)",
+                  border: "1px solid rgba(79,70,229,0.25)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
-                Manage and organize your projects
+                <AccountTree sx={{ fontSize: 18, color: "#818CF8" }} />
+              </Box>
+              <Typography
+                sx={{
+                  fontSize: "1.125rem",
+                  fontWeight: 800,
+                  color: T.dTextHigh,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1,
+                }}
+              >
+                Projects
+              </Typography>
+            </Box>
+
+            {/* Sub-copy */}
+            <Typography
+              sx={{
+                fontSize: "0.8125rem",
+                color: T.dTextMid,
+                lineHeight: 1.75,
+                mb: "32px",
+                fontWeight: 400,
+              }}
+            >
+              Manage and organize your rule projects across teams and domains.
+            </Typography>
+
+            {/* Total count */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                py: "12px",
+                borderBottom: `1px solid ${T.dBorder}`,
+                mb: "24px",
+              }}
+            >
+              <Typography sx={{ fontSize: "0.75rem", color: T.dTextMid, fontFamily: '"DM Mono", monospace', letterSpacing: "0.04em" }}>
+                Total projects
+              </Typography>
+              <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: T.dTextHigh, fontFamily: '"DM Mono", monospace' }}>
+                {projects.length}
+              </Typography>
+            </Box>
+
+            {/* Hover preview */}
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              {hoveredProject ? (
+                <Box>
+                  <Typography sx={{ fontSize: "0.625rem", fontWeight: 700, color: T.dTextLow, letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: '"DM Mono", monospace', mb: "10px" }}>
+                    Selected
+                  </Typography>
+                  <Typography sx={{ fontSize: "1.05rem", fontWeight: 800, color: T.dTextHigh, letterSpacing: "-0.025em", lineHeight: 1.15, mb: "12px" }}>
+                    {hoveredProject.name}
+                  </Typography>
+                  <Box sx={{ width: "24px", height: "2px", borderRadius: "1px", background: T.indigo, mb: "12px", opacity: 0.7 }} />
+                  <Typography sx={{ fontSize: "0.8125rem", color: T.dTextMid, lineHeight: 1.75, fontWeight: 400 }}>
+                    {hoveredProject.description || "No description provided for this project."}
+                  </Typography>
+                  {hoveredProject.domain && (
+                    <Box sx={{ mt: "16px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <Box sx={{ width: "4px", height: "4px", borderRadius: "50%", bgcolor: T.indigo, opacity: 0.6 }} />
+                      <Typography sx={{ fontSize: "0.6875rem", fontWeight: 600, color: "rgba(129,140,248,0.8)", fontFamily: '"DM Mono", monospace', letterSpacing: "0.07em", textTransform: "uppercase" }}>
+                        {hoveredProject.domain}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              ) : (
+                <Box sx={{ opacity: 0.3 }}>
+                  <Typography sx={{ fontSize: "0.625rem", fontWeight: 700, color: T.dTextLow, letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: '"DM Mono", monospace', mb: "10px" }}>
+                    Preview
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.8125rem", color: T.dTextMid, lineHeight: 1.75 }}>
+                    Hover a project to see its details here.
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            {/* Footer */}
+            <Typography
+              sx={{
+                fontSize: "0.625rem",
+                color: T.dTextLow,
+                fontWeight: 500,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                fontFamily: '"DM Mono", monospace',
+                mt: "32px",
+              }}
+            >
+              BRMS Platform · 2025
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* ─── RIGHT PANEL — light, project list ────────── */}
+        <Box
+          sx={{
+            flex: 1,
+            background: T.bgRight,
+            display: "flex",
+            flexDirection: "column",
+            px: { xs: "20px", sm: "32px" },
+            py: "28px",
+            overflow: "hidden",
+          }}
+        >
+          {/* Header */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              mb: "24px",
+              flexShrink: 0,
+            }}
+          >
+            <Box>
+              {/* Accent bar */}
+              <Box
+                sx={{
+                  width: "28px",
+                  height: "2px",
+                  borderRadius: "1px",
+                  background: T.indigo,
+                  mb: "10px",
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: "1.125rem",
+                  fontWeight: 800,
+                  color: T.lTextHigh,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1.1,
+                  mb: "4px",
+                }}
+              >
+                All Projects
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "0.8125rem",
+                  color: T.lTextMid,
+                  fontWeight: 400,
+                  lineHeight: 1.6,
+                }}
+              >
+                Select a project to manage its rules
               </Typography>
             </Box>
 
             <Button
               variant="contained"
-              onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject`)}
+              disableRipple
+              onClick={() =>
+                navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject`)
+              }
               sx={{
-                background: brmsTheme.gradients.primary,
-                borderRadius: '8px',
-                px: 2,
-                py: 0.75,
-                textTransform: 'none',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                boxShadow: '0 4px 12px rgba(101, 82, 208, 0.25)',
-                '&:hover': {
-                  background: brmsTheme.gradients.primaryHover,
-                  boxShadow: '0 6px 16px rgba(101, 82, 208, 0.35)',
-                  transform: 'translateY(-1px)',
+                background: T.indigo,
+                borderRadius: "6px",
+                px: "16px",
+                py: "8px",
+                textTransform: "none",
+                fontSize: "0.8125rem",
+                fontWeight: 700,
+                letterSpacing: "0.01em",
+                boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${T.indigoGlow}`,
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                ml: "16px",
+                "&:hover": {
+                  background: T.indigoHover,
+                  boxShadow: `0 1px 3px rgba(0,0,0,0.16), 0 6px 20px rgba(79,70,229,0.28)`,
+                  transform: "translateY(-1px)",
                 },
-                transition: 'all 0.2s',
+                transition: "all 0.15s",
               }}
             >
-              + Create Project
+              + New Project
             </Button>
           </Box>
 
-          {loading ? (
-            <Box textAlign="center" py={4}>
-              <CircularProgress sx={{ color: brmsTheme.colors.primary }} />
-            </Box>
-          ) : paginatedProjects.length === 0 ? (
-            <Box
-              sx={{
-                textAlign: 'center',
-                py: 4,
-                px: 2,
-              }}
-            >
+          {/* Body */}
+          <Box sx={{ flex: 1, overflow: "auto" }}>
+            {loading ? (
               <Box
                 sx={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: '50%',
-                  backgroundColor: '#F3F4F6',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto',
-                  mb: 1.5,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "200px",
                 }}
               >
-                <FolderOpenIcon sx={{ fontSize: 28, color: '#9CA3AF' }} />
+                <CircularProgress size={28} sx={{ color: T.indigo }} />
               </Box>
-              <Typography
-                variant="h6"
+            ) : paginatedProjects.length === 0 ? (
+              <Box
                 sx={{
-                  fontWeight: 600,
-                  color: '#374151',
-                  mb: 0.5,
-                  fontSize: '0.9375rem',
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "200px",
+                  gap: "12px",
                 }}
               >
-                No projects yet
-              </Typography>
-              <Typography
-                sx={{
-                  color: '#6B7280',
-                  fontSize: '0.8125rem',
-                }}
-              >
-                Get started by creating your first project
-              </Typography>
-            </Box>
-          ) : (
-            <>
-              {/* Project Cards */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box
+                  sx={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "50%",
+                    background: "#F1F5F9",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <FolderOpenIcon sx={{ fontSize: 24, color: T.lTextLow }} />
+                </Box>
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      color: T.lTextHigh,
+                      fontSize: "0.9375rem",
+                      mb: "4px",
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    No projects yet
+                  </Typography>
+                  <Typography
+                    sx={{ color: T.lTextMid, fontSize: "0.8125rem" }}
+                  >
+                    Get started by creating your first project
+                  </Typography>
+                </Box>
+              </Box>
+            ) : (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {paginatedProjects.map((project) => (
                   <Box
                     key={project.id}
+                    onClick={() => handleOpenProject(project)}
+                    onMouseEnter={() => setHoveredProject(project)}
+                    onMouseLeave={() => setHoveredProject(null)}
                     sx={{
-                      borderRadius: '10px',
-                      border: '1px solid #E5E7EB',
-                      backgroundColor: '#FAFAFA',
-                      p: 2,
-                      transition: 'all 0.2s',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        borderColor: brmsTheme.colors.primary,
-                        backgroundColor: '#ffffff',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 8px 16px rgba(101, 82, 208, 0.1)',
+                      borderRadius: "8px",
+                      border: `1px solid ${T.lBorder}`,
+                      backgroundColor: T.cardBg,
+                      px: "16px",
+                      py: "14px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                      "&:hover": {
+                        borderColor: T.cardHoverBorder,
+                        boxShadow: `0 0 0 3px ${T.indigoMuted}`,
+                        transform: "translateY(-1px)",
                       },
                     }}
-                    onClick={() => handleOpenProject(project)}
                   >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <Box sx={{ flex: 1 }}>
-                        {/* Project Name */}
-                        <Box sx={{ mb: 0.75 }}>
+                    {/* Left: dot + name + meta */}
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}
+                    >
+                      <Box
+                        sx={{
+                          width: "8px",
+                          height: "8px",
+                          borderRadius: "50%",
+                          bgcolor: T.indigo,
+                          flexShrink: 0,
+                          opacity: 0.7,
+                        }}
+                      />
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            color: T.lTextHigh,
+                            fontSize: "0.9375rem",
+                            letterSpacing: "-0.01em",
+                            lineHeight: 1.2,
+                            mb: "3px",
+                          }}
+                        >
+                          {project.name}
+                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
                           <Typography
                             sx={{
-                              fontWeight: 600,
-                              color: '#111827',
-                              fontSize: '0.9375rem',
+                              color: T.lTextLow,
+                              fontSize: "0.75rem",
+                              fontFamily: '"DM Mono", monospace',
                             }}
                           >
-                            {project.name}
+                            Updated
+                          </Typography>
+                          <Typography
+                            sx={{
+                              color: T.lTextMid,
+                              fontSize: "0.75rem",
+                              fontWeight: 500,
+                              fontFamily: '"DM Mono", monospace',
+                            }}
+                          >
+                            {project.updatedAt}
                           </Typography>
                         </Box>
-
-                        {/* Footer Info */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Typography
-                              sx={{
-                                color: '#9CA3AF',
-                                fontSize: '0.75rem',
-                              }}
-                            >
-                              Last updated
-                            </Typography>
-                            <Typography
-                              sx={{
-                                color: '#6B7280',
-                                fontSize: '0.75rem',
-                                fontWeight: 500,
-                              }}
-                            >
-                              {project.updatedAt}
-                            </Typography>
-                          </Box>
-                        </Box>
                       </Box>
+                    </Box>
 
-                      {/* Menu Button */}
+                    {/* Right: domain chip + menu */}
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}
+                    >
+                      {project.domain && (
+                        <Typography
+                          sx={{
+                            fontSize: "0.6875rem",
+                            fontWeight: 600,
+                            color: T.indigo,
+                            background: T.indigoMuted,
+                            border: `1px solid rgba(79,70,229,0.15)`,
+                            borderRadius: "4px",
+                            px: "8px",
+                            py: "3px",
+                            letterSpacing: "0.06em",
+                            textTransform: "uppercase",
+                            fontFamily: '"DM Mono", monospace',
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {project.domain}
+                        </Typography>
+                      )}
                       <IconButton
                         size="small"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleMenuOpen(e, project);
                         }}
+                        disableRipple
                         sx={{
-                          ml: 1.5,
-                          width: 32,
-                          height: 32,
-                          borderRadius: '6px',
-                          backgroundColor: 'transparent',
-                          '&:hover': {
-                            backgroundColor: '#F3F4F6',
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "6px",
+                          color: T.lTextLow,
+                          "&:hover": {
+                            backgroundColor: "#F1F5F9",
+                            color: T.lTextMid,
                           },
+                          transition: "all 0.15s",
                         }}
                       >
-                        <MoreVertIcon sx={{ fontSize: 18, color: '#6B7280' }} />
+                        <MoreVertIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                     </Box>
                   </Box>
                 ))}
               </Box>
+            )}
+          </Box>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <Box display="flex" justifyContent="center" mt={2}>
-                  <Pagination
-                    count={totalPages}
-                    page={page}
-                    onChange={(_, value) => setPage(value)}
-                    sx={{
-                      '& .MuiPaginationItem-root': {
-                        borderRadius: '6px',
-                        fontWeight: 500,
-                        fontSize: '0.875rem',
-                        '&.Mui-selected': {
-                          background: brmsTheme.gradients.primary,
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-              )}
-            </>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mt: "20px",
+                flexShrink: 0,
+              }}
+            >
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                sx={{
+                  "& .MuiPaginationItem-root": {
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                    fontSize: "0.8125rem",
+                    fontFamily: '"DM Mono", monospace',
+                    color: T.lTextMid,
+                    "&.Mui-selected": {
+                      background: T.indigo,
+                      color: "#fff",
+                      "&:hover": { background: T.indigoHover },
+                    },
+                    "&:hover": { background: "#F1F5F9" },
+                  },
+                }}
+              />
+            </Box>
           )}
-        </CardContent>
-      </Card>
+        </Box>
+      </Box>
 
+      {/* ─── Context menu ─────────────────────────────── */}
       <Menu
         anchorEl={menuAnchorEl}
         open={!!menuAnchorEl}
         onClose={handleMenuClose}
         sx={{
-          '& .MuiPaper-root': {
-            borderRadius: '10px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-            minWidth: '140px',
+          "& .MuiPaper-root": {
+            borderRadius: "8px",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+            minWidth: "140px",
+            border: `1px solid ${T.lBorder}`,
           },
         }}
       >
         <MenuItem
           onClick={handleEdit}
           sx={{
-            fontSize: '0.875rem',
-            py: 1.25,
-            '&:hover': {
-              backgroundColor: '#F9FAFB',
-            },
+            fontSize: "0.8125rem",
+            fontWeight: 500,
+            color: T.lTextHigh,
+            py: "10px",
+            px: "16px",
+            "&:hover": { backgroundColor: "#F8FAFC" },
           }}
         >
           Edit
@@ -374,12 +649,12 @@ export default function ProjectListCard() {
         <MenuItem
           onClick={handleDelete}
           sx={{
-            color: '#DC2626',
-            fontSize: '0.875rem',
-            py: 1.25,
-            '&:hover': {
-              backgroundColor: '#FEE2E2',
-            },
+            fontSize: "0.8125rem",
+            fontWeight: 500,
+            color: "#DC2626",
+            py: "10px",
+            px: "16px",
+            "&:hover": { backgroundColor: "#FEF2F2" },
           }}
         >
           Delete

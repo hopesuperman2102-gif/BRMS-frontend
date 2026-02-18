@@ -27,6 +27,7 @@ export interface FileNode {
   status: string;
   version?: string;
   updatedAt: string;
+  description?: string;
 }
 
 export type ExplorerItem = FolderNode | FileNode;

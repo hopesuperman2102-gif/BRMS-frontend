@@ -1,5 +1,12 @@
 'use client';
 
+/**
+ * CreateProjectPage — Enterprise Redesign
+ * Design system: Neutral slate + single vivid indigo accent
+ * Typography: Tight, intentional hierarchy — no decorative noise
+ * Alignment: 8px grid, every element optically anchored
+ */
+
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
@@ -9,7 +16,7 @@ import {
   Button,
   Alert,
 } from '@mui/material';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 
 type FormState = {
@@ -18,9 +25,165 @@ type FormState = {
   domain: string;
 };
 
+/* ─── Design Tokens ───────────────────────────────────────── */
+const T = {
+  // Surface
+  bgRoot:      '#0A0C10',
+  bgLeft:      '#0A0C10',
+  bgRight:     '#F7F8FA',
+  // Brand
+  indigo:      '#4F46E5',
+  indigoHover: '#4338CA',
+  indigoMuted: 'rgba(79,70,229,0.10)',
+  indigoGlow:  'rgba(79,70,229,0.20)',
+  // Text — dark surface
+  dTextHigh:   '#FFFFFF',
+  dTextMid:    'rgba(255,255,255,0.45)',
+  dTextLow:    'rgba(255,255,255,0.18)',
+  // Text — light surface
+  lTextHigh:   '#0F172A',
+  lTextMid:    '#475569',
+  lTextLow:    '#94A3B8',
+  // Borders
+  dBorder:     'rgba(255,255,255,0.06)',
+  lBorder:     '#E2E8F0',
+  lBorderFocus:'#4F46E5',
+  // Error
+  errorBg:     '#FEF2F2',
+  errorBorder: '#FECACA',
+  errorText:   '#B91C1C',
+  errorIcon:   '#F87171',
+};
+
+/* ─── Shared input style factory ─────────────────────────── */
+const inputSx = (focused: boolean) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '6px',
+    backgroundColor: '#FFFFFF',
+    transition: 'box-shadow 0.15s, border-color 0.15s',
+    ...(focused && {
+      boxShadow: `0 0 0 3px ${T.indigoGlow}`,
+    }),
+    '& fieldset': {
+      borderColor: focused ? T.lBorderFocus : T.lBorder,
+      borderWidth: focused ? '1.5px' : '1px',
+      transition: 'border-color 0.15s',
+    },
+    '&:hover fieldset': {
+      borderColor: focused ? T.lBorderFocus : '#CBD5E1',
+    },
+  },
+  '& .MuiInputBase-input': {
+    fontSize: '0.875rem',
+    fontFamily: '"DM Mono", "Fira Code", monospace',
+    color: T.lTextHigh,
+    padding: '10px 14px',
+    letterSpacing: '0.01em',
+    '&::placeholder': {
+      color: T.lTextLow,
+      opacity: 1,
+      fontFamily: '"DM Mono", "Fira Code", monospace',
+    },
+  },
+  '& .MuiInputBase-inputMultiline': {
+    fontSize: '0.875rem',
+    fontFamily: '"DM Mono", "Fira Code", monospace',
+    color: T.lTextHigh,
+    lineHeight: 1.65,
+    letterSpacing: '0.01em',
+  },
+});
+
+/* ─── Label ───────────────────────────────────────────────── */
+const Label = ({
+  children,
+  required,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+}) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      mb: '6px',
+    }}
+  >
+    <Typography
+      sx={{
+        fontSize: '0.6875rem',
+        fontWeight: 600,
+        color: T.lTextMid,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        fontFamily: '"DM Mono", monospace',
+      }}
+    >
+      {children}
+    </Typography>
+    {required && (
+      <Typography
+        sx={{
+          fontSize: '0.625rem',
+          fontWeight: 700,
+          color: T.indigo,
+          letterSpacing: '0.07em',
+          textTransform: 'uppercase',
+          fontFamily: '"DM Mono", monospace',
+          opacity: 0.75,
+        }}
+      >
+        required
+      </Typography>
+    )}
+  </Box>
+);
+
+/* ─── Feature item (left panel) ──────────────────────────── */
+const Feature = ({
+  children,
+  last,
+}: {
+  children: string;
+  last?: boolean;
+}) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      py: '12px',
+      borderBottom: last ? 'none' : `1px solid ${T.dBorder}`,
+    }}
+  >
+    <Box
+      sx={{
+        width: '4px',
+        height: '4px',
+        borderRadius: '50%',
+        bgcolor: T.indigo,
+        flexShrink: 0,
+      }}
+    />
+    <Typography
+      sx={{
+        fontSize: '0.8rem',
+        color: T.dTextMid,
+        fontWeight: 400,
+        lineHeight: 1,
+        letterSpacing: '0.01em',
+      }}
+    >
+      {children}
+    </Typography>
+  </Box>
+);
+
+/* ─── Page ────────────────────────────────────────────────── */
 export default function CreateProjectPage() {
   const navigate = useNavigate();
-  const { vertical_Key } = useParams(); 
+  const { vertical_Key } = useParams();
   const [searchParams] = useSearchParams();
   const projectKey = searchParams.get('key');
   const isEditMode = Boolean(projectKey);
@@ -30,26 +193,17 @@ export default function CreateProjectPage() {
     description: '',
     domain: '',
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
 
-  /* ---------- Load project when editing ---------- */
   useEffect(() => {
     if (!projectKey) return;
-
-    const fetchProject = async () => {
+    (async () => {
       try {
         const projects = await projectsApi.getProjectsView(vertical_Key!);
-        const project = projects.find(
-          (p) => p.project_key === projectKey
-        );
-
-        if (!project) {
-          setError('Project not found');
-          return;
-        }
-
+        const project = projects.find((p) => p.project_key === projectKey);
+        if (!project) { setError('Project not found'); return; }
         setForm({
           name: project.name,
           description: project.description || '',
@@ -58,57 +212,35 @@ export default function CreateProjectPage() {
       } catch {
         setError('Failed to load project');
       }
-    };
-
-    fetchProject();
+    })();
   }, [projectKey, vertical_Key]);
 
-  /* ---------- Field change ---------- */
-  const handleChange = (
-    field: keyof FormState,
-    value: string
-  ) => {
+  const handleChange = (field: keyof FormState, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
-  };
 
-  /* ---------- Submit ---------- */
   const handleSubmit = async () => {
     setError(null);
-
-    // Mandatory validation
-    if (!form.name.trim()) {
-      setError('Project name is required');
-      return;
-    }
-
+    if (!form.name.trim()) { setError('Project name is required'); return; }
+    if (form.description.length > 300) { setError('Description cannot exceed 300 characters'); return; }
     try {
       setLoading(true);
-
-      //  Duplicate name validation
       const allProjects = await projectsApi.getProjectsView(vertical_Key!);
-
       const duplicate = allProjects.some(
         (p) =>
           p.name.toLowerCase().trim() === form.name.toLowerCase().trim() &&
-          p.project_key !== projectKey
+          p.project_key !== projectKey,
       );
-
       if (duplicate) {
-        setError('Project name already exists. Please use a different name.');
-        setLoading(false);
+        setError('A project with this name already exists.');
         return;
       }
-
-      //  Edit
       if (isEditMode && projectKey) {
         await projectsApi.updateProject(projectKey, {
           name: form.name,
           description: form.description,
           domain: form.domain,
         });
-      }
-      //  Create
-      else {
+      } else {
         await projectsApi.createProject({
           name: form.name,
           description: form.description,
@@ -116,14 +248,11 @@ export default function CreateProjectPage() {
           vertical_key: vertical_Key!,
         });
       }
-
       navigate(`/vertical/${vertical_Key}/dashboard/hub`);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || 'Something went wrong');
-      } else {
-        setError('Something went wrong');
-      }
+      setError(
+        err instanceof Error ? err.message || 'Something went wrong' : 'Something went wrong',
+      );
     } finally {
       setLoading(false);
     }
@@ -132,309 +261,433 @@ export default function CreateProjectPage() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        background: '#F8F9FC',
+        height: '100vh',
+        width: '100%',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 4,
+        overflow: 'hidden',
+        background: T.bgRoot,
+        fontFamily: '"DM Sans", "Inter", sans-serif',
       }}
     >
-      {/* Main Card Container */}
+      {/* ══════════════════════════════════════════
+          LEFT PANEL — dark, contextual copy
+      ══════════════════════════════════════════ */}
       <Box
         sx={{
-          width: '100%',
-          maxWidth: 580,
-          bgcolor: '#ffffff',
-          borderRadius: '16px',
+          display: { xs: 'none', lg: 'flex' },
+          flexDirection: 'column',
+          width: '42%',
+          flexShrink: 0,
+          height: '100vh',
+          position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04)',
-          border: '1px solid #E5E7EB',
+          background: T.bgLeft,
+          borderRight: `1px solid ${T.dBorder}`,
         }}
       >
-        {/* Header Section */}
+        {/* Subtle indigo vignette — bottom-left only */}
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            px: 4,
-            py: 4,
+            position: 'absolute',
+            bottom: -80,
+            left: -80,
+            width: 400,
+            height: 400,
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle, rgba(79,70,229,0.14) 0%, transparent 60%)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Fine dot grid */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            opacity: 0.09,
+            backgroundImage:
+              'radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+
+        {/* Content */}
+        <Box
+          sx={{
             position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: -50,
-              right: -50,
-              width: 200,
-              height: 200,
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.1)',
-            },
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              bottom: -30,
-              left: -30,
-              width: 150,
-              height: 150,
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.08)',
-            },
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            px: '48px',
+            py: '40px',
           }}
         >
-          <Typography 
-            variant="h4" 
+          {/* Back */}
+          <Box sx={{ flexShrink: 0, mb: 'auto' }}>
+            <Button
+              startIcon={<ArrowBackIcon sx={{ fontSize: '12px !important' }} />}
+              onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
+              disableRipple
+              sx={{
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.75rem',
+                color: T.dTextMid,
+                px: 0,
+                minWidth: 0,
+                background: 'none',
+                letterSpacing: '0.02em',
+                gap: '4px',
+                '&:hover': { color: T.dTextHigh, background: 'none' },
+                transition: 'color 0.15s',
+              }}
+            >
+              Hub
+            </Button>
+          </Box>
+
+          {/* Hero copy — vertically centered */}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+
+            {/* Mode badge */}
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                mb: '24px',
+              }}
+            >
+              <Box
+                sx={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  bgcolor: T.indigo,
+                  boxShadow: `0 0 8px ${T.indigoGlow}`,
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '0.625rem',
+                  fontWeight: 700,
+                  color: T.dTextLow,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  fontFamily: '"DM Mono", monospace',
+                }}
+              >
+                {isEditMode ? 'Editing · Project' : 'New · Project'}
+              </Typography>
+            </Box>
+
+            {/* Headline */}
+            <Typography
+              sx={{
+                fontSize: 'clamp(2rem, 2.6vw, 2.75rem)',
+                fontWeight: 800,
+                color: T.dTextHigh,
+                lineHeight: 1.05,
+                letterSpacing: '-0.04em',
+                mb: '20px',
+                whiteSpace: 'pre-line',
+              }}
+            >
+              {isEditMode
+                ? 'Refine your\nproject.'
+                : 'Build something\nremarkable.'}
+            </Typography>
+
+            {/* Sub-copy */}
+            <Typography
+              sx={{
+                fontSize: '0.8125rem',
+                color: T.dTextMid,
+                lineHeight: 1.8,
+                mb: '40px',
+                maxWidth: '300px',
+                fontWeight: 400,
+              }}
+            >
+              {isEditMode
+                ? 'Update your project details to keep your team aligned and rules organized.'
+                : 'Projects are the foundation of rule management. Define scope, structure your team, and ship.'}
+            </Typography>
+
+            {/* Feature list */}
+            <Box>
+              {[
+                'Organize rules into structured folders',
+                'Version control & deployment tracking',
+                'Cross-team collaboration & access control',
+              ].map((label, i) => (
+                <Feature key={label} last={i === 2}>
+                  {label}
+                </Feature>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Footer */}
+          <Typography
             sx={{
-              fontWeight: 700,
-              color: '#ffffff',
-              position: 'relative',
-              zIndex: 1,
-              letterSpacing: '-0.02em',
+              fontSize: '0.625rem',
+              color: T.dTextLow,
+              fontWeight: 500,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              fontFamily: '"DM Mono", monospace',
+              flexShrink: 0,
+              mt: '32px',
             }}
           >
-            {isEditMode ? 'Edit Project' : 'Create New Project'}
-          </Typography>
-          <Typography 
-            sx={{
-              color: 'rgba(255, 255, 255, 0.9)',
-              mt: 1,
-              fontSize: '0.95rem',
-              position: 'relative',
-              zIndex: 1,
-            }}
-          >
-            {isEditMode 
-              ? 'Update your project information below' 
-              : 'Fill in the details to create a new project'}
+            BRMS Platform · 2025
           </Typography>
         </Box>
+      </Box>
 
-        {/* Form Section */}
-        <Box sx={{ px: 4, py: 4 }}>
+      {/* ══════════════════════════════════════════
+          RIGHT PANEL — light, focused form
+      ══════════════════════════════════════════ */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          overflow: 'auto',
+          position: 'relative',
+          background: T.bgRight,
+          px: { xs: '24px', sm: '48px', lg: '72px' },
+        }}
+      >
+        {/* Mobile back */}
+        <Box
+          sx={{
+            display: { xs: 'flex', lg: 'none' },
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 2,
+          }}
+        >
+          <Button
+            startIcon={<ArrowBackIcon sx={{ fontSize: '12px !important' }} />}
+            onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
+            disableRipple
+            sx={{
+              textTransform: 'none',
+              fontWeight: 500,
+              fontSize: '0.75rem',
+              color: T.indigo,
+              px: 0,
+              minWidth: 0,
+              background: 'none',
+              '&:hover': { color: T.indigoHover, background: 'none' },
+            }}
+          >
+            Hub
+          </Button>
+        </Box>
+
+        {/* Form card */}
+        <Box sx={{ width: '100%', maxWidth: '420px', py: '48px' }}>
+
+          {/* Section marker — top-left accent line */}
+          <Box
+            sx={{
+              width: '32px',
+              height: '2px',
+              borderRadius: '1px',
+              background: T.indigo,
+              mb: '24px',
+              opacity: 0.9,
+            }}
+          />
+
+          {/* Heading block */}
+          <Box sx={{ mb: '32px' }}>
+            <Typography
+              sx={{
+                fontSize: '1.5rem',
+                fontWeight: 800,
+                color: T.lTextHigh,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.1,
+                mb: '8px',
+              }}
+            >
+              {isEditMode ? 'Edit project' : 'Create project'}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.8125rem',
+                color: T.lTextMid,
+                fontWeight: 400,
+                lineHeight: 1.65,
+              }}
+            >
+              {isEditMode
+                ? 'Update the fields below and save your changes.'
+                : 'Fill in the details below to set up your new project.'}
+            </Typography>
+          </Box>
+
+          {/* Error alert */}
           {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 3,
-                borderRadius: '12px',
-                border: '1px solid #FEE2E2',
-                '& .MuiAlert-icon': {
-                  color: '#DC2626',
-                },
+            <Alert
+              severity="error"
+              sx={{
+                mb: '24px',
+                borderRadius: '6px',
+                py: '6px',
+                background: T.errorBg,
+                border: `1px solid ${T.errorBorder}`,
+                color: T.errorText,
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                '& .MuiAlert-icon': { color: T.errorIcon, fontSize: '1rem' },
               }}
             >
               {error}
             </Alert>
           )}
 
-          {/* Form Fields */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {/* Fields */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+            {/* Project name */}
             <Box>
-              <Typography
-                sx={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: '#374151',
-                  mb: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                }}
-              >
-                Project Name
-                <Box component="span" sx={{ color: '#DC2626' }}>*</Box>
-              </Typography>
+              <Label required>Project Name</Label>
               <TextField
                 fullWidth
-                required
-                placeholder="Enter project name"
+                placeholder="e.g. Risk Assessment Engine"
                 value={form.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#F9FAFB',
-                    transition: 'all 0.2s',
-                    '& fieldset': {
-                      borderColor: '#E5E7EB',
-                    },
-                    '&:hover': {
-                      backgroundColor: '#ffffff',
-                      '& fieldset': {
-                        borderColor: '#9CA3AF',
-                      },
-                    },
-                    '&.Mui-focused': {
-                      backgroundColor: '#ffffff',
-                      '& fieldset': {
-                        borderColor: brmsTheme.colors.primary,
-                        borderWidth: '2px',
-                      },
-                    },
-                  },
-                  '& .MuiInputBase-input': {
-                    fontSize: '0.95rem',
-                  },
-                }}
+                onFocus={() => setFocused('name')}
+                onBlur={() => setFocused(null)}
+                onKeyDown={(e) => { if (e.key === 'Enter') void handleSubmit(); }}
+                sx={inputSx(focused === 'name')}
               />
             </Box>
 
+            {/* Description */}
             <Box>
-              <Typography
-                sx={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: '#374151',
-                  mb: 1,
-                }}
-              >
-                Description
-              </Typography>
+              <Label>Description</Label>
               <TextField
                 fullWidth
                 multiline
                 rows={3}
-                placeholder="Describe your project (optional)"
+                placeholder="Briefly describe the purpose and goals of this project…"
                 value={form.description}
                 onChange={(e) => handleChange('description', e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#F9FAFB',
-                    transition: 'all 0.2s',
-                    '& fieldset': {
-                      borderColor: '#E5E7EB',
-                    },
-                    '&:hover': {
-                      backgroundColor: '#ffffff',
-                      '& fieldset': {
-                        borderColor: '#9CA3AF',
-                      },
-                    },
-                    '&.Mui-focused': {
-                      backgroundColor: '#ffffff',
-                      '& fieldset': {
-                        borderColor: brmsTheme.colors.primary,
-                        borderWidth: '2px',
-                      },
-                    },
-                  },
-                  '& .MuiInputBase-input': {
-                    fontSize: '0.95rem',
-                  },
-                }}
+                onFocus={() => setFocused('description')}
+                onBlur={() => setFocused(null)}
+                sx={inputSx(focused === 'description')}
               />
+              <Typography sx={{ mt: '4px', fontSize: '0.6875rem', color: form.description.length > 300 ? '#EF4444' : T.lTextLow, fontFamily: '"DM Mono", monospace', textAlign: 'right' }}>
+                {form.description.length}/300
+              </Typography>
             </Box>
 
+            {/* Domain */}
             <Box>
-              <Typography
-                sx={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: '#374151',
-                  mb: 1,
-                }}
-              >
-                Domain
-              </Typography>
+              <Label>Domain</Label>
               <TextField
                 fullWidth
-                placeholder="e.g., finance, healthcare, retail"
+                placeholder="e.g. finance, healthcare, retail"
                 value={form.domain}
                 onChange={(e) => handleChange('domain', e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#F9FAFB',
-                    transition: 'all 0.2s',
-                    '& fieldset': {
-                      borderColor: '#E5E7EB',
-                    },
-                    '&:hover': {
-                      backgroundColor: '#ffffff',
-                      '& fieldset': {
-                        borderColor: '#9CA3AF',
-                      },
-                    },
-                    '&.Mui-focused': {
-                      backgroundColor: '#ffffff',
-                      '& fieldset': {
-                        borderColor: brmsTheme.colors.primary,
-                        borderWidth: '2px',
-                      },
-                    },
-                  },
-                  '& .MuiInputBase-input': {
-                    fontSize: '0.95rem',
-                  },
-                }}
+                onFocus={() => setFocused('domain')}
+                onBlur={() => setFocused(null)}
+                sx={inputSx(focused === 'domain')}
               />
+              <Typography
+                sx={{
+                  mt: '6px',
+                  fontSize: '0.6875rem',
+                  color: T.lTextLow,
+                  lineHeight: 1.55,
+                  fontFamily: '"DM Mono", monospace',
+                }}
+              >
+                Categorize within your organization's domain structure.
+              </Typography>
             </Box>
           </Box>
 
-          {/* Action Buttons */}
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              justifyContent: 'flex-end', 
-              gap: 2,
-              mt: 4,
-              pt: 3,
-              borderTop: '1px solid #F3F4F6',
+          {/* Divider */}
+          <Box
+            sx={{
+              height: '1px',
+              bgcolor: T.lBorder,
+              mt: '32px',
+              mb: '24px',
             }}
-          >
+          />
+
+          {/* Actions */}
+          <Box sx={{ display: 'flex', gap: '10px' }}>
             <Button
-              variant="outlined"
               onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
+              disableRipple
               sx={{
-                borderRadius: '10px',
-                px: 3,
-                py: 1.25,
+                borderRadius: '6px',
+                py: '10px',
+                px: '20px',
                 textTransform: 'none',
-                fontSize: '0.95rem',
                 fontWeight: 600,
-                borderColor: '#E5E7EB',
-                color: '#6B7280',
+                fontSize: '0.8125rem',
+                color: T.lTextMid,
+                border: `1px solid ${T.lBorder}`,
+                background: '#FFFFFF',
+                whiteSpace: 'nowrap',
+                letterSpacing: '0.01em',
                 '&:hover': {
-                  borderColor: '#9CA3AF',
-                  backgroundColor: '#F9FAFB',
+                  background: '#F1F5F9',
+                  borderColor: '#CBD5E1',
+                  color: T.lTextHigh,
                 },
+                transition: 'all 0.15s',
               }}
             >
               Cancel
             </Button>
 
             <Button
-              variant="contained"
+              fullWidth
               disabled={loading}
               onClick={handleSubmit}
+              disableRipple
               sx={{
-                borderRadius: '10px',
-                px: 4,
-                py: 1.25,
+                borderRadius: '6px',
+                py: '10px',
                 textTransform: 'none',
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                background: brmsTheme.gradients.primary,
-                boxShadow: '0 4px 12px rgba(101, 82, 208, 0.25)',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                color: '#FFFFFF',
+                letterSpacing: '0.01em',
+                background: T.indigo,
+                boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${T.indigoGlow}`,
                 '&:hover': {
-                  background: brmsTheme.gradients.primaryHover,
-                  boxShadow: '0 6px 16px rgba(101, 82, 208, 0.35)',
+                  background: T.indigoHover,
+                  boxShadow: `0 1px 3px rgba(0,0,0,0.16), 0 6px 20px rgba(79,70,229,0.28)`,
                   transform: 'translateY(-1px)',
                 },
                 '&:disabled': {
-                  background: '#E5E7EB',
-                  color: '#9CA3AF',
+                  background: '#E2E8F0',
+                  color: '#94A3B8',
                   boxShadow: 'none',
+                  transform: 'none',
                 },
-                transition: 'all 0.2s',
+                transition: 'all 0.15s',
               }}
             >
-              {loading
-                ? 'Saving...'
-                : isEditMode
-                ? 'Update Project'
-                : 'Create Project'}
+              {loading ? 'Saving…' : isEditMode ? 'Save changes' : 'Create project'}
             </Button>
           </Box>
         </Box>
