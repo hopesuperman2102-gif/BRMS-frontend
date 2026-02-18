@@ -10,7 +10,7 @@ import Editor from './Editor';
 import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 import { executionApi } from 'app/src/modules/JdmEditorPage/api/executionApi';
-import RepositorySidebar from 'app/src/core/components/RepositorySidebar';
+import RepositorySidebar from './RepositorySidebar';
 
 /* ---------- Same helper functions as ProjectRuleComponent ---------- */
 const splitPath = (path: string): string[] => path.split('/').filter(Boolean);

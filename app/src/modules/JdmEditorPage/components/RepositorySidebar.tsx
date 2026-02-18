@@ -3,9 +3,10 @@
 import { Box, Typography, IconButton} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import { RepositorySidebarProps } from '../types/commonTypes';
-import RepoTree from './RepoTree';
+
 import AccountTree from '@mui/icons-material/AccountTree';
+import { RepositorySidebarProps } from 'app/src/core/types/commonTypes';
+import RepoTree from './RepoTree';
 
 export default function RepositorySidebar({
   projectName,       

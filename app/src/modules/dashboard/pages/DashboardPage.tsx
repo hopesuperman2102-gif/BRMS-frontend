@@ -39,7 +39,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const data = await dashboardApi.getSummary();
+        const data = await dashboardApi.getSummary(vertical_Key || '');
         setSummary(data);
       } catch (error) {
         console.error("Error fetching dashboard summary:", error);

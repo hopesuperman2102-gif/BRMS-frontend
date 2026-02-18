@@ -2,6 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8000/api/v1";
 
+
 export interface MonthlyData {
   year: number;
   month: number;
@@ -18,8 +19,8 @@ export interface DashboardSummary {
 }
 
 export const dashboardApi = {
-  async getSummary(): Promise<DashboardSummary> {
-    const response = await axios.get(`${BASE_URL}/dashboard/summary`, {
+  async getSummary(vertical_key: string): Promise<DashboardSummary> {
+    const response = await axios.get(`${BASE_URL}/dashboard/${vertical_key}`, {
       headers: {
         "Content-Type": "application/json",
       },
