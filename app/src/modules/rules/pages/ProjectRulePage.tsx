@@ -13,6 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import HomeIcon from '@mui/icons-material/Home';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SectionHeader from 'app/src/core/components/SectionHeader';
+
 import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 import { verticalsApi } from '../../vertical/api/verticalsApi';
@@ -20,6 +21,7 @@ import { Breadcrumb, ExplorerItem, FileNode, FolderNode, ProjectResponse } from 
 import { FileCard } from '../components/FileCard';
 import { ExplorerEmptyState } from '../components/Exploreremptystate';
 import { FolderCard } from '../components/FolderCard';
+import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 
 
 const STATUS_MAP: Record<string, { bg: string; color: string; dot: string }> = {
@@ -59,6 +61,16 @@ export const fmtDate = (iso: string): string => {
   }
 };
 
+// ─── Confirm Dialog State Type ────────────────────────────────────────────────
+
+interface ConfirmDialogState {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmText: string;
+  onConfirm: () => void;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ProjectRulePage() {
@@ -81,6 +93,18 @@ export default function ProjectRulePage() {
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editingFolderName, setEditingFolderName] = useState('');
   const [refetchTrigger, setRefetchTrigger] = useState(0);
+
+  // ── Confirm Dialog State ─────────────────────────────────────────────────
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
+    open: false,
+    title: '',
+    message: '',
+    confirmText: 'Delete',
+    onConfirm: () => {},
+  });
+
+  const closeConfirmDialog = () =>
+    setConfirmDialog((prev) => ({ ...prev, open: false }));
 
   // ── Build tree ───────────────────────────────────────────────────────────
 
@@ -196,23 +220,50 @@ export default function ProjectRulePage() {
 
   // ── Delete ───────────────────────────────────────────────────────────────
 
-  const handleDelete = async () => {
-    if (!menuItem) return;
-    const msg = menuItem.kind === 'folder'
-      ? `Delete folder "${menuItem.name}"? All rules inside will also be deleted.`
-      : `Delete "${menuItem.name}"?`;
-    if (!window.confirm(msg)) { closeMenu(); return; }
+  const executeDelete = async (item: ExplorerItem) => {
     try {
-      if (menuItem.kind === 'file') {
-        await rulesApi.deleteRule(menuItem.rule_key);
+      if (item.kind === 'file') {
+        await rulesApi.deleteRule(item.rule_key);
         setRefetchTrigger((n) => n + 1);
       } else {
-        const inside = files.filter((f) => f.path.startsWith(menuItem.path + '/'));
-        if (inside.length === 0) setFolders((prev) => prev.filter((f) => f.path !== menuItem.path));
-        else { await Promise.all(inside.map((r) => rulesApi.deleteRule(r.rule_key))); setRefetchTrigger((n) => n + 1); }
+        const inside = files.filter((f) => f.path.startsWith(item.path + '/'));
+        if (inside.length === 0) {
+          setFolders((prev) => prev.filter((f) => f.path !== item.path));
+        } else {
+          await Promise.all(inside.map((r) => rulesApi.deleteRule(r.rule_key)));
+          setRefetchTrigger((n) => n + 1);
+        }
       }
-    } catch (err) { console.error('Failed to delete:', err); alert('Failed to delete. Please try again.'); }
+    } catch (err) {
+      console.error('Failed to delete:', err);
+    }
+    closeConfirmDialog();
+  };
+
+  const handleDelete = () => {
+    if (!menuItem) return;
     closeMenu();
+
+    if (menuItem.kind === 'file') {
+      setConfirmDialog({
+        open: true,
+        title: 'Delete Rule',
+        message: `"${menuItem.name}" will be permanently deleted and cannot be recovered.`,
+        confirmText: 'Delete Rule',
+        onConfirm: () => executeDelete(menuItem),
+      });
+    } else {
+      const inside = files.filter((f) => f.path.startsWith(menuItem.path + '/'));
+      setConfirmDialog({
+        open: true,
+        title: 'Delete Folder',
+        message: inside.length > 0
+          ? `"${menuItem.name}" contains ${inside.length} rule${inside.length > 1 ? 's' : ''}. Deleting this folder will permanently remove all rules inside it.`
+          : `"${menuItem.name}" will be permanently deleted and cannot be recovered.`,
+        confirmText: 'Delete Folder',
+        onConfirm: () => executeDelete(menuItem),
+      });
+    }
   };
 
   // ── Edit / Rename ─────────────────────────────────────────────────────────
@@ -238,7 +289,6 @@ export default function ProjectRulePage() {
     if (!folder) return;
     const newFolderPath = folder.parentPath ? `${folder.parentPath}/${trimmedName}` : trimmedName;
     if (folders.some((f) => f.path === newFolderPath && f.path !== editingFolderId)) {
-      alert('A folder with that name already exists');
       setFolders((prev) => prev.filter((f) => f.path !== editingFolderId));
       clearEditing(); return;
     }
@@ -256,7 +306,7 @@ export default function ProjectRulePage() {
         return f;
       }));
       setRefetchTrigger((n) => n + 1);
-    } catch (err) { console.error('Failed to rename folder:', err); alert('Failed to rename folder. Please try again.'); }
+    } catch (err) { console.error('Failed to rename folder:', err); }
     clearEditing();
   };
 
@@ -299,7 +349,7 @@ export default function ProjectRulePage() {
                 <ArrowBackIcon sx={{ fontSize: 18 }} />
               </IconButton>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <Typography sx={{fontSize: '0.95rem', fontWeight: 600, color: '#374151', whiteSpace: 'nowrap'}} >
+                <Typography sx={{ fontSize: '0.95rem', fontWeight: 600, color: '#374151', whiteSpace: 'nowrap' }}>
                   {verticalName || <Skeleton width={80} />}
                 </Typography>
                 <Typography sx={{ color: '#D1D5DB', fontSize: '0.875rem' }}>›</Typography>
@@ -421,6 +471,18 @@ export default function ProjectRulePage() {
             Delete
           </MenuItem>
         </Menu>
+
+        {/* ── Confirm Delete Dialog ── */}
+        <RcConfirmDialog
+          open={confirmDialog.open}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          confirmText={confirmDialog.confirmText}
+          cancelText="Cancel"
+          isDangerous={true}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={closeConfirmDialog}
+        />
 
       </CardContent>
     </Card>

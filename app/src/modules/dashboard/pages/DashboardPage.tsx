@@ -35,7 +35,7 @@ const DashboardPage = () => {
     fetchVerticalName();
   }, [vertical_Key]);
 
-  // 🔥 Fetch Dashboard Summary
+  // Fetch Dashboard Summary
   useEffect(() => {
     const fetchSummary = async () => {
       try {
@@ -47,7 +47,7 @@ const DashboardPage = () => {
     };
 
     fetchSummary();
-  }, []);
+  }, [vertical_Key]);
 
   return (
     <div
@@ -94,7 +94,7 @@ const DashboardPage = () => {
 
         <DashboardHeader />
 
-        {/* 🔥 Pass API Data */}
+        {/*  Pass API Data */}
         <StatsSection 
           totalActiveProjects={summary?.total_active_projects ?? 0}
           totalRules={summary?.total_rules ?? 0}

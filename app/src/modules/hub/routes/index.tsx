@@ -17,7 +17,7 @@ const hubRoutes: AppRoute[] = [
   {
     path: '/vertical/:vertical_Key/dashboard/hub/createproject',
     element: CreateProjectPage,
-    layout: 'main',
+    layout: 'none',
     metadata: {
       title: 'Create Project',
     },
