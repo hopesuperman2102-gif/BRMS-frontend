@@ -3,9 +3,9 @@
 import React from 'react';
 import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
-import { Environment } from '../types/featureFlagTypes';
 import { RcCard } from 'app/src/core/components/RcCard';
 import RcDropdown, { RcDropdownItem } from 'app/src/core/components/RcDropdown';
+import { Environment } from '../types/featureFlagTypes';
 
 interface FeatureFlagHeaderProps {
   totalRules: number;
@@ -13,8 +13,8 @@ interface FeatureFlagHeaderProps {
   selectedProject: string;
   onProjectSelect: (value: string) => void;
   environments: Environment[];
-  activeEnvironment?: Environment;
-  onEnvironmentClick?: (env: Environment) => void;
+  activeEnvironment?: Environment | 'ALL';
+  onEnvironmentClick?: (env: Environment | 'ALL') => void;
 }
 
 export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
@@ -26,12 +26,11 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
   activeEnvironment,
   onEnvironmentClick
 }) => {
-  void activeEnvironment;
-
-  const getEnvColor = (env: Environment) => {
-    if (env === 'PROD') return { bgcolor: 'error.main', color: 'white' };
-    if (env === 'QA') return { bgcolor: 'primary.main', color: 'white' };
-    return { bgcolor: 'grey.300', color: 'grey.700' };
+  const getEnvColor = (env: string) => {
+    if (env === 'PROD') return { bgcolor: '#00abc5', color: 'white' };
+    if (env === 'QA') return { bgcolor: '#87dfe9', color: 'white' };
+    if (env === 'ALL') return { bgcolor: '#2ec7c0', color: 'white' };
+    return { bgcolor: '#1f5969', color: 'white' };
   };
 
   return (
@@ -63,11 +62,11 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
 
         {/* Right Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          {environments.map((env) => (
+          {(['ALL', ...environments] as string[]).map((env) => (
             <motion.div key={env} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Chip
                 label={env === 'PROD' ? '●' : env}
-                onClick={() => onEnvironmentClick?.(env)}
+                onClick={() => onEnvironmentClick?.(env as Environment | 'ALL')}
                 sx={{
                   ...getEnvColor(env),
                   fontWeight: 700,
@@ -75,7 +74,9 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
                   height: 48,
                   borderRadius: '50%',
                   cursor: 'pointer',
-                  boxShadow: 1,
+                  boxShadow: activeEnvironment === env ? 4 : 1,
+                  outline: activeEnvironment === env ? '3px solid #2c3e50' : 'none',
+                  outlineOffset: '2px',
                   '&:hover': {
                     boxShadow: 3
                   }
@@ -83,7 +84,6 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
               />
             </motion.div>
           ))}
-
         </Box>
       </Box>
     </RcCard>

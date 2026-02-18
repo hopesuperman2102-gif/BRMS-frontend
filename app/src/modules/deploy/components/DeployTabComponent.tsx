@@ -7,7 +7,6 @@ import { Environment, Rule, DeployedRule } from '../types/featureFlagTypes';
 import { StatsSection } from './Statssection';
 import { ControlSection } from './Controlsection';
 import { HistorySection } from './Historysection';
-import { environments } from '../mock_data';
 import { deployApi, MonthlyData } from '../api/deployApi';
 import { useParams } from 'react-router-dom';
 import { RcDropdownItem } from 'app/src/core/components/RcDropdown';
@@ -15,7 +14,7 @@ import { RcDropdownItem } from 'app/src/core/components/RcDropdown';
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
 
-  const [activeEnvironment, setActiveEnvironment] = useState<Environment>('DEV');
+  const [activeEnvironment, setActiveEnvironment] = useState<Environment | 'ALL'>('ALL');
   const [deployTargetEnvironment, setDeployTargetEnvironment] = useState<Environment>('DEV');
 
   const [selectedRules, setSelectedRules] = useState<Set<string>>(new Set());
@@ -28,6 +27,8 @@ export default function DeployTabComponent() {
   const [isLoadingRules, setIsLoadingRules] = useState(false);
   const [deployedRules, setDeployedRules] = useState<DeployedRule[]>([]);
   const [selectedVersions, setSelectedVersions] = useState<Map<string, string>>(new Map());
+
+  const environments: Environment[] = ['DEV', 'QA', 'PROD'];
 
   // Chart year state lives here in the page
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
@@ -76,6 +77,7 @@ export default function DeployTabComponent() {
       if (!selectedProjectKey) return;
       setIsLoadingRules(true);
       try {
+        // Send 'ALL' to backend when ALL is selected, otherwise send the specific env
         const data = await deployApi.getDashboardStats(selectedProjectKey, activeEnvironment);
         setStatsData({
           totalRuleVersions: data.total_rule_versions,
@@ -183,7 +185,7 @@ export default function DeployTabComponent() {
 
   const handleRollback = (ruleKey: string) => alert(`Rolling back rule: ${ruleKey}`);
   const handleViewLogs = (ruleKey: string) => alert(`Viewing logs for rule: ${ruleKey}`);
-  const handleEnvironmentClick = (env: Environment) => setActiveEnvironment(env);
+  const handleEnvironmentClick = (env: Environment | 'ALL') => setActiveEnvironment(env);
 
   return (
     <Box sx={{ minHeight: '100vh', p: 4 }}>
@@ -223,7 +225,7 @@ export default function DeployTabComponent() {
           rules={deployedRules}
           onRollback={handleRollback}
           onViewLogs={handleViewLogs}
-          environment={activeEnvironment}
+          environment={activeEnvironment === 'ALL' ? 'DEV' : activeEnvironment}
         />
       </Box>
     </Box>

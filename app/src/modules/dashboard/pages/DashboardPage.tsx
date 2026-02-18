@@ -3,11 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Box, IconButton, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardHeader from "../components/DashboardHeader";
-import DeployedRulesChart from "../components/DeployedRulesChart";
-import RulesCreatedChart from "../components/RulesCreatedChart";
 import StatsSection from "../components/Stats";
 import { verticalsApi } from '../../vertical/api/verticalsApi';
 import { dashboardApi, DashboardSummary } from '../api/dashboardApi';
+import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -111,16 +110,25 @@ const DashboardPage = () => {
             marginBottom: '24px',
           }}
         >
-          <RulesCreatedChart 
-            data={summary?.monthly_rule_creations || []} 
+          <RcMonthBarChart
+            data={summary?.monthly_rule_creations || []}
             selectedYear={selectedRulesCreatedYear}
             onYearChange={setSelectedRulesCreatedYear}
+            title="Rules Created"
+            subtitle="Monthly rule creation trends"
             height={320}
+            tooltipSuffix="rules"
+            barColors={["#6552D0", "#7B6AE0", "#9182F0"]}
           />
-          <DeployedRulesChart 
-            data={summary?.monthly_deployments || []} 
+          <RcMonthBarChart
+            data={summary?.monthly_deployments || []}
             selectedYear={selectedDeployedRulesYear}
             onYearChange={setSelectedDeployedRulesYear}
+            title="Deployed Rules"
+            subtitle="Cumulative deployment statistics"
+            height={320}
+            tooltipSuffix="deployments"
+            barColors={["#1976d2", "#2196f3", "#42a5f5"]}
           />
         </div>
       </div>

@@ -5,7 +5,7 @@ import { Grid } from '@mui/material';
 import { DeploymentHealthCard } from './Deploymenthealthcard';
 import { PendingSyncsCard } from './Pendingsyncscard';
 import { MonthlyData } from '../api/deployApi';
-import RulesCreatedChart from '../../dashboard/components/RulesCreatedChart';
+import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 
 interface StatsSectionProps {
   stats: {
@@ -51,11 +51,15 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear,
       </Grid>
 
       <Grid size={{ xs: 12, md: 5 }}>
-        <RulesCreatedChart
+        <RcMonthBarChart
           data={stats.monthlyDeployments}
           selectedYear={selectedYear}
           onYearChange={onYearChange}
+          title="Deployed Rules"
+          subtitle="Cumulative deployment statistics"
           height={170}
+          tooltipSuffix="deployments"
+          barColors={["#1976d2", "#2196f3", "#42a5f5"]}
         />
       </Grid>
     </Grid>
