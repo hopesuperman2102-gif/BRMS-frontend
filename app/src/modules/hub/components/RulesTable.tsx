@@ -45,20 +45,15 @@ export default function RulesTable() {
   const fetchAllData = useCallback(async () => {
     const fetchProjectRules = async (project: Project): Promise<ProjectRuleRow[]> => {
       try {
-        // Fetch rules for project using API service
         const rules = await rulesTableApi.getProjectRules(project.project_key);
-
-        // If no rules returned, return empty array
         if (rules.length === 0) return [];
 
-        // Fetch versions for each rule and create rows
         const allRows: ProjectRuleRow[] = [];
         
         for (const rule of rules) {
           const versions = await rulesTableApi.getRuleVersions(rule.rule_key);
           
           if (versions.length > 0) {
-            // Creates a row for each version
             versions.forEach((version: RuleVersion) => {
               allRows.push({
                 id: `${rule.rule_key}-${version.version}`,
@@ -73,7 +68,6 @@ export default function RulesTable() {
               });
             });
           } else {
-            // If no versions found
             allRows.push({
               id: `${rule.rule_key}-NA`,
               name: rule.name,
@@ -97,15 +91,12 @@ export default function RulesTable() {
       setLoading(true);
       setError(null);
 
-      // Fetch all projects using API service
       const projects = await rulesTableApi.getActiveProjects();
 
-      // Fetch rules and versions for each project
       const sectionsData: ProjectSection[] = await Promise.all(
         projects.map(async (project) => {
           const rows = await fetchProjectRules(project);
 
-          // If no rules, add an empty state row
           if (rows.length === 0) {
             rows.push({
               id: `${project.project_key}-empty`,
@@ -225,47 +216,110 @@ export default function RulesTable() {
     {
       key: 'actions',
       label: 'Approval',
-      render: (row: ProjectRuleRow) => (
+      render: (row: ProjectRuleRow) =>
         row.isEmptyState ? null : (
           <Box sx={{ display: 'flex', gap: 1 }}>
-            {row.approvalStatus === 'Approved' ? (
-              <CheckCircleIcon color="success" />
-            ) : (
-              <CheckCircleOutlinedIcon
-                sx={{ cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default' }}
-                onClick={() =>
-                  row.approvalStatus === 'Pending' &&
-                  handleStatusChange(
-                    row.project_key,
-                    row.id,
-                    row.rule_key,
-                    row.version,
-                    'Approved'
-                  )
-                }
-              />
-            )}
-            {row.approvalStatus === 'Rejected' ? (
-              <CancelIcon color="error" />
-            ) : (
-              <CancelOutlinedIcon
-                sx={{ cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default' }}
-                onClick={() =>
-                  row.approvalStatus === 'Pending' &&
-                  handleStatusChange(
-                    row.project_key,
-                    row.id,
-                    row.rule_key,
-                    row.version,
-                    'Rejected'
-                  )
+            {/* Approve Button */}
+            <Box
+              onClick={() =>
+                row.approvalStatus === 'Pending' &&
+                handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Approved')
+              }
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: '20px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
+                ...(row.approvalStatus === 'Approved'
+                  ? {
+                      bgcolor: '#dcfce7',
+                      color: '#16a34a',
+                      border: '1px solid #bbf7d0',
+                    }
+                  : row.approvalStatus === 'Pending'
+                  ? {
+                      bgcolor: 'transparent',
+                      color: '#94a3b8',
+                      border: '1px dashed #cbd5e1',
+                      '&:hover': {
+                        bgcolor: '#dcfce7',
+                        color: '#16a34a',
+                        border: '1px solid #bbf7d0',
+                      },
+                    }
+                  : {
+                      bgcolor: 'transparent',
+                      color: '#cbd5e1',
+                      border: '1px dashed #e2e8f0',
+                      pointerEvents: 'none',
+                    }),
+              }}
+            >
+              {row.approvalStatus === 'Approved' ? (
+                <CheckCircleIcon sx={{ fontSize: 14 }} />
+              ) : (
+                <CheckCircleOutlinedIcon sx={{ fontSize: 14 }} />
+              )}
+              Approve
+            </Box>
 
-                }
-              />
-            )}
+            {/* Reject Button */}
+            <Box
+              onClick={() =>
+                row.approvalStatus === 'Pending' &&
+                handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Rejected')
+              }
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: '20px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: row.approvalStatus === 'Pending' ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
+                ...(row.approvalStatus === 'Rejected'
+                  ? {
+                      bgcolor: '#fee2e2',
+                      color: '#dc2626',
+                      border: '1px solid #fecaca',
+                    }
+                  : row.approvalStatus === 'Pending'
+                  ? {
+                      bgcolor: 'transparent',
+                      color: '#94a3b8',
+                      border: '1px dashed #cbd5e1',
+                      '&:hover': {
+                        bgcolor: '#fee2e2',
+                        color: '#dc2626',
+                        border: '1px solid #fecaca',
+                      },
+                    }
+                  : {
+                      bgcolor: 'transparent',
+                      color: '#cbd5e1',
+                      border: '1px dashed #e2e8f0',
+                      pointerEvents: 'none',
+                    }),
+              }}
+            >
+              {row.approvalStatus === 'Rejected' ? (
+                <CancelIcon sx={{ fontSize: 14 }} />
+              ) : (
+                <CancelOutlinedIcon sx={{ fontSize: 14 }} />
+              )}
+              Reject
+            </Box>
           </Box>
-        )
-      ),
+        ),
     },
   ];
 
