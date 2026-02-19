@@ -101,6 +101,7 @@ type FormState = { name: string; description: string; directory: string };
 /* ─── Page ────────────────────────────────────────────────── */
 export default function CreateRulePage() {
   const navigate = useNavigate();
+  // vertical_Key is always present in the route — guaranteed by the router config
   const { vertical_Key, project_key } = useParams<{ vertical_Key: string; project_key: string }>();
   const [searchParams] = useSearchParams();
 
@@ -156,8 +157,8 @@ export default function CreateRulePage() {
       const fullDirectory = `${form.directory}/${form.name}`;
 
       if (isEditMode && ruleKey) {
-        // Edit mode: check duplicates via functional API (one call)
-        const { rules: existingRules } = await rulesApi.getProjectRules(project_key, vertical_Key);
+        // vertical_Key is always present (route guarantee) — use ! to satisfy TS
+        const { rules: existingRules } = await rulesApi.getProjectRules(project_key, vertical_Key!);
         const duplicate = existingRules.some(
           (r: RuleResponse) => r.directory === fullDirectory && r.rule_key !== ruleKey
         );
@@ -171,12 +172,11 @@ export default function CreateRulePage() {
           updated_by:  'admin',
         });
       } else {
-        // Create mode: use old endpoint — it correctly stores directory on the rule
         await rulesApi.createRule({
           project_key,
           name:        form.name,
           description: form.description,
-          directory:   fullDirectory,   // e.g. "rule/FolderA/MyRule" — folder path preserved
+          directory:   fullDirectory,
         });
       }
 
@@ -345,7 +345,7 @@ export default function CreateRulePage() {
                 <Typography sx={{ fontSize: '0.6875rem', color: T.lTextLow, fontFamily: '"DM Mono", monospace', letterSpacing: '0.02em' }}>
                   Full path : {form.directory}/{form.name || '[rule-name]'}
                 </Typography>
-              </Box>  
+              </Box>
             </Box>
           </Box>
 
