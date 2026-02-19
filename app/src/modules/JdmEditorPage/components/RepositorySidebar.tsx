@@ -82,7 +82,7 @@ export default function RepositorySidebar({
                 whiteSpace: 'nowrap',
               }}
             >
-              {projectName}
+              Repository Tree
             </Typography>
           </Box>
         </Box>
@@ -110,17 +110,7 @@ export default function RepositorySidebar({
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           }}
         >
-          Rules
-        </Typography>
-        <Typography
-          sx={{
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            color: '#9ca3af',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          }}
-        >
-          {items.length}
+          {projectName}
         </Typography>
       </Box>
 

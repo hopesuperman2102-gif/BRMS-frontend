@@ -5,6 +5,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography, TextField, Button, Alert } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
+import { projectsApi } from '../../hub/api/projectsApi';
 
 /* ─── Design Tokens ──────────────────────────────────────── */
 const T = {
@@ -111,13 +112,22 @@ export default function CreateRulePage() {
   // Read directory from URL — decodeURIComponent handles encoded paths like "rule%2FMyFolder"
   const directoryParam = searchParams.get('directory')
     ? decodeURIComponent(searchParams.get('directory')!)
-    : 'rule';
+    : '';
 
-  const [form, setForm]               = useState<FormState>({ name: '', description: '', directory: directoryParam });
+  const [form, setForm]               = useState<FormState>({ name: '', description: '', directory: directoryParam || '' });
   const [loading, setLoading]         = useState(false);
   const [loadingRule, setLoadingRule] = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [focused, setFocused]         = useState<string | null>(null);
+  const [projectName, setProjectName] = useState<string>('');
+
+useEffect(() => {
+  if (!project_key || !vertical_Key) return;
+  projectsApi.getProjectsView(vertical_Key).then((projects) => {
+    const match = projects.find((p: { project_key: string; name: string }) => p.project_key === project_key);
+    if (match?.name) setProjectName(match.name);
+  });
+}, [project_key, vertical_Key]);
 
   // Sync directory from URL into form when it changes (handles navigation between folders)
   useEffect(() => {
@@ -152,12 +162,9 @@ export default function CreateRulePage() {
     if (!project_key) { setError('Project key is missing'); return; }
 
     try {
-      setLoading(true);
-      // fullDirectory = "rule/FolderName/RuleName" or "rule/RuleName" at root
-      const fullDirectory = `${form.directory}/${form.name}`;
+      const fullDirectory = form.directory ? `${form.directory}/${form.name}`: form.name;
 
       if (isEditMode && ruleKey) {
-        // vertical_Key is always present (route guarantee) — use ! to satisfy TS
         const { rules: existingRules } = await rulesApi.getProjectRules(project_key, vertical_Key!);
         const duplicate = existingRules.some(
           (r: RuleResponse) => r.directory === fullDirectory && r.rule_key !== ruleKey
@@ -188,10 +195,9 @@ export default function CreateRulePage() {
 
   /* Location label */
   const locationLabel = (() => {
-    const parts = form.directory.split('/');
-    if (parts.length === 1 && parts[0] === 'rule') return 'Root';
-    return parts.slice(1).join(' › ') || 'Root';
-  })();
+  if (!form.directory) return projectName || 'Root'; 
+  return form.directory.split('/').join(' › ');
+})();
 
   /* Loading state */
   if (loadingRule) {
