@@ -1,123 +1,107 @@
-// src/api/rulesTableApi.ts
-
 import { ENV } from '../../../config/env';
 
-const API_BASE_URL = ENV.API_BASE_URL;
+const BASE = ENV.API_BASE_URL;
 
-// Types specific to RulesTable
-export type Project = {
-  project_key: string;
-  name: string;
-  status: string;
-};
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-export type Rule = {
-  rule_key: string;
-  name: string;
-  status: string;
-};
-
-export type RuleVersion = {
+export interface RuleVersion {
   version: string;
-  status?: 'APPROVED' | 'REJECTED' | 'PENDING';
-};
+  status: string;
+  created_at: string;
+}
 
-// API functions for RulesTable
+export interface VerticalRule {
+  rule_key: string;
+  rule_name: string;
+  status: string;
+  directory?: string;
+  versions: RuleVersion[];
+  description?: string;
+  created_by?: string;
+  created_at?: string;
+  updated_by?: string | null;
+  updated_at?: string;
+}
+
+export interface VerticalProject {
+  project_key: string;
+  project_name: string;
+  rules: VerticalRule[];
+}
+
+export interface VerticalRulesResponse {
+  vertical_key: string;
+  vertical_name: string;
+  projects: VerticalProject[];
+}
+
+export interface ReviewResponse {
+  rule_key: string;
+  version: string;
+  status: string;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || `HTTP ${response.status}`);
+  }
+  return response.json() as Promise<T>;
+}
+
+const JSON_HEADERS = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+} as const;
+
+// ─── In-memory cache ──────────────────────────────────────────────────────────
+let verticalCache: VerticalRulesResponse | null = null;
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+
 export const rulesTableApi = {
-  // Get Active Projects
-  getActiveProjects: async (): Promise<Project[]> => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/projects/?status=ACTIVE`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      }
+
+  // ONE call — returns all projects + rules + versions for the vertical
+  getVerticalRules: async (vertical_key = 'loan'): Promise<VerticalRulesResponse> => {
+    if (verticalCache) return verticalCache;
+    const res = await fetch(
+      `${BASE}/api/v1/verticals/${vertical_key}/rules`,
+      { method: 'GET', headers: JSON_HEADERS },
     );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch projects');
-    }
-
-    return response.json();
+    const data = await handleResponse<VerticalRulesResponse>(res);
+    verticalCache = data;
+    return data;
   },
 
-  // Get Rules for a Project
-  getProjectRules: async (project_key: string): Promise<Rule[]> => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/projects/${project_key}/rules`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch rules');
-    }
-
-    return response.json();
+  // Force fresh fetch — bypasses cache
+  refreshVerticalRules: async (vertical_key = 'loan'): Promise<VerticalRulesResponse> => {
+    verticalCache = null;
+    return rulesTableApi.getVerticalRules(vertical_key);
   },
 
-  // Get Rule Versions
-  getRuleVersions: async (rule_key: string): Promise<RuleVersion[]> => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/rules/${rule_key}/versions`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch rule versions');
-    }
-
-    return response.json();
-  },
-
-  // Review (Approve / Reject) Rule Version
   reviewRuleVersion: async (
     rule_key: string,
     version: string,
     action: 'APPROVED' | 'REJECTED',
-    reviewed_by: string
-  ): Promise<{
-    rule_key: string;
-    version: string;
-    status: 'APPROVED' | 'REJECTED' | 'PENDING';
-  }> => {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/rules/${rule_key}/versions/${version}/review`,
+    reviewed_by: string,
+  ): Promise<ReviewResponse> => {
+    const res = await fetch(
+      `${BASE}/api/v1/rules/${rule_key}/versions/${version}/review`,
       {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          reviewed_by,
-        }),
-      }
+        headers: JSON_HEADERS,
+        body: JSON.stringify({ action, reviewed_by }),
+      },
     );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to update approval status');
-    }
-
-    return response.json();
+    const result = await handleResponse<ReviewResponse>(res);
+    verticalCache = null;
+    return result;
   },
+
+  invalidateCache: () => {
+    verticalCache = null;
+  },
+
 };
