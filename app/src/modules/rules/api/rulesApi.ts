@@ -6,18 +6,50 @@ const BASE = ENV.API_BASE_URL;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export interface RuleVersion {
+  version: string;
+  status: string;
+  created_at: string;
+}
+
 export interface RuleResponse {
   rule_key: string;
-  project_key: string;
+  project_key?: string;
   name: string;
   description: string;
   status: string;
-  created_by: string;
-  created_at: string;
-  updated_by: string | null;
-  updated_at: string;
+  created_by?: string;
+  created_at?: string;
+  updated_by?: string | null;
+  updated_at?: string;
   directory?: string;
   version?: string;
+  versions?: RuleVersion[];
+}
+
+export interface ProjectRulesResult {
+  vertical_name: string;
+  project_name: string;
+  rules: RuleResponse[];
+}
+
+export interface VerticalProjectRulesResponse {
+  vertical_key: string;
+  vertical_name: string;
+  project_key: string;
+  project_name: string;
+  rules: Array<{
+    rule_key: string;
+    rule_name: string;
+    status: string;
+    versions: RuleVersion[];
+    directory?: string;
+    description?: string;
+    created_by?: string;
+    created_at?: string;
+    updated_by?: string | null;
+    updated_at?: string;
+  }>;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -39,9 +71,71 @@ const JSON_HEADERS = {
   Accept: 'application/json',
 } as const;
 
+// ─── Helper: derive latest version from unsorted versions array ───────────────
+function getLatestVersion(versions: RuleVersion[]): string {
+  if (!versions || versions.length === 0) return 'Unversioned';
+  const sorted = [...versions].sort((a, b) => {
+    const numA = parseInt(a.version.replace(/\D/g, ''), 10) || 0;
+    const numB = parseInt(b.version.replace(/\D/g, ''), 10) || 0;
+    return numA - numB;
+  });
+  return sorted[sorted.length - 1].version;
+}
+
 // ─── API ──────────────────────────────────────────────────────────────────────
 
 export const rulesApi = {
+
+  // ── Get Rules By Project ───────────────────────────────────────────────────
+  // ONE call replaces: verticals API + projects API + N × versions API calls.
+  // Returns vertical_name, project_name, and rules with latest version derived
+  // from embedded versions[] — no extra calls needed.
+  getProjectRules: async (
+    project_key: string,
+    vertical_key?: string,
+  ): Promise<ProjectRulesResult> => {
+    log('📋 Fetching rules for project:', project_key);
+
+    if (vertical_key) {
+      const res = await fetch(
+        `${BASE}/api/v1/verticals/${vertical_key}/projects/${project_key}/rules`,
+        { method: 'GET', headers: JSON_HEADERS },
+      );
+      const result = await handleResponse<VerticalProjectRulesResponse>(res);
+      const rawRules = Array.isArray(result?.rules) ? result.rules : [];
+
+      const rules: RuleResponse[] = rawRules.map((r) => ({
+        rule_key:    r.rule_key,
+        project_key,
+        name:        r.rule_name ?? '',
+        description: r.description ?? '',
+        status:      r.status ?? 'DRAFT',
+        created_by:  r.created_by,
+        created_at:  r.created_at,
+        updated_by:  r.updated_by,
+        updated_at:  r.updated_at,
+        directory:   r.directory,
+        versions:    r.versions ?? [],
+        version:     getLatestVersion(r.versions ?? []),
+      }));
+
+      log('✅ Rules fetched:', rules.length);
+      return {
+        vertical_name: result.vertical_name ?? '',
+        project_name:  result.project_name  ?? '',
+        rules,
+      };
+    }
+
+    // Fallback: old endpoint
+    const res = await fetch(
+      `${BASE}/api/v1/projects/${project_key}/rules?status=DRAFT&status=USING`,
+      { method: 'GET', headers: JSON_HEADERS },
+    );
+    const rules = await handleResponse<RuleResponse[]>(res);
+    log('✅ Rules fetched (legacy):', rules.length);
+    return { vertical_name: '', project_name: '', rules };
+  },
 
   // ── Create Rule ────────────────────────────────────────────────────────────
   createRule: async (data: {
@@ -58,18 +152,6 @@ export const rulesApi = {
     });
     const result = await handleResponse<RuleResponse>(res);
     log('✅ Rule created:', result);
-    return result;
-  },
-
-  // ── Get Rules By Project ───────────────────────────────────────────────────
-  getProjectRules: async (project_key: string): Promise<RuleResponse[]> => {
-    log('📋 Fetching rules for project:', project_key);
-    const res = await fetch(`${BASE}/api/v1/projects/${project_key}/rules`, {
-      method: 'GET',
-      headers: JSON_HEADERS,
-    });
-    const result = await handleResponse<RuleResponse[]>(res);
-    log('✅ Rules fetched:', result.length);
     return result;
   },
 
@@ -134,9 +216,6 @@ export const rulesApi = {
   },
 
   // ── Update Rule Name + Directory ───────────────────────────────────────────
-  // FIX: was running updateRule and updateRuleDirectory in parallel with
-  // Promise.all — both write the same DB record, creating a race condition.
-  // Sequential calls ensure the second write always sees the first's result.
   updateRuleNameAndDirectory: async (data: {
     rule_key: string;
     name: string;
@@ -147,33 +226,22 @@ export const rulesApi = {
     log('🔄 Updating rule name and directory:', data);
 
     await rulesApi.updateRule({
-      rule_key: data.rule_key,
-      name: data.name,
+      rule_key:    data.rule_key,
+      name:        data.name,
       description: data.description || '',
-      updated_by: data.updated_by,
+      updated_by:  data.updated_by,
     });
 
     await rulesApi.updateRuleDirectory({
-      rule_key: data.rule_key,
+      rule_key:   data.rule_key,
       updated_by: data.updated_by,
-      directory: data.directory,
+      directory:  data.directory,
     });
 
     log('✅ Rule name and directory updated');
     return { success: true };
   },
 
-  // ── Get Rule Versions ──────────────────────────────────────────────────────
-  getRuleVersions: async (rule_key: string): Promise<{ version: string }[]> => {
-    log('🔄 Fetching versions for rule:', rule_key);
-    const res = await fetch(`${BASE}/api/v1/rules/${rule_key}/versions`, {
-      method: 'GET',
-      headers: JSON_HEADERS,
-    });
-    const result = await handleResponse<{ version: string }[]>(res);
-    log('✅ Rule versions fetched:', result.length);
-    return result;
-  },
 };
 
 if (ENV.DEBUG_MODE) {

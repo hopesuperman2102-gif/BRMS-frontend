@@ -615,7 +615,7 @@ export default function CreateProjectPage() {
                   fontFamily: '"DM Mono", monospace',
                 }}
               >
-                Categorize within your organization's domain structure.
+                Categorize using the organizational domain structure
               </Typography>
             </Box>
           </Box>

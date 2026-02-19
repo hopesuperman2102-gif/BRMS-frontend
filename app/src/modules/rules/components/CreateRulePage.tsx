@@ -6,7 +6,7 @@ import { Box, Typography, TextField, Button, Alert } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
 
-/* ─── Design Tokens (identical to CreateProjectPage) ──────── */
+/* ─── Design Tokens ──────────────────────────────────────── */
 const T = {
   bgRoot:      '#0A0C10',
   bgLeft:      '#0A0C10',
@@ -104,15 +104,26 @@ export default function CreateRulePage() {
   const { vertical_Key, project_key } = useParams<{ vertical_Key: string; project_key: string }>();
   const [searchParams] = useSearchParams();
 
-  const ruleKey        = searchParams.get('key');
-  const directoryParam = searchParams.get('directory');
-  const isEditMode     = Boolean(ruleKey);
+  const ruleKey    = searchParams.get('key');
+  const isEditMode = Boolean(ruleKey);
 
-  const [form, setForm]       = useState<FormState>({ name: '', description: '', directory: directoryParam || 'rule' });
-  const [loading, setLoading] = useState(false);
+  // Read directory from URL — decodeURIComponent handles encoded paths like "rule%2FMyFolder"
+  const directoryParam = searchParams.get('directory')
+    ? decodeURIComponent(searchParams.get('directory')!)
+    : 'rule';
+
+  const [form, setForm]               = useState<FormState>({ name: '', description: '', directory: directoryParam });
+  const [loading, setLoading]         = useState(false);
   const [loadingRule, setLoadingRule] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [focused, setFocused] = useState<string | null>(null);
+  const [error, setError]             = useState<string | null>(null);
+  const [focused, setFocused]         = useState<string | null>(null);
+
+  // Sync directory from URL into form when it changes (handles navigation between folders)
+  useEffect(() => {
+    if (!isEditMode) {
+      setForm((prev) => ({ ...prev, directory: directoryParam }));
+    }
+  }, [directoryParam, isEditMode]);
 
   /* Load rule in edit mode */
   useEffect(() => {
@@ -122,6 +133,8 @@ export default function CreateRulePage() {
       try {
         const rule = await rulesApi.getRuleDetails(ruleKey);
         if (!rule) { setError('Rule not found'); return; }
+        // directory stored as full path e.g. "rule/FolderA/RuleName"
+        // parent = "rule/FolderA"
         const parts = (rule.directory || 'rule').split('/');
         const parentDirectory = parts.slice(0, -1).join('/') || 'rule';
         setForm({ name: rule.name, description: rule.description || '', directory: parentDirectory });
@@ -135,21 +148,38 @@ export default function CreateRulePage() {
     setError(null);
     if (!form.name.trim()) { setError('Rule name is required'); return; }
     if (form.description.length > 300) { setError('Description cannot exceed 300 characters'); return; }
-    if (!project_key)      { setError('Project key is missing'); return; }
+    if (!project_key) { setError('Project key is missing'); return; }
+
     try {
       setLoading(true);
+      // fullDirectory = "rule/FolderName/RuleName" or "rule/RuleName" at root
       const fullDirectory = `${form.directory}/${form.name}`;
-      const existingRules = await rulesApi.getProjectRules(project_key);
-      const duplicate = existingRules.some(
-        (r: RuleResponse) => r.directory === fullDirectory && r.rule_key !== ruleKey
-      );
-      if (duplicate) { setError('A rule with that name already exists in this folder'); return; }
 
       if (isEditMode && ruleKey) {
-        await rulesApi.updateRuleNameAndDirectory({ rule_key: ruleKey, name: form.name, directory: fullDirectory, description: form.description, updated_by: 'admin' });
+        // Edit mode: check duplicates via functional API (one call)
+        const { rules: existingRules } = await rulesApi.getProjectRules(project_key, vertical_Key);
+        const duplicate = existingRules.some(
+          (r: RuleResponse) => r.directory === fullDirectory && r.rule_key !== ruleKey
+        );
+        if (duplicate) { setError('A rule with that name already exists in this folder'); return; }
+
+        await rulesApi.updateRuleNameAndDirectory({
+          rule_key:    ruleKey,
+          name:        form.name,
+          directory:   fullDirectory,
+          description: form.description,
+          updated_by:  'admin',
+        });
       } else {
-        await rulesApi.createRule({ project_key, name: form.name, description: form.description, directory: fullDirectory });
+        // Create mode: use old endpoint — it correctly stores directory on the rule
+        await rulesApi.createRule({
+          project_key,
+          name:        form.name,
+          description: form.description,
+          directory:   fullDirectory,   // e.g. "rule/FolderA/MyRule" — folder path preserved
+        });
       }
+
       navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules?path=${encodeURIComponent(form.directory)}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -212,43 +242,26 @@ export default function CreateRulePage() {
 
           {/* Hero copy */}
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-
-            {/* Mode badge */}
             <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '8px', mb: '24px' }}>
               <Box sx={{ width: '6px', height: '6px', borderRadius: '50%', bgcolor: T.indigo, boxShadow: `0 0 8px ${T.indigoGlow}` }} />
               <Typography sx={{ fontSize: '0.625rem', fontWeight: 700, color: T.dTextLow, letterSpacing: '0.16em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace' }}>
                 {isEditMode ? 'Editing · Rule' : 'New · Rule'}
               </Typography>
             </Box>
-
-            {/* Headline */}
             <Typography sx={{ fontSize: 'clamp(2rem, 2.6vw, 2.75rem)', fontWeight: 800, color: T.dTextHigh, lineHeight: 1.05, letterSpacing: '-0.04em', mb: '20px', whiteSpace: 'pre-line' }}>
               {isEditMode ? 'Refine your\nrule.' : 'Define your\nlogic.'}
             </Typography>
-
-            {/* Sub-copy */}
             <Typography sx={{ fontSize: '0.8125rem', color: T.dTextMid, lineHeight: 1.8, mb: '40px', maxWidth: '300px', fontWeight: 400 }}>
               {isEditMode
                 ? 'Update your rule details to keep your decision logic accurate and your team aligned.'
                 : 'Rules are the building blocks of your decision engine. Name it, describe it, and place it.'}
             </Typography>
-
-            {/* Feature list */}
             <Box>
-              {[
-                'Folder-based rule organisation',
-                'Full path tracking & versioning',
-                'Plugs into your JDM decision graph',
-              ].map((label, i) => (
+              {['Folder-based rule organisation', 'Full path tracking & versioning', 'Plugs into your JDM decision graph'].map((label, i) => (
                 <Feature key={label} last={i === 2}>{label}</Feature>
               ))}
             </Box>
           </Box>
-
-          {/* Footer */}
-          <Typography sx={{ fontSize: '0.625rem', color: T.dTextLow, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace', flexShrink: 0, mt: '32px' }}>
-            BRMS Platform · 2025
-          </Typography>
         </Box>
       </Box>
 
@@ -271,11 +284,8 @@ export default function CreateRulePage() {
 
         {/* Form */}
         <Box sx={{ width: '100%', maxWidth: '420px', py: '48px' }}>
-
-          {/* Accent bar */}
           <Box sx={{ width: '32px', height: '2px', borderRadius: '1px', background: T.indigo, mb: '24px', opacity: 0.9 }} />
 
-          {/* Heading */}
           <Box sx={{ mb: '32px' }}>
             <Typography sx={{ fontSize: '1.5rem', fontWeight: 800, color: T.lTextHigh, letterSpacing: '-0.03em', lineHeight: 1.1, mb: '8px' }}>
               {isEditMode ? 'Edit rule' : 'Create rule'}
@@ -285,14 +295,12 @@ export default function CreateRulePage() {
             </Typography>
           </Box>
 
-          {/* Error */}
           {error && (
             <Alert severity="error" sx={{ mb: '24px', borderRadius: '6px', py: '6px', background: T.errorBg, border: `1px solid ${T.errorBorder}`, color: T.errorText, fontSize: '0.8125rem', fontWeight: 500, '& .MuiAlert-icon': { color: T.errorIcon, fontSize: '1rem' } }}>
               {error}
             </Alert>
           )}
 
-          {/* Fields */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
             {/* Rule name */}
@@ -314,9 +322,7 @@ export default function CreateRulePage() {
             <Box>
               <Label>Description</Label>
               <TextField
-                fullWidth
-                multiline
-                rows={3}
+                fullWidth multiline rows={3}
                 placeholder="Describe what this rule evaluates or decides…"
                 value={form.description}
                 onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
@@ -337,19 +343,14 @@ export default function CreateRulePage() {
                   {locationLabel}
                 </Typography>
                 <Typography sx={{ fontSize: '0.6875rem', color: T.lTextLow, fontFamily: '"DM Mono", monospace', letterSpacing: '0.02em' }}>
-                  {form.directory}/{form.name || '[rule-name]'}
+                  Full path : {form.directory}/{form.name || '[rule-name]'}
                 </Typography>
-              </Box>
-              <Typography sx={{ mt: '6px', fontSize: '0.6875rem', color: T.lTextLow, lineHeight: 1.55, fontFamily: '"DM Mono", monospace' }}>
-                Full path where this rule will be stored.
-              </Typography>
+              </Box>  
             </Box>
           </Box>
 
-          {/* Divider */}
           <Box sx={{ height: '1px', bgcolor: T.lBorder, mt: '32px', mb: '24px' }} />
 
-          {/* Actions */}
           <Box sx={{ display: 'flex', gap: '10px' }}>
             <Button
               disableRipple
@@ -359,9 +360,7 @@ export default function CreateRulePage() {
               Cancel
             </Button>
             <Button
-              fullWidth
-              disabled={loading}
-              disableRipple
+              fullWidth disabled={loading} disableRipple
               onClick={handleSubmit}
               sx={{ borderRadius: '6px', py: '10px', textTransform: 'none', fontWeight: 700, fontSize: '0.8125rem', color: '#FFFFFF', letterSpacing: '0.01em', background: T.indigo, boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${T.indigoGlow}`, '&:hover': { background: T.indigoHover, boxShadow: `0 1px 3px rgba(0,0,0,0.16), 0 6px 20px rgba(79,70,229,0.28)`, transform: 'translateY(-1px)' }, '&:disabled': { background: '#E2E8F0', color: '#94A3B8', boxShadow: 'none', transform: 'none' }, transition: 'all 0.15s' }}
             >

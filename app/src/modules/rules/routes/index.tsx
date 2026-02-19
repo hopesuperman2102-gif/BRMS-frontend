@@ -17,7 +17,7 @@ const rulesRoutes: AppRoute[] = [
   {
     path: '/vertical/:vertical_Key/dashboard/hub/:project_key/rules/createrules',
     element: CreateRulePage,
-    layout: 'main',
+    layout: 'none',
     metadata: {
       title: 'Create Rule',
       description: 'Create a new rule for the project',

@@ -71,7 +71,7 @@ export function FileCard({ item, onOpen, onMenuOpen, onMouseEnter, onMouseLeave 
             <StatusPill status={item.status} />
             <Box sx={{ display: 'inline-flex', alignItems: 'center', px: '7px', py: '2px', borderRadius: '4px', border: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
               <Typography sx={{ fontSize: '0.6875rem', fontWeight: 600, color: '#4F46E5', letterSpacing: '0.03em', fontFamily: '"DM Mono", monospace' }}>
-                v{item.version}
+                version : {item.version}
               </Typography>
             </Box>
             <Typography sx={{ fontSize: '0.6875rem', color: '#94A3B8', whiteSpace: 'nowrap', fontFamily: '"DM Mono", monospace' }}>
