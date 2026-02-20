@@ -8,10 +8,10 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { rulesTableApi, VerticalRule, VerticalProject, RuleVersion } from 'app/src/modules/hub/api/entireRuleApi';
 import AlertComponent, { useAlertStore } from 'app/src/core/components/Alert';
-import { ApprovalStatus, ProjectRuleRow, ProjectSection } from '../types/ruleTableTypes';
+import { ApprovalStatus, ProjectRuleRow, ProjectSection, RuleVersion, VerticalProject, VerticalRule } from '../types/ruleTableTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { rulesTableApi } from '../api/entireRuleApi';
 
 const { colors } = brmsTheme;
 

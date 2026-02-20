@@ -1,47 +1,7 @@
 import { ENV } from '../../../config/env';
+import { ReviewResponse, VerticalRulesResponse } from '../types/ruleTableTypes';
 
 const BASE = ENV.API_BASE_URL;
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface RuleVersion {
-  version: string;
-  status: string;
-  created_at: string;
-}
-
-export interface VerticalRule {
-  rule_key: string;
-  rule_name: string;
-  status: string;
-  directory?: string;
-  versions: RuleVersion[];
-  description?: string;
-  created_by?: string;
-  created_at?: string;
-  updated_by?: string | null;
-  updated_at?: string;
-}
-
-export interface VerticalProject {
-  project_key: string;
-  project_name: string;
-  rules: VerticalRule[];
-}
-
-export interface VerticalRulesResponse {
-  vertical_key: string;
-  vertical_name: string;
-  projects: VerticalProject[];
-}
-
-export interface ReviewResponse {
-  rule_key: string;
-  version: string;
-  status: string;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -56,10 +16,10 @@ const JSON_HEADERS = {
   Accept: 'application/json',
 } as const;
 
-// ─── In-memory cache ──────────────────────────────────────────────────────────
+// ─── In-memory cache ───
 let verticalCache: VerticalRulesResponse | null = null;
 
-// ─── API ──────────────────────────────────────────────────────────────────────
+// ─── API ───
 
 export const rulesTableApi = {
 

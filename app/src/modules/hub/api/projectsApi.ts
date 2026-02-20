@@ -1,4 +1,5 @@
 import { ENV } from '../../../config/env';
+import { ProjectView, VerticalProjectsResponse } from '../types/projectListTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
@@ -13,26 +14,6 @@ async function handleResponse<T>(response: Response): Promise<T> {
     throw new Error((err as { detail?: string }).detail || `HTTP ${response.status}`);
   }
   return response.json() as Promise<T>;
-}
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface ProjectView {
-  id: string;
-  project_key: string;
-  name: string;
-  description?: string;
-  domain?: string;
-  status?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface VerticalProjectsResponse {
-  vertical_key: string;
-  vertical_name: string;
-  status: string;
-  projects: ProjectView[];
 }
 
 // ─── Cache ────────────────────────────────────────────────────────────────────
@@ -107,7 +88,7 @@ export const projectsApi = {
     vertical_key: string;
     domain: string;
   }) => {
-    if (ENV.ENABLE_LOGGING) console.log('🔄 Creating project:', data);
+    if (ENV.ENABLE_LOGGING) console.log(' Creating project:', data);
     const res = await fetch(`${API_BASE_URL}/api/v1/projects/`, {
       method: 'POST',
       headers: JSON_HEADERS,
@@ -115,7 +96,7 @@ export const projectsApi = {
     });
     const result = await handleResponse(res);
     projectsApi.invalidateProjectsCache(data.vertical_key);
-    if (ENV.ENABLE_LOGGING) console.log('✅ Project created:', result);
+    if (ENV.ENABLE_LOGGING) console.log(' Project created:', result);
     return result;
   },
 
@@ -127,7 +108,7 @@ export const projectsApi = {
     );
     const result = await handleResponse(res);
     projectsApi.invalidateProjectsCache();
-    if (ENV.ENABLE_LOGGING) console.log('✅ Project deleted:', project_key);
+    if (ENV.ENABLE_LOGGING) console.log(' Project deleted:', project_key);
     return result;
   },
 
@@ -135,7 +116,7 @@ export const projectsApi = {
     project_key: string,
     data: { name: string; description?: string; domain?: string },
   ) => {
-    if (ENV.ENABLE_LOGGING) console.log('🔄 Updating project:', project_key, data);
+    if (ENV.ENABLE_LOGGING) console.log(' Updating project:', project_key, data);
     const res = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}`, {
       method: 'PUT',
       headers: JSON_HEADERS,
@@ -143,7 +124,7 @@ export const projectsApi = {
     });
     const result = await handleResponse(res);
     projectsApi.invalidateProjectsCache();
-    if (ENV.ENABLE_LOGGING) console.log('✅ Project updated:', result);
+    if (ENV.ENABLE_LOGGING) console.log(' Project updated:', result);
     return result;
   },
 
@@ -154,12 +135,12 @@ export const projectsApi = {
         (p) => p.name.toLowerCase().trim() === name.toLowerCase().trim(),
       );
     } catch (error) {
-      if (ENV.ENABLE_LOGGING) console.error('❌ Error checking project name:', error);
+      if (ENV.ENABLE_LOGGING) console.error(' Error checking project name:', error);
       throw error;
     }
   },
 };
 
 if (ENV.DEBUG_MODE) {
-  console.log('📡 Projects API Base URL:', API_BASE_URL);
+  console.log(' Projects API Base URL:', API_BASE_URL);
 }
