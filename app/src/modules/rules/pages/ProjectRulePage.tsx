@@ -58,8 +58,8 @@ export default function ProjectRulePage() {
   const [files, setFiles]               = useState<FileNode[]>([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentPath, setCurrentPath]   = useState<string>('rule');
-  const [breadcrumbs, setBreadcrumbs]   = useState<Breadcrumb[]>([{ name: 'Rules', path: 'rule' }]);
+  const [currentPath, setCurrentPath]   = useState<string>('');
+  const [breadcrumbs, setBreadcrumbs]   = useState<Breadcrumb[]>([{ name: 'Home', path: '' }]);
 
   const [anchorEl, setAnchorEl]           = useState<HTMLElement | null>(null);
   const [menuItem, setMenuItem]           = useState<ExplorerItem | null>(null);
@@ -97,8 +97,8 @@ export default function ProjectRulePage() {
       kind:        'file' as const,
       rule_key:    r.rule_key,
       name:        r.name ?? '',
-      path:        r.directory || `rule/${r.name ?? ''}`,
-      parentPath:  parentOfPath(r.directory || `rule/${r.name ?? ''}`),
+      path: r.directory || r.name,
+      parentPath: parentOfPath(r.directory || r.name),
       status:      r.status ?? 'DRAFT',
       version:     r.version ?? '—',
       updatedAt:   r.updated_at ?? '',
@@ -113,11 +113,16 @@ export default function ProjectRulePage() {
     didInitFromUrl.current = true;
     const pathFromUrl = searchParams.get('path');
     if (!pathFromUrl) return;
-    const parts = splitPath(pathFromUrl);
-    const crumbs: Breadcrumb[] = [{ name: 'Rules', path: 'rule' }];
-    for (let i = 1; i < parts.length; i++) crumbs.push({ name: parts[i], path: parts.slice(0, i + 1).join('/') });
-    setCurrentPath(pathFromUrl);
-    setBreadcrumbs(crumbs);
+    const parts = splitPath(pathFromUrl); 
+    const crumbs: Breadcrumb[] = [{ name:'Home', path: '' }];
+    for (let i = 0; i < parts.length; i++) {
+      crumbs.push({ 
+        name: parts[i],
+        path: parts.slice(0, i + 1).join('/')
+    });
+}
+setCurrentPath(pathFromUrl);
+setBreadcrumbs(crumbs);
     setSearchParams({}, { replace: true });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -294,16 +299,9 @@ export default function ProjectRulePage() {
   const handleCreateNewFolder = () => {
     setNewMenuAnchor(null);
     const name = 'New folder';
-    // FIX: Use a unique timestamp-based temp path as the React key so that
-    // clicking "New Folder" multiple times in the same directory does NOT
-    // produce duplicate keys like `rule/New folder`, `rule/New folder`.
-    // Each pending folder now gets a distinct internal ID until the user commits a name.
     const tempId = `__temp_${Date.now()}`;
     const path = `${currentPath}/${tempId}`;
     setFolders((prev) => [...prev, { kind: 'folder', path, name, parentPath: currentPath, isTemp: true }]);
-    // setTimeout: wait for MUI Menu to fully close before entering edit mode.
-    // Without this, Menu's backdrop click bubbles up and triggers onBlur on the
-    // input immediately, firing commitFolderRename and killing edit mode instantly.
     setTimeout(() => {
       setEditingFolderId(path);
       setEditingFolderName(name);
