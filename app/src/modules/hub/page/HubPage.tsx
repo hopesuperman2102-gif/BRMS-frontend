@@ -8,7 +8,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeployTabPage from '../../deploy/page/DeployTabPage';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import ProjectList from '../components/ProjectList';
+import ProjectList from '../components/ProjectListCard';
 import RulesTable from '../components/RulesTable';
 
 const { colors, gradients } = brmsTheme;

@@ -35,6 +35,7 @@ export const brmsTheme = {
     lightBorder: '#E2E8F0',
     lightBorderHover: '#CBD5E1',
     lightSurfaceHover: '#F1F5F9',
+    surfaceBase: '#F8FAFC',
 
     // Error / alert tokens
     errorBg: '#FEF2F2',
@@ -52,6 +53,32 @@ export const brmsTheme = {
     primaryGlowMid: 'rgba(101, 82, 208, 0.15)',
     navTextHigh: '#374151',
     tabTextInactive: '#64748b',
+
+    // Status — using tokens
+    statusUsingBg: '#F0FDF4',
+    statusUsingText: '#166534',
+    statusUsingDot: '#22C55E',
+    statusUsingBorder: '#BBF7D0',
+
+    statusDraftBg: '#FAFAF9',
+    statusDraftText: '#57534E',
+    statusDraftDot: '#A8A29E',
+    statusDraftBorder: '#E7E5E4',
+
+    statusInactiveBg: '#FFF7ED',
+    statusInactiveText: '#9A3412',
+    statusInactiveDot: '#FB923C',
+    statusInactiveBorder: '#FED7AA',
+
+    statusDeprecatedBg: '#FEF2F2',
+    statusDeprecatedText: '#991B1B',
+    statusDeprecatedDot: '#EF4444',
+    statusDeprecatedBorder: '#FECACA',
+
+    statusDefaultBg: '#F8FAFC',
+    statusDefaultText: '#475569',
+    statusDefaultDot: '#94A3B8',
+    statusDefaultBorder: '#E2E8F0',
   },
   gradients: {
     primary: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',

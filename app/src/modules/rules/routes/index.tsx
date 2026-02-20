@@ -1,7 +1,7 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
 import ProjectRulePage from '../pages/ProjectRulePage';
-import CreateRulePage from '../components/CreateRulePage';
+import CreateRulePage from '../pages/CreateRulePage';
 
 const rulesRoutes: AppRoute[] = [
   {

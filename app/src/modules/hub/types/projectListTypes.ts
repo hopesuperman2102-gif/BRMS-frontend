@@ -26,3 +26,26 @@ export interface VerticalProjectsResponse {
   status: string;
   projects: ProjectView[];
 }
+
+//Project list left panel types
+
+export interface ProjectListLeftPanelProps {
+  projects: ProjectListProps[];
+  hoveredProject: ProjectListProps | null;
+}
+
+export interface ProjectListRightPanelProps {
+  loading: boolean;
+  paginatedProjects: ProjectListProps[];
+  totalPages: number;
+  page: number;
+  menuAnchorEl: null | HTMLElement;
+  onPageChange: (page: number) => void;
+  onOpenProject: (project: ProjectListProps) => void;
+  onMenuOpen: (e: React.MouseEvent, project: ProjectListProps) => void;
+  onMenuClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onNewProject: () => void;
+  onHoverProject: (project: ProjectListProps | null) => void;
+}

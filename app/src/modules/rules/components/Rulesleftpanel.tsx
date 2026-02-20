@@ -1,24 +1,20 @@
 'use client';
 
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import AccountTree from '@mui/icons-material/AccountTree';
 import { FolderNode, FileNode } from '../types/Explorertypes';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
-const T = {
-  bgLeft:    '#0A0C10',
-  indigo:    '#4F46E5',
-  dTextHigh: '#FFFFFF',
-  dTextMid:  'rgba(255,255,255,0.45)',
-  dTextLow:  'rgba(255,255,255,0.18)',
-  dBorder:   'rgba(255,255,255,0.06)',
-};
+
+const { colors, fonts } = brmsTheme;
 
 const STATUS_DOT: Record<string, string> = {
-  using:      '#22C55E',
-  active:     '#22C55E',
-  draft:      '#A8A29E',
-  inactive:   '#FB923C',
-  deprecated: '#EF4444',
+  using:      colors.statusUsingDot,
+  active:     colors.statusUsingDot,
+  draft:      colors.statusDraftDot,
+  inactive:   colors.statusInactiveDot,
+  deprecated: colors.statusDeprecatedDot,
 };
 
 interface RulesLeftPanelProps {
@@ -30,11 +26,225 @@ interface RulesLeftPanelProps {
   hoveredRule: FileNode | null;
 }
 
-export function RulesLeftPanel({
-  folders,
-  files,
-  hoveredRule,
-}: RulesLeftPanelProps) {
+/* ─── Styled Components ─────────────────────────────────── */
+
+const PanelRoot = styled('div')(({ theme }) => ({
+  display: 'none',
+  flexDirection: 'column',
+  width: '38%',
+  flexShrink: 0,
+  background: colors.panelBg,
+  borderRight: `1px solid ${colors.panelBorder}`,
+  position: 'relative',
+  overflow: 'hidden',
+  padding: '32px 36px',
+  [theme.breakpoints.up('md')]: {
+    display: 'flex',
+  },
+}));
+
+const GlowOrb = styled('div')({
+  position: 'absolute',
+  bottom: -80,
+  left: -80,
+  width: 360,
+  height: 360,
+  borderRadius: '50%',
+  background: `radial-gradient(circle, ${colors.panelIndigoGlow} 0%, transparent 60%)`,
+  pointerEvents: 'none',
+});
+
+const DotGrid = styled('div')({
+  position: 'absolute',
+  inset: 0,
+  pointerEvents: 'none',
+  opacity: 0.08,
+  backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)',
+  backgroundSize: '28px 28px',
+});
+
+const PanelInner = styled('div')({
+  position: 'relative',
+  zIndex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+});
+
+const TitleRow = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  marginBottom: '8px',
+});
+
+const IconBox = styled('div')({
+  width: 36,
+  height: 36,
+  borderRadius: '8px',
+  background: colors.panelIndigoTint15,
+  border: `1px solid ${colors.panelIndigoTint25}`,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+});
+
+const AccountTreeIcon = styled(AccountTree)({
+  fontSize: 18,
+  color: colors.indigoLight,
+});
+
+const PanelTitle = styled(Typography)({
+  fontSize: '1rem',
+  fontWeight: 800,
+  color: colors.white,
+  letterSpacing: '-0.025em',
+  lineHeight: 1,
+});
+
+const PanelSubtitle = styled(Typography)({
+  fontSize: '0.8125rem',
+  color: colors.panelTextMid,
+  lineHeight: 1.75,
+  marginBottom: '24px',
+  fontWeight: 400,
+});
+
+const CountCardsRow = styled('div')({
+  display: 'flex',
+  gap: '12px',
+  marginBottom: '28px',
+});
+
+const CountCard = styled('div')({
+  flex: 1,
+  borderRadius: '8px',
+  border: `1px solid ${colors.panelBorder}`,
+  padding: '10px 12px',
+  background: 'rgba(255,255,255,0.03)',
+});
+
+const CountValue = styled(Typography)({
+  fontSize: '1.375rem',
+  fontWeight: 800,
+  color: colors.white,
+  fontFamily: fonts.mono,
+  lineHeight: 1,
+  marginBottom: '4px',
+});
+
+const CountLabel = styled(Typography)({
+  fontSize: '0.625rem',
+  color: colors.panelTextMid,
+  fontFamily: fonts.mono,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase' as const,
+});
+
+const SectionLabel = styled(Typography)({
+  fontSize: '0.625rem',
+  fontWeight: 700,
+  color: colors.panelTextLow,
+  letterSpacing: '0.14em',
+  textTransform: 'uppercase' as const,
+  fontFamily: fonts.mono,
+  marginBottom: '12px',
+});
+
+const StatusSection = styled('div')({
+  marginBottom: '28px',
+});
+
+const StatusList = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const StatusRow = styled('div')<{ hasborder: string }>(({ hasborder }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '10px 0',
+  borderBottom: hasborder === 'true' ? `1px solid ${colors.panelBorder}` : 'none',
+}));
+
+const StatusLeft = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
+
+const StatusDot = styled('div')<{ dotcolor: string }>(({ dotcolor }) => ({
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  backgroundColor: dotcolor,
+  flexShrink: 0,
+}));
+
+const StatusName = styled(Typography)({
+  fontSize: '0.8125rem',
+  color: colors.panelTextMid,
+  textTransform: 'capitalize' as const,
+  fontFamily: fonts.mono,
+  letterSpacing: '0.02em',
+});
+
+const StatusCount = styled(Typography)({
+  fontSize: '0.875rem',
+  fontWeight: 700,
+  color: colors.white,
+  fontFamily: fonts.mono,
+});
+
+const PreviewSection = styled('div')({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const PreviewEmpty = styled('div')({
+  opacity: 0.3,
+});
+
+const HoveredName = styled(Typography)({
+  fontSize: '1.05rem',
+  fontWeight: 800,
+  color: colors.white,
+  letterSpacing: '-0.025em',
+  lineHeight: 1.15,
+  marginBottom: '12px',
+});
+
+const IndigoDivider = styled('div')({
+  width: 24,
+  height: 2,
+  borderRadius: 1,
+  background: colors.panelIndigo,
+  marginBottom: 12,
+  opacity: 0.7,
+});
+
+const HoveredDesc = styled(Typography)({
+  fontSize: '0.8125rem',
+  color: colors.panelTextMid,
+  lineHeight: 1.75,
+  fontWeight: 400,
+  wordBreak: 'break-word',
+  overflowWrap: 'break-word',
+  overflow: 'hidden',
+});
+
+const PreviewText = styled(Typography)({
+  fontSize: '0.8125rem',
+  color: colors.panelTextMid,
+  lineHeight: 1.75,
+});
+
+/* ─── Component ─────────────────────────────────────────── */
+
+export function RulesLeftPanel({ folders, files, hoveredRule }: RulesLeftPanelProps) {
   const totalRules   = files.length;
   const totalFolders = folders.filter((f) => !f.isTemp).length;
 
@@ -46,108 +256,72 @@ export function RulesLeftPanel({
   }, {});
 
   return (
-    <Box sx={{
-      display: { xs: 'none', md: 'flex' },
-      flexDirection: 'column',
-      width: '38%',
-      flexShrink: 0,
-      background: T.bgLeft,
-      borderRight: `1px solid ${T.dBorder}`,
-      position: 'relative',
-      overflow: 'hidden',
-      px: '36px',
-      py: '32px',
-    }}>
-      {/* Glow */}
-      <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.16) 0%, transparent 60%)', pointerEvents: 'none' }} />
-      {/* Dot grid */}
-      <Box sx={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.08, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+    <PanelRoot>
+      <GlowOrb />
+      <DotGrid />
 
-      <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <PanelInner>
+        {/* Icon + Title */}
+        <TitleRow>
+          <IconBox>
+            <AccountTreeIcon />
+          </IconBox>
+          <div>
+            <PanelTitle>Rules</PanelTitle>
+          </div>
+        </TitleRow>
 
-        {/* Icon + title */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px', mb: '8px' }}>
-          <Box sx={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <AccountTree sx={{ fontSize: 18, color: '#818CF8' }} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: T.dTextHigh, letterSpacing: '-0.025em', lineHeight: 1 }}>
-              Rules
-            </Typography>
-
-          </Box>
-        </Box>
-
-        <Typography sx={{ fontSize: '0.8125rem', color: T.dTextMid, lineHeight: 1.75, mb: '24px', fontWeight: 400 }}>
+        <PanelSubtitle>
           Manage your decision rules, folders, and versions for this project.
-        </Typography>
+        </PanelSubtitle>
 
-        {/* Quick count cards */}
-        <Box sx={{ display: 'flex', gap: '12px', mb: '28px' }}>
-          {[['Rules', String(totalRules)], ['Folders', String(totalFolders)]].map(([label, val]) => (
-            <Box key={label} sx={{ flex: 1, borderRadius: '8px', border: `1px solid ${T.dBorder}`, px: '12px', py: '10px', background: 'rgba(255,255,255,0.03)' }}>
-              <Typography sx={{ fontSize: '1.375rem', fontWeight: 800, color: T.dTextHigh, fontFamily: '"DM Mono", monospace', lineHeight: 1, mb: '4px' }}>
-                {val}
-              </Typography>
-              <Typography sx={{ fontSize: '0.625rem', color: T.dTextMid, fontFamily: '"DM Mono", monospace', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                {label}
-              </Typography>
-            </Box>
+        {/* Count Cards */}
+        <CountCardsRow>
+          {([['Rules', String(totalRules)], ['Folders', String(totalFolders)]] as [string, string][]).map(([label, val]) => (
+            <CountCard key={label}>
+              <CountValue>{val}</CountValue>
+              <CountLabel>{label}</CountLabel>
+            </CountCard>
           ))}
-        </Box>
+        </CountCardsRow>
 
         {/* By Status */}
         {Object.keys(statusCounts).length > 0 && (
-          <Box sx={{ mb: '28px' }}>
-            <Typography sx={{ fontSize: '0.625rem', fontWeight: 700, color: T.dTextLow, letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace', mb: '12px' }}>
-              By Status
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <StatusSection>
+            <SectionLabel>By Status</SectionLabel>
+            <StatusList>
               {Object.entries(statusCounts).map(([status, count], i, arr) => (
-                <Box key={status} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '10px', borderBottom: i < arr.length - 1 ? `1px solid ${T.dBorder}` : 'none' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Box sx={{ width: '6px', height: '6px', borderRadius: '50%', bgcolor: STATUS_DOT[status] ?? '#94A3B8', flexShrink: 0 }} />
-                    <Typography sx={{ fontSize: '0.8125rem', color: T.dTextMid, textTransform: 'capitalize', fontFamily: '"DM Mono", monospace', letterSpacing: '0.02em' }}>
-                      {status}
-                    </Typography>
-                  </Box>
-                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 700, color: T.dTextHigh, fontFamily: '"DM Mono", monospace' }}>
-                    {count}
-                  </Typography>
-                </Box>
+                <StatusRow key={status} hasborder={String(i < arr.length - 1)}>
+                  <StatusLeft>
+                    <StatusDot dotcolor={STATUS_DOT[status] ?? colors.lightTextLow} />
+                    <StatusName>{status}</StatusName>
+                  </StatusLeft>
+                  <StatusCount>{count}</StatusCount>
+                </StatusRow>
               ))}
-            </Box>
-          </Box>
+            </StatusList>
+          </StatusSection>
         )}
 
-        {/* Hovered rule preview */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Hover Preview */}
+        <PreviewSection>
           {hoveredRule ? (
-            <Box>
-              <Typography sx={{ fontSize: '0.625rem', fontWeight: 700, color: T.dTextLow, letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace', mb: '10px' }}>
-                Selected
-              </Typography>
-              <Typography sx={{ fontSize: '1.05rem', fontWeight: 800, color: T.dTextHigh, letterSpacing: '-0.025em', lineHeight: 1.15, mb: '12px' }}>
-                {hoveredRule.name}
-              </Typography>
-              <Box sx={{ width: '24px', height: '2px', borderRadius: '1px', background: T.indigo, mb: '12px', opacity: 0.7 }} />
-              <Typography sx={{ fontSize: '0.8125rem', color: T.dTextMid, lineHeight: 1.75, fontWeight: 400, wordBreak: 'break-word', overflowWrap: 'break-word', overflow: 'hidden' }}>
+            <div>
+              <SectionLabel>Selected</SectionLabel>
+              <HoveredName>{hoveredRule.name}</HoveredName>
+              <IndigoDivider />
+              <HoveredDesc>
                 {hoveredRule.description || 'No description provided for this rule.'}
-              </Typography>
-            </Box>
+              </HoveredDesc>
+            </div>
           ) : (
-            <Box sx={{ opacity: 0.3 }}>
-              <Typography sx={{ fontSize: '0.625rem', fontWeight: 700, color: T.dTextLow, letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"DM Mono", monospace', mb: '10px' }}>
-                Preview
-              </Typography>
-              <Typography sx={{ fontSize: '0.8125rem', color: T.dTextMid, lineHeight: 1.75 }}>
-                Hover a rule to see its details here.
-              </Typography>
-            </Box>
+            <PreviewEmpty>
+              <SectionLabel>Preview</SectionLabel>
+              <PreviewText>Hover a rule to see its details here.</PreviewText>
+            </PreviewEmpty>
           )}
-        </Box>
-
-      </Box>    
-    </Box>
+        </PreviewSection>
+      </PanelInner>
+    </PanelRoot>
   );
 }

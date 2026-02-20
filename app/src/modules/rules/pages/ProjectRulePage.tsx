@@ -2,43 +2,24 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  Box, Typography, Button, Skeleton,
-  IconButton, Menu, MenuItem, Breadcrumbs, Link, Divider,
-} from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AddIcon from '@mui/icons-material/Add';
-import HomeIcon from '@mui/icons-material/Home';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { Menu, MenuItem, Divider } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
 import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
-import { FileCard } from '../components/FileCard';
-import { FolderCard } from '../components/FolderCard';
 
+import { RulesRightPanel } from '../components/RulesRightPanel';
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { RulesLeftPanel } from '../components/Rulesleftpanel';
-import { ExplorerEmptyState } from '../components/Exploreremptystate';
 
-/* ─── Design Tokens ───────────────────────────────────────── */
-const T = {
-  indigo:      '#4F46E5',
-  indigoHover: '#4338CA',
-  indigoMuted: 'rgba(79,70,229,0.08)',
-  bgRight:     '#F7F8FA',
-  lTextHigh:   '#0F172A',
-  lTextMid:    '#475569',
-  lTextLow:    '#94A3B8',
-  lBorder:     '#E2E8F0',
-  dBorder:     'rgba(255,255,255,0.06)',
-};
+
+const { colors, fonts } = brmsTheme;
 
 /* ─── Helpers ─────────────────────────────────────────────── */
-export const splitPath = (path: string): string[] => path.split('/').filter(Boolean);
+export const splitPath    = (path: string): string[] => path.split('/').filter(Boolean);
 export const parentOfPath = (path: string): string => splitPath(path).slice(0, -1).join('/');
-export const fmtDate = (iso: string): string => {
+export const fmtDate      = (iso: string): string => {
   try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
   catch { return iso ?? '—'; }
 };
@@ -46,6 +27,60 @@ export const fmtDate = (iso: string): string => {
 interface ConfirmDialogState {
   open: boolean; title: string; message: string; confirmText: string; onConfirm: () => void;
 }
+
+/* ─── Styled Components ─────────────────────────────────── */
+
+const PageRoot = styled('div')({
+  width: '100%',
+  display: 'flex',
+  borderRadius: '16px',
+  overflow: 'hidden',
+  border: `1px solid ${colors.panelBorder}`,
+  boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+  height: 'calc(100vh - 64px)',
+  fontFamily: fonts.sans,
+});
+
+const ContextMenuPaperSx = {
+  '& .MuiPaper-root': {
+    borderRadius: '8px',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+    border: `1px solid ${colors.lightBorder}`,
+    minWidth: '140px',
+    mt: '4px',
+  },
+  '& .MuiList-root': { py: '6px' },
+};
+
+const RenameMenuItem = styled(MenuItem)({
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+  color: colors.lightTextHigh,
+  margin: '0 6px',
+  borderRadius: '6px',
+  padding: '9px 12px',
+  '&:hover': {
+    backgroundColor: colors.panelIndigoMuted,
+    color: colors.panelIndigo,
+  },
+});
+
+const DeleteMenuItem = styled(MenuItem)({
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+  color: colors.deleteRed,
+  margin: '0 6px',
+  borderRadius: '6px',
+  padding: '9px 12px',
+  '&:hover': {
+    backgroundColor: colors.errorBg,
+  },
+});
+
+const MenuDivider = styled(Divider)({
+  margin: '4px 0',
+  borderColor: colors.lightBorder,
+});
 
 /* ─── Page ────────────────────────────────────────────────── */
 export default function ProjectRulePage() {
@@ -75,7 +110,7 @@ export default function ProjectRulePage() {
   });
   const closeConfirmDialog = () => setConfirmDialog((prev) => ({ ...prev, open: false }));
 
-  /* ── Build folder + file tree ──────────────────────────── */
+  /* ── Build folder + file tree ─────────────────────────── */
   const buildTree = useCallback((rules: RuleResponse[]) => {
     const folderMap = new Map<string, FolderNode>();
     rules.forEach((rule) => {
@@ -91,14 +126,13 @@ export default function ProjectRulePage() {
         }
       }
     });
-    // Keep any isTemp folders still being named by the user
     setFolders((prev) => [...Array.from(folderMap.values()), ...prev.filter((f) => f.isTemp)]);
     setFiles(rules.map((r) => ({
       kind:        'file' as const,
       rule_key:    r.rule_key,
       name:        r.name ?? '',
-      path: r.directory || r.name,
-      parentPath: parentOfPath(r.directory || r.name),
+      path:        r.directory || r.name,
+      parentPath:  parentOfPath(r.directory || r.name),
       status:      r.status ?? 'DRAFT',
       version:     r.version ?? '—',
       updatedAt:   r.updated_at ?? '',
@@ -106,37 +140,32 @@ export default function ProjectRulePage() {
     })));
   }, []);
 
-  /* ── URL path init ─────────────────────────────────────── */
+  /* ── URL path init ────────────────────────────────────── */
   const didInitFromUrl = useRef(false);
   useEffect(() => {
     if (didInitFromUrl.current) return;
     didInitFromUrl.current = true;
     const pathFromUrl = searchParams.get('path');
     if (!pathFromUrl) return;
-    const parts = splitPath(pathFromUrl); 
-    const crumbs: Breadcrumb[] = [{ name:'Home', path: '' }];
+    const parts = splitPath(pathFromUrl);
+    const crumbs: Breadcrumb[] = [{ name: 'Home', path: '' }];
     for (let i = 0; i < parts.length; i++) {
-      crumbs.push({ 
-        name: parts[i],
-        path: parts.slice(0, i + 1).join('/')
-    });
-}
-setCurrentPath(pathFromUrl);
-setBreadcrumbs(crumbs);
+      crumbs.push({ name: parts[i], path: parts.slice(0, i + 1).join('/') });
+    }
+    setCurrentPath(pathFromUrl);
+    setBreadcrumbs(crumbs);
     setSearchParams({}, { replace: true });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ── ONE API call — loads rules + vertical_name + project_name ── */
+  /* ── API load ─────────────────────────────────────────── */
   const loadRules = useCallback(async () => {
     if (!project_key || !vertical_Key) return;
     try {
       const { vertical_name, project_name, rules } =
         await rulesApi.getProjectRules(project_key, vertical_Key);
-
       if (vertical_name) setVerticalName(vertical_name);
       if (project_name)  setProjectName(project_name);
-
       const activeRules = rules.filter((r) => r.status?.toUpperCase() !== 'DELETED');
       buildTree(activeRules);
     } catch (err) {
@@ -146,7 +175,7 @@ setBreadcrumbs(crumbs);
 
   useEffect(() => { void loadRules(); }, [loadRules, refetchTrigger]);
 
-  /* ── Visible items ─────────────────────────────────────── */
+  /* ── Visible items ────────────────────────────────────── */
   const visibleItems: ExplorerItem[] = [
     ...folders.filter((f) => f.parentPath === currentPath),
     ...files.filter((f) => f.parentPath === currentPath),
@@ -156,7 +185,7 @@ setBreadcrumbs(crumbs);
     return (a.name ?? '').localeCompare(b.name ?? '');
   });
 
-  /* ── Navigation ─────────────────────────────────────────── */
+  /* ── Navigation ───────────────────────────────────────── */
   const openFolder = (folder: FolderNode) => {
     if (editingFolderId === folder.path) return;
     setCurrentPath(folder.path);
@@ -167,13 +196,13 @@ setBreadcrumbs(crumbs);
     setBreadcrumbs((prev) => prev.slice(0, prev.findIndex((b) => b.path === entry.path) + 1));
   };
 
-  /* ── Menu ───────────────────────────────────────────────── */
-  const openMenu = (e: React.MouseEvent<HTMLElement>, item: ExplorerItem) => {
+  /* ── Context Menu ─────────────────────────────────────── */
+  const openMenu  = (e: React.MouseEvent<HTMLElement>, item: ExplorerItem) => {
     e.stopPropagation(); setAnchorEl(e.currentTarget); setMenuItem(item);
   };
   const closeMenu = () => { setAnchorEl(null); setMenuItem(null); };
 
-  /* ── Delete ─────────────────────────────────────────────── */
+  /* ── Delete ───────────────────────────────────────────── */
   const executeDelete = async (item: ExplorerItem) => {
     try {
       if (item.kind === 'file') {
@@ -182,8 +211,6 @@ setBreadcrumbs(crumbs);
       } else {
         const inside = files.filter((f) => f.path.startsWith(item.path + '/'));
         if (inside.length === 0) {
-          // ✅ FIX: Empty folder — remove it (and any nested sub-folders) from local
-          // state only. No API call needed since there are no rules to delete.
           setFolders((prev) => prev.filter((f) => !f.path.startsWith(item.path)));
         } else {
           await Promise.all(inside.map((r) => rulesApi.deleteRule(r.rule_key)));
@@ -196,9 +223,6 @@ setBreadcrumbs(crumbs);
 
   const handleDelete = () => {
     if (!menuItem) return;
-    // FIX: Capture item into a local const BEFORE closeMenu() sets menuItem → null.
-    // The onConfirm closure below must reference a stable value, not the state variable
-    // which will already be null by the time the user clicks "Confirm".
     const item = menuItem;
     closeMenu();
     if (item.kind === 'file') {
@@ -223,10 +247,9 @@ setBreadcrumbs(crumbs);
     }
   };
 
-  /* ── Edit / Rename ──────────────────────────────────────── */
+  /* ── Edit / Rename ────────────────────────────────────── */
   const handleEdit = () => {
     if (!menuItem) return;
-    // ✅ FIX: Capture item BEFORE closeMenu() nulls out menuItem
     const item = menuItem;
     closeMenu();
     if (item.kind === 'file') {
@@ -243,7 +266,6 @@ setBreadcrumbs(crumbs);
     if (!editingFolderId) return;
     const trimmedName = editingFolderName.trim();
     if (!trimmedName) {
-      // Empty name — discard the folder entirely
       setFolders((prev) => prev.filter((f) => f.path !== editingFolderId));
       clearEditing();
       return;
@@ -257,10 +279,9 @@ setBreadcrumbs(crumbs);
       return;
     }
     try {
-      const oldPath = folder.path;
-      const rulesToUpdate = files.filter((f) => f.path.startsWith(oldPath + '/'));
+      const oldPath        = folder.path;
+      const rulesToUpdate  = files.filter((f) => f.path.startsWith(oldPath + '/'));
       if (rulesToUpdate.length === 0) {
-        // No rules inside — rename locally only, no API needed
         setFolders((prev) => prev.map((f) =>
           f.path === editingFolderId
             ? { ...f, path: newFolderPath, name: trimmedName, isTemp: false }
@@ -295,16 +316,15 @@ setBreadcrumbs(crumbs);
     }
   };
 
-  /* ── Create ─────────────────────────────────────────────── */
+  /* ── Create ───────────────────────────────────────────── */
   const handleCreateNewFolder = () => {
     setNewMenuAnchor(null);
-    const name = 'New folder';
     const tempId = `__temp_${Date.now()}`;
-    const path = `${currentPath}/${tempId}`;
-    setFolders((prev) => [...prev, { kind: 'folder', path, name, parentPath: currentPath, isTemp: true }]);
+    const path   = `${currentPath}/${tempId}`;
+    setFolders((prev) => [...prev, { kind: 'folder', path, name: 'New folder', parentPath: currentPath, isTemp: true }]);
     setTimeout(() => {
       setEditingFolderId(path);
-      setEditingFolderName(name);
+      setEditingFolderName('New folder');
     }, 50);
   };
 
@@ -313,12 +333,17 @@ setBreadcrumbs(crumbs);
     navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/createrules?directory=${encodeURIComponent(currentPath)}`);
   };
 
-  /* ─── Render ────────────────────────────────────────────── */
+  const handleOpenFile = (item: FileNode) => {
+    sessionStorage.setItem('activeRuleName', item.name);
+    sessionStorage.setItem('activeRuleId', item.rule_key);
+    navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/editor?rule=${encodeURIComponent(item.rule_key)}`);
+  };
+
+  /* ─── Render ──────────────────────────────────────────── */
   return (
     <>
-      <Box sx={{ width: '100%', display: 'flex', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${T.dBorder}`, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', height: 'calc(100vh - 64px)', fontFamily: '"DM Sans", "Inter", sans-serif' }}>
-
-        {/* ── LEFT PANEL ── */}
+      <PageRoot>
+        {/* LEFT PANEL */}
         <RulesLeftPanel
           projectName={projectName}
           verticalName={verticalName}
@@ -328,141 +353,56 @@ setBreadcrumbs(crumbs);
           hoveredRule={hoveredRule}
         />
 
-        {/* ── RIGHT PANEL ── */}
-        <Box sx={{ flex: 1, background: T.bgRight, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* RIGHT PANEL */}
+        <RulesRightPanel
+          projectName={projectName}
+          verticalName={verticalName}
+          breadcrumbs={breadcrumbs}
+          visibleItems={visibleItems}
+          editingFolderId={editingFolderId}
+          editingFolderName={editingFolderName}
+          newMenuAnchor={newMenuAnchor}
+          onBack={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
+          onNewMenuOpen={(e) => setNewMenuAnchor(e.currentTarget)}
+          onNewMenuClose={() => setNewMenuAnchor(null)}
+          onCreateNewRule={handleCreateNewRule}
+          onCreateNewFolder={handleCreateNewFolder}
+          onNavigateToBreadcrumb={navigateToBreadcrumb}
+          onOpenFolder={openFolder}
+          onOpenFile={handleOpenFile}
+          onMenuOpen={openMenu}
+          onNameChange={handleFolderNameChange}
+          onNameBlur={commitFolderRename}
+          onNameKeyDown={handleFolderNameKeyDown}
+          onMouseEnterFile={setHoveredRule}
+          onMouseLeaveFile={() => setHoveredRule(null)}
+        />
+      </PageRoot>
 
-          {/* Top bar */}
-          <Box sx={{ px: '28px', pt: '24px', pb: '16px', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Box>
-              <Box sx={{ width: '28px', height: '2px', borderRadius: '1px', background: T.indigo, mb: '10px' }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <IconButton size="small" onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)} disableRipple
-                  sx={{ width: 30, height: 30, borderRadius: '6px', color: T.lTextMid, border: `1px solid ${T.lBorder}`, bgcolor: '#FFFFFF', '&:hover': { borderColor: T.indigo, color: T.indigo, bgcolor: 'rgba(79,70,229,0.04)' }, transition: 'all 0.15s' }}>
-                  <ArrowBackIcon sx={{ fontSize: 15 }} />
-                </IconButton>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: T.lTextMid }}>
-                    {verticalName || <Skeleton width={60} />}
-                  </Typography>
-                  <Typography sx={{ color: T.lTextLow, fontSize: '0.875rem', lineHeight: 1 }}>›</Typography>
-                  <Typography sx={{ fontSize: '0.9375rem', fontWeight: 800, color: T.lTextHigh, letterSpacing: '-0.02em' }}>
-                    {projectName || <Skeleton width={100} />}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            <Box>
-              <Button variant="contained"
-                startIcon={<AddIcon sx={{ fontSize: '14px !important' }} />}
-                endIcon={<KeyboardArrowDownIcon sx={{ fontSize: '14px !important' }} />}
-                onClick={(e) => setNewMenuAnchor(e.currentTarget)}
-                disableRipple disableElevation
-                sx={{ background: T.indigo, borderRadius: '6px', px: '14px', py: '8px', textTransform: 'none', fontSize: '0.8125rem', fontWeight: 700, letterSpacing: '0.01em', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 4px 12px rgba(79,70,229,0.20)', '&:hover': { background: T.indigoHover, boxShadow: '0 1px 3px rgba(0,0,0,0.16), 0 6px 20px rgba(79,70,229,0.28)', transform: 'translateY(-1px)' }, transition: 'all 0.15s' }}>
-                New
-              </Button>
-              <Menu anchorEl={newMenuAnchor} open={!!newMenuAnchor} onClose={() => setNewMenuAnchor(null)}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }} anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                sx={{ '& .MuiPaper-root': { borderRadius: '8px', boxShadow: '0 4px 24px rgba(0,0,0,0.10)', border: `1px solid ${T.lBorder}`, minWidth: '160px', mt: '6px' }, '& .MuiList-root': { py: '6px' } }}>
-                <MenuItem onClick={handleCreateNewRule} sx={{ fontSize: '0.8125rem', fontWeight: 500, color: T.lTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: T.indigoMuted } }}>
-                  <Box sx={{ width: 26, height: 26, borderRadius: '6px', background: '#F1F5F9', border: `1px solid ${T.lBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <InsertDriveFileOutlinedIcon sx={{ fontSize: 14, color: '#64748B' }} />
-                  </Box>
-                  New Rule
-                </MenuItem>
-                <MenuItem onClick={handleCreateNewFolder} sx={{ fontSize: '0.8125rem', fontWeight: 500, color: T.lTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: '#FAFAF9' } }}>
-                  <Box sx={{ width: 26, height: 26, borderRadius: '6px', background: '#F8FAFC', border: `1px solid ${T.lBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <FolderIcon sx={{ fontSize: 14, color: '#94A3B8' }} />
-                  </Box>
-                  New Folder
-                </MenuItem>
-              </Menu>
-            </Box>
-          </Box>
-
-          {/* Breadcrumb bar */}
-          <Box sx={{ mx: '28px', mb: '12px', px: '12px', py: '8px', bgcolor: '#FFFFFF', borderRadius: '8px', border: `1px solid ${T.lBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-            <Breadcrumbs separator={<Typography sx={{ color: T.lTextLow, fontSize: '0.75rem', mx: '2px' }}>›</Typography>}>
-              {breadcrumbs.map((crumb, idx) => {
-                const isLast = idx === breadcrumbs.length - 1;
-                const Icon   = idx === 0 ? HomeIcon : FolderIcon;
-                return isLast ? (
-                  <Box key={crumb.path} sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Icon sx={{ fontSize: 12, color: T.indigo }} />
-                    <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: T.indigo, letterSpacing: '0.01em', fontFamily: '"DM Mono", monospace' }}>{crumb.name}</Typography>
-                  </Box>
-                ) : (
-                  <Link key={crumb.path} component="button" underline="none"
-                    sx={{ display: 'flex', alignItems: 'center', gap: '5px', color: T.lTextMid, fontWeight: 500, fontSize: '0.8rem', borderRadius: '4px', px: '4px', transition: 'all 0.15s', fontFamily: '"DM Mono", monospace', '&:hover': { color: T.indigo, bgcolor: T.indigoMuted } }}
-                    onClick={() => navigateToBreadcrumb(crumb)}>
-                    <Icon sx={{ fontSize: 12 }} />{crumb.name}
-                  </Link>
-                );
-              })}
-            </Breadcrumbs>
-            {visibleItems.length > 0 && (
-              <Typography sx={{ fontSize: '0.6875rem', fontWeight: 700, color: T.lTextMid, fontFamily: '"DM Mono", monospace', letterSpacing: '0.04em' }}>
-                {visibleItems.length} {visibleItems.length === 1 ? 'item' : 'items'}
-              </Typography>
-            )}
-          </Box>
-
-          <Divider sx={{ mx: '28px', mb: '12px', borderColor: T.lBorder, flexShrink: 0 }} />
-
-          {/* Item list */}
-          <Box sx={{ flex: 1, overflowY: 'auto', px: '28px', pb: '24px' }}>
-            {visibleItems.length === 0 ? (
-              <ExplorerEmptyState />
-            ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {visibleItems.map((item) =>
-                  item.kind === 'folder' ? (
-                    <FolderCard key={item.path} item={item}
-                      isEditing={editingFolderId === item.path}
-                      editingFolderName={editingFolderName}
-                      onOpen={() => openFolder(item)}
-                      onMenuOpen={(e) => openMenu(e, item)}
-                      onNameChange={handleFolderNameChange}
-                      onNameBlur={commitFolderRename}
-                      onNameKeyDown={handleFolderNameKeyDown}
-                    />
-                  ) : (
-                    <FileCard key={item.rule_key} item={item}
-                      onOpen={() => {
-                        sessionStorage.setItem('activeRuleName', item.name);
-                        sessionStorage.setItem('activeRuleId', item.rule_key);
-                        navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules/editor?rule=${encodeURIComponent(item.rule_key)}`);
-                      }}
-                      onMenuOpen={(e) => openMenu(e, item)}
-                      onMouseEnter={() => setHoveredRule(item)}
-                      onMouseLeave={() => setHoveredRule(null)}
-                    />
-                  )
-                )}
-              </Box>
-            )}
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Context menu */}
-      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={closeMenu}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }} anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        sx={{ '& .MuiPaper-root': { borderRadius: '8px', boxShadow: '0 4px 24px rgba(0,0,0,0.10)', border: `1px solid ${T.lBorder}`, minWidth: '140px', mt: '4px' }, '& .MuiList-root': { py: '6px' } }}>
-        <MenuItem onClick={handleEdit} sx={{ fontSize: '0.8125rem', fontWeight: 500, color: T.lTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '12px', '&:hover': { bgcolor: T.indigoMuted, color: T.indigo } }}>
-          Rename
-        </MenuItem>
-        <Divider sx={{ my: '4px', borderColor: T.lBorder }} />
-        <MenuItem onClick={handleDelete} sx={{ fontSize: '0.8125rem', fontWeight: 500, color: '#DC2626', mx: '6px', borderRadius: '6px', py: '9px', px: '12px', '&:hover': { bgcolor: '#FEF2F2' } }}>
-          Delete
-        </MenuItem>
+      {/* Context Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={!!anchorEl}
+        onClose={closeMenu}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        sx={ContextMenuPaperSx}
+      >
+        <RenameMenuItem onClick={handleEdit}>Rename</RenameMenuItem>
+        <MenuDivider />
+        <DeleteMenuItem onClick={handleDelete}>Delete</DeleteMenuItem>
       </Menu>
 
-      {/* Confirm dialog */}
+      {/* Confirm Dialog */}
       <RcConfirmDialog
-        open={confirmDialog.open} title={confirmDialog.title} message={confirmDialog.message}
-        confirmText={confirmDialog.confirmText} cancelText="Cancel" isDangerous={true}
-        onConfirm={confirmDialog.onConfirm} onCancel={closeConfirmDialog}
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmText={confirmDialog.confirmText}
+        cancelText="Cancel"
+        isDangerous={true}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={closeConfirmDialog}
       />
     </>
   );

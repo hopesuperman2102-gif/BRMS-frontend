@@ -31,3 +31,26 @@ export interface FileNode {
 }
 
 export type ExplorerItem = FolderNode | FileNode;
+
+// ─── FileCard props ───
+
+export interface FileCardProps {
+  item: FileNode;
+  onOpen: () => void;
+  onMenuOpen: (e: React.MouseEvent<HTMLElement>) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}
+
+// ─── FolderCard props ───
+
+export interface FolderCardProps {
+  item: FolderNode;
+  isEditing: boolean;
+  editingFolderName: string;
+  onOpen: () => void;
+  onMenuOpen: (e: React.MouseEvent<HTMLElement>) => void;
+  onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onNameBlur: () => void;
+  onNameKeyDown: (e: React.KeyboardEvent) => void;
+}
