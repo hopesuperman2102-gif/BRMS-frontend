@@ -1,11 +1,29 @@
 import { AlertColor } from "@mui/material";
-import type { DecisionGraphType } from "@gorules/jdm-editor";
 
-// Generic JSON-like types used across API payloads
-export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
-export interface JsonObject {
-  [key: string]: JsonValue;
-}
+// AddMenu Component 
+export type AddMenuProps = {
+  anchorEl: HTMLElement | null;
+  open: boolean;
+  onClose: () => void;
+  onFile: () => void;
+  onFolder: () => void;
+};
+
+export type HeaderIconProps = {
+  icon: React.ReactNode;
+  tooltip: string;
+  onClick?: () => void;
+};
+
+export type LogoTitleProps = {
+  logo: React.ReactNode;
+  organizationName?: string;
+};
+
+export type AppBarComponentProps = {
+  logo: React.ReactNode;
+  organizationName?: string;
+};
 
 export type MoveConfirmDialogProps = {
   open: boolean;
@@ -15,11 +33,6 @@ export type MoveConfirmDialogProps = {
   onConfirm: () => void;
 };
 
-export type JdmEditorProps = {
-  value: DecisionGraphType;
-  onChange: (val: DecisionGraphType) => void;
-};
-
 export type CreateItemDialogProps = {
   open: boolean;
   title: string;
@@ -27,6 +40,14 @@ export type CreateItemDialogProps = {
   onChange: (value: string) => void;
   onClose: () => void;
   onSubmit: () => void;
+};
+
+export type CreateModalProps = {
+  open: boolean;
+  onClose: () => void;
+  onCreate: (data: { [key: string]: string }) => Promise<{ success: boolean; error?: string }>;
+  title?: string;
+  fields?: Array<{ name: string; label: string; required?: boolean }>;
 };
 
 export type Project = {
@@ -41,44 +62,11 @@ export type ProjectTabsProps = {
   onClose: (id: number) => void;
 };
 
-export interface RepoItem {
-  id: string | number;
-  name: string;
-  type: 'file' | 'folder';
-  graph?: DecisionGraphType;
-  children?: RepoItem[];   
-  path?: string;           
-  parentPath?: string;    
-}
-
-export type RepoTreeProps = {
-  items: RepoItem[];
-  selectedId: string | number | null;
-  expandedFolders: Set<string | number>;
-  onToggleFolder: (id: string | number) => void;
-  onSelectItem: (item: RepoItem) => void;
-  onDragStart: (item: RepoItem) => void;
-  onDropOnFolder: (folder: RepoItem) => void;
-  depth?: number;
-};
-
-export type RepositorySidebarProps = {
-  projectName: string;
-  items: RepoItem[];
-  selectedId: string | number | null;            
-  expandedFolders: Set<string | number>;         
-  onToggleFolder: (id: string | number) => void; 
-  onSelectItem: (item: RepoItem) => void;
-  onAddClick: (el: HTMLElement) => void;
-  onDragStart: (item: RepoItem) => void;
-  onDropOnFolder: (folder: RepoItem) => void;
-  onBackClick?: () => void;
-};
-
-export interface AlertState {
+export interface AlertStateProps {
   open: boolean;
   message: string;
   type: AlertColor;
   showAlert: (message: string, type: AlertColor) => void;
   hideAlert: () => void;
 }
+

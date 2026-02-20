@@ -11,14 +11,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-
-export type CreateModalProps = {
-  open: boolean;
-  onClose: () => void;
-  onCreate: (data: { [key: string]: string }) => Promise<{ success: boolean; error?: string }>;
-  title?: string;
-  fields?: Array<{ name: string; label: string; required?: boolean }>;
-};
+import { CreateModalProps } from '../types/commonTypes';
 
 export function CreateModal({
   open,

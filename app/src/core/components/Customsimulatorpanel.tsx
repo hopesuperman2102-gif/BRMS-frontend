@@ -8,13 +8,8 @@ import CodeIcon from '@mui/icons-material/Code';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { JsonObject } from '../types/commonTypes';
-import type { ExecuteResponse } from '../../modules/JdmEditorPage/api/executionApi';
+import { CustomSimulatorPanelProps, ExecuteResponse, JsonObject } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
 
-interface CustomSimulatorPanelProps {
-  onRun: (context: JsonObject) => Promise<ExecuteResponse>;
-  onClear: () => void;
-}
 
 export default function CustomSimulatorPanel({
   onRun,

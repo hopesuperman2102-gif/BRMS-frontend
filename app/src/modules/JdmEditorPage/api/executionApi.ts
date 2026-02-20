@@ -2,23 +2,10 @@
 
 import { ENV } from '../../../config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import type { JsonObject, JsonValue } from '../../../core/types/commonTypes';
+import { ExecuteResponse, JsonObject } from '../types/JdmEditorTypes';
+
 
 const API_BASE_URL = ENV.API_BASE_URL;
-
-export interface ExecuteRequest {
-  jdm: DecisionGraphType;
-  input: JsonObject;
-}
-
-export interface ExecuteResponse {
-  result?: JsonValue;
-  error?: string;
-  performance?: string;
-  trace?: JsonObject;
-  status?: 'success' | 'error';
-  message?: string;
-}
 
 export const executionApi = {
   /**

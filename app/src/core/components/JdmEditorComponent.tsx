@@ -2,10 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import '@gorules/jdm-editor/dist/style.css';
-import { JdmEditorProps, JsonObject } from '../types/commonTypes';
-import type { ExecuteResponse } from '../../modules/JdmEditorPage/api/executionApi';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CustomSimulatorPanel from './Customsimulatorpanel';
+import { ExecuteResponse, JdmEditorProps, JsonObject } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
 
 // Client-only imports
 const DecisionGraph = dynamic(

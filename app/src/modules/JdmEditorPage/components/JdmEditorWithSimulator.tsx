@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 import AlertComponent from '../../../core/components/Alert';
-import { RepoItem, JsonObject } from '../../../core/types/commonTypes';
+
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 import Editor from './Editor';
 import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 import { executionApi } from 'app/src/modules/JdmEditorPage/api/executionApi';
 import RepositorySidebar from './RepositorySidebar';
+import { JsonObject, RepoItem } from '../types/JdmEditorTypes';
 
 /* ---------- Same helper functions as ProjectRuleComponent ---------- */
 const splitPath = (path: string): string[] => path.split('/').filter(Boolean);
