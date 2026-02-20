@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Typography, CircularProgress, Box, Alert } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { RcCollapsibleTable } from 'app/src/core/components/RcCollapsibleTable';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -9,30 +10,12 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { rulesTableApi, VerticalRule, VerticalProject, RuleVersion } from 'app/src/modules/hub/api/entireRuleApi';
 import AlertComponent, { useAlertStore } from 'app/src/core/components/Alert';
+import { ApprovalStatus, ProjectRuleRow, ProjectSection } from '../types/ruleTableTypes';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+const { colors } = brmsTheme;
 
-type ApprovalStatus = 'Approved' | 'Pending' | 'Rejected';
-
-type ProjectRuleRow = {
-  id: string;
-  name: string;
-  version: string;
-  projectStatus: string;
-  approvalStatus: ApprovalStatus;
-  rule_key: string;
-  project_key: string;
-  isEmptyState?: boolean;
-};
-
-type ProjectSection = {
-  key: string;
-  title: string;
-  showHeader: boolean;
-  rows: ProjectRuleRow[];
-};
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+/* ─── Helpers ─────────────────────────────────────────────── */
 
 const mapStatus = (status: string): string => {
   const s = status.toUpperCase();
@@ -77,14 +60,12 @@ const buildRows = (rules: VerticalRule[], project_key: string): ProjectRuleRow[]
       });
     }
   }
-
   return rows;
 };
 
 const buildSections = (projects: VerticalProject[]): ProjectSection[] =>
   projects.map((project: VerticalProject) => {
     const rows = buildRows(project.rules, project.project_key);
-
     if (rows.length === 0) {
       rows.push({
         id:             `${project.project_key}-empty`,
@@ -97,7 +78,6 @@ const buildSections = (projects: VerticalProject[]): ProjectSection[] =>
         isEmptyState:   true,
       });
     }
-
     return {
       key:        project.project_key,
       title:      project.project_name,
@@ -106,7 +86,77 @@ const buildSections = (projects: VerticalProject[]): ProjectSection[] =>
     };
   });
 
-// ─── Component ────────────────────────────────────────────────────────────────
+/* ─── Styled Components ───────────────────────────────────── */
+
+const LoadingWrapper = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  padding: 24,
+});
+
+const RuleNameText = styled(Typography)({
+  paddingLeft: 16,
+});
+
+const ActionsRow = styled(Box)({
+  display: 'flex',
+  gap: 8,
+});
+
+const StatusChip = styled(Box)<{ status: 'approved' | 'rejected' | 'pending' | 'disabled' }>(({ status }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 4,
+  padding: '4px 12px',
+  borderRadius: '20px',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+  transition: 'all 0.2s ease',
+
+  ...(status === 'approved' && {
+    backgroundColor: colors.approvedBg,
+    color:           colors.approvedText,
+    border:          `1px solid ${colors.approvedBorder}`,
+  }),
+
+  ...(status === 'rejected' && {
+    backgroundColor: colors.errorBg,
+    color:           colors.deleteRed,
+    border:          `1px solid ${colors.errorBorder}`,
+  }),
+
+  ...(status === 'pending' && {
+    backgroundColor: 'transparent',
+    color:           colors.lightTextLow,
+    border:          `1px dashed ${colors.lightBorderHover}`,
+  }),
+
+  ...(status === 'disabled' && {
+    backgroundColor: 'transparent',
+    color:           colors.lightBorderHover,
+    border:          `1px dashed ${colors.lightBorder}`,
+    pointerEvents:   'none',
+  }),
+}));
+
+const ApproveChip = styled(StatusChip)({
+  '&[data-pending="true"]:hover': {
+    backgroundColor: colors.approvedBg,
+    color:           colors.approvedText,
+    border:          `1px solid ${colors.approvedBorder}`,
+  },
+});
+
+const RejectChip = styled(StatusChip)({
+  '&[data-pending="true"]:hover': {
+    backgroundColor: colors.errorBg,
+    color:           colors.deleteRed,
+    border:          `1px solid ${colors.errorBorder}`,
+  },
+});
+
+/* ─── Component ───────────────────────────────────────────── */
 
 export default function RulesTable() {
   const [sections, setSections] = useState<ProjectSection[]>([]);
@@ -118,8 +168,6 @@ export default function RulesTable() {
     try {
       setLoading(true);
       setError(null);
-      // Always force-refresh — this component mounts fresh every time the
-      // user switches to the Rules tab, so we always want live data.
       const vertical = await rulesTableApi.refreshVerticalRules();
       setSections(buildSections(vertical.projects));
     } catch (err) {
@@ -129,17 +177,14 @@ export default function RulesTable() {
     }
   }, []);
 
-  // Runs every time the tab is switched to (component remounts each time)
-  // No focus/visibilitychange listeners needed — remount IS the trigger.
   useEffect(() => { void fetchAllData(); }, [fetchAllData]);
 
-  // ── Approve / Reject ────────────────────────────────────────────────────────
   const handleStatusChange = async (
     projectKey: string,
-    ruleId: string,
-    ruleKey: string,
-    version: string,
-    status: 'Approved' | 'Rejected',
+    ruleId:     string,
+    ruleKey:    string,
+    version:    string,
+    status:     'Approved' | 'Rejected',
   ) => {
     try {
       const action   = status === 'Approved' ? 'APPROVED' : 'REJECTED';
@@ -161,95 +206,102 @@ export default function RulesTable() {
     }
   };
 
-  // ── Styles ──────────────────────────────────────────────────────────────────
-  const approvedSx = { bgcolor: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0' };
-  const rejectedSx = { bgcolor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' };
-  const pendingSx  = { bgcolor: 'transparent', color: '#94a3b8', border: '1px dashed #cbd5e1' };
-  const disabledSx = { bgcolor: 'transparent', color: '#cbd5e1', border: '1px dashed #e2e8f0', pointerEvents: 'none' as const };
-  const baseSx     = {
-    display: 'flex', alignItems: 'center', gap: 0.5,
-    px: 1.5, py: 0.5, borderRadius: '20px',
-    fontSize: '0.75rem', fontWeight: 600,
-    cursor: 'pointer', transition: 'all 0.2s ease',
-  };
-
-  // ── Columns ─────────────────────────────────────────────────────────────────
   const columns = [
     {
-      key: 'name',
-      label: 'Rule Name',
-      render: (row: ProjectRuleRow) => <Typography sx={{ pl: 2 }}>{row.name}</Typography>,
+      key:    'name',
+      label:  'Rule Name',
+      render: (row: ProjectRuleRow) => (
+        <RuleNameText>{row.name}</RuleNameText>
+      ),
     },
     {
-      key: 'version',
-      label: 'Version',
+      key:    'version',
+      label:  'Version',
       render: (row: ProjectRuleRow) =>
         row.isEmptyState ? null : <Typography>{row.version}</Typography>,
     },
     {
-      key: 'ruleStatus',
-      label: 'Status',
+      key:    'ruleStatus',
+      label:  'Status',
       render: (row: ProjectRuleRow) =>
         row.isEmptyState ? null : <Typography>{row.projectStatus}</Typography>,
     },
     {
-      key: 'approvalStatus',
-      label: 'Approval Status',
+      key:    'approvalStatus',
+      label:  'Approval Status',
       render: (row: ProjectRuleRow) =>
         row.isEmptyState ? null : <Typography>{row.approvalStatus}</Typography>,
     },
     {
-      key: 'actions',
-      label: 'Approval',
+      key:    'actions',
+      label:  'Approval',
       render: (row: ProjectRuleRow) => {
         if (row.isEmptyState) return null;
 
         const noVersion = row.version === '--';
 
         const onApprove = () => {
-          if (noVersion) { showAlert('No version available. Please create a version before approving.', 'info'); return; }
-          if (row.approvalStatus === 'Pending') void handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Approved');
+          if (noVersion) {
+            showAlert('No version available. Please create a version before approving.', 'info');
+            return;
+          }
+          if (row.approvalStatus === 'Pending') {
+            void handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Approved');
+          }
         };
 
         const onReject = () => {
-          if (noVersion) { showAlert('No version available. Please create a version before rejecting.', 'info'); return; }
-          if (row.approvalStatus === 'Pending') void handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Rejected');
+          if (noVersion) {
+            showAlert('No version available. Please create a version before rejecting.', 'info');
+            return;
+          }
+          if (row.approvalStatus === 'Pending') {
+            void handleStatusChange(row.project_key, row.id, row.rule_key, row.version, 'Rejected');
+          }
         };
 
-        return (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Box onClick={onApprove} sx={{
-              ...baseSx,
-              ...(row.approvalStatus === 'Approved' ? approvedSx
-                : row.approvalStatus === 'Pending'  ? { ...pendingSx, '&:hover': approvedSx }
-                : disabledSx),
-            }}>
-              {row.approvalStatus === 'Approved' ? <CheckCircleIcon sx={{ fontSize: 14 }} /> : <CheckCircleOutlinedIcon sx={{ fontSize: 14 }} />}
-              Approve
-            </Box>
+        const approveStatus = row.approvalStatus === 'Approved'
+          ? 'approved'
+          : row.approvalStatus === 'Pending'
+            ? 'pending'
+            : 'disabled';
 
-            <Box onClick={onReject} sx={{
-              ...baseSx,
-              ...(row.approvalStatus === 'Rejected' ? rejectedSx
-                : row.approvalStatus === 'Pending'  ? { ...pendingSx, '&:hover': rejectedSx }
-                : disabledSx),
-            }}>
-              {row.approvalStatus === 'Rejected' ? <CancelIcon sx={{ fontSize: 14 }} /> : <CancelOutlinedIcon sx={{ fontSize: 14 }} />}
+        const rejectStatus = row.approvalStatus === 'Rejected'
+          ? 'rejected'
+          : row.approvalStatus === 'Pending'
+            ? 'pending'
+            : 'disabled';
+
+        return (
+          <ActionsRow>
+            <ApproveChip
+              status={approveStatus}
+              data-pending={approveStatus === 'pending'}
+              onClick={onApprove}
+            >
+              {row.approvalStatus === 'Approved'
+                ? <CheckCircleIcon sx={{ fontSize: 14 }} />
+                : <CheckCircleOutlinedIcon sx={{ fontSize: 14 }} />}
+              Approve
+            </ApproveChip>
+
+            <RejectChip
+              status={rejectStatus}
+              data-pending={rejectStatus === 'pending'}
+              onClick={onReject}
+            >
+              {row.approvalStatus === 'Rejected'
+                ? <CancelIcon sx={{ fontSize: 14 }} />
+                : <CancelOutlinedIcon sx={{ fontSize: 14 }} />}
               Reject
-            </Box>
-          </Box>
+            </RejectChip>
+          </ActionsRow>
         );
       },
     },
   ];
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-  if (loading) return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-      <CircularProgress />
-    </Box>
-  );
-
+  if (loading) return <LoadingWrapper><CircularProgress /></LoadingWrapper>;
   if (error)            return <Alert severity="error">Error loading data: {error}</Alert>;
   if (!sections.length) return <Alert severity="info">No projects found</Alert>;
 

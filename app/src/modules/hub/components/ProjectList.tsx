@@ -5,45 +5,439 @@ import {
   Box, Typography, Button, CircularProgress,
   Menu, MenuItem, Pagination, IconButton,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import AccountTree from "@mui/icons-material/AccountTree";
 import { projectsApi } from "app/src/modules/hub/api/projectsApi";
+import { ProjectListProps } from "../types/projectListTypes";
+import { brmsTheme } from "app/src/core/theme/brmsTheme";
 
-/* ─── Design Tokens ───────────────────────────────────────── */
-const T = {
-  indigo:          "#4F46E5",
-  indigoHover:     "#4338CA",
-  indigoMuted:     "rgba(79,70,229,0.08)",
-  indigoGlow:      "rgba(79,70,229,0.18)",
-  bgLeft:          "#0A0C10",
-  dTextHigh:       "#FFFFFF",
-  dTextMid:        "rgba(255,255,255,0.45)",
-  dTextLow:        "rgba(255,255,255,0.18)",
-  dBorder:         "rgba(255,255,255,0.06)",
-  bgRight:         "#F7F8FA",
-  lTextHigh:       "#0F172A",
-  lTextMid:        "#475569",
-  lTextLow:        "#94A3B8",
-  lBorder:         "#E2E8F0",
-  cardBg:          "#FFFFFF",
-  cardHoverBorder: "#4F46E5",
-};
+const { colors, fonts } = brmsTheme;
 
-export type Project = {
-  id: string;
-  project_key: string;
-  name: string;
-  description?: string;
-  domain?: string;
-  updatedAt: string;
-};
+/* ─── Styled Components ───────────────────────────────────── */
+
+const RootWrapper = styled(Box)({
+  width: "100%", display: "flex",
+  borderRadius: "16px",
+  overflow: "hidden",
+  border: `1px solid ${colors.panelBorder}`,
+  boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+  fontFamily: fonts.sans,
+  height: "calc(100vh - 64px)",
+});
+
+const LeftPanel = styled(Box)({
+  display: "none",
+  "@media (min-width: 900px)": { display: "flex" },
+  flexDirection: "column",
+  width: "38%",
+  flexShrink: 0,
+  background: colors.panelBg,
+  borderRight: `1px solid ${colors.panelBorder}`,
+  position: "relative",
+  overflow: "hidden",
+  padding: "32px 36px",
+});
+
+const LeftVignette = styled(Box)({
+  position: "absolute",
+  bottom: -80,
+  left: -80,
+  width: 360,
+  height: 360,
+  borderRadius: "50%",
+  pointerEvents: "none",
+  background: "radial-gradient(circle, rgba(79,70,229,0.16) 0%, transparent 60%)",
+});
+
+const LeftDotGrid = styled(Box)({
+  position: "absolute",
+  inset: 0,
+  pointerEvents: "none",
+  opacity: 0.08,
+  backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
+  backgroundSize: "28px 28px",
+});
+
+const LeftContent = styled(Box)({ position: "relative", zIndex: 1, display: "flex", flexDirection: "column",
+  height: "100%",
+});
+
+const LeftTitleRow = styled(Box)({
+  display: "flex", alignItems: "center", gap: 10, marginBottom: 16,
+});
+
+const ProjectsIconBox = styled(Box)({
+  width: 36,
+  height: 36,
+  borderRadius: "8px",
+  flexShrink: 0,
+  background: colors.panelIndigoTint15,
+  border: `1px solid ${colors.panelIndigoTint25}`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+const LeftTitleText = styled(Typography)({
+  fontSize: "1.125rem",
+  fontWeight: 800,
+  color: colors.textOnPrimary,
+  letterSpacing: "-0.025em",
+  lineHeight: 1,
+});
+
+const LeftSubtitle = styled(Typography)({
+  fontSize: "0.8125rem",
+  color: colors.panelTextMid,
+  lineHeight: 1.75,
+  marginBottom: 32,
+});
+
+const StatsRow = styled(Box)({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "12px 0",
+  borderBottom: `1px solid ${colors.panelBorder}`,
+  marginBottom: 24,
+});
+
+const StatsLabel = styled(Typography)({
+  fontSize: "0.75rem",
+  color: colors.panelTextMid,
+  fontFamily: fonts.mono,
+  letterSpacing: "0.04em",
+});
+
+const StatsValue = styled(Typography)({
+  fontSize: "0.875rem", fontWeight: 700, color: colors.textOnPrimary, fontFamily: fonts.mono,
+});
+
+const PreviewArea = styled(Box)({
+  flex: 1,
+});
+
+const PreviewDimLabel = styled(Typography)({
+  fontSize: "0.625rem",
+  fontWeight: 700,
+  color: colors.panelTextLow,
+  fontFamily: fonts.mono,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  marginBottom: 10,
+});
+
+const PreviewName = styled(Typography)({
+  fontSize: "1.05rem",
+  fontWeight: 800,
+  color: colors.textOnPrimary,
+  letterSpacing: "-0.025em",
+  lineHeight: 1.15,
+  marginBottom: 12,
+});
+
+const PreviewAccentLine = styled(Box)({
+  width: 24,
+  height: 2,
+  borderRadius: 1,
+  background: colors.panelIndigo,
+  marginBottom: 12,
+  opacity: 0.7,
+});
+
+const PreviewBody = styled(Typography)({
+  fontSize: "0.8125rem", color: colors.panelTextMid, lineHeight: 1.75,
+});
+
+const DomainTag = styled(Box)({
+  marginTop: 16, display: "inline-flex", alignItems: "center", gap: 6,
+});
+
+const DomainDot = styled(Box)({
+  width: 4, height: 4, borderRadius: "50%", backgroundColor: colors.panelIndigo, opacity: 0.6,
+});
+
+const DomainTagText = styled(Typography)({
+  fontSize: "0.6875rem",
+  fontWeight: 600,
+  color: colors.indigoLightMuted,
+  fontFamily: fonts.mono,
+  letterSpacing: "0.07em",
+  textTransform: "uppercase",
+});
+
+const PlaceholderBox = styled(Box)({
+  opacity: 0.3,
+});
+
+const LeftFooter = styled(Typography)({
+  fontSize: "0.625rem",
+  color: colors.panelTextLow,
+  fontWeight: 500,
+  fontFamily: fonts.mono,
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  marginTop: 32,
+});
+
+// ── Right Panel ──
+
+const RightPanel = styled(Box)({
+  flex: 1,
+  background: colors.formBg,
+  display: "flex",
+  flexDirection: "column",
+  padding: "28px 32px",
+  overflow: "hidden",
+});
+
+const RightHeader = styled(Box)({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  marginBottom: 24,
+  flexShrink: 0,
+});
+
+const HeaderAccentLine = styled(Box)({
+  width: 28,
+  height: 2,
+  borderRadius: 1,
+  background: colors.panelIndigo,
+  marginBottom: 10,
+});
+
+const RightTitle = styled(Typography)({
+  fontSize: "1.125rem",
+  fontWeight: 800,
+  color: colors.lightTextHigh,
+  letterSpacing: "-0.025em",
+  lineHeight: 1.1,
+  marginBottom: 4,
+});
+
+const RightSubtitle = styled(Typography)({
+  fontSize: "0.8125rem",
+  color: colors.lightTextMid,
+  lineHeight: 1.6,
+});
+
+const NewProjectButton = styled(Button)({
+  background: colors.panelIndigo,
+  borderRadius: "6px",
+  padding: "8px 16px",
+  textTransform: "none",
+  fontSize: "0.8125rem",
+  fontWeight: 700,
+  letterSpacing: "0.01em",
+  whiteSpace: "nowrap",
+  flexShrink: 0,
+  marginLeft: 16,
+  boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${colors.panelIndigoGlowMid}`,
+  transition: "all 0.15s",
+  "&:hover": {
+    background: colors.panelIndigoHover,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.16), 0 6px 20px rgba(79,70,229,0.28)",
+    transform: "translateY(-1px)",
+  },
+});
+
+const ScrollArea = styled(Box)({
+  flex: 1, overflow: "auto",
+});
+
+const CenteredBox = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  height: 200,
+});
+
+const EmptyBox = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  height: 200,
+  gap: 12,
+});
+
+const EmptyIconBox = styled(Box)({
+  width: 48,
+  height: 48,
+  borderRadius: "50%",
+  background: colors.lightSurfaceHover,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+const EmptyTextCenter = styled(Box)({
+  textAlign: "center",
+});
+
+const EmptyTitle = styled(Typography)({
+  fontWeight: 700,
+  color: colors.lightTextHigh,
+  fontSize: "0.9375rem",
+  marginBottom: 4,
+  letterSpacing: "-0.01em",
+});
+
+const EmptySubtitle = styled(Typography)({
+  color: colors.lightTextMid, fontSize: "0.8125rem",
+});
+
+const CardsList = styled(Box)({
+  display: "flex", flexDirection: "column", gap: 8,
+});
+
+const ProjectCard = styled(Box)({
+  borderRadius: "8px",
+  border: `1px solid ${colors.lightBorder}`,
+  backgroundColor: colors.white,
+  padding: "14px 16px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  cursor: "pointer",
+  transition: "all 0.15s",
+  "&:hover": {
+    borderColor: colors.panelIndigo,
+    boxShadow: `0 0 0 3px ${colors.panelIndigoMuted}`,
+    transform: "translateY(-1px)",
+  },
+});
+
+const CardLeft = styled(Box)({
+  display: "flex", alignItems: "center", gap: 12, flex: 1,
+});
+
+const CardDot = styled(Box)({
+  width: 8,
+  height: 8,
+  borderRadius: "50%",
+  backgroundColor: colors.panelIndigo,
+  flexShrink: 0,
+  opacity: 0.7,
+});
+
+const CardName = styled(Typography)({
+  fontWeight: 600,
+  color: colors.lightTextHigh,
+  fontSize: "0.9375rem",
+  letterSpacing: "-0.01em",
+  lineHeight: 1.2,
+  marginBottom: 3,
+});
+
+const CardUpdatedRow = styled(Box)({
+  display: "flex", gap: 4,
+});
+
+const CardUpdatedLabel = styled(Typography)({
+  color: colors.lightTextLow, fontSize: "0.75rem", fontFamily: fonts.mono,
+});
+
+const CardUpdatedValue = styled(Typography)({
+  color: colors.lightTextMid,
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  fontFamily: fonts.mono,
+});
+
+const CardRight = styled(Box)({
+  display: "flex", alignItems: "center", gap: 8, flexShrink: 0,
+});
+
+const DomainBadge = styled(Typography)({
+  fontSize: "0.6875rem",
+  fontWeight: 600,
+  color: colors.panelIndigo,
+  background: colors.panelIndigoMuted,
+  border: `1px solid rgba(79,70,229,0.15)`,
+  borderRadius: "4px",
+  padding: "3px 8px",
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  fontFamily: fonts.mono,
+  lineHeight: 1.4,
+});
+
+const CardMenuButton = styled(IconButton)({
+  width: 30,
+  height: 30,
+  borderRadius: "6px",
+  color: colors.lightTextLow,
+  transition: "all 0.15s",
+  "&:hover": {
+    backgroundColor: colors.lightSurfaceHover,
+    color: colors.lightTextMid,
+  },
+});
+
+const PaginationRow = styled(Box)({
+  display: "flex", justifyContent: "center", marginTop: 20, flexShrink: 0,
+});
+
+const StyledPagination = styled(Pagination)({
+  "& .MuiPaginationItem-root": {
+    borderRadius: "6px",
+    fontWeight: 600,
+    fontSize: "0.8125rem",
+    fontFamily: fonts.mono,
+    color: colors.lightTextMid,
+    "&.Mui-selected": {
+      background: colors.panelIndigo,
+      color: colors.white,
+      "&:hover": {
+        background: colors.panelIndigoHover,
+      },
+    },
+    "&:hover": {
+      background: colors.lightSurfaceHover,
+    },
+  },
+});
+
+const StyledMenu = styled(Menu)({
+  "& .MuiPaper-root": {
+    borderRadius: "8px",
+    boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+    minWidth: 140,
+    border: `1px solid ${colors.lightBorder}`,
+  },
+});
+
+const EditMenuItem = styled(MenuItem)({
+  fontSize: "0.8125rem",
+  fontWeight: 500,
+  color: colors.lightTextHigh,
+  padding: "10px 16px",
+  "&:hover": {
+    backgroundColor: "#F8FAFC",
+  },
+});
+
+const DeleteMenuItem = styled(MenuItem)({
+  fontSize: "0.8125rem",
+  fontWeight: 500,
+  color: colors.deleteRed,
+  padding: "10px 16px",
+  "&:hover": {
+    backgroundColor: colors.errorBg,
+  },
+});
+
+/* ─── Component ───────────────────────────────────────────── */
 
 export default function ProjectListCard() {
-  const [projects, setProjects]               = useState<Project[]>([]);
+  const [projects, setProjects]               = useState<ProjectListProps[]>([]);
   const [menuAnchorEl, setMenuAnchorEl]       = useState<null | HTMLElement>(null);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [hoveredProject, setHoveredProject]   = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectListProps | null>(null);
+  const [hoveredProject, setHoveredProject]   = useState<ProjectListProps | null>(null);
   const [loading, setLoading]                 = useState(false);
   const [page, setPage]                       = useState(1);
 
@@ -53,8 +447,6 @@ export default function ProjectListCard() {
   useEffect(() => {
     if (!vertical_Key) return;
     const controller = new AbortController();
-
-    // Always invalidate on mount — guarantees fresh API call every time tab is visited
     projectsApi.invalidateProjectsCache(vertical_Key);
 
     const fetchProjects = async () => {
@@ -62,7 +454,7 @@ export default function ProjectListCard() {
         setLoading(true);
         const response = await projectsApi.getVerticalProjects(vertical_Key);
         if (!controller.signal.aborted) {
-          const mapped: Project[] = response.projects.map((p) => {
+          const mapped: ProjectListProps[] = response.projects.map((p) => {
             const src = p.updated_at ?? p.created_at ?? '';
             return {
               id:          String(p.id),
@@ -76,9 +468,7 @@ export default function ProjectListCard() {
           setProjects(mapped);
         }
       } catch (error: unknown) {
-        if (!controller.signal.aborted) {
-          console.error('Failed to load projects:', error);
-        }
+        if (!controller.signal.aborted) console.error('Failed to load projects:', error);
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -92,8 +482,15 @@ export default function ProjectListCard() {
   const totalPages        = Math.ceil(projects.length / rowsPerPage);
   const paginatedProjects = projects.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  const handleMenuOpen  = (e: React.MouseEvent<HTMLElement>, project: Project) => { setMenuAnchorEl(e.currentTarget); setSelectedProject(project); };
-  const handleMenuClose = () => { setMenuAnchorEl(null); setSelectedProject(null); };
+  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>, p: ProjectListProps) => {
+    setMenuAnchorEl(e.currentTarget);
+    setSelectedProject(p);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedProject(null);
+  };
 
   const handleDelete = async () => {
     if (!selectedProject) return;
@@ -101,7 +498,9 @@ export default function ProjectListCard() {
       await projectsApi.deleteProject(selectedProject.project_key, 'admin');
       setProjects((prev) => prev.filter((p) => p.project_key !== selectedProject.project_key));
       handleMenuClose();
-    } catch (error) { console.error('Error deleting project:', error); }
+    } catch (err) {
+      console.error('Error deleting project:', err);
+    }
   };
 
   const handleEdit = () => {
@@ -110,140 +509,154 @@ export default function ProjectListCard() {
     handleMenuClose();
   };
 
-  const handleOpenProject = (project: Project) =>
-    navigate(`/vertical/${vertical_Key}/dashboard/hub/${project.project_key}/rules`);
+  const handleOpenProject = (p: ProjectListProps) =>
+    navigate(`/vertical/${vertical_Key}/dashboard/hub/${p.project_key}/rules`);
 
   return (
     <>
-      <Box sx={{ width: "100%", display: "flex", borderRadius: "16px", overflow: "hidden", border: `1px solid ${T.dBorder}`, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", fontFamily: '"DM Sans", "Inter", sans-serif', height: "calc(100vh - 64px)" }}>
+      <RootWrapper>
 
         {/* ─── LEFT PANEL ─── */}
-        <Box sx={{ display: { xs: "none", md: "flex" }, flexDirection: "column", width: "38%", flexShrink: 0, background: T.bgLeft, borderRight: `1px solid ${T.dBorder}`, position: "relative", overflow: "hidden", px: "36px", py: "32px" }}>
-          <Box sx={{ position: "absolute", bottom: -80, left: -80, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(79,70,229,0.16) 0%, transparent 60%)", pointerEvents: "none" }} />
-          <Box sx={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.08, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <LeftPanel>
+          <LeftVignette />
+          <LeftDotGrid />
+          <LeftContent>
+            <LeftTitleRow>
+              <ProjectsIconBox>
+                <AccountTree sx={{ fontSize: 18, color: colors.indigoLight }} />
+              </ProjectsIconBox>
+              <LeftTitleText>Projects</LeftTitleText>
+            </LeftTitleRow>
 
-          <Box sx={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "16px" }}>
-              <Box sx={{ width: "36px", height: "36px", borderRadius: "8px", background: "rgba(79,70,229,0.15)", border: "1px solid rgba(79,70,229,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <AccountTree sx={{ fontSize: 18, color: "#818CF8" }} />
-              </Box>
-              <Typography sx={{ fontSize: "1.125rem", fontWeight: 800, color: T.dTextHigh, letterSpacing: "-0.025em", lineHeight: 1 }}>Projects</Typography>
-            </Box>
-
-            <Typography sx={{ fontSize: "0.8125rem", color: T.dTextMid, lineHeight: 1.75, mb: "32px", fontWeight: 400 }}>
+            <LeftSubtitle>
               Manage and organize your rule projects across teams and domains.
-            </Typography>
+            </LeftSubtitle>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: "12px", borderBottom: `1px solid ${T.dBorder}`, mb: "24px" }}>
-              <Typography sx={{ fontSize: "0.75rem", color: T.dTextMid, fontFamily: '"DM Mono", monospace', letterSpacing: "0.04em" }}>Total projects</Typography>
-              <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: T.dTextHigh, fontFamily: '"DM Mono", monospace' }}>{projects.length}</Typography>
-            </Box>
+            <StatsRow>
+              <StatsLabel>Total projects</StatsLabel>
+              <StatsValue>{projects.length}</StatsValue>
+            </StatsRow>
 
-            <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <PreviewArea>
               {hoveredProject ? (
                 <Box>
-                  <Typography sx={{ fontSize: "0.625rem", fontWeight: 700, color: T.dTextLow, letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: '"DM Mono", monospace', mb: "10px" }}>Selected</Typography>
-                  <Typography sx={{ fontSize: "1.05rem", fontWeight: 800, color: T.dTextHigh, letterSpacing: "-0.025em", lineHeight: 1.15, mb: "12px" }}>{hoveredProject.name}</Typography>
-                  <Box sx={{ width: "24px", height: "2px", borderRadius: "1px", background: T.indigo, mb: "12px", opacity: 0.7 }} />
-                  <Typography sx={{ fontSize: "0.8125rem", color: T.dTextMid, lineHeight: 1.75, fontWeight: 400 }}>{hoveredProject.description || "No description provided for this project."}</Typography>
+                  <PreviewDimLabel>Selected</PreviewDimLabel>
+                  <PreviewName>{hoveredProject.name}</PreviewName>
+                  <PreviewAccentLine />
+                  <PreviewBody>
+                    {hoveredProject.description || "No description provided for this project."}
+                  </PreviewBody>
                   {hoveredProject.domain && (
-                    <Box sx={{ mt: "16px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                      <Box sx={{ width: "4px", height: "4px", borderRadius: "50%", bgcolor: T.indigo, opacity: 0.6 }} />
-                      <Typography sx={{ fontSize: "0.6875rem", fontWeight: 600, color: "rgba(129,140,248,0.8)", fontFamily: '"DM Mono", monospace', letterSpacing: "0.07em", textTransform: "uppercase" }}>{hoveredProject.domain}</Typography>
-                    </Box>
+                    <DomainTag>
+                      <DomainDot />
+                      <DomainTagText>{hoveredProject.domain}</DomainTagText>
+                    </DomainTag>
                   )}
                 </Box>
               ) : (
-                <Box sx={{ opacity: 0.3 }}>
-                  <Typography sx={{ fontSize: "0.625rem", fontWeight: 700, color: T.dTextLow, letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: '"DM Mono", monospace', mb: "10px" }}>Preview</Typography>
-                  <Typography sx={{ fontSize: "0.8125rem", color: T.dTextMid, lineHeight: 1.75 }}>Hover a project to see its details here.</Typography>
-                </Box>
+                <PlaceholderBox>
+                  <PreviewDimLabel>Preview</PreviewDimLabel>
+                  <PreviewBody>Hover a project to see its details here.</PreviewBody>
+                </PlaceholderBox>
               )}
-            </Box>
+            </PreviewArea>
 
-            <Typography sx={{ fontSize: "0.625rem", color: T.dTextLow, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: '"DM Mono", monospace', mt: "32px" }}>BRMS Platform · 2025</Typography>
-          </Box>
-        </Box>
+            <LeftFooter>BRMS Platform · 2025</LeftFooter>
+          </LeftContent>
+        </LeftPanel>
 
         {/* ─── RIGHT PANEL ─── */}
-        <Box sx={{ flex: 1, background: T.bgRight, display: "flex", flexDirection: "column", px: { xs: "20px", sm: "32px" }, py: "28px", overflow: "hidden" }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: "24px", flexShrink: 0 }}>
+        <RightPanel>
+          <RightHeader>
             <Box>
-              <Box sx={{ width: "28px", height: "2px", borderRadius: "1px", background: T.indigo, mb: "10px" }} />
-              <Typography sx={{ fontSize: "1.125rem", fontWeight: 800, color: T.lTextHigh, letterSpacing: "-0.025em", lineHeight: 1.1, mb: "4px" }}>All Projects</Typography>
-              <Typography sx={{ fontSize: "0.8125rem", color: T.lTextMid, fontWeight: 400, lineHeight: 1.6 }}>Select a project to manage its rules</Typography>
+              <HeaderAccentLine />
+              <RightTitle>All Projects</RightTitle>
+              <RightSubtitle>Select a project to manage its rules</RightSubtitle>
             </Box>
-            <Button
+            <NewProjectButton
               variant="contained"
               disableRipple
               onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject`)}
-              sx={{ background: T.indigo, borderRadius: "6px", px: "16px", py: "8px", textTransform: "none", fontSize: "0.8125rem", fontWeight: 700, letterSpacing: "0.01em", boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${T.indigoGlow}`, whiteSpace: "nowrap", flexShrink: 0, ml: "16px", "&:hover": { background: T.indigoHover, boxShadow: `0 1px 3px rgba(0,0,0,0.16), 0 6px 20px rgba(79,70,229,0.28)`, transform: "translateY(-1px)" }, transition: "all 0.15s" }}
             >
               + New Project
-            </Button>
-          </Box>
+            </NewProjectButton>
+          </RightHeader>
 
-          <Box sx={{ flex: 1, overflow: "auto" }}>
+          <ScrollArea>
             {loading ? (
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "200px" }}>
-                <CircularProgress size={28} sx={{ color: T.indigo }} />
-              </Box>
+              <CenteredBox>
+                <CircularProgress size={28} sx={{ color: colors.panelIndigo }} />
+              </CenteredBox>
             ) : paginatedProjects.length === 0 ? (
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "200px", gap: "12px" }}>
-                <Box sx={{ width: "48px", height: "48px", borderRadius: "50%", background: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <FolderOpenIcon sx={{ fontSize: 24, color: T.lTextLow }} />
-                </Box>
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography sx={{ fontWeight: 700, color: T.lTextHigh, fontSize: "0.9375rem", mb: "4px", letterSpacing: "-0.01em" }}>No projects yet</Typography>
-                  <Typography sx={{ color: T.lTextMid, fontSize: "0.8125rem" }}>Get started by creating your first project</Typography>
-                </Box>
-              </Box>
+              <EmptyBox>
+                <EmptyIconBox>
+                  <FolderOpenIcon sx={{ fontSize: 24, color: colors.lightTextLow }} />
+                </EmptyIconBox>
+                <EmptyTextCenter>
+                  <EmptyTitle>No projects yet</EmptyTitle>
+                  <EmptySubtitle>Get started by creating your first project</EmptySubtitle>
+                </EmptyTextCenter>
+              </EmptyBox>
             ) : (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <CardsList>
                 {paginatedProjects.map((project) => (
-                  <Box
+                  <ProjectCard
                     key={project.id}
                     onClick={() => handleOpenProject(project)}
                     onMouseEnter={() => setHoveredProject(project)}
                     onMouseLeave={() => setHoveredProject(null)}
-                    sx={{ borderRadius: "8px", border: `1px solid ${T.lBorder}`, backgroundColor: T.cardBg, px: "16px", py: "14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", transition: "all 0.15s", "&:hover": { borderColor: T.cardHoverBorder, boxShadow: `0 0 0 3px ${T.indigoMuted}`, transform: "translateY(-1px)" } }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
-                      <Box sx={{ width: "8px", height: "8px", borderRadius: "50%", bgcolor: T.indigo, flexShrink: 0, opacity: 0.7 }} />
+                    <CardLeft>
+                      <CardDot />
                       <Box>
-                        <Typography sx={{ fontWeight: 600, color: T.lTextHigh, fontSize: "0.9375rem", letterSpacing: "-0.01em", lineHeight: 1.2, mb: "3px" }}>{project.name}</Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <Typography sx={{ color: T.lTextLow, fontSize: "0.75rem", fontFamily: '"DM Mono", monospace' }}>Updated</Typography>
-                          <Typography sx={{ color: T.lTextMid, fontSize: "0.75rem", fontWeight: 500, fontFamily: '"DM Mono", monospace' }}>{project.updatedAt}</Typography>
-                        </Box>
+                        <CardName>{project.name}</CardName>
+                        <CardUpdatedRow>
+                          <CardUpdatedLabel>Updated</CardUpdatedLabel>
+                          <CardUpdatedValue>{project.updatedAt}</CardUpdatedValue>
+                        </CardUpdatedRow>
                       </Box>
-                    </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                    </CardLeft>
+                    <CardRight>
                       {project.domain && (
-                        <Typography sx={{ fontSize: "0.6875rem", fontWeight: 600, color: T.indigo, background: T.indigoMuted, border: `1px solid rgba(79,70,229,0.15)`, borderRadius: "4px", px: "8px", py: "3px", letterSpacing: "0.06em", textTransform: "uppercase", fontFamily: '"DM Mono", monospace', lineHeight: 1.4 }}>{project.domain}</Typography>
+                        <DomainBadge>{project.domain}</DomainBadge>
                       )}
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleMenuOpen(e, project); }} disableRipple sx={{ width: "30px", height: "30px", borderRadius: "6px", color: T.lTextLow, "&:hover": { backgroundColor: "#F1F5F9", color: T.lTextMid }, transition: "all 0.15s" }}>
+                      <CardMenuButton
+                        size="small"
+                        disableRipple
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMenuOpen(e, project);
+                        }}
+                      >
                         <MoreVertIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </Box>
-                  </Box>
+                      </CardMenuButton>
+                    </CardRight>
+                  </ProjectCard>
                 ))}
-              </Box>
+              </CardsList>
             )}
-          </Box>
+          </ScrollArea>
 
           {totalPages > 1 && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: "20px", flexShrink: 0 }}>
-              <Pagination count={totalPages} page={page} onChange={(_, value) => setPage(value)} sx={{ "& .MuiPaginationItem-root": { borderRadius: "6px", fontWeight: 600, fontSize: "0.8125rem", fontFamily: '"DM Mono", monospace', color: T.lTextMid, "&.Mui-selected": { background: T.indigo, color: "#fff", "&:hover": { background: T.indigoHover } }, "&:hover": { background: "#F1F5F9" } } }} />
-            </Box>
+            <PaginationRow>
+              <StyledPagination
+                count={totalPages}
+                page={page}
+                onChange={(_, v) => setPage(v)}
+              />
+            </PaginationRow>
           )}
-        </Box>
-      </Box>
+        </RightPanel>
+      </RootWrapper>
 
-      <Menu anchorEl={menuAnchorEl} open={!!menuAnchorEl} onClose={handleMenuClose} sx={{ "& .MuiPaper-root": { borderRadius: "8px", boxShadow: "0 4px 24px rgba(0,0,0,0.10)", minWidth: "140px", border: `1px solid ${T.lBorder}` } }}>
-        <MenuItem onClick={handleEdit} sx={{ fontSize: "0.8125rem", fontWeight: 500, color: T.lTextHigh, py: "10px", px: "16px", "&:hover": { backgroundColor: "#F8FAFC" } }}>Edit</MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ fontSize: "0.8125rem", fontWeight: 500, color: "#DC2626", py: "10px", px: "16px", "&:hover": { backgroundColor: "#FEF2F2" } }}>Delete</MenuItem>
-      </Menu>
+      <StyledMenu
+        anchorEl={menuAnchorEl}
+        open={!!menuAnchorEl}
+        onClose={handleMenuClose}
+      >
+        <EditMenuItem onClick={handleEdit}>Edit</EditMenuItem>
+        <DeleteMenuItem onClick={handleDelete}>Delete</DeleteMenuItem>
+      </StyledMenu>
     </>
   );
 }

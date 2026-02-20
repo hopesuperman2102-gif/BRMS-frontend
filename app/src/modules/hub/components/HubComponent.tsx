@@ -2,12 +2,74 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Tabs, Tab, IconButton, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ProjectList from './ProjectList';
 import RulesTable from './RulesTable';
 import DeployTabPage from '../../deploy/page/DeployTabPage';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+
+const { colors, gradients } = brmsTheme;
+
+/* ─── Styled Components ───────────────────────────────────── */
+
+const HeaderWrapper = styled(Box)({
+  paddingLeft: '24px',
+  paddingRight: '24px',
+  paddingTop: '16px',
+});
+
+const BackRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+  marginBottom: '16px',
+});
+
+const BackButton = styled(IconButton)({
+  width: 36,
+  height: 36,
+  borderRadius: '10px',
+  backgroundColor: colors.primaryGlowSoft,
+  color: colors.primary,
+  transition: 'all 0.2s',
+  flexShrink: 0,
+  '&:hover': {
+    backgroundColor: colors.primaryGlowMid,
+    transform: 'translateX(-2px)',
+  },
+});
+
+const VerticalName = styled(Typography)({
+  fontSize: '0.95rem',
+  fontWeight: 600,
+  color: colors.navTextHigh,
+  whiteSpace: 'nowrap',
+});
+
+const StyledTabs = styled(Tabs)({
+  '& .MuiTabs-indicator': {
+    background: gradients.primary,
+    height: 3,
+    borderRadius: '3px 3px 0 0',
+  },
+  '& .MuiTab-root': {
+    textTransform: 'none',
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    color: colors.tabTextInactive,
+    '&.Mui-selected': { color: colors.primary },
+    '&:hover': { color: colors.primary },
+  },
+});
+
+const ContentWrapper = styled(Box)({
+  padding: '24px',
+});
+
+/* ─── Component ───────────────────────────────────────────── */
 
 const HubComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
@@ -36,81 +98,38 @@ const HubComponent: React.FC = () => {
     return () => controller.abort();
   }, [vertical_Key]);
 
-  // Invalidate cache + switch tab
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     if (vertical_Key) {
-      projectsApi.invalidateProjectsCache(vertical_Key); // force fresh API on next mount
+      projectsApi.invalidateProjectsCache(vertical_Key);
     }
     setTab(newValue);
   };
 
   return (
     <>
-      <Box px={3} pt={2}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-          <IconButton
-            onClick={() => navigate(`/vertical/${vertical_Key}/dashboard`)}
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '10px',
-              backgroundColor: 'rgba(101, 82, 208, 0.08)',
-              color: '#6552D0',
-              transition: 'all 0.2s',
-              flexShrink: 0,
-              '&:hover': {
-                backgroundColor: 'rgba(101, 82, 208, 0.15)',
-                transform: 'translateX(-2px)',
-              },
-            }}
-          >
+      <HeaderWrapper>
+        <BackRow>
+          <BackButton onClick={() => navigate(`/vertical/${vertical_Key}/dashboard`)}>
             <ArrowBackIcon sx={{ fontSize: 20 }} />
-          </IconButton>
+          </BackButton>
 
           {verticalName && (
-            <Typography
-              sx={{
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                color: '#374151',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {verticalName}
-            </Typography>
+            <VerticalName>{verticalName}</VerticalName>
           )}
-        </Box>
+        </BackRow>
 
-        <Tabs
-          value={tab}
-          onChange={handleTabChange}
-          sx={{
-            '& .MuiTabs-indicator': {
-              background: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',
-              height: 3,
-              borderRadius: '3px 3px 0 0',
-            },
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 600,
-              fontSize: '0.95rem',
-              color: '#64748b',
-              '&.Mui-selected': { color: '#6552D0' },
-              '&:hover': { color: '#6552D0' },
-            },
-          }}
-        >
+        <StyledTabs value={tab} onChange={handleTabChange}>
           <Tab label="Projects" />
           <Tab label="Rules" />
           <Tab label="Deploy" />
-        </Tabs>
-      </Box>
+        </StyledTabs>
+      </HeaderWrapper>
 
-      <Box p={3}>
+      <ContentWrapper>
         {tab === 0 && <ProjectList />}
         {tab === 1 && <RulesTable />}
         {tab === 2 && <DeployTabPage />}
-      </Box>
+      </ContentWrapper>
     </>
   );
 };
