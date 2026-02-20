@@ -1,14 +1,7 @@
 'use client';
 
 import { Menu, MenuItem } from '@mui/material';
-
-type AddMenuProps = {
-  anchorEl: HTMLElement | null;
-  open: boolean;
-  onClose: () => void;
-  onFile: () => void;
-  onFolder: () => void;
-};
+import { AddMenuProps } from '../types/commonTypes';
 
 export default function AddMenu({
   anchorEl,

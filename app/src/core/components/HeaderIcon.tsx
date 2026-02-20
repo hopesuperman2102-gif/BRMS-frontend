@@ -2,12 +2,7 @@
 
 import React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-
-type HeaderIconProps = {
-  icon: React.ReactNode;
-  tooltip: string;
-  onClick?: () => void;
-};
+import { HeaderIconProps } from '../types/commonTypes';
 
 const HeaderIcon: React.FC<HeaderIconProps> = ({
   icon,

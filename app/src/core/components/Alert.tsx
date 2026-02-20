@@ -1,8 +1,8 @@
 import { Snackbar, Alert as MuiAlert, AlertColor } from '@mui/material';
 import { create } from 'zustand';
-import { AlertState } from '../types/commonTypes';
+import { AlertStateProps } from '../types/commonTypes';
 
-export const useAlertStore = create<AlertState>((set) => ({
+export const useAlertStore = create<AlertStateProps>((set) => ({
   open: false,
   message: '',
   type: 'info',

@@ -5,15 +5,10 @@ import { AppBar, Toolbar, Box } from '@mui/material';
 import HeaderIcon from './HeaderIcon';
 import LogoTitle from './LogoTitle';
 import { brmsTheme } from '../theme/brmsTheme';
-
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-
-export type AppBarComponentProps = {
-  logo: React.ReactNode;
-  organizationName?: string;
-};
+import { AppBarComponentProps } from '../types/commonTypes';
 
 const AppBarComponent: React.FC<AppBarComponentProps> = ({
   logo,

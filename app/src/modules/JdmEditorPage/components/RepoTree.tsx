@@ -5,7 +5,8 @@ import FolderIcon from "@mui/icons-material/Folder";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { RepoTreeProps } from "app/src/core/types/commonTypes";
+import { RepoTreeProps } from "../types/JdmEditorTypes";
+
 
 
 export default function RepoTree({
