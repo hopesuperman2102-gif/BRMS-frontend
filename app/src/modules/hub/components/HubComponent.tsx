@@ -7,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ProjectList from './ProjectList';
 import RulesTable from './RulesTable';
 import DeployTabPage from '../../deploy/page/DeployTabPage';
-import { verticalsApi } from '../../vertical/api/verticalsApi';
+import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 
 const HubComponent: React.FC = () => {
   const [tab, setTab] = useState(0);
@@ -17,25 +17,35 @@ const HubComponent: React.FC = () => {
 
   useEffect(() => {
     if (!vertical_Key) return;
+    const controller = new AbortController();
 
     const fetchVerticalName = async () => {
       try {
-        const verticals = await verticalsApi.getVerticalsView();
-        const vertical = verticals.find((v) => v.vertical_key === vertical_Key);
-        if (vertical) {
-          setVerticalName(vertical.vertical_name);
+        const data = await projectsApi.getVerticalProjects(vertical_Key);
+        if (!controller.signal.aborted) {
+          setVerticalName(data.vertical_name);
         }
-      } catch (error) {
-        console.error('Error fetching vertical:', error);
+      } catch (error: any) {
+        if (!controller.signal.aborted) {
+          console.error('Error fetching vertical:', error);
+        }
       }
     };
 
     fetchVerticalName();
+    return () => controller.abort();
   }, [vertical_Key]);
+
+  // Invalidate cache + switch tab
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    if (vertical_Key) {
+      projectsApi.invalidateProjectsCache(vertical_Key); // force fresh API on next mount
+    }
+    setTab(newValue);
+  };
 
   return (
     <>
-      {/* Back Button and Vertical Name */}
       <Box px={3} pt={2}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
           <IconButton
@@ -71,10 +81,9 @@ const HubComponent: React.FC = () => {
           )}
         </Box>
 
-        {/* Tabs */}
         <Tabs
           value={tab}
-          onChange={(_, newValue) => setTab(newValue)}
+          onChange={handleTabChange}
           sx={{
             '& .MuiTabs-indicator': {
               background: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',
@@ -86,12 +95,8 @@ const HubComponent: React.FC = () => {
               fontWeight: 600,
               fontSize: '0.95rem',
               color: '#64748b',
-              '&.Mui-selected': {
-                color: '#6552D0',
-              },
-              '&:hover': {
-                color: '#6552D0',
-              },
+              '&.Mui-selected': { color: '#6552D0' },
+              '&:hover': { color: '#6552D0' },
             },
           }}
         >
@@ -101,12 +106,9 @@ const HubComponent: React.FC = () => {
         </Tabs>
       </Box>
 
-      {/* Tab Content */}
       <Box p={3}>
         {tab === 0 && <ProjectList />}
-
         {tab === 1 && <RulesTable />}
-
         {tab === 2 && <DeployTabPage />}
       </Box>
     </>

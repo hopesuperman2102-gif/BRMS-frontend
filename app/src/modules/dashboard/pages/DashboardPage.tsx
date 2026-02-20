@@ -4,49 +4,35 @@ import { Box, IconButton, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardHeader from "../components/DashboardHeader";
 import StatsSection from "../components/Stats";
-import { verticalsApi } from '../../vertical/api/verticalsApi';
 import { dashboardApi, DashboardSummary } from '../api/dashboardApi';
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
-  const [verticalName, setVerticalName] = useState<string>('');
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [selectedRulesCreatedYear, setSelectedRulesCreatedYear] = useState<number>(2026);
   const [selectedDeployedRulesYear, setSelectedDeployedRulesYear] = useState<number>(2026);
 
-  // Fetch Vertical Name
   useEffect(() => {
     if (!vertical_Key) return;
+    const controller = new AbortController();
 
-    const fetchVerticalName = async () => {
-      try {
-        const verticals = await verticalsApi.getVerticalsView();
-        const vertical = verticals.find((v) => v.vertical_key === vertical_Key);
-        if (vertical) {
-          setVerticalName(vertical.vertical_name);
-        }
-      } catch (error) {
-        console.error('Error fetching vertical:', error);
-      }
-    };
-
-    fetchVerticalName();
-  }, [vertical_Key]);
-
-  // Fetch Dashboard Summary
-  useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const data = await dashboardApi.getSummary(vertical_Key || '');
-        setSummary(data);
-      } catch (error) {
-        console.error("Error fetching dashboard summary:", error);
+        const data = await dashboardApi.getSummary(vertical_Key);
+        if (!controller.signal.aborted) {
+          setSummary(data);
+        }
+      } catch (error: any) {
+        if (!controller.signal.aborted) {
+          console.error('Error fetching dashboard summary:', error);
+        }
       }
     };
 
     fetchSummary();
+    return () => controller.abort();
   }, [vertical_Key]);
 
   return (
@@ -58,9 +44,10 @@ const DashboardPage = () => {
       }}
     >
       <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-        
+
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-          <IconButton onClick={() => navigate('/vertical')}
+          <IconButton
+            onClick={() => navigate('/vertical')}
             sx={{
               width: 36,
               height: 36,
@@ -73,29 +60,28 @@ const DashboardPage = () => {
                 backgroundColor: 'rgba(101, 82, 208, 0.15)',
                 transform: 'translateX(-2px)',
               },
-            }}>
-                     
+            }}
+          >
             <ArrowBackIcon sx={{ fontSize: 20 }} />
           </IconButton>
 
-          {verticalName && (
-            <Typography 
-            sx={{
+          {summary?.vertical_name && (
+            <Typography
+              sx={{
                 fontSize: '0.95rem',
                 fontWeight: 600,
                 color: '#374151',
                 whiteSpace: 'nowrap',
               }}
             >
-              {verticalName}
+              {summary.vertical_name}
             </Typography>
           )}
         </Box>
 
         <DashboardHeader />
 
-        {/*  Pass API Data */}
-        <StatsSection 
+        <StatsSection
           totalActiveProjects={summary?.total_active_projects ?? 0}
           totalRules={summary?.total_rules ?? 0}
           activeRules={summary?.active_rules ?? 0}

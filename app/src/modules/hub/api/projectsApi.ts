@@ -1,8 +1,21 @@
-// src/api/projectsApi.ts
-
 import { ENV } from '../../../config/env';
 
 const API_BASE_URL = ENV.API_BASE_URL;
+
+const JSON_HEADERS = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+} as const;
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || `HTTP ${response.status}`);
+  }
+  return response.json() as Promise<T>;
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ProjectView {
   id: string;
@@ -15,159 +28,138 @@ export interface ProjectView {
   updated_at?: string;
 }
 
+export interface VerticalProjectsResponse {
+  vertical_key: string;
+  vertical_name: string;
+  status: string;
+  projects: ProjectView[];
+}
+
+// ─── Cache ────────────────────────────────────────────────────────────────────
+
+const TTL_MS = 30_000; // 30 seconds — fresh enough to dedupe simultaneous calls, short enough to reflect updates on tab switch
+
+interface CacheEntry {
+  data: VerticalProjectsResponse;
+  expiresAt: number;
+}
+
+const dataCache   = new Map<string, CacheEntry>();
+const inflightCache = new Map<string, Promise<VerticalProjectsResponse>>();
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+
 export const projectsApi = {
-  // Creates a new project
+
+  getVerticalProjects: async (
+    vertical_key: string,
+  ): Promise<VerticalProjectsResponse> => {
+
+    // 1. Return cached data only if still within TTL
+    const cached = dataCache.get(vertical_key);
+    if (cached && Date.now() < cached.expiresAt) {
+      return cached.data;
+    }
+
+    // 2. Return existing in-flight promise — simultaneous callers share ONE fetch
+    if (inflightCache.has(vertical_key)) {
+      return inflightCache.get(vertical_key)!;
+    }
+
+    // 3. New request — cache the promise immediately before awaiting
+    const promise = fetch(
+      `${API_BASE_URL}/api/v1/verticals/${vertical_key}/projects?status=ACTIVE`,
+      { method: 'GET', headers: JSON_HEADERS },
+    )
+      .then((res) => handleResponse<VerticalProjectsResponse>(res))
+      .then((data) => {
+        dataCache.set(vertical_key, { data, expiresAt: Date.now() + TTL_MS });
+        inflightCache.delete(vertical_key);
+        return data;
+      })
+      .catch((err) => {
+        inflightCache.delete(vertical_key);
+        throw err;
+      });
+
+    inflightCache.set(vertical_key, promise);
+    return promise;
+  },
+
+  getProjectsView: async (vertical_key: string): Promise<ProjectView[]> => {
+    const data = await projectsApi.getVerticalProjects(vertical_key);
+    return data.projects;
+  },
+
+  invalidateProjectsCache: (vertical_key?: string) => {
+    if (vertical_key) {
+      dataCache.delete(vertical_key);
+      inflightCache.delete(vertical_key);
+    } else {
+      dataCache.clear();
+      inflightCache.clear();
+    }
+  },
+
   createProject: async (data: {
     name: string;
     description: string;
-    vertical_key: string; 
+    vertical_key: string;
     domain: string;
   }) => {
-    const requestBody = {
-      name: data.name,
-      description: data.description,
-      domain: data.domain,
-      vertical_key: data.vertical_key, 
-    };
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Creating project:', requestBody);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/`, {
+    if (ENV.ENABLE_LOGGING) console.log('🔄 Creating project:', data);
+    const res = await fetch(`${API_BASE_URL}/api/v1/projects/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
+      headers: JSON_HEADERS,
+      body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to create project');
-    }
-
-    const result = await response.json();
-    
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Project created:', result);
-    }
-
+    const result = await handleResponse(res);
+    projectsApi.invalidateProjectsCache(data.vertical_key);
+    if (ENV.ENABLE_LOGGING) console.log('✅ Project created:', result);
     return result;
   },
 
-  // Get all projects
-  getProjectsView: async (vertical_key: string): Promise<ProjectView[]> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Fetching active projects for vertical:', vertical_key);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/vertical/${vertical_key}/?status=ACTIVE`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch projects');
-    }
-
-    const result = (await response.json()) as ProjectView[];
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Projects fetched:', result.length);
-    }
-
-    return result;
-  },
-
-  // Delete a project
   deleteProject: async (project_key: string, deleted_by: string) => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log(' Deleting project:', project_key);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}?deleted_by=${deleted_by}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to delete project');
-    }
-
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Project deleted:', project_key);
-    }
-
+    if (ENV.ENABLE_LOGGING) console.log('🗑 Deleting project:', project_key);
+    const res = await fetch(
+      `${API_BASE_URL}/api/v1/projects/${project_key}?deleted_by=${deleted_by}`,
+      { method: 'DELETE', headers: JSON_HEADERS },
+    );
+    const result = await handleResponse(res);
+    projectsApi.invalidateProjectsCache();
+    if (ENV.ENABLE_LOGGING) console.log('✅ Project deleted:', project_key);
     return result;
   },
 
-  // Update Project Details
   updateProject: async (
     project_key: string,
-    data: {
-      name: string;
-      description?: string;
-      domain?: string;
-    }
+    data: { name: string; description?: string; domain?: string },
   ) => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Updating project:', project_key, data);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}`, {
+    if (ENV.ENABLE_LOGGING) console.log('🔄 Updating project:', project_key, data);
+    const res = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...data,
-        updated_by: 'admin',
-      }),
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ ...data, updated_by: 'admin' }),
     });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || 'Failed to update project');
-    }
-
-    const result = await response.json();
-
-    if (ENV.ENABLE_LOGGING) {
-      console.log('✅ Project updated:', result);
-    }
-
+    const result = await handleResponse(res);
+    projectsApi.invalidateProjectsCache();
+    if (ENV.ENABLE_LOGGING) console.log('✅ Project updated:', result);
     return result;
   },
 
-  // Check if project name exists
-  checkProjectNameExists: async (name: string , vertical_key: string): Promise<boolean> => {
+  checkProjectNameExists: async (name: string, vertical_key: string): Promise<boolean> => {
     try {
       const projects = await projectsApi.getProjectsView(vertical_key);
       return projects.some(
-        (p) => p.name.toLowerCase().trim() === name.toLowerCase().trim()
+        (p) => p.name.toLowerCase().trim() === name.toLowerCase().trim(),
       );
     } catch (error) {
-      if (ENV.ENABLE_LOGGING) {
-        console.error('❌ Error checking project name:', error);
-      }
+      if (ENV.ENABLE_LOGGING) console.error('❌ Error checking project name:', error);
       throw error;
     }
   },
 };
 
-// Log API endpoint in development
 if (ENV.DEBUG_MODE) {
   console.log('📡 Projects API Base URL:', API_BASE_URL);
 }
