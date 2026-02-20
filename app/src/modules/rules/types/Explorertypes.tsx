@@ -1,4 +1,3 @@
-// ─── Shared Types ─────────────────────────────────────────────────────────────
 
 export interface ProjectResponse {
   project_key: string;
@@ -53,4 +52,40 @@ export interface FolderCardProps {
   onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onNameBlur: () => void;
   onNameKeyDown: (e: React.KeyboardEvent) => void;
+}
+
+// ─── Rule Left Panel Props ────
+export interface RulesLeftPanelProps {
+  projectName: string;
+  verticalName: string;
+  folders: FolderNode[];
+  files: FileNode[];
+  currentPath: string;
+  hoveredRule: FileNode | null;
+}
+
+/* ─── Rule Right Panel Props ─────────────────────────────────────────────── */
+
+export interface RulesRightPanelProps {
+  projectName: string;
+  verticalName: string;
+  breadcrumbs: Breadcrumb[];
+  visibleItems: ExplorerItem[];
+  editingFolderId: string | null;
+  editingFolderName: string;
+  newMenuAnchor: HTMLElement | null;
+  onBack: () => void;
+  onNewMenuOpen: (e: React.MouseEvent<HTMLElement>) => void;
+  onNewMenuClose: () => void;
+  onCreateNewRule: () => void;
+  onCreateNewFolder: () => void;
+  onNavigateToBreadcrumb: (crumb: Breadcrumb) => void;
+  onOpenFolder: (item: FolderNode) => void;
+  onOpenFile: (item: FileNode) => void;
+  onMenuOpen: (e: React.MouseEvent<HTMLElement>, item: ExplorerItem) => void;
+  onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onNameBlur: () => void;
+  onNameKeyDown: (e: React.KeyboardEvent) => void;
+  onMouseEnterFile: (item: FileNode) => void;
+  onMouseLeaveFile: () => void;
 }

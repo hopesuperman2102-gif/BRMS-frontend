@@ -4,6 +4,7 @@ import { Box, Typography, TextField, Button, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { CreateRuleRightPanelProps } from '../types/rulesTypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -261,25 +262,6 @@ const Label = ({ children, required }: { children: React.ReactNode; required?: b
     {required && <RequiredBadge>required</RequiredBadge>}
   </LabelRow>
 );
-
-/* ─── Types ───────────────────────────────────────────────── */
-type FormState = { name: string; description: string; directory: string };
-
-/* ─── Props ───────────────────────────────────────────────── */
-interface CreateRuleRightPanelProps {
-  isEditMode: boolean;
-  form: FormState;
-  loading: boolean;
-  error: string | null;
-  focused: string | null;
-  locationLabel: string;
-  onFormChange: (field: keyof FormState, value: string) => void;
-  onFocus: (field: string) => void;
-  onBlur: () => void;
-  onSubmit: () => void;
-  onCancel: () => void;
-  onBack: () => void;
-}
 
 /* ─── Component ───────────────────────────────────────────── */
 export default function CreateRuleRightPanel({

@@ -4,15 +4,13 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Menu, MenuItem, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
-
 import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
 import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
-
 import { RulesRightPanel } from '../components/RulesRightPanel';
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { RulesLeftPanel } from '../components/Rulesleftpanel';
-
+import { ConfirmDialogState } from '../types/rulesTypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -23,10 +21,6 @@ export const fmtDate      = (iso: string): string => {
   try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
   catch { return iso ?? '—'; }
 };
-
-interface ConfirmDialogState {
-  open: boolean; title: string; message: string; confirmText: string; onConfirm: () => void;
-}
 
 /* ─── Styled Components ─────────────────────────────────── */
 

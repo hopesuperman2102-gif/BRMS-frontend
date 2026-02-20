@@ -4,6 +4,7 @@ import { Box, Typography, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { CreateRuleLeftPanelProps } from '../types/rulesTypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -158,12 +159,6 @@ const Feature = ({ children, last }: { children: string; last?: boolean }) => (
     <FeatureText>{children}</FeatureText>
   </FeatureRow>
 );
-
-/* ─── Props ───────────────────────────────────────────────── */
-interface CreateRuleLeftPanelProps {
-  isEditMode: boolean;
-  onBack: () => void;
-}
 
 /* ─── Component ───────────────────────────────────────────── */
 export default function CreateRuleLeftPanel({ isEditMode, onBack }: CreateRuleLeftPanelProps) {

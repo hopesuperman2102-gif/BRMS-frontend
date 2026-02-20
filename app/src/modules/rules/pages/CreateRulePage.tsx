@@ -7,10 +7,7 @@ import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
 import { projectsApi } from '../../hub/api/projectsApi';
 import CreateRuleLeftPanel from '../components/CreateRuleLeftPanel';
 import CreateRuleRightPanel from '../components/CreateRuleRightPanel';
-
-
-/* ─── Types ───────────────────────────────────────────────── */
-type FormState = { name: string; description: string; directory: string };
+import { FormState } from '../types/rulesTypes';
 
 /* ─── Page ────────────────────────────────────────────────── */
 export default function CreateRulePage() {

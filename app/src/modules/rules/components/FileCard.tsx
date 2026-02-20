@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Typography, IconButton } from '@mui/material';
+import { Typography, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -9,10 +9,6 @@ import { fmtDate } from '../pages/ProjectRulePage';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
-
-/* ─── Status pill ───────────────────────────────────────── */
-
-type StatusKey = 'using' | 'active' | 'draft' | 'inactive' | 'deprecated';
 
 const STATUS_MAP: Record<string, { bg: string; color: string; dot: string; border: string }> = {
   using:      { bg: colors.statusUsingBg,      color: colors.statusUsingText,      dot: colors.statusUsingDot,      border: colors.statusUsingBorder },

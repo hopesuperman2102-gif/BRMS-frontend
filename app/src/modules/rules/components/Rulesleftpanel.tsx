@@ -3,9 +3,8 @@
 import { Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AccountTree from '@mui/icons-material/AccountTree';
-import { FolderNode, FileNode } from '../types/Explorertypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-
+import { RulesLeftPanelProps } from '../types/Explorertypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -16,15 +15,6 @@ const STATUS_DOT: Record<string, string> = {
   inactive:   colors.statusInactiveDot,
   deprecated: colors.statusDeprecatedDot,
 };
-
-interface RulesLeftPanelProps {
-  projectName: string;
-  verticalName: string;
-  folders: FolderNode[];
-  files: FileNode[];
-  currentPath: string;
-  hoveredRule: FileNode | null;
-}
 
 /* ─── Styled Components ─────────────────────────────────── */
 

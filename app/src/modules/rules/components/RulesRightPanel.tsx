@@ -8,41 +8,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import HomeIcon from '@mui/icons-material/Home';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-
-import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
 import { FileCard } from './FileCard';
 import { FolderCard } from './FolderCard';
 import { EmptyStatus } from './EmptyStatus';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { RulesRightPanelProps } from '../types/Explorertypes';
+
 
 
 const { colors, fonts } = brmsTheme;
-
-/* ─── Props ─────────────────────────────────────────────── */
-
-interface RulesRightPanelProps {
-  projectName: string;
-  verticalName: string;
-  breadcrumbs: Breadcrumb[];
-  visibleItems: ExplorerItem[];
-  editingFolderId: string | null;
-  editingFolderName: string;
-  newMenuAnchor: HTMLElement | null;
-  onBack: () => void;
-  onNewMenuOpen: (e: React.MouseEvent<HTMLElement>) => void;
-  onNewMenuClose: () => void;
-  onCreateNewRule: () => void;
-  onCreateNewFolder: () => void;
-  onNavigateToBreadcrumb: (crumb: Breadcrumb) => void;
-  onOpenFolder: (item: FolderNode) => void;
-  onOpenFile: (item: FileNode) => void;
-  onMenuOpen: (e: React.MouseEvent<HTMLElement>, item: ExplorerItem) => void;
-  onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onNameBlur: () => void;
-  onNameKeyDown: (e: React.KeyboardEvent) => void;
-  onMouseEnterFile: (item: FileNode) => void;
-  onMouseLeaveFile: () => void;
-}
 
 /* ─── Styled Components ─────────────────────────────────── */
 
@@ -218,17 +192,6 @@ const ItemListInner = styled('div')({
   flexDirection: 'column',
   gap: '6px',
 });
-
-const ContextMenuPaper = {
-  '& .MuiPaper-root': {
-    borderRadius: '8px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
-    border: `1px solid ${colors.lightBorder}`,
-    minWidth: '140px',
-    mt: '4px',
-  },
-  '& .MuiList-root': { py: '6px' },
-};
 
 /* ─── Component ─────────────────────────────────────────── */
 
