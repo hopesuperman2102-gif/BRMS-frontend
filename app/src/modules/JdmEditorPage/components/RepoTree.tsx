@@ -7,8 +7,6 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RepoTreeProps } from "../types/JdmEditorTypes";
 
-
-
 export default function RepoTree({
   items,
   selectedId,

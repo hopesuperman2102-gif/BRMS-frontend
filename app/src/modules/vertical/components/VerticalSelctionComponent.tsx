@@ -168,7 +168,7 @@ export default function VerticalSelectionComponent() {
         <Box sx={{ mb: '32px', flexShrink: 0 }}>
           <Box sx={{ width: '32px', height: '2px', borderRadius: '1px', background: T.indigo, mb: '24px', opacity: 0.9 }} />
           <Typography sx={{ fontSize: '1.5rem', fontWeight: 800, color: T.lTextHigh, letterSpacing: '-0.03em', lineHeight: 1.1, mb: '8px', fontFamily: T.font }}>
-            Select a vertical
+            Determine your Realm
           </Typography>
           <Typography sx={{ fontSize: '0.8125rem', color: T.lTextMid, fontWeight: 400, lineHeight: 1.65, fontFamily: T.font }}>
             Choose the business domain you want to work in.

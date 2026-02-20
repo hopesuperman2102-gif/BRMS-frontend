@@ -25,7 +25,7 @@ const HubComponent: React.FC = () => {
         if (!controller.signal.aborted) {
           setVerticalName(data.vertical_name);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!controller.signal.aborted) {
           console.error('Error fetching vertical:', error);
         }

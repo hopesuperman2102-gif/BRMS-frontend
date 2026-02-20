@@ -75,7 +75,7 @@ export default function ProjectListCard() {
           });
           setProjects(mapped);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!controller.signal.aborted) {
           console.error('Failed to load projects:', error);
         }

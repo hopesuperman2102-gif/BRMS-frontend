@@ -24,7 +24,7 @@ const DashboardPage = () => {
         if (!controller.signal.aborted) {
           setSummary(data);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!controller.signal.aborted) {
           console.error('Error fetching dashboard summary:', error);
         }
