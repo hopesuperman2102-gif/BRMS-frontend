@@ -12,6 +12,9 @@ export const brmsTheme = {
     error: '#d32f2f',
 
     // Panel / dark surface tokens
+    bgRoot: '#0A0C10',
+    bgLeft: '#0A0C10',
+    bgRight: '#F7F8FA',
     panelBg: '#0A0C10',
     panelIndigo: '#4F46E5',
     panelIndigoHover: '#4338CA',
@@ -20,6 +23,7 @@ export const brmsTheme = {
     panelIndigoMuted: 'rgba(79,70,229,0.08)',
     panelIndigoTint15: 'rgba(79,70,229,0.15)',
     panelIndigoTint25: 'rgba(79,70,229,0.25)',
+    panelTextHigh: '#FFFFFF',
     panelTextMid: 'rgba(255,255,255,0.45)',
     panelTextLow: 'rgba(255,255,255,0.18)',
     panelBorder: 'rgba(255,255,255,0.06)',
@@ -93,7 +97,7 @@ export const brmsTheme = {
     thumbHover: 'rgba(101, 82, 208, 0.3)',
   },
   fonts: {
-    mono: '"DM Mono", monospace',
+    mono: '"DM Mono", "Fira Code", monospace',
     sans: '"DM Sans", "Inter", sans-serif',
   },
 };

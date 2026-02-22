@@ -4,13 +4,13 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Menu, MenuItem, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
+import { rulesApi} from 'app/src/modules/rules/api/rulesApi';
 import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
 import { RulesRightPanel } from '../components/RulesRightPanel';
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { RulesLeftPanel } from '../components/Rulesleftpanel';
-import { ConfirmDialogState } from '../types/rulesTypes';
+import { ConfirmDialogState, RuleResponse } from '../types/rulesTypes';
 
 const { colors, fonts } = brmsTheme;
 

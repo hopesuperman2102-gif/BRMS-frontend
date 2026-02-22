@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
-import { rulesApi, RuleResponse } from 'app/src/modules/rules/api/rulesApi';
+import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 import { projectsApi } from '../../hub/api/projectsApi';
 import CreateRuleLeftPanel from '../components/CreateRuleLeftPanel';
 import CreateRuleRightPanel from '../components/CreateRuleRightPanel';
-import { FormState } from '../types/rulesTypes';
+import { FormState, RuleResponse } from '../types/rulesTypes';
 
-/* ─── Page ────────────────────────────────────────────────── */
+/* ─── Page ────*/
 export default function CreateRulePage() {
   const navigate = useNavigate();
   const { vertical_Key, project_key } = useParams<{ vertical_Key: string; project_key: string }>();

@@ -8,10 +8,6 @@ import { CreateRuleRightPanelProps } from '../types/rulesTypes';
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Input style factory ─────────────────────────────────── */
-// TextField deep overrides must remain as an sx object — styled() cannot
-// target MUI internal pseudo-selectors like '& .MuiOutlinedInput-root fieldset'
-// reliably without the GlobalStyles API, so this is the correct pattern.
 const inputSx = (focused: boolean) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '6px',
