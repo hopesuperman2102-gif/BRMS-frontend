@@ -4,18 +4,10 @@
 
 import React from 'react';
 import { Paper, Typography, Box } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import { brmsTheme } from '../theme/brmsTheme';
+import { CardHeaderProps, CardProps } from '../types/commonTypes';
 
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-  animate?: boolean;
-  sx?: SxProps<Theme>;
-  onClick?: () => void; 
-}
 
 // Pre-create motion component to avoid creating components during render
 const MotionPaper = motion(Paper);
@@ -57,11 +49,6 @@ export const RcCard: React.FC<CardProps> = ({
     </Component>
   );
 };
-
-interface CardHeaderProps {
-  title: string;
-  subtitle?: string;
-}
 
 export const CardHeader: React.FC<CardHeaderProps> = ({ title, subtitle }) => {
   return (

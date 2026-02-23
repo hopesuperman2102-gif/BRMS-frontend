@@ -4,33 +4,8 @@ import React, { useState, useMemo } from "react";
 import { Box, Typography, Select, MenuItem } from "@mui/material";
 import { RcCard } from "app/src/core/components/RcCard";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
+import { Props } from "../types/commonTypes";
 
-export interface MonthlyData {
-  year: number;
-  month: number;
-  total: number;
-}
-
-interface Props {
-  // Data
-  data: MonthlyData[];
-  selectedYear: number;
-  onYearChange: (year: number) => void;
-
-  // Labels
-  title: string;
-  subtitle: string;
-
-  // Appearance
-  height?: number;
-  barColors?: string[];
-
-  // Tooltip
-  tooltipSuffix?: string;
-
-  // Hover tooltip (opt-out)
-  showTooltip?: boolean;
-}
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

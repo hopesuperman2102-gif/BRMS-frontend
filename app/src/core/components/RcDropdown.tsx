@@ -5,21 +5,7 @@ import { Button, Menu, MenuItem, Box, Typography } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { brmsTheme } from '../theme/brmsTheme';
-
-export type RcDropdownItem = {
-  label: string;
-  value: string;
-  icon?: React.ReactNode;
-  isAddNew?: boolean; 
-};
-
-export type RcDropdownProps = {
-  label: string;
-  items: RcDropdownItem[];
-  onSelect: (value: string) => void;
-  startIcon?: React.ReactNode;
-  disabled?: boolean;
-};
+import { RcDropdownProps } from "../types/commonTypes";
 
 const RcDropdown: React.FC<RcDropdownProps> = ({
   label,

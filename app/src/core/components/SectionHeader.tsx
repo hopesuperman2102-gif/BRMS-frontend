@@ -1,12 +1,7 @@
 'use client';
 
 import { Box } from '@mui/material';
-import { ReactNode } from 'react';
-
-type SectionHeaderProps = {
-  left: ReactNode;
-  right?: ReactNode;
-};
+import { SectionHeaderProps } from '../types/commonTypes';
 
 export default function SectionHeader({
   left,

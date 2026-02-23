@@ -1,16 +1,6 @@
 // src/core/components/ConfirmDialog.tsx
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
-
-interface ConfirmDialogProps {
-  open: boolean;
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  isDangerous?: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
+import { ConfirmDialogProps } from '../types/commonTypes';
 
 export default function RcConfirmDialog({
   open,
