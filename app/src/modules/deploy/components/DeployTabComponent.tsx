@@ -10,10 +10,12 @@ import { HistorySection } from './Historysection';
 import { deployApi, MonthlyData } from '../api/deployApi';
 import { useParams } from 'react-router-dom';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
+import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
+  const { showAlert } = useAlertStore();
 
   const [activeEnvironment, setActiveEnvironment] = useState<Environment | 'ALL'>('ALL');
   const [deployTargetEnvironment, setDeployTargetEnvironment] = useState<Environment>('DEV');
@@ -130,14 +132,14 @@ export default function DeployTabComponent() {
 
   const handleDeploy = async () => {
     if (selectedRules.size === 0) {
-      alert('Please select at least one rule to deploy.');
+      showAlert('Please select at least one rule to deploy.', 'warning');
       return;
     }
     const missingVersion = Array.from(selectedRules).find(
       (ruleKey) => !selectedVersions.get(ruleKey)
     );
     if (missingVersion) {
-      alert('Please select a version for all checked rules before deploying.');
+      showAlert('Please select a version for all checked rules before deploying.', 'warning');
       return;
     }
 
@@ -153,7 +155,7 @@ export default function DeployTabComponent() {
 
     try {
       await Promise.all(deployPromises);
-      alert(`Successfully deployed ${selectedRules.size} rule(s) to ${deployTargetEnvironment}`);
+      showAlert(`Successfully deployed ${selectedRules.size} rule(s) to ${deployTargetEnvironment}`, 'success');
 
       if (selectedProjectKey) {
         setIsLoadingRules(true);
@@ -180,12 +182,12 @@ export default function DeployTabComponent() {
       }
     } catch (error) {
       console.error('Deployment failed:', error);
-      alert(`Deployment failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showAlert(`Deployment failed: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     }
   };
 
-  const handleRollback = (ruleKey: string) => alert(`Rolling back rule: ${ruleKey}`);
-  const handleViewLogs = (ruleKey: string) => alert(`Viewing logs for rule: ${ruleKey}`);
+  const handleRollback = (ruleKey: string) => showAlert(`Rolling back rule: ${ruleKey}`, 'info');
+  const handleViewLogs = (ruleKey: string) => showAlert(`Viewing logs for rule: ${ruleKey}`, 'info');
   const handleEnvironmentClick = (env: Environment | 'ALL') => setActiveEnvironment(env);
 
   return (
@@ -228,6 +230,7 @@ export default function DeployTabComponent() {
           onViewLogs={handleViewLogs}
           environment={activeEnvironment === 'ALL' ? 'DEV' : activeEnvironment}
         />
+        <RcAlertComponent />
       </Box>
     </Box>
   );
