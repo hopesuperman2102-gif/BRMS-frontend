@@ -1,15 +1,16 @@
 'use client';
 
 import { createTheme } from '@mui/material/styles';
+import { brmsTheme } from './src/core/theme/brmsTheme';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#4f46e5', // indigo-ish like your screenshot
+      main: brmsTheme.colors.primary,
     },
   },
   typography: {
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: brmsTheme.fonts.sans,
   },
 });
 

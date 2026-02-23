@@ -5,6 +5,7 @@ import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { RcCard } from 'app/src/core/components/RcCard';
 import RcDropdown, { RcDropdownItem } from 'app/src/core/components/RcDropdown';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { Environment } from '../types/featureFlagTypes';
 
 interface FeatureFlagHeaderProps {
@@ -27,10 +28,10 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
   onEnvironmentClick
 }) => {
   const getEnvColor = (env: string) => {
-    if (env === 'PROD') return { bgcolor: '#00abc5', color: 'white' };
-    if (env === 'QA') return { bgcolor: '#87dfe9', color: 'white' };
-    if (env === 'ALL') return { bgcolor: '#2ec7c0', color: 'white' };
-    return { bgcolor: '#1f5969', color: 'white' };
+    if (env === 'PROD') return { bgcolor: brmsTheme.colors.envProd, color: brmsTheme.colors.white };
+    if (env === 'QA') return { bgcolor: brmsTheme.colors.envQa, color: brmsTheme.colors.white };
+    if (env === 'ALL') return { bgcolor: brmsTheme.colors.envAll, color: brmsTheme.colors.white };
+    return { bgcolor: brmsTheme.colors.envDefault, color: brmsTheme.colors.white };
   };
 
   return (
@@ -42,8 +43,8 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
             <Chip
               label={`TOTAL RULES: ${totalRules.toLocaleString()}`}
               sx={{
-                background: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',
-                color: 'white',
+                background: brmsTheme.gradients.primary,
+                color: brmsTheme.colors.textOnPrimary,
                 fontWeight: 700,
                 px: 2,
                 py: 2.5,
@@ -75,7 +76,7 @@ export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
                   borderRadius: '50%',
                   cursor: 'pointer',
                   boxShadow: activeEnvironment === env ? 4 : 1,
-                  outline: activeEnvironment === env ? '3px solid #2c3e50' : 'none',
+                  outline: activeEnvironment === env ? `3px solid ${brmsTheme.colors.deployTabOutline}` : 'none',
                   outlineOffset: '2px',
                   '&:hover': {
                     boxShadow: 3

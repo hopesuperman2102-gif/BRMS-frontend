@@ -6,6 +6,7 @@ import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import AccountTree from '@mui/icons-material/AccountTree';
 import RepoTree from './RepoTree';
 import { RepositorySidebarProps } from '../types/JdmEditorTypes';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
 export default function RepositorySidebar({
   projectName,       
@@ -26,7 +27,7 @@ export default function RepositorySidebar({
       sx={{ 
         width: 280, 
         height: '100vh',
-        backgroundColor: '#ffffff',
+        backgroundColor: brmsTheme.colors.white,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -39,9 +40,9 @@ export default function RepositorySidebar({
           display: 'flex',
           flexDirection: 'column',
           gap: 1.5,
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
           flexShrink: 0,
-          backgroundColor: '#ffffff',
+          backgroundColor: brmsTheme.colors.white,
         }}
       >
         {/* Top Row - Back Button & Project Name */}
@@ -54,12 +55,12 @@ export default function RepositorySidebar({
               width: 36,
               height: 36,
               borderRadius: '10px',
-              backgroundColor: 'rgba(101, 82, 208, 0.08)',
-              color: '#6552D0',
+              backgroundColor: brmsTheme.colors.primaryGlowSoft,
+              color: brmsTheme.colors.primary,
               transition: 'all 0.2s',
               flexShrink: 0,
               '&:hover': {
-                backgroundColor: 'rgba(101, 82, 208, 0.15)',
+                backgroundColor: brmsTheme.colors.primaryGlowMid,
                 transform: 'translateX(-2px)',
               },
             }}
@@ -68,13 +69,13 @@ export default function RepositorySidebar({
             </IconButton>
           )}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, minWidth: 0 }}>
-            <AccountTree sx={{ fontSize: 20, color: '#6552D0', flexShrink: 0 }} />
+            <AccountTree sx={{ fontSize: 20, color: brmsTheme.colors.primary, flexShrink: 0 }} />
             <Typography 
               sx={{
-                color: '#111827',
+                color: brmsTheme.colors.lightTextHigh,
                 fontSize: '0.9375rem',
                 fontWeight: 600,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontFamily: brmsTheme.fonts.sans,
                 letterSpacing: '-0.01em',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -95,18 +96,18 @@ export default function RepositorySidebar({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: '#fafafa',
-          borderBottom: '1px solid #e5e7eb',
+          backgroundColor: brmsTheme.colors.surfaceBase,
+          borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
         }}
       >
         <Typography
           sx={{
             fontSize: '0.75rem',
             fontWeight: 600,
-            color: '#6b7280',
+            color: brmsTheme.colors.lightTextMid,
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            fontFamily: brmsTheme.fonts.sans,
           }}
         >
           {projectName}
@@ -118,7 +119,7 @@ export default function RepositorySidebar({
         sx={{ 
           flex: 1, 
           overflowY: 'auto',
-          backgroundColor: '#ffffff',
+          backgroundColor: brmsTheme.colors.white,
           '&::-webkit-scrollbar': {
             width: '6px',
           },
@@ -126,10 +127,10 @@ export default function RepositorySidebar({
             background: 'transparent',
           },
           '&::-webkit-scrollbar-thumb': {
-            background: '#e5e7eb',
+            background: brmsTheme.colors.lightBorder,
             borderRadius: '3px',
             '&:hover': {
-              background: '#d1d5db',
+              background: brmsTheme.colors.lightBorderHover,
             },
           },
         }}
@@ -162,20 +163,20 @@ export default function RepositorySidebar({
                 width: 48,
                 height: 48,
                 borderRadius: '12px',
-                backgroundColor: '#f3f4f6',
+                backgroundColor: brmsTheme.colors.lightSurfaceHover,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <FolderOutlinedIcon sx={{ fontSize: 24, color: '#9ca3af' }} />
+              <FolderOutlinedIcon sx={{ fontSize: 24, color: brmsTheme.colors.neutralGray }} />
             </Box>
             <Typography
               sx={{
-                color: '#111827',
+                color: brmsTheme.colors.lightTextHigh,
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontFamily: brmsTheme.fonts.sans,
                 textAlign: 'center',
               }}
             >
@@ -183,9 +184,9 @@ export default function RepositorySidebar({
             </Typography>
             <Typography
               sx={{
-                color: '#6b7280',
+                color: brmsTheme.colors.lightTextMid,
                 fontSize: '0.8125rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontFamily: brmsTheme.fonts.sans,
                 textAlign: 'center',
                 lineHeight: 1.5,
               }}

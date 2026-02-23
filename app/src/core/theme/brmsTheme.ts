@@ -83,6 +83,38 @@ export const brmsTheme = {
     statusDefaultText: '#475569',
     statusDefaultDot: '#94A3B8',
     statusDefaultBorder: '#E2E8F0',
+
+    // Environment colors for deploy tabs
+    envProd: '#00abc5',
+    envQa: '#87dfe9',
+    envAll: '#2ec7c0',
+    envDefault: '#1f5969',
+    deployTabOutline: '#2c3e50',
+
+    // Chart colors
+    chartBlue1: '#1976d2',
+    chartBlue2: '#2196f3',
+    chartBlue3: '#42a5f5',
+    chartGreen: '#2e7d32',
+    chartRed: '#d32f2f',
+    chartOrange: '#ed6c02',
+    chartTeal: '#00abc5',
+    chartCyan: '#87dfe9',
+    chartTealDark: '#2ec7c0',
+    chartNavy: '#1f5969',
+
+    // Additional colors for UI
+    neutralGray: '#9ca3af',
+    outlineDark: '#2c3e50',
+    borderGray: '#e5e7eb',
+    borderGrayHover: '#d1d5db',
+    bgGray: '#f3f4f6',
+    bgGrayLight: '#f9fafb',
+    textDark: '#111827',
+    textGray: '#6b7280',
+    textGrayLight: '#9ca3af',
+    focusBlue: '#3b82f6',
+    warningAmber: '#f59e0b',
   },
   gradients: {
     primary: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',

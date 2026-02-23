@@ -4,6 +4,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { RcCard } from 'app/src/core/components/RcCard';
 import { DeploymentHealth } from '../types/featureFlagTypes';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
 interface DeploymentHealthCardProps {
   title: string;
@@ -24,9 +25,9 @@ export const DeploymentHealthCard: React.FC<DeploymentHealthCardProps> = ({
   const circumference = 2 * Math.PI * radius;
 
   const segments = [
-    { label: 'Pending', value: pending, color: '#1976d2' },
-    { label: 'Approved', value: approved, color: '#2e7d32' },
-    { label: 'Rejected', value: rejected, color: '#d32f2f' },
+    { label: 'Pending', value: pending, color: brmsTheme.colors.info },
+    { label: 'Approved', value: approved, color: brmsTheme.colors.success },
+    { label: 'Rejected', value: rejected, color: brmsTheme.colors.error },
   ];
 
   let offset = 0;
@@ -85,7 +86,7 @@ export const DeploymentHealthCard: React.FC<DeploymentHealthCardProps> = ({
                 dominantBaseline="central"
                 fontSize="28"
                 fontWeight="700"
-                fill="#1f2937"
+                fill={brmsTheme.colors.textPrimary}
             >
                 {total}
             </text>

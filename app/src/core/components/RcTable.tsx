@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { ReactNode } from "react";
+import { brmsTheme } from '../theme/brmsTheme';
 
 export type RcTableProps = {
   headers: readonly string[];
@@ -19,46 +20,46 @@ export type RcTableProps = {
 
 // ---------------- STYLED COMPONENTS ----------------
 
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+const StyledTableContainer = styled(TableContainer)({
+  backgroundColor: brmsTheme.colors.white,
   boxShadow: "none",
-  borderRadius: theme.shape.borderRadius,
+  borderRadius: 12,
   overflowX: "auto",
   "&::-webkit-scrollbar": { display: "none" },
-}));
+});
 
-const StyledTableHead = styled(TableHead)(({ theme }) => ({
-  backgroundColor: theme.palette.action.hover,
-}));
+const StyledTableHead = styled(TableHead)({
+  backgroundColor: brmsTheme.colors.lightSurfaceHover,
+});
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  borderTop: `1px solid ${theme.palette.divider}`,
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  padding: theme.spacing(1.2, 2),
+const StyledTableCell = styled(TableCell)({
+  borderTop: `1px solid ${brmsTheme.colors.lightBorder}`,
+  borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
+  padding: "10px 16px",
   "&:first-of-type": {
-    borderLeft: `1px solid ${theme.palette.divider}`,
-    borderTopLeftRadius: theme.shape.borderRadius,
-    borderBottomLeftRadius: theme.shape.borderRadius,
+    borderLeft: `1px solid ${brmsTheme.colors.lightBorder}`,
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
   },
   "&:last-of-type": {
-    borderRight: `1px solid ${theme.palette.divider}`,
-    borderTopRightRadius: theme.shape.borderRadius,
-    borderBottomRightRadius: theme.shape.borderRadius,
+    borderRight: `1px solid ${brmsTheme.colors.lightBorder}`,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
   },
-}));
+});
 
 const StyledTableRow = styled(TableRow, {
   shouldForwardProp: (prop) => prop !== "selected",
-})<{ selected?: boolean }>(({ theme, selected }) => ({
+})<{ selected?: boolean }>(({ selected }) => ({
   backgroundColor: selected
-    ? theme.palette.action.selected
-    : theme.palette.background.paper,
+    ? brmsTheme.colors.primaryGlowSoft
+    : brmsTheme.colors.white,
   cursor: "pointer",
 
   "&:hover": {
     backgroundColor: selected
-      ? theme.palette.action.selected
-      : theme.palette.action.hover,
+      ? brmsTheme.colors.primaryGlowSoft
+      : brmsTheme.colors.lightSurfaceHover,
   },
 }));
 
@@ -73,12 +74,12 @@ const RcTable: React.FC<RcTableProps> = ({
   return (
     <StyledTableContainer>
       <Table
-        sx={(theme) => ({
+        sx={{
           borderCollapse: "separate",
-          borderSpacing: `${theme.spacing(0)} ${theme.spacing(0.5)}`,
+          borderSpacing: "0 4px",
           width: "100%",
           whiteSpace: "nowrap",
-        })}
+        }}
       >
         {/* ------------------ HEADER---------------- */}
         <StyledTableHead>
@@ -88,7 +89,7 @@ const RcTable: React.FC<RcTableProps> = ({
                 <Typography
                   variant="caption"
                   fontWeight="bold"
-                  color="text.secondary"
+                  sx={{ color: brmsTheme.colors.textGray }}
                 >
                   {header}
                 </Typography>
@@ -105,7 +106,7 @@ const RcTable: React.FC<RcTableProps> = ({
                 <Typography
                   variant="caption"
                   fontWeight="bold"
-                  color="text.secondary"
+                  sx={{ color: brmsTheme.colors.textGray }}
                 >
                   No Data Available
                 </Typography>
@@ -120,7 +121,7 @@ const RcTable: React.FC<RcTableProps> = ({
               >
                 {headers.map((header, i) => (
                   <StyledTableCell key={i}>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" sx={{ color: brmsTheme.colors.textDark }}>
                       {row[header] ?? "-"}
                     </Typography>
                   </StyledTableCell>

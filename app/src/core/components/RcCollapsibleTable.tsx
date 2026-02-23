@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { brmsTheme } from '../theme/brmsTheme';
 
 export type RcColumn<T> = {
   key: keyof T | string;
@@ -65,11 +66,11 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
         maxHeight: '70vh',
         overflowY: 'auto',
         borderRadius: '16px',
-        border: '1px solid #e8edf3',
-        background: '#ffffff',
+        border: `1px solid ${brmsTheme.colors.lightBorder}`,
+        background: brmsTheme.colors.white,
         '&::-webkit-scrollbar': { width: '4px' },
         '&::-webkit-scrollbar-track': { background: 'transparent' },
-        '&::-webkit-scrollbar-thumb': { background: '#d1d9e0', borderRadius: '4px' },
+        '&::-webkit-scrollbar-thumb': { background: brmsTheme.colors.lightBorderHover, borderRadius: '4px' },
       }}
     >
       <Table stickyHeader>
@@ -80,12 +81,12 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
               <TableRow
                 sx={{
                   background: openSections[section.key]
-                    ? 'linear-gradient(90deg, #f0f4ff 0%, #f8f9fe 100%)'
-                    : 'linear-gradient(90deg, #f8fafc 0%, #ffffff 100%)',
-                  borderBottom: '1px solid #e2e8f0',
+                    ? `linear-gradient(90deg, ${brmsTheme.colors.primaryGlowSoft} 0%, ${brmsTheme.colors.surfaceBase} 100%)`
+                    : `linear-gradient(90deg, ${brmsTheme.colors.surfaceBase} 0%, ${brmsTheme.colors.white} 100%)`,
+                  borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
                   transition: 'background 0.2s ease',
                   '&:hover': {
-                    background: 'linear-gradient(90deg, #eef2ff 0%, #f5f7ff 100%)',
+                    background: `linear-gradient(90deg, ${brmsTheme.colors.primaryGlowMid} 0%, ${brmsTheme.colors.formBg} 100%)`,
                     cursor: 'pointer',
                   },
                 }}
@@ -97,7 +98,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                       width: 28,
                       height: 28,
                       borderRadius: '8px',
-                      background: openSections[section.key] ? '#6552D0' : '#e8edf3',
+                      background: openSections[section.key] ? brmsTheme.colors.primary : brmsTheme.colors.lightBorder,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -108,7 +109,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                       size="small"
                       disableRipple
                       onClick={(e) => { e.stopPropagation(); toggleSection(section.key); }}
-                      sx={{ p: 0, color: openSections[section.key] ? 'white' : '#64748b' }}
+                      sx={{ p: 0, color: openSections[section.key] ? brmsTheme.colors.textOnPrimary : brmsTheme.colors.lightTextMid }}
                     >
                       {openSections[section.key] ? (
                         <KeyboardArrowUpIcon sx={{ fontSize: 18 }} />

@@ -6,6 +6,7 @@ import { DeploymentHealthCard } from './Deploymenthealthcard';
 import { PendingSyncsCard } from './Pendingsyncscard';
 import { MonthlyData } from '../api/deployApi';
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
 interface StatsSectionProps {
   stats: {
@@ -59,7 +60,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear,
           subtitle="Cumulative deployment statistics"
           height={170}
           tooltipSuffix="deployments"
-          barColors={["#1976d2", "#2196f3", "#42a5f5"]}
+          barColors={[brmsTheme.colors.info, brmsTheme.colors.chartBlue2, brmsTheme.colors.chartBlue3]}
         />
       </Grid>
     </Grid>

@@ -4,6 +4,7 @@ import React, { useState, type MouseEvent } from "react";
 import { Button, Menu, MenuItem, Box, Typography } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { brmsTheme } from '../theme/brmsTheme';
 
 export type RcDropdownItem = {
   label: string;
@@ -43,10 +44,18 @@ const RcDropdown: React.FC<RcDropdownProps> = ({
       <Button variant="outlined"
         color="inherit"
         onClick={handleOpen}
-        startIcon={startIcon ?? <FolderIcon />}
-        endIcon={<KeyboardArrowDownIcon/>}
+        startIcon={startIcon ?? <FolderIcon sx={{ color: brmsTheme.colors.panelIndigo }} />}
+        endIcon={<KeyboardArrowDownIcon sx={{ color: brmsTheme.colors.textGray }} />}
         disabled={disabled}
-        sx={{ textTransform: "none" }}
+        sx={{ 
+          textTransform: "none",
+          borderColor: brmsTheme.colors.lightBorder,
+          color: brmsTheme.colors.textDark,
+          '&:hover': {
+            borderColor: brmsTheme.colors.panelIndigo,
+            backgroundColor: brmsTheme.colors.primaryGlowSoft,
+          }
+        }}
       >
         {label}
       </Button>
@@ -57,6 +66,12 @@ const RcDropdown: React.FC<RcDropdownProps> = ({
         onClose={handleClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          sx: {
+            border: `1px solid ${brmsTheme.colors.lightBorder}`,
+            boxShadow: brmsTheme.shadows.primarySoft,
+          }
+        }}
       >
         {items.map((item) => (
         <MenuItem
@@ -65,7 +80,18 @@ const RcDropdown: React.FC<RcDropdownProps> = ({
           handleClose();
           onSelect(item.value);
           }}
-          sx={item.isAddNew ? { color: 'primary.main', fontWeight: 500 } : {}}
+          sx={item.isAddNew ? { 
+            color: brmsTheme.colors.primary, 
+            fontWeight: 600,
+            '&:hover': {
+              backgroundColor: brmsTheme.colors.primaryGlowSoft,
+            }
+          } : {
+            color: brmsTheme.colors.textDark,
+            '&:hover': {
+              backgroundColor: brmsTheme.colors.lightSurfaceHover,
+            }
+          }}
         >
             <Box display="flex" alignItems="center" gap={1}>
               {item.icon}

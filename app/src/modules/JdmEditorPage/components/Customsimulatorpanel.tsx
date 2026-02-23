@@ -9,6 +9,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { CustomSimulatorPanelProps, ExecuteResponse, JsonObject } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
 
 export default function CustomSimulatorPanel({
@@ -58,8 +59,8 @@ export default function CustomSimulatorPanel({
         display: 'flex', 
         flexDirection: 'column', 
         height: '100%', 
-        backgroundColor: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        backgroundColor: brmsTheme.colors.white,
+        fontFamily: brmsTheme.fonts.sans
       }}
     >
       {/* Header */}
@@ -70,8 +71,8 @@ export default function CustomSimulatorPanel({
           justifyContent: 'space-between',
           px: 3,
           py: 2,
-          borderBottom: '1px solid #e5e7eb',
-          backgroundColor: '#ffffff',
+          borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
+          backgroundColor: brmsTheme.colors.white,
         }}
       >
         <Typography
@@ -79,7 +80,7 @@ export default function CustomSimulatorPanel({
           sx={{
             fontSize: '0.9375rem',
             fontWeight: 600,
-            color: '#111827',
+            color: brmsTheme.colors.textDark,
             letterSpacing: '-0.01em',
           }}
         >
@@ -96,13 +97,13 @@ export default function CustomSimulatorPanel({
               fontSize: '0.8125rem',
               fontWeight: 600,
               textTransform: 'none',
-              color: '#6b7280',
-              borderColor: '#e5e7eb',
+              color: brmsTheme.colors.textGray,
+              borderColor: brmsTheme.colors.lightBorder,
               borderRadius: '6px',
               px: 1.5,
               '&:hover': {
-                backgroundColor: '#f9fafb',
-                borderColor: '#d1d5db',
+                backgroundColor: brmsTheme.colors.bgGrayLight,
+                borderColor: brmsTheme.colors.lightBorderHover,
               },
             }}
           >
@@ -119,18 +120,18 @@ export default function CustomSimulatorPanel({
               fontSize: '0.8125rem',
               fontWeight: 600,
               textTransform: 'none',
-              backgroundColor: '#6552D0',
-              color: '#ffffff',
+              backgroundColor: brmsTheme.colors.primary,
+              color: brmsTheme.colors.textOnPrimary,
               borderRadius: '6px',
               px: 2,
               boxShadow: 'none',
               '&:hover': {
-                backgroundColor: '#6552D0',
+                backgroundColor: brmsTheme.colors.primary,
                 boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
               },
               '&:disabled': {
-                backgroundColor: '#e5e7eb',
-                color: '#9ca3af',
+                backgroundColor: brmsTheme.colors.lightBorder,
+                color: brmsTheme.colors.textGrayLight,
               },
             }}
           >
@@ -146,7 +147,7 @@ export default function CustomSimulatorPanel({
           flex: 1, 
           display: 'flex', 
           flexDirection: 'column',
-          borderRight: '1px solid #e5e7eb',
+          borderRight: `1px solid ${brmsTheme.colors.lightBorder}`,
         }}>
           <Box 
             sx={{ 
@@ -155,16 +156,16 @@ export default function CustomSimulatorPanel({
               gap: 1,
               px: 3,
               py: 1.5,
-              backgroundColor: '#f9fafb',
-              borderBottom: '1px solid #e5e7eb',
+              backgroundColor: brmsTheme.colors.bgGrayLight,
+              borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
             }}
           >
-            <CodeIcon sx={{ fontSize: 16, color: '#6b7280' }} />
+            <CodeIcon sx={{ fontSize: 16, color: brmsTheme.colors.textGray }} />
             <Typography 
               variant="subtitle2" 
               sx={{ 
                 fontWeight: 600,
-                color: '#374151',
+                color: brmsTheme.colors.navTextHigh,
                 fontSize: '0.8125rem',
                 letterSpacing: '-0.01em',
               }}
@@ -177,13 +178,13 @@ export default function CustomSimulatorPanel({
               elevation={0}
               sx={{
                 height: '100%',
-                border: '1px solid #e5e7eb',
+                border: `1px solid ${brmsTheme.colors.lightBorder}`,
                 borderRadius: '8px',
                 overflow: 'hidden',
-                backgroundColor: '#fafafa',
+                backgroundColor: brmsTheme.colors.surfaceBase,
                 '&:focus-within': {
-                  borderColor: '#3b82f6',
-                  backgroundColor: '#ffffff',
+                  borderColor: brmsTheme.colors.focusBlue,
+                  backgroundColor: brmsTheme.colors.white,
                   boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
                 },
                 transition: 'all 0.15s ease',
@@ -204,16 +205,16 @@ export default function CustomSimulatorPanel({
                   '& .MuiInputBase-root': {
                     height: '100%',
                     alignItems: 'flex-start',
-                    fontFamily: '"SF Mono", "Monaco", "Consolas", monospace',
+                    fontFamily: brmsTheme.fonts.mono,
                     fontSize: '0.8125rem',
                     lineHeight: 1.6,
                     p: 2,
-                    color: '#111827',
+                    color: brmsTheme.colors.textDark,
                   },
                   '& textarea': {
                     height: '100% !important',
                     '&::placeholder': {
-                      color: '#9ca3af',
+                      color: brmsTheme.colors.textGrayLight,
                       opacity: 1,
                     }
                   }
@@ -234,13 +235,13 @@ export default function CustomSimulatorPanel({
             onChange={(e, v) => setActiveTab(v)}
             sx={{
               minHeight: 48,
-              borderBottom: '1px solid #e5e7eb',
-              backgroundColor: '#f9fafb',
+              borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
+              backgroundColor: brmsTheme.colors.bgGrayLight,
               px: 2,
               '& .MuiTabs-indicator': {
                 height: 2,
                 borderRadius: '2px 2px 0 0',
-                backgroundColor: '#3b82f6',
+                backgroundColor: brmsTheme.colors.focusBlue,
               },
               '& .MuiTab-root': {
                 minHeight: 48,
@@ -248,14 +249,14 @@ export default function CustomSimulatorPanel({
                 fontSize: '0.8125rem',
                 fontWeight: 600,
                 minWidth: 90,
-                color: '#6b7280',
+                color: brmsTheme.colors.textGray,
                 letterSpacing: '-0.01em',
                 px: 2,
                 '&.Mui-selected': {
-                  color: '#111827',
+                  color: brmsTheme.colors.textDark,
                 },
                 '&:hover': {
-                  color: '#374151',
+                  color: brmsTheme.colors.navTextHigh,
                 },
               }
             }}
@@ -271,22 +272,22 @@ export default function CustomSimulatorPanel({
               iconPosition="start"
             />
           </Tabs>
-          <Box sx={{ flex: 1, p: 3, overflow: 'auto', backgroundColor: '#fafafa' }}>
+          <Box sx={{ flex: 1, p: 3, overflow: 'auto', backgroundColor: brmsTheme.colors.surfaceBase }}>
             {activeTab === 0 && (
               result ? (
                 <Paper
                   elevation={0}
                   sx={{
-                    fontFamily: '"SF Mono", "Monaco", "Consolas", monospace',
+                    fontFamily: brmsTheme.fonts.mono,
                     fontSize: '0.8125rem',
                     lineHeight: 1.6,
                     whiteSpace: 'pre-wrap',
-                    backgroundColor: result.status === 'error' ? '#fef2f2' : '#f9fafb',
-                    color: result.status === 'error' ? '#991b1b' : '#111827',
+                    backgroundColor: result.status === 'error' ? brmsTheme.colors.errorBg : brmsTheme.colors.bgGrayLight,
+                    color: result.status === 'error' ? brmsTheme.colors.statusDeprecatedText : brmsTheme.colors.textDark,
                     p: 2.5,
                     borderRadius: '8px',
                     border: '1px solid',
-                    borderColor: result.status === 'error' ? '#fecaca' : '#e5e7eb',
+                    borderColor: result.status === 'error' ? brmsTheme.colors.errorBorder : brmsTheme.colors.lightBorder,
                     position: 'relative',
                   }}
                 >
@@ -304,8 +305,8 @@ export default function CustomSimulatorPanel({
                     {result.status === 'success' ? (
                       <>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <CheckCircleOutlineIcon sx={{ fontSize: 16, color: '#059669' }} />
-                          <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: '#059669' }}>
+                          <CheckCircleOutlineIcon sx={{ fontSize: 16, color: brmsTheme.colors.success }} />
+                          <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: brmsTheme.colors.success }}>
                             Success
                           </Typography>
                         </Box>
@@ -317,8 +318,8 @@ export default function CustomSimulatorPanel({
                               height: 24,
                               fontSize: '0.75rem',
                               fontWeight: 600,
-                              backgroundColor: '#d1fae5',
-                              color: '#065f46',
+                              backgroundColor: brmsTheme.colors.approvedBg,
+                              color: brmsTheme.colors.approvedText,
                               borderRadius: '6px',
                               '& .MuiChip-label': {
                                 px: 1.5,
@@ -329,8 +330,8 @@ export default function CustomSimulatorPanel({
                       </>
                     ) : (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <ErrorOutlineIcon sx={{ fontSize: 16, color: '#dc2626' }} />
-                        <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: '#dc2626' }}>
+                        <ErrorOutlineIcon sx={{ fontSize: 16, color: brmsTheme.colors.deleteRed }} />
+                        <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: brmsTheme.colors.deleteRed }}>
                           Error
                         </Typography>
                       </Box>
@@ -356,17 +357,17 @@ export default function CustomSimulatorPanel({
                       width: 64,
                       height: 64,
                       borderRadius: '12px',
-                      backgroundColor: '#f3f4f6',
+                      backgroundColor: brmsTheme.colors.bgGray,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <PlayArrowIcon sx={{ fontSize: 28, color: '#9ca3af' }} />
+                    <PlayArrowIcon sx={{ fontSize: 28, color: brmsTheme.colors.textGrayLight }} />
                   </Box>
                   <Typography
                     sx={{
-                      color: '#111827',
+                      color: brmsTheme.colors.textDark,
                       fontSize: '0.9375rem',
                       fontWeight: 600,
                       letterSpacing: '-0.01em',
@@ -376,7 +377,7 @@ export default function CustomSimulatorPanel({
                   </Typography>
                   <Typography 
                     sx={{ 
-                      color: '#6b7280',
+                      color: brmsTheme.colors.textGray,
                       fontSize: '0.8125rem',
                       textAlign: 'center',
                       maxWidth: 280,
@@ -392,15 +393,15 @@ export default function CustomSimulatorPanel({
               <Paper
                 elevation={0}
                 sx={{
-                  fontFamily: '"SF Mono", "Monaco", "Consolas", monospace',
+                  fontFamily: brmsTheme.fonts.mono,
                   fontSize: '0.8125rem',
                   lineHeight: 1.6,
                   whiteSpace: 'pre-wrap',
-                  backgroundColor: '#f9fafb',
-                  color: '#111827',
+                  backgroundColor: brmsTheme.colors.bgGrayLight,
+                  color: brmsTheme.colors.textDark,
                   p: 2.5,
                   borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
+                  border: `1px solid ${brmsTheme.colors.lightBorder}`,
                 }}
               >
                 {context}

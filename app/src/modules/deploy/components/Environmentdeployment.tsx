@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { Environment } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
 interface EnvironmentDeploymentProps {
   environments: Environment[];
@@ -70,11 +71,11 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
             py: 2.5,
             fontSize: '1.1rem',
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',
+            background: brmsTheme.gradients.primary,
             boxShadow: 3,
             '&:hover': {
               boxShadow: 6,
-              background: 'linear-gradient(135deg, #5443B8 0%, #14192F 100%)',
+              background: brmsTheme.gradients.primaryHover,
             },
           }}
         >

@@ -175,16 +175,6 @@ const CountText = styled(Typography)({
   letterSpacing: '0.08em',
 });
 
-const Footer = styled(Typography)({
-  fontSize: '0.625rem',
-  color: brmsTheme.colors.panelTextLow,
-  fontWeight: 500,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  fontFamily: brmsTheme.fonts.mono,
-  flexShrink: 0,
-  marginTop: '32px',
-});
 
 const Feature = ({ children, last }: { children: string; last?: boolean }) => (
   <FeatureItem last={last}>
@@ -246,8 +236,6 @@ export default function VerticalLeftPanel({ verticalCount, loading }: VerticalLe
           )}
         </HeroSection>
 
-        {/* Footer */}
-        <Footer>BRMS Platform · 2025</Footer>
       </ContentContainer>
     </LeftPanelContainer>
   );

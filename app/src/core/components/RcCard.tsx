@@ -6,6 +6,7 @@ import React from 'react';
 import { Paper, Typography, Box } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
+import { brmsTheme } from '../theme/brmsTheme';
 
 interface CardProps {
   children: React.ReactNode;
@@ -45,9 +46,9 @@ export const RcCard: React.FC<CardProps> = ({
       sx={{
         p: 3,
         borderRadius: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: brmsTheme.colors.white,
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        border: `1px solid ${brmsTheme.colors.lightBorder}`,
         ...sx,
       }}
       className={className}
