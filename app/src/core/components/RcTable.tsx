@@ -8,15 +8,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import type { ReactNode } from "react";
 import { brmsTheme } from '../theme/brmsTheme';
+import { RcTableProps } from "../types/commonTypes";
 
-export type RcTableProps = {
-  headers: readonly string[];
-  rows: Record<string, ReactNode>[];
-  onRowClick?: (row: Record<string, ReactNode>, index: number) => void;
-  selectedRowIndex?: number | null;
-};
 
 // ---------------- STYLED COMPONENTS ----------------
 

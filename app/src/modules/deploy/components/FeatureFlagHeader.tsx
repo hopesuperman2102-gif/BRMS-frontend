@@ -4,9 +4,11 @@ import React from 'react';
 import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { RcCard } from 'app/src/core/components/RcCard';
-import RcDropdown, { RcDropdownItem } from 'app/src/core/components/RcDropdown';
+
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { Environment } from '../types/featureFlagTypes';
+import { RcDropdownItem } from 'app/src/core/types/commonTypes';
+import RcDropdown from 'app/src/core/components/RcDropdown';
 
 interface FeatureFlagHeaderProps {
   totalRules: number;

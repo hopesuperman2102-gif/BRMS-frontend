@@ -4,14 +4,7 @@
 
 import React from 'react';
 import { Box, Typography, CircularProgress as MuiCircularProgress } from '@mui/material';
-
-interface CircularProgressProps {
-  percentage: number;
-  size?: number;
-  thickness?: number;
-  label?: string;
-  sublabel?: string;
-}
+import { CircularProgressProps } from '../types/commonTypes';
 
 export const CircularProgress: React.FC<CircularProgressProps> = ({
   percentage,
