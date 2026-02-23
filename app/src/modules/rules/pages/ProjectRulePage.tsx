@@ -11,6 +11,7 @@ import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { RulesLeftPanel } from '../components/Rulesleftpanel';
 import { ConfirmDialogState, RuleResponse } from '../types/rulesTypes';
+import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 
 const { colors, fonts } = brmsTheme;
 
@@ -80,6 +81,7 @@ const MenuDivider = styled(Divider)({
 export default function ProjectRulePage() {
   const { project_key, vertical_Key } = useParams<{ project_key: string; vertical_Key: string }>();
   const navigate = useNavigate();
+  const { showAlert } = useAlertStore();
 
   const [projectName, setProjectName]   = useState<string>('');
   const [verticalName, setVerticalName] = useState<string>('');
@@ -268,6 +270,7 @@ export default function ProjectRulePage() {
     if (!folder) return;
     const newFolderPath = folder.parentPath ? `${folder.parentPath}/${trimmedName}` : trimmedName;
     if (folders.some((f) => f.path === newFolderPath && f.path !== editingFolderId)) {
+      showAlert(`A folder named "${trimmedName}" already exists here.`, 'error');
       setFolders((prev) => prev.filter((f) => f.path !== editingFolderId));
       clearEditing();
       return;
@@ -398,6 +401,7 @@ export default function ProjectRulePage() {
         onConfirm={confirmDialog.onConfirm}
         onCancel={closeConfirmDialog}
       />
+      <RcAlertComponent />
     </>
   );
 }

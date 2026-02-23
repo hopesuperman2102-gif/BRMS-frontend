@@ -11,7 +11,7 @@ export const useAlertStore = create<AlertStateProps>((set) => ({
   hideAlert: () => set({ open: false }),
 }));
 
-export default function AlertComponent() {
+export default function RcAlertComponent() {
   const { open, message, type, hideAlert } = useAlertStore();
 
   return (
