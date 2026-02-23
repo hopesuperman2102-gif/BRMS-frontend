@@ -1,40 +1,26 @@
 import { ENV } from '../../../config/env';
 import { ProjectView, VerticalProjectsResponse } from '../types/projectListTypes';
+import axiosInstance from '../../auth/Axiosinstance';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
-const JSON_HEADERS = {
-  'Content-Type': 'application/json',
-  Accept: 'application/json',
-} as const;
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error((err as { detail?: string }).detail || `HTTP ${response.status}`);
-  }
-  return response.json() as Promise<T>;
-}
-
 // ─── Cache ────────────────────────────────────────────────────────────────────
 
-const TTL_MS = 30_000; // 30 seconds — fresh enough to dedupe simultaneous calls, short enough to reflect updates on tab switch
+const TTL_MS = 30_000;
 
 interface CacheEntry {
   data: VerticalProjectsResponse;
   expiresAt: number;
 }
 
-const dataCache   = new Map<string, CacheEntry>();
+const dataCache = new Map<string, CacheEntry>();
 const inflightCache = new Map<string, Promise<VerticalProjectsResponse>>();
 
 // ─── API ──────────────────────────────────────────────────────────────────────
 
 export const projectsApi = {
 
-  getVerticalProjects: async (
-    vertical_key: string,
-  ): Promise<VerticalProjectsResponse> => {
+  getVerticalProjects: async (vertical_key: string): Promise<VerticalProjectsResponse> => {
 
     // 1. Return cached data only if still within TTL
     const cached = dataCache.get(vertical_key);
@@ -42,21 +28,20 @@ export const projectsApi = {
       return cached.data;
     }
 
-    // 2. Return existing in-flight promise — simultaneous callers share ONE fetch
+    // 2. Return existing in-flight promise
     if (inflightCache.has(vertical_key)) {
       return inflightCache.get(vertical_key)!;
     }
 
-    // 3. New request — cache the promise immediately before awaiting
-    const promise = fetch(
-      `${API_BASE_URL}/api/v1/verticals/${vertical_key}/projects?status=ACTIVE`,
-      { method: 'GET', headers: JSON_HEADERS },
-    )
-      .then((res) => handleResponse<VerticalProjectsResponse>(res))
-      .then((data) => {
-        dataCache.set(vertical_key, { data, expiresAt: Date.now() + TTL_MS });
+    // 3. New request
+    const promise = axiosInstance
+      .get<VerticalProjectsResponse>(
+        `${API_BASE_URL}/api/v1/verticals/${vertical_key}/projects?status=ACTIVE`
+      )
+      .then((res) => {
+        dataCache.set(vertical_key, { data: res.data, expiresAt: Date.now() + TTL_MS });
         inflightCache.delete(vertical_key);
-        return data;
+        return res.data;
       })
       .catch((err) => {
         inflightCache.delete(vertical_key);
@@ -88,44 +73,35 @@ export const projectsApi = {
     vertical_key: string;
     domain: string;
   }) => {
-    if (ENV.ENABLE_LOGGING) console.log(' Creating project:', data);
-    const res = await fetch(`${API_BASE_URL}/api/v1/projects/`, {
-      method: 'POST',
-      headers: JSON_HEADERS,
-      body: JSON.stringify(data),
-    });
-    const result = await handleResponse(res);
+    if (ENV.ENABLE_LOGGING) console.log('Creating project:', data);
+    const res = await axiosInstance.post(`${API_BASE_URL}/api/v1/projects/`, data);
     projectsApi.invalidateProjectsCache(data.vertical_key);
-    if (ENV.ENABLE_LOGGING) console.log(' Project created:', result);
-    return result;
+    if (ENV.ENABLE_LOGGING) console.log('Project created:', res.data);
+    return res.data;
   },
 
   deleteProject: async (project_key: string, deleted_by: string) => {
-    if (ENV.ENABLE_LOGGING) console.log('🗑 Deleting project:', project_key);
-    const res = await fetch(
-      `${API_BASE_URL}/api/v1/projects/${project_key}?deleted_by=${deleted_by}`,
-      { method: 'DELETE', headers: JSON_HEADERS },
+    if (ENV.ENABLE_LOGGING) console.log('Deleting project:', project_key);
+    const res = await axiosInstance.delete(
+      `${API_BASE_URL}/api/v1/projects/${project_key}?deleted_by=${deleted_by}`
     );
-    const result = await handleResponse(res);
     projectsApi.invalidateProjectsCache();
-    if (ENV.ENABLE_LOGGING) console.log(' Project deleted:', project_key);
-    return result;
+    if (ENV.ENABLE_LOGGING) console.log('Project deleted:', project_key);
+    return res.data;
   },
 
   updateProject: async (
     project_key: string,
     data: { name: string; description?: string; domain?: string },
   ) => {
-    if (ENV.ENABLE_LOGGING) console.log(' Updating project:', project_key, data);
-    const res = await fetch(`${API_BASE_URL}/api/v1/projects/${project_key}`, {
-      method: 'PUT',
-      headers: JSON_HEADERS,
-      body: JSON.stringify({ ...data, updated_by: 'admin' }),
-    });
-    const result = await handleResponse(res);
+    if (ENV.ENABLE_LOGGING) console.log('Updating project:', project_key, data);
+    const res = await axiosInstance.put(
+      `${API_BASE_URL}/api/v1/projects/${project_key}`,
+      { ...data, updated_by: 'admin' }
+    );
     projectsApi.invalidateProjectsCache();
-    if (ENV.ENABLE_LOGGING) console.log(' Project updated:', result);
-    return result;
+    if (ENV.ENABLE_LOGGING) console.log('Project updated:', res.data);
+    return res.data;
   },
 
   checkProjectNameExists: async (name: string, vertical_key: string): Promise<boolean> => {
@@ -135,12 +111,12 @@ export const projectsApi = {
         (p) => p.name.toLowerCase().trim() === name.toLowerCase().trim(),
       );
     } catch (error) {
-      if (ENV.ENABLE_LOGGING) console.error(' Error checking project name:', error);
+      if (ENV.ENABLE_LOGGING) console.error('Error checking project name:', error);
       throw error;
     }
   },
 };
 
 if (ENV.DEBUG_MODE) {
-  console.log(' Projects API Base URL:', API_BASE_URL);
+  console.log('Projects API Base URL:', API_BASE_URL);
 }

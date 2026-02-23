@@ -1,5 +1,6 @@
 import { ENV } from '../../../config/env';
 import { Rule, DeployedRule } from '../types/featureFlagTypes';
+import axiosInstance from '../../auth/Axiosinstance';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
@@ -44,107 +45,39 @@ export interface DeployRulePayload {
 export interface DeployRuleResponse {
   success: boolean;
   message?: string;
-  [key: string]: string | boolean | number | null | undefined; 
+  [key: string]: string | boolean | number | null | undefined;
 }
 
 export const deployApi = {
   getDashboardSummary: async (vertical_key: string): Promise<DashboardSummary> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Fetching dashboard summary for vertical:', vertical_key);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/env/dashboard/summary`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({ vertical_key }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch dashboard summary');
-    }
-
-    const result = await response.json();
-    if (ENV.ENABLE_LOGGING) console.log('✅ Dashboard summary fetched:', result);
-    return result;
+    const res = await axiosInstance.post<DashboardSummary>(
+      `${API_BASE_URL}/api/v1/env/dashboard/summary`,
+      { vertical_key }
+    );
+    return res.data;
   },
 
   getDashboardStats: async (project_key: string, environment: string): Promise<DashboardStats> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Fetching dashboard stats for project:', project_key, 'environment:', environment);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/env/dashboard/stats`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({ project_key, env: environment }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch dashboard stats');
-    }
-
-    const result = await response.json();
-    if (ENV.ENABLE_LOGGING) console.log('✅ Dashboard stats fetched:', result);
-    return result;
+    const res = await axiosInstance.post<DashboardStats>(
+      `${API_BASE_URL}/api/v1/env/dashboard/stats`,
+      { project_key, env: environment }
+    );
+    return res.data;
   },
 
   getDeploymentRules: async (project_key: string, environment: string): Promise<Rule[]> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Fetching deployment rules for project:', project_key, 'environment:', environment);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/bindings/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({ project_key, env: environment }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to fetch deployment rules');
-    }
-
-    const result = await response.json();
-    if (ENV.ENABLE_LOGGING) console.log('✅ Deployment rules fetched:', result);
-    return result.rules || result.undeployed_approved_versions || [];
+    const res = await axiosInstance.post<{ rules?: Rule[]; undeployed_approved_versions?: Rule[] }>(
+      `${API_BASE_URL}/api/v1/bindings/`,
+      { project_key, env: environment }
+    );
+    return res.data.rules || res.data.undeployed_approved_versions || [];
   },
 
   deployRule: async (payload: DeployRulePayload): Promise<DeployRuleResponse> => {
-    if (ENV.ENABLE_LOGGING) {
-      console.log('🔄 Deploying rule:', payload);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/v1/bindings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Failed to deploy rule');
-    }
-
-    const result = await response.json();
-    if (ENV.ENABLE_LOGGING) console.log('✅ Rule deployed successfully:', result);
-    return result;
+    const res = await axiosInstance.post<DeployRuleResponse>(
+      `${API_BASE_URL}/api/v1/bindings`,
+      payload
+    );
+    return res.data;
   },
 };
-
-if (ENV.DEBUG_MODE) {
-  console.log('📡 Dashboard API Base URL:', API_BASE_URL);
-}

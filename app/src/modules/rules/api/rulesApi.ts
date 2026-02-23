@@ -1,22 +1,10 @@
 import { ENV } from '../../../config/env';
 import { ProjectRulesResult, RuleResponse, RuleVersion, VerticalProjectRulesResponse } from '../types/rulesTypes';
+import axiosInstance from '../../auth/Axiosinstance';
 
 const BASE = ENV.API_BASE_URL;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error((err as { detail?: string }).detail || `HTTP ${response.status}`);
-  }
-  return response.json() as Promise<T>;
-}
-
-const JSON_HEADERS = {
-  'Content-Type': 'application/json',
-  Accept: 'application/json',
-} as const;
 
 function getLatestVersion(versions: RuleVersion[]): string {
   if (!versions || versions.length === 0) return 'Unversioned';
@@ -36,11 +24,10 @@ export const rulesApi = {
     project_key: string,
     vertical_key: string,
   ): Promise<ProjectRulesResult> => {
-    const res = await fetch(
-      `${BASE}/api/v1/verticals/${vertical_key}/projects/${project_key}/rules`,
-      { method: 'GET', headers: JSON_HEADERS },
+    const res = await axiosInstance.get<VerticalProjectRulesResponse>(
+      `${BASE}/api/v1/verticals/${vertical_key}/projects/${project_key}/rules`
     );
-    const result = await handleResponse<VerticalProjectRulesResponse>(res);
+    const result = res.data;
     const rawRules = Array.isArray(result?.rules) ? result.rules : [];
 
     const rules: RuleResponse[] = rawRules.map((r) => ({
@@ -71,29 +58,24 @@ export const rulesApi = {
     description: string;
     directory?: string;
   }): Promise<RuleResponse> => {
-    const res = await fetch(`${BASE}/api/v1/projects/${data.project_key}/rules`, {
-      method: 'POST',
-      headers: JSON_HEADERS,
-      body: JSON.stringify(data),
-    });
-    return handleResponse<RuleResponse>(res);
+    const res = await axiosInstance.post<RuleResponse>(
+      `${BASE}/api/v1/projects/${data.project_key}/rules`,
+      data
+    );
+    return res.data;
   },
 
   getRuleDetails: async (rule_key: string): Promise<RuleResponse> => {
-    const res = await fetch(`${BASE}/api/v1/rules/${rule_key}`, {
-      method: 'GET',
-      headers: JSON_HEADERS,
-    });
-    return handleResponse<RuleResponse>(res);
+    const res = await axiosInstance.get<RuleResponse>(`${BASE}/api/v1/rules/${rule_key}`);
+    return res.data;
   },
 
   deleteRule: async (rule_key: string): Promise<unknown> => {
-    const res = await fetch(`${BASE}/api/v1/rules/${rule_key}`, {
-      method: 'DELETE',
-      headers: JSON_HEADERS,
-      body: JSON.stringify({ rule_key }),
-    });
-    return handleResponse<unknown>(res);
+    const res = await axiosInstance.delete<unknown>(
+      `${BASE}/api/v1/rules/${rule_key}`,
+      { data: { rule_key } }
+    );
+    return res.data;
   },
 
   updateRule: async (data: {
@@ -102,12 +84,11 @@ export const rulesApi = {
     description: string;
     updated_by: string;
   }): Promise<RuleResponse> => {
-    const res = await fetch(`${BASE}/api/v1/rules/${data.rule_key}`, {
-      method: 'PUT',
-      headers: JSON_HEADERS,
-      body: JSON.stringify(data),
-    });
-    return handleResponse<RuleResponse>(res);
+    const res = await axiosInstance.put<RuleResponse>(
+      `${BASE}/api/v1/rules/${data.rule_key}`,
+      data
+    );
+    return res.data;
   },
 
   updateRuleDirectory: async (data: {
@@ -115,12 +96,11 @@ export const rulesApi = {
     updated_by: string;
     directory: string;
   }): Promise<RuleResponse> => {
-    const res = await fetch(`${BASE}/api/v1/rules/${data.rule_key}/directory`, {
-      method: 'PUT',
-      headers: JSON_HEADERS,
-      body: JSON.stringify({ updated_by: data.updated_by, directory: data.directory }),
-    });
-    return handleResponse<RuleResponse>(res);
+    const res = await axiosInstance.put<RuleResponse>(
+      `${BASE}/api/v1/rules/${data.rule_key}/directory`,
+      { updated_by: data.updated_by, directory: data.directory }
+    );
+    return res.data;
   },
 
   updateRuleNameAndDirectory: async (data: {
