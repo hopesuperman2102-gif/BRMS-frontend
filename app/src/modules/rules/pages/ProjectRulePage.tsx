@@ -10,9 +10,9 @@ import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explore
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { ConfirmDialogState, RuleResponse } from '../types/rulesTypes';
+import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 import RulesRightPanel from '../components/RulesRightPanel';
 import RulesLeftPanel from '../components/Rulesleftpanel';
-import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 
 const { colors, fonts } = brmsTheme;
 

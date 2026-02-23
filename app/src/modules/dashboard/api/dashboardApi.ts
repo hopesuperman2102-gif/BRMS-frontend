@@ -1,19 +1,7 @@
 import { ENV } from '../../../config/env';
+import axiosInstance from '../../auth/Axiosinstance';
 
 const BASE = ENV.API_BASE_URL;
-
-const JSON_HEADERS = {
-  'Content-Type': 'application/json',
-  Accept: 'application/json',
-} as const;
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error((err as { detail?: string }).detail || `HTTP ${response.status}`);
-  }
-  return response.json() as Promise<T>;
-}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -35,8 +23,7 @@ export interface DashboardSummary {
 }
 
 // ─── Inflight-only cache ──────────────────────────────────────────────────────
-// Dedupes simultaneous calls only — clears itself once resolved
-// Never serves stale data on re-mount/navigation
+// Dedupes simultaneous calls only — clears once resolved, never serves stale data
 
 const inflightCache = new Map<string, Promise<DashboardSummary>>();
 
@@ -52,14 +39,11 @@ export const dashboardApi = {
     }
 
     // New request — cache promise immediately so simultaneous callers share it
-    const promise = fetch(
-      `${BASE}/api/v1/dashboard/${vertical_key}`,
-      { method: 'GET', headers: JSON_HEADERS },
-    )
-      .then((res) => handleResponse<DashboardSummary>(res))
-      .then((data) => {
-        inflightCache.delete(vertical_key); // clear once resolved — next call hits API fresh
-        return data;
+    const promise = axiosInstance
+      .get<DashboardSummary>(`${BASE}/api/v1/dashboard/${vertical_key}`)
+      .then((res) => {
+        inflightCache.delete(vertical_key); // clear once resolved
+        return res.data;
       })
       .catch((err) => {
         inflightCache.delete(vertical_key); // clear on error too
