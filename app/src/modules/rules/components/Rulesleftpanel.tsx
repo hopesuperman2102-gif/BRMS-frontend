@@ -1,25 +1,17 @@
 'use client';
 
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AccountTree from '@mui/icons-material/AccountTree';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { RulesLeftPanelProps } from '../types/Explorertypes';
+import { FileNode, FolderNode, RulesLeftPanelProps } from '../types/Explorertypes';
 
 const { colors, fonts } = brmsTheme;
 
-const STATUS_DOT: Record<string, string> = {
-  using:      colors.statusUsingDot,
-  active:     colors.statusUsingDot,
-  draft:      colors.statusDraftDot,
-  inactive:   colors.statusInactiveDot,
-  deprecated: colors.statusDeprecatedDot,
-};
-
-/* ─── Styled Components ─────────────────────────────────── */
-
-const PanelRoot = styled('div')(({ theme }) => ({
+/* ─── Styled Components ───────────────────────────────────── */
+const LeftPanel = styled(Box)({
   display: 'none',
+  '@media (min-width: 900px)': { display: 'flex' },
   flexDirection: 'column',
   width: '38%',
   flexShrink: 0,
@@ -28,23 +20,20 @@ const PanelRoot = styled('div')(({ theme }) => ({
   position: 'relative',
   overflow: 'hidden',
   padding: '32px 36px',
-  [theme.breakpoints.up('md')]: {
-    display: 'flex',
-  },
-}));
+});
 
-const GlowOrb = styled('div')({
+const LeftVignette = styled(Box)({
   position: 'absolute',
   bottom: -80,
   left: -80,
   width: 360,
   height: 360,
   borderRadius: '50%',
-  background: `radial-gradient(circle, ${colors.panelIndigoGlow} 0%, transparent 60%)`,
   pointerEvents: 'none',
+  background: 'radial-gradient(circle, rgba(79,70,229,0.16) 0%, transparent 60%)',
 });
 
-const DotGrid = styled('div')({
+const LeftDotGrid = styled(Box)({
   position: 'absolute',
   inset: 0,
   pointerEvents: 'none',
@@ -53,7 +42,7 @@ const DotGrid = styled('div')({
   backgroundSize: '28px 28px',
 });
 
-const PanelInner = styled('div')({
+const LeftContent = styled(Box)({
   position: 'relative',
   zIndex: 1,
   display: 'flex',
@@ -61,53 +50,48 @@ const PanelInner = styled('div')({
   height: '100%',
 });
 
-const TitleRow = styled('div')({
+const LeftTitleRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
-  marginBottom: '8px',
+  gap: 10,
+  marginBottom: 16,
 });
 
-const IconBox = styled('div')({
+const IconBox = styled(Box)({
   width: 36,
   height: 36,
   borderRadius: '8px',
+  flexShrink: 0,
   background: colors.panelIndigoTint15,
   border: `1px solid ${colors.panelIndigoTint25}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  flexShrink: 0,
 });
 
-const AccountTreeIcon = styled(AccountTree)({
-  fontSize: 18,
-  color: colors.indigoLight,
-});
-
-const PanelTitle = styled(Typography)({
-  fontSize: '1rem',
+const LeftTitleText = styled(Typography)({
+  fontSize: '1.125rem',
   fontWeight: 800,
-  color: colors.white,
+  color: colors.textOnPrimary,
   letterSpacing: '-0.025em',
   lineHeight: 1,
 });
 
-const PanelSubtitle = styled(Typography)({
+const LeftSubtitle = styled(Typography)({
   fontSize: '0.8125rem',
   color: colors.panelTextMid,
   lineHeight: 1.75,
-  marginBottom: '24px',
-  fontWeight: 400,
+  marginBottom: 24,
 });
 
-const CountCardsRow = styled('div')({
+/* ── Stat Cards row ── */
+const StatsCardsRow = styled(Box)({
   display: 'flex',
   gap: '12px',
   marginBottom: '28px',
 });
 
-const CountCard = styled('div')({
+const StatCard = styled(Box)({
   flex: 1,
   borderRadius: '8px',
   border: `1px solid ${colors.panelBorder}`,
@@ -115,16 +99,16 @@ const CountCard = styled('div')({
   background: 'rgba(255,255,255,0.03)',
 });
 
-const CountValue = styled(Typography)({
+const StatValue = styled(Typography)({
   fontSize: '1.375rem',
   fontWeight: 800,
-  color: colors.white,
+  color: colors.textOnPrimary,
   fontFamily: fonts.mono,
   lineHeight: 1,
   marginBottom: '4px',
 });
 
-const CountLabel = styled(Typography)({
+const StatLabel = styled(Typography)({
   fontSize: '0.625rem',
   color: colors.panelTextMid,
   fontFamily: fonts.mono,
@@ -132,26 +116,21 @@ const CountLabel = styled(Typography)({
   textTransform: 'uppercase' as const,
 });
 
+const StatusSection = styled(Box)({
+  marginBottom: 24,
+});
+
 const SectionLabel = styled(Typography)({
   fontSize: '0.625rem',
   fontWeight: 700,
   color: colors.panelTextLow,
+  fontFamily: fonts.mono,
   letterSpacing: '0.14em',
   textTransform: 'uppercase' as const,
-  fontFamily: fonts.mono,
-  marginBottom: '12px',
+  marginBottom: 10,
 });
 
-const StatusSection = styled('div')({
-  marginBottom: '28px',
-});
-
-const StatusList = styled('div')({
-  display: 'flex',
-  flexDirection: 'column',
-});
-
-const StatusRow = styled('div')<{ hasborder: string }>(({ hasborder }) => ({
+const StatusRow = styled(Box)<{ hasborder: string }>(({ hasborder }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -159,13 +138,21 @@ const StatusRow = styled('div')<{ hasborder: string }>(({ hasborder }) => ({
   borderBottom: hasborder === 'true' ? `1px solid ${colors.panelBorder}` : 'none',
 }));
 
-const StatusLeft = styled('div')({
+const StatusLeft = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: 8,
 });
 
-const StatusDot = styled('div')<{ dotcolor: string }>(({ dotcolor }) => ({
+const STATUS_DOT: Record<string, string> = {
+  using:      '#10b981',
+  active:     '#10b981',
+  draft:      '#f59e0b',
+  inactive:   '#94a3b8',
+  deprecated: '#ef4444',
+};
+
+const StatusDot = styled(Box)<{ dotcolor: string }>(({ dotcolor }) => ({
   width: 6,
   height: 6,
   borderRadius: '50%',
@@ -184,30 +171,34 @@ const StatusName = styled(Typography)({
 const StatusCount = styled(Typography)({
   fontSize: '0.875rem',
   fontWeight: 700,
-  color: colors.white,
+  color: colors.textOnPrimary,
   fontFamily: fonts.mono,
 });
 
-const PreviewSection = styled('div')({
+const PreviewArea = styled(Box)({
   flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
 });
 
-const PreviewEmpty = styled('div')({
-  opacity: 0.3,
+const PreviewDimLabel = styled(Typography)({
+  fontSize: '0.625rem',
+  fontWeight: 700,
+  color: colors.panelTextLow,
+  fontFamily: fonts.mono,
+  letterSpacing: '0.14em',
+  textTransform: 'uppercase' as const,
+  marginBottom: 10,
 });
 
-const HoveredName = styled(Typography)({
+const PreviewName = styled(Typography)({
   fontSize: '1.05rem',
   fontWeight: 800,
-  color: colors.white,
+  color: colors.textOnPrimary,
   letterSpacing: '-0.025em',
   lineHeight: 1.15,
-  marginBottom: '12px',
+  marginBottom: 12,
 });
 
-const IndigoDivider = styled('div')({
+const PreviewAccentLine = styled(Box)({
   width: 24,
   height: 2,
   borderRadius: 1,
@@ -216,25 +207,28 @@ const IndigoDivider = styled('div')({
   opacity: 0.7,
 });
 
-const HoveredDesc = styled(Typography)({
-  fontSize: '0.8125rem',
-  color: colors.panelTextMid,
-  lineHeight: 1.75,
-  fontWeight: 400,
-  wordBreak: 'break-word',
-  overflowWrap: 'break-word',
-  overflow: 'hidden',
-});
-
-const PreviewText = styled(Typography)({
+const PreviewBody = styled(Typography)({
   fontSize: '0.8125rem',
   color: colors.panelTextMid,
   lineHeight: 1.75,
 });
 
-/* ─── Component ─────────────────────────────────────────── */
+const PlaceholderBox = styled(Box)({
+  opacity: 0.3,
+});
 
-export function RulesLeftPanel({ folders, files, hoveredRule }: RulesLeftPanelProps) {
+const LeftFooter = styled(Typography)({
+  fontSize: '0.625rem',
+  color: colors.panelTextLow,
+  fontWeight: 500,
+  fontFamily: fonts.mono,
+  letterSpacing: '0.1em',
+  textTransform: 'uppercase' as const,
+  marginTop: 32,
+});
+
+/* ─── Component ───────────────────────────────────────────── */
+export default function RulesLeftPanel({ projectName, files, folders, hoveredRule }: RulesLeftPanelProps) {
   const totalRules   = files.length;
   const totalFolders = folders.filter((f) => !f.isTemp).length;
 
@@ -245,73 +239,56 @@ export function RulesLeftPanel({ folders, files, hoveredRule }: RulesLeftPanelPr
     return acc;
   }, {});
 
+  const statusEntries = Object.entries(statusCounts);
+
   return (
-    <PanelRoot>
-      <GlowOrb />
-      <DotGrid />
-
-      <PanelInner>
-        {/* Icon + Title */}
-        <TitleRow>
+    <LeftPanel>
+      <LeftVignette />
+      <LeftDotGrid />
+      <LeftContent>
+        {/* Title */}
+        <LeftTitleRow>
           <IconBox>
-            <AccountTreeIcon />
+            <AccountTree sx={{ fontSize: 18, color: colors.textOnPrimary, opacity: 0.85 }} />
           </IconBox>
-          <div>
-            <PanelTitle>Rules</PanelTitle>
-          </div>
-        </TitleRow>
+          <LeftTitleText>{projectName || 'Rules'}</LeftTitleText>
+        </LeftTitleRow>
 
-        <PanelSubtitle>
+        <LeftSubtitle>
           Manage your decision rules, folders, and versions for this project.
-        </PanelSubtitle>
+        </LeftSubtitle>
 
-        {/* Count Cards */}
-        <CountCardsRow>
-          {([['Rules', String(totalRules)], ['Folders', String(totalFolders)]] as [string, string][]).map(([label, val]) => (
-            <CountCard key={label}>
-              <CountValue>{val}</CountValue>
-              <CountLabel>{label}</CountLabel>
-            </CountCard>
-          ))}
-        </CountCardsRow>
-
-        {/* By Status */}
-        {Object.keys(statusCounts).length > 0 && (
-          <StatusSection>
-            <SectionLabel>By Status</SectionLabel>
-            <StatusList>
-              {Object.entries(statusCounts).map(([status, count], i, arr) => (
-                <StatusRow key={status} hasborder={String(i < arr.length - 1)}>
-                  <StatusLeft>
-                    <StatusDot dotcolor={STATUS_DOT[status] ?? colors.lightTextLow} />
-                    <StatusName>{status}</StatusName>
-                  </StatusLeft>
-                  <StatusCount>{count}</StatusCount>
-                </StatusRow>
-              ))}
-            </StatusList>
-          </StatusSection>
-        )}
+        {/* Stat Cards */}
+        <StatsCardsRow>
+          <StatCard>
+            <StatValue>{totalRules}</StatValue>
+            <StatLabel>Rules</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatValue>{totalFolders}</StatValue>
+            <StatLabel>Folders</StatLabel>
+          </StatCard>
+        </StatsCardsRow>
 
         {/* Hover Preview */}
-        <PreviewSection>
+        <PreviewArea>
           {hoveredRule ? (
-            <div>
-              <SectionLabel>Selected</SectionLabel>
-              <HoveredName>{hoveredRule.name}</HoveredName>
-              <IndigoDivider />
-              <HoveredDesc>
+            <>
+              <PreviewDimLabel>Selected</PreviewDimLabel>
+              <PreviewName>{hoveredRule.name}</PreviewName>
+              <PreviewAccentLine />
+              <PreviewBody>
                 {hoveredRule.description || 'No description provided for this rule.'}
-              </HoveredDesc>
-            </div>
+              </PreviewBody>
+            </>
           ) : (
-            <PreviewEmpty>
-              <SectionLabel>Preview</SectionLabel>
-              <PreviewText>Hover a rule to see its details here.</PreviewText>
-            </PreviewEmpty>
+            <PlaceholderBox>
+              <PreviewDimLabel>Preview</PreviewDimLabel>
+              <PreviewBody>Hover a rule to see its details here.</PreviewBody>
+            </PlaceholderBox>
           )}
-        </PreviewSection>
-      </PanelInner>
-    </PanelRoot>
+        </PreviewArea>
+      </LeftContent>
+    </LeftPanel>
   );
 }

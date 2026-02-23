@@ -2,16 +2,17 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Menu, MenuItem, Divider } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { rulesApi} from 'app/src/modules/rules/api/rulesApi';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
-import { RulesRightPanel } from '../components/RulesRightPanel';
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { RulesLeftPanel } from '../components/Rulesleftpanel';
 import { ConfirmDialogState, RuleResponse } from '../types/rulesTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
+import RulesRightPanel from '../components/RulesRightPanel';
+import RulesLeftPanel from '../components/Rulesleftpanel';
 
 const { colors, fonts } = brmsTheme;
 
@@ -23,58 +24,66 @@ export const fmtDate      = (iso: string): string => {
   catch { return iso ?? '—'; }
 };
 
-/* ─── Styled Components ─────────────────────────────────── */
+/* ─── Styled — mirrors HubPage header exactly ─────────────── */
 
-const PageRoot = styled('div')({
+const HeaderWrapper = styled(Box)({
+  paddingLeft: '24px',
+  paddingRight: '24px',
+  paddingTop: '16px',
+  paddingBottom: '16px',
+});
+
+const BackRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+});
+
+const BackButton = styled(IconButton)({
+  width: 36,
+  height: 36,
+  borderRadius: '10px',
+  backgroundColor: colors.primaryGlowSoft,
+  color: colors.primary,
+  transition: 'all 0.2s',
+  flexShrink: 0,
+  '&:hover': {
+    backgroundColor: colors.primaryGlowMid,
+    transform: 'translateX(-2px)',
+  },
+});
+
+const VerticalNameText = styled(Typography)({
+  fontSize: '0.95rem',
+  fontWeight: 600,
+  color: colors.navTextHigh,
+  whiteSpace: 'nowrap',
+});
+
+const SeparatorText = styled(Typography)({
+  fontSize: '0.95rem',
+  color: colors.lightTextLow,
+  lineHeight: 1,
+});
+
+const ProjectNameText = styled(Typography)({
+  fontSize: '0.95rem',
+  fontWeight: 700,
+  color: colors.navTextHigh,
+  whiteSpace: 'nowrap',
+});
+
+/* ── Panel container — height accounts for header ── */
+const RootWrapper = styled(Box)({
   width: '100%',
   display: 'flex',
   borderRadius: '16px',
   overflow: 'hidden',
   border: `1px solid ${colors.panelBorder}`,
   boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-  height: 'calc(100vh - 64px)',
   fontFamily: fonts.sans,
-});
-
-const ContextMenuPaperSx = {
-  '& .MuiPaper-root': {
-    borderRadius: '8px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
-    border: `1px solid ${colors.lightBorder}`,
-    minWidth: '140px',
-    mt: '4px',
-  },
-  '& .MuiList-root': { py: '6px' },
-};
-
-const RenameMenuItem = styled(MenuItem)({
-  fontSize: '0.8125rem',
-  fontWeight: 500,
-  color: colors.lightTextHigh,
-  margin: '0 6px',
-  borderRadius: '6px',
-  padding: '9px 12px',
-  '&:hover': {
-    backgroundColor: colors.panelIndigoMuted,
-    color: colors.panelIndigo,
-  },
-});
-
-const DeleteMenuItem = styled(MenuItem)({
-  fontSize: '0.8125rem',
-  fontWeight: 500,
-  color: colors.deleteRed,
-  margin: '0 6px',
-  borderRadius: '6px',
-  padding: '9px 12px',
-  '&:hover': {
-    backgroundColor: colors.errorBg,
-  },
-});
-
-const MenuDivider = styled(Divider)({
-  margin: '4px 0',
-  borderColor: colors.lightBorder,
+  /* 64px top nav + 16px pt + ~48px header row + 16px pb = ~144px */
+  height: 'calc(100vh - 144px)',
 });
 
 /* ─── Page ────────────────────────────────────────────────── */
@@ -83,13 +92,13 @@ export default function ProjectRulePage() {
   const navigate = useNavigate();
   const { showAlert } = useAlertStore();
 
-  const [projectName, setProjectName]   = useState<string>('');
-  const [verticalName, setVerticalName] = useState<string>('');
+  const [projectName, setProjectName]   = useState('');
+  const [verticalName, setVerticalName] = useState('');
   const [folders, setFolders]           = useState<FolderNode[]>([]);
   const [files, setFiles]               = useState<FileNode[]>([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentPath, setCurrentPath]   = useState<string>('');
+  const [currentPath, setCurrentPath]   = useState('');
   const [breadcrumbs, setBreadcrumbs]   = useState<Breadcrumb[]>([{ name: 'Home', path: '' }]);
 
   const [anchorEl, setAnchorEl]           = useState<HTMLElement | null>(null);
@@ -104,9 +113,9 @@ export default function ProjectRulePage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     open: false, title: '', message: '', confirmText: 'Delete', onConfirm: () => {},
   });
-  const closeConfirmDialog = () => setConfirmDialog((prev) => ({ ...prev, open: false }));
+  const closeConfirmDialog = () => setConfirmDialog((p) => ({ ...p, open: false }));
 
-  /* ── Build folder + file tree ─────────────────────────── */
+  /* ── Build tree ───────────────────────────────────────── */
   const buildTree = useCallback((rules: RuleResponse[]) => {
     const folderMap = new Map<string, FolderNode>();
     rules.forEach((rule) => {
@@ -124,7 +133,7 @@ export default function ProjectRulePage() {
     });
     setFolders((prev) => [...Array.from(folderMap.values()), ...prev.filter((f) => f.isTemp)]);
     setFiles(rules.map((r) => ({
-      kind:        'file' as const,
+      kind: 'file' as const,
       rule_key:    r.rule_key,
       name:        r.name ?? '',
       path:        r.directory || r.name,
@@ -162,11 +171,8 @@ export default function ProjectRulePage() {
         await rulesApi.getProjectRules(project_key, vertical_Key);
       if (vertical_name) setVerticalName(vertical_name);
       if (project_name)  setProjectName(project_name);
-      const activeRules = rules.filter((r) => r.status?.toUpperCase() !== 'DELETED');
-      buildTree(activeRules);
-    } catch (err) {
-      console.error('Error loading rules:', err);
-    }
+      buildTree(rules.filter((r) => r.status?.toUpperCase() !== 'DELETED'));
+    } catch (err) { console.error('Error loading rules:', err); }
   }, [project_key, vertical_Key, buildTree]);
 
   useEffect(() => { void loadRules(); }, [loadRules, refetchTrigger]);
@@ -223,22 +229,18 @@ export default function ProjectRulePage() {
     closeMenu();
     if (item.kind === 'file') {
       setConfirmDialog({
-        open: true,
-        title: 'Delete Rule',
+        open: true, title: 'Delete Rule',
         message: `"${item.name}" will be permanently deleted and cannot be recovered.`,
-        confirmText: 'Delete Rule',
-        onConfirm: () => executeDelete(item),
+        confirmText: 'Delete Rule', onConfirm: () => executeDelete(item),
       });
     } else {
       const inside = files.filter((f) => f.path.startsWith(item.path + '/'));
       setConfirmDialog({
-        open: true,
-        title: 'Delete Folder',
+        open: true, title: 'Delete Folder',
         message: inside.length > 0
           ? `"${item.name}" contains ${inside.length} rule${inside.length > 1 ? 's' : ''}. Deleting this folder will permanently remove all rules inside it.`
           : `"${item.name}" will be permanently deleted.`,
-        confirmText: 'Delete Folder',
-        onConfirm: () => executeDelete(item),
+        confirmText: 'Delete Folder', onConfirm: () => executeDelete(item),
       });
     }
   };
@@ -263,8 +265,7 @@ export default function ProjectRulePage() {
     const trimmedName = editingFolderName.trim();
     if (!trimmedName) {
       setFolders((prev) => prev.filter((f) => f.path !== editingFolderId));
-      clearEditing();
-      return;
+      clearEditing(); return;
     }
     const folder = folders.find((f) => f.path === editingFolderId);
     if (!folder) return;
@@ -272,26 +273,21 @@ export default function ProjectRulePage() {
     if (folders.some((f) => f.path === newFolderPath && f.path !== editingFolderId)) {
       showAlert(`A folder named "${trimmedName}" already exists here.`, 'error');
       setFolders((prev) => prev.filter((f) => f.path !== editingFolderId));
-      clearEditing();
-      return;
+      clearEditing(); return;
     }
     try {
-      const oldPath        = folder.path;
-      const rulesToUpdate  = files.filter((f) => f.path.startsWith(oldPath + '/'));
+      const oldPath       = folder.path;
+      const rulesToUpdate = files.filter((f) => f.path.startsWith(oldPath + '/'));
       if (rulesToUpdate.length === 0) {
         setFolders((prev) => prev.map((f) =>
-          f.path === editingFolderId
-            ? { ...f, path: newFolderPath, name: trimmedName, isTemp: false }
-            : f
+          f.path === editingFolderId ? { ...f, path: newFolderPath, name: trimmedName, isTemp: false } : f
         ));
-        clearEditing();
-        return;
+        clearEditing(); return;
       }
       await Promise.all(rulesToUpdate.map((rule) =>
         rulesApi.updateRuleDirectory({
-          rule_key:   rule.rule_key,
-          updated_by: 'admin',
-          directory:  rule.path.replace(oldPath, newFolderPath),
+          rule_key: rule.rule_key, updated_by: 'admin',
+          directory: rule.path.replace(oldPath, newFolderPath),
         })
       ));
       setFolders((prev) => prev.map((f) => {
@@ -307,10 +303,7 @@ export default function ProjectRulePage() {
   const handleFolderNameChange  = (e: React.ChangeEvent<HTMLInputElement>) => setEditingFolderName(e.target.value);
   const handleFolderNameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter')  void commitFolderRename();
-    if (e.key === 'Escape') {
-      setFolders((prev) => prev.filter((f) => f.path !== editingFolderId));
-      clearEditing();
-    }
+    if (e.key === 'Escape') { setFolders((prev) => prev.filter((f) => f.path !== editingFolderId)); clearEditing(); }
   };
 
   /* ── Create ───────────────────────────────────────────── */
@@ -319,10 +312,7 @@ export default function ProjectRulePage() {
     const tempId = `__temp_${Date.now()}`;
     const path   = `${currentPath}/${tempId}`;
     setFolders((prev) => [...prev, { kind: 'folder', path, name: 'New folder', parentPath: currentPath, isTemp: true }]);
-    setTimeout(() => {
-      setEditingFolderId(path);
-      setEditingFolderName('New folder');
-    }, 50);
+    setTimeout(() => { setEditingFolderId(path); setEditingFolderName('New folder'); }, 50);
   };
 
   const handleCreateNewRule = () => {
@@ -339,58 +329,61 @@ export default function ProjectRulePage() {
   /* ─── Render ──────────────────────────────────────────── */
   return (
     <>
-      <PageRoot>
-        {/* LEFT PANEL */}
-        <RulesLeftPanel
-          projectName={projectName}
-          verticalName={verticalName}
-          folders={folders}
-          files={files}
-          currentPath={currentPath}
-          hoveredRule={hoveredRule}
-        />
+      {/* ── Header — identical markup/styles to HubPage ── */}
+      <HeaderWrapper>
+        <BackRow>
+          <BackButton
+            onClick={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
+            disableRipple
+          >
+            <ArrowBackIcon sx={{ fontSize: 20 }} />
+          </BackButton>
 
-        {/* RIGHT PANEL */}
-        <RulesRightPanel
-          projectName={projectName}
-          verticalName={verticalName}
-          breadcrumbs={breadcrumbs}
-          visibleItems={visibleItems}
-          editingFolderId={editingFolderId}
-          editingFolderName={editingFolderName}
-          newMenuAnchor={newMenuAnchor}
-          onBack={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
-          onNewMenuOpen={(e) => setNewMenuAnchor(e.currentTarget)}
-          onNewMenuClose={() => setNewMenuAnchor(null)}
-          onCreateNewRule={handleCreateNewRule}
-          onCreateNewFolder={handleCreateNewFolder}
-          onNavigateToBreadcrumb={navigateToBreadcrumb}
-          onOpenFolder={openFolder}
-          onOpenFile={handleOpenFile}
-          onMenuOpen={openMenu}
-          onNameChange={handleFolderNameChange}
-          onNameBlur={commitFolderRename}
-          onNameKeyDown={handleFolderNameKeyDown}
-          onMouseEnterFile={setHoveredRule}
-          onMouseLeaveFile={() => setHoveredRule(null)}
-        />
-      </PageRoot>
+          {verticalName && <VerticalNameText>{verticalName}</VerticalNameText>}
+          {verticalName && projectName && <SeparatorText>›</SeparatorText>}
+          {projectName && <ProjectNameText>{projectName}</ProjectNameText>}
+        </BackRow>
+      </HeaderWrapper>
 
-      {/* Context Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={!!anchorEl}
-        onClose={closeMenu}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        sx={ContextMenuPaperSx}
-      >
-        <RenameMenuItem onClick={handleEdit}>Rename</RenameMenuItem>
-        <MenuDivider />
-        <DeleteMenuItem onClick={handleDelete}>Delete</DeleteMenuItem>
-      </Menu>
+      {/* ── Panels — wrapped in ContentWrapper padding like HubPage ── */}
+      <Box sx={{ paddingLeft: '24px', paddingRight: '24px', paddingBottom: '24px' }}>
+        <RootWrapper>
+          <RulesLeftPanel
+            projectName={projectName}
+            files={files}
+            folders={folders}
+            hoveredRule={hoveredRule} 
+          />
 
-      {/* Confirm Dialog */}
+          <RulesRightPanel
+            projectName={projectName}
+            breadcrumbs={breadcrumbs}
+            visibleItems={visibleItems}
+            editingFolderId={editingFolderId}
+            editingFolderName={editingFolderName}
+            newMenuAnchor={newMenuAnchor}
+            anchorEl={anchorEl}
+            onNewMenuOpen={(e) => setNewMenuAnchor(e.currentTarget)}
+            onNewMenuClose={() => setNewMenuAnchor(null)}
+            onCreateNewRule={handleCreateNewRule}
+            onCreateNewFolder={handleCreateNewFolder}
+            onNavigateToBreadcrumb={navigateToBreadcrumb}
+            onOpenFolder={openFolder}
+            onOpenFile={handleOpenFile}
+            onMenuOpen={openMenu}
+            onMenuClose={closeMenu}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onNameChange={handleFolderNameChange}
+            onNameBlur={commitFolderRename}
+            onNameKeyDown={handleFolderNameKeyDown}
+            onMouseEnterFile={setHoveredRule}
+            onMouseLeaveFile={() => setHoveredRule(null)}
+            onBack={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
+          />
+        </RootWrapper>
+      </Box>
+
       <RcConfirmDialog
         open={confirmDialog.open}
         title={confirmDialog.title}
