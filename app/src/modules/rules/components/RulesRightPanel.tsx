@@ -1,44 +1,71 @@
 'use client';
 
-import { Typography, Button, IconButton, Menu, MenuItem, Breadcrumbs, Link, Divider, Skeleton } from '@mui/material';
+import {
+  Box, Typography, Button, Menu, MenuItem,
+  IconButton, Breadcrumbs, Link, Divider, CircularProgress,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import FolderIcon from '@mui/icons-material/Folder';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AddIcon from '@mui/icons-material/Add';
 import HomeIcon from '@mui/icons-material/Home';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import AddIcon from '@mui/icons-material/Add';
 import { FileCard } from './FileCard';
 import { FolderCard } from './FolderCard';
-import { EmptyStatus } from './EmptyStatus';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { RulesRightPanelProps } from '../types/Explorertypes';
-
-
+import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Styled Components ─────────────────────────────────── */
+/* ─── Types ───────────────────────────────────────────────── */
+interface RulesRightPanelProps {
+  projectName: string;
+  breadcrumbs: Breadcrumb[];
+  visibleItems: ExplorerItem[];
+  editingFolderId: string | null;
+  editingFolderName: string;
+  newMenuAnchor: HTMLElement | null;
+  anchorEl: HTMLElement | null;
+  onBack: () => void;
+  onNewMenuOpen: (e: React.MouseEvent<HTMLElement>) => void;
+  onNewMenuClose: () => void;
+  onCreateNewRule: () => void;
+  onCreateNewFolder: () => void;
+  onNavigateToBreadcrumb: (crumb: Breadcrumb) => void;
+  onOpenFolder: (item: FolderNode) => void;
+  onOpenFile: (item: FileNode) => void;
+  onMenuOpen: (e: React.MouseEvent<HTMLElement>, item: ExplorerItem) => void;
+  onMenuClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onNameBlur: () => void;
+  onNameKeyDown: (e: React.KeyboardEvent) => void;
+  onMouseEnterFile: (item: FileNode) => void;
+  onMouseLeaveFile: () => void;
+}
 
-const RightPanelRoot = styled('div')({
+/* ─── Styled Components ───────────────────────────────────── */
+const RightPanel = styled(Box)({
   flex: 1,
   background: colors.formBg,
   display: 'flex',
   flexDirection: 'column',
+  padding: '28px 32px',
   overflow: 'hidden',
 });
 
-const TopBar = styled('div')({
-  padding: '24px 28px 16px',
-  flexShrink: 0,
+const RightHeader = styled(Box)({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'flex-start',
+  marginBottom: 20,
+  flexShrink: 0,
 });
 
-const TopBarLeft = styled('div')({});
-
-const IndigoAccent = styled('div')({
+const HeaderAccentLine = styled(Box)({
   width: 28,
   height: 2,
   borderRadius: 1,
@@ -46,64 +73,32 @@ const IndigoAccent = styled('div')({
   marginBottom: 10,
 });
 
-const TitleRow = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-});
-
-const BackButton = styled(IconButton)({
-  width: 30,
-  height: 30,
-  borderRadius: '6px',
-  color: colors.lightTextMid,
-  border: `1px solid ${colors.lightBorder}`,
-  backgroundColor: colors.white,
-  transition: 'all 0.15s',
-  '&:hover': {
-    borderColor: colors.panelIndigo,
-    color: colors.panelIndigo,
-    backgroundColor: colors.panelIndigoMuted,
-  },
-});
-
-const BackIcon = styled(ArrowBackIcon)({
-  fontSize: 15,
-});
-
-const BreadcrumbNav = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px',
-});
-
-const VerticalLabel = styled(Typography)({
-  fontSize: '0.8125rem',
-  fontWeight: 500,
-  color: colors.lightTextMid,
-});
-
-const Separator = styled(Typography)({
-  color: colors.lightTextLow,
-  fontSize: '0.875rem',
-  lineHeight: 1,
-});
-
-const ProjectLabel = styled(Typography)({
-  fontSize: '0.9375rem',
+const RightTitle = styled(Typography)({
+  fontSize: '1.125rem',
   fontWeight: 800,
   color: colors.lightTextHigh,
-  letterSpacing: '-0.02em',
+  letterSpacing: '-0.025em',
+  lineHeight: 1.1,
+  marginBottom: 4,
+});
+
+const RightSubtitle = styled(Typography)({
+  fontSize: '0.8125rem',
+  color: colors.lightTextMid,
+  lineHeight: 1.6,
 });
 
 const NewButton = styled(Button)({
   background: colors.panelIndigo,
   borderRadius: '6px',
-  padding: '8px 14px',
+  padding: '8px 16px',
   textTransform: 'none',
   fontSize: '0.8125rem',
   fontWeight: 700,
   letterSpacing: '0.01em',
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
+  marginLeft: 16,
   boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${colors.panelIndigoGlowMid}`,
   transition: 'all 0.15s',
   '&:hover': {
@@ -124,7 +119,7 @@ const NewMenuPaper = {
   '& .MuiList-root': { py: '6px' },
 };
 
-const MenuIconBox = styled('div')<{ variant?: 'file' | 'folder' }>(({ variant = 'file' }) => ({
+const MenuIconBox = styled(Box)<{ variant?: 'file' | 'folder' }>(({ variant = 'file' }) => ({
   width: 26,
   height: 26,
   borderRadius: '6px',
@@ -135,8 +130,8 @@ const MenuIconBox = styled('div')<{ variant?: 'file' | 'folder' }>(({ variant = 
   justifyContent: 'center',
 }));
 
-const BreadcrumbBar = styled('div')({
-  margin: '0 28px 12px',
+const BreadcrumbBar = styled(Box)({
+  marginBottom: 16,
   padding: '8px 12px',
   backgroundColor: colors.white,
   borderRadius: '8px',
@@ -153,10 +148,10 @@ const BreadcrumbSeparator = styled(Typography)({
   margin: '0 2px',
 });
 
-const ActiveCrumb = styled('div')({
+const ActiveCrumb = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: '5px',
+  gap: 5,
 });
 
 const ActiveCrumbText = styled(Typography)({
@@ -175,35 +170,85 @@ const ItemCount = styled(Typography)({
   letterSpacing: '0.04em',
 });
 
-const StyledDivider = styled(Divider)({
-  margin: '0 28px 12px',
-  borderColor: colors.lightBorder,
-  flexShrink: 0,
-});
-
-const ItemListScroll = styled('div')({
+const ScrollArea = styled(Box)({
   flex: 1,
-  overflowY: 'auto',
-  padding: '0 28px 24px',
+  overflow: 'auto',
 });
 
-const ItemListInner = styled('div')({
+const ItemListInner = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  gap: '6px',
+  gap: 8,
 });
 
-/* ─── Component ─────────────────────────────────────────── */
+const EmptyBox = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: 200,
+  gap: 12,
+});
 
-export function RulesRightPanel({
+const EmptyIconBox = styled(Box)({
+  width: 48,
+  height: 48,
+  borderRadius: '50%',
+  background: colors.lightSurfaceHover,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+const EmptyTitle = styled(Typography)({
+  fontWeight: 700,
+  color: colors.lightTextHigh,
+  fontSize: '0.9375rem',
+  marginBottom: 4,
+  letterSpacing: '-0.01em',
+  textAlign: 'center',
+});
+
+const EmptySubtitle = styled(Typography)({
+  color: colors.lightTextMid,
+  fontSize: '0.8125rem',
+  textAlign: 'center',
+});
+
+const StyledMenu = styled(Menu)({
+  '& .MuiPaper-root': {
+    borderRadius: '8px',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+    minWidth: 140,
+    border: `1px solid ${colors.lightBorder}`,
+  },
+});
+
+const EditMenuItem = styled(MenuItem)({
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+  color: colors.lightTextHigh,
+  padding: '10px 16px',
+  '&:hover': { backgroundColor: '#F8FAFC' },
+});
+
+const DeleteMenuItem = styled(MenuItem)({
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+  color: colors.deleteRed,
+  padding: '10px 16px',
+  '&:hover': { backgroundColor: colors.errorBg },
+});
+
+/* ─── Component ───────────────────────────────────────────── */
+export default function RulesRightPanel({
   projectName,
-  verticalName,
   breadcrumbs,
   visibleItems,
   editingFolderId,
   editingFolderName,
   newMenuAnchor,
-  onBack,
+  anchorEl,
   onNewMenuOpen,
   onNewMenuClose,
   onCreateNewRule,
@@ -212,6 +257,9 @@ export function RulesRightPanel({
   onOpenFolder,
   onOpenFile,
   onMenuOpen,
+  onMenuClose,
+  onEdit,
+  onDelete,
   onNameChange,
   onNameBlur,
   onNameKeyDown,
@@ -219,70 +267,58 @@ export function RulesRightPanel({
   onMouseLeaveFile,
 }: RulesRightPanelProps) {
   return (
-    <RightPanelRoot>
-      {/* Top Bar */}
-      <TopBar>
-        <TopBarLeft>
-          <IndigoAccent />
-          <TitleRow>
-            <BackButton size="small" onClick={onBack} disableRipple>
-              <BackIcon />
-            </BackButton>
-            <BreadcrumbNav>
-              <VerticalLabel>{verticalName || <Skeleton width={60} />}</VerticalLabel>
-              <Separator>›</Separator>
-              <ProjectLabel>{projectName || <Skeleton width={100} />}</ProjectLabel>
-            </BreadcrumbNav>
-          </TitleRow>
-        </TopBarLeft>
+    <RightPanel>
+      {/* ─── Header ─── */}
+      <RightHeader>
+        <Box>
+          <HeaderAccentLine />
+          <RightTitle>All Rules</RightTitle>
+          <RightSubtitle>Browse and manage rules for {projectName || 'this project'}</RightSubtitle>
+        </Box>
 
-        <div>
-          <NewButton
-            variant="contained"
-            startIcon={<AddIcon sx={{ fontSize: '14px !important' }} />}
-            endIcon={<KeyboardArrowDownIcon sx={{ fontSize: '14px !important' }} />}
-            onClick={onNewMenuOpen}
-            disableRipple
-            disableElevation
-          >
-            New
-          </NewButton>
-
-          <Menu
-            anchorEl={newMenuAnchor}
-            open={!!newMenuAnchor}
-            onClose={onNewMenuClose}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            sx={NewMenuPaper}
-          >
-            <MenuItem
-              onClick={onCreateNewRule}
-              sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.panelIndigoMuted } }}
-            >
-              <MenuIconBox variant="file">
-                <InsertDriveFileOutlinedIcon sx={{ fontSize: 14, color: colors.tabTextInactive }} />
-              </MenuIconBox>
-              New Rule
-            </MenuItem>
-            <MenuItem
-              onClick={onCreateNewFolder}
-              sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.statusDraftBg } }}
-            >
-              <MenuIconBox variant="folder">
-                <FolderIcon sx={{ fontSize: 14, color: colors.lightTextLow }} />
-              </MenuIconBox>
-              New Folder
-            </MenuItem>
-          </Menu>
-        </div>
-      </TopBar>
-
-      {/* Breadcrumb Bar */}
-      <BreadcrumbBar>
-        <Breadcrumbs
-          separator={<BreadcrumbSeparator>›</BreadcrumbSeparator>}
+        <NewButton
+          variant="contained"
+          startIcon={<AddIcon sx={{ fontSize: '14px !important' }} />}
+          endIcon={<KeyboardArrowDownIcon sx={{ fontSize: '14px !important' }} />}
+          onClick={onNewMenuOpen}
+          disableRipple
+          disableElevation
         >
+          New
+        </NewButton>
+
+        <Menu
+          anchorEl={newMenuAnchor}
+          open={!!newMenuAnchor}
+          onClose={onNewMenuClose}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          sx={NewMenuPaper}
+        >
+          <MenuItem
+            onClick={onCreateNewRule}
+            sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.panelIndigoMuted } }}
+          >
+            <MenuIconBox variant="file">
+              <InsertDriveFileOutlinedIcon sx={{ fontSize: 14, color: colors.tabTextInactive }} />
+            </MenuIconBox>
+            New Rule
+          </MenuItem>
+          <MenuItem
+            onClick={onCreateNewFolder}
+            sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.statusDraftBg } }}
+          >
+            <MenuIconBox variant="folder">
+              <FolderIcon sx={{ fontSize: 14, color: colors.lightTextLow }} />
+            </MenuIconBox>
+            New Folder
+          </MenuItem>
+        </Menu>
+      </RightHeader>
+
+      {/* ─── Breadcrumb Bar ─── */}
+      <BreadcrumbBar>
+        <Breadcrumbs separator={<BreadcrumbSeparator>›</BreadcrumbSeparator>}>
           {breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
             const Icon   = idx === 0 ? HomeIcon : FolderIcon;
@@ -311,18 +347,22 @@ export function RulesRightPanel({
           })}
         </Breadcrumbs>
         {visibleItems.length > 0 && (
-          <ItemCount>
-            {visibleItems.length} {visibleItems.length === 1 ? 'item' : 'items'}
-          </ItemCount>
+          <ItemCount>{visibleItems.length} {visibleItems.length === 1 ? 'item' : 'items'}</ItemCount>
         )}
       </BreadcrumbBar>
 
-      <StyledDivider />
-
-      {/* Item List */}
-      <ItemListScroll>
+      {/* ─── List ─── */}
+      <ScrollArea>
         {visibleItems.length === 0 ? (
-          <EmptyStatus />
+          <EmptyBox>
+            <EmptyIconBox>
+              <FolderOpenIcon sx={{ fontSize: 22, color: colors.lightTextLow }} />
+            </EmptyIconBox>
+            <Box textAlign="center">
+              <EmptyTitle>This folder is empty</EmptyTitle>
+              <EmptySubtitle>Create a new rule or folder to get started</EmptySubtitle>
+            </Box>
+          </EmptyBox>
         ) : (
           <ItemListInner>
             {visibleItems.map((item) =>
@@ -351,7 +391,20 @@ export function RulesRightPanel({
             )}
           </ItemListInner>
         )}
-      </ItemListScroll>
-    </RightPanelRoot>
+      </ScrollArea>
+
+      {/* ─── Context Menu ─── */}
+      <StyledMenu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={onMenuClose}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <EditMenuItem onClick={onEdit}>Rename</EditMenuItem>
+        <Divider sx={{ my: '4px', borderColor: colors.lightBorder }} />
+        <DeleteMenuItem onClick={onDelete}>Delete</DeleteMenuItem>
+      </StyledMenu>
+    </RightPanel>
   );
 }
