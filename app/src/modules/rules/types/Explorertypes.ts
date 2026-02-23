@@ -57,10 +57,8 @@ export interface FolderCardProps {
 // ─── Rule Left Panel Props ────
 export interface RulesLeftPanelProps {
   projectName: string;
-  verticalName: string;
   folders: FolderNode[];
   files: FileNode[];
-  currentPath: string;
   hoveredRule: FileNode | null;
 }
 
