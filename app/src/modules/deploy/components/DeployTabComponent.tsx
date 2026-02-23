@@ -9,7 +9,8 @@ import { ControlSection } from './Controlsection';
 import { HistorySection } from './Historysection';
 import { deployApi, MonthlyData } from '../api/deployApi';
 import { useParams } from 'react-router-dom';
-import { RcDropdownItem } from 'app/src/core/components/RcDropdown';
+import { RcDropdownItem } from 'app/src/core/types/commonTypes';
+
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();

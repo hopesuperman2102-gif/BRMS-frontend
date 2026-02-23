@@ -14,26 +14,8 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { brmsTheme } from '../theme/brmsTheme';
+import { RcCollapsibleTableProps } from '../types/commonTypes';
 
-export type RcColumn<T> = {
-  key: keyof T | string;
-  label: string;
-  align?: 'left' | 'right' | 'center';
-  render?: (row: T) => React.ReactNode;
-};
-
-export type RcSection<T> = {
-  showHeader: boolean;
-  key: string;
-  title: string;
-  rows: T[];
-};
-
-export interface RcCollapsibleTableProps<T> {
-  columns: RcColumn<T>[];
-  sections: RcSection<T>[];
-  getRowId: (row: T) => string | number;
-}
 
 export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
   columns,
