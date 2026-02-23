@@ -1,7 +1,7 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
 import { registerRoutes } from '../../../core/routeRegistry';
-import LoginPage from '../components/LoginPage';
-import SignupPage from '../components/SignupPage';
+import LoginPage from '../Pages/LoginPage';
+import CreateUserPage from '../Pages/CreateUserPage';
 
 const authRoutes: AppRoute[] = [
   {
@@ -15,7 +15,7 @@ const authRoutes: AppRoute[] = [
   },
   {
     path: '/signup',
-    element: SignupPage,
+    element: CreateUserPage,
     layout: 'none',
     metadata: {
       title: 'Sign Up',

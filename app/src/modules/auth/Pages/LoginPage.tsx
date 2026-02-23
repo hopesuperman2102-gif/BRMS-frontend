@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useAuth } from '../Authcontext';
 import { loginApi } from '../Authservice';
-import LoginLeftPanel from './Loginleftpanel';
-import LoginRightPanel from './Loginrightpanel';
+import LoginLeftPanel from '../components/Loginleftpanel';
+import LoginRightPanel from '../components/Loginrightpanel';
 
 
 export default function LoginPage() {
