@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Box, Select, MenuItem, Button, FormControl, Typography, Divider } from '@mui/material';
-
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-
 import { EditorProps, ExecuteResponse, JsonObject, RepoItem } from '../types/JdmEditorTypes';
 import JdmEditorComponent from './JdmEditorComponent';
 import { ruleVersionsApi, RuleVersion } from 'app/src/modules/JdmEditorPage/api/ruleVersionsApi';
-import { useAlertStore } from '../../../core/components/Alert';
+import { useAlertStore } from '../../../core/components/RcAlertComponent';
 import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
 

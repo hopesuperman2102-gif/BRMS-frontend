@@ -8,7 +8,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import AlertComponent, { useAlertStore } from 'app/src/core/components/Alert';
+import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 import { ApprovalStatus, ProjectRuleRow, ProjectSection, RuleVersion, VerticalProject, VerticalRule } from '../types/ruleTableTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { rulesTableApi } from '../api/entireRuleApi';
@@ -307,7 +307,7 @@ export default function RulesTable() {
 
   return (
     <>
-      <AlertComponent />
+      <RcAlertComponent />
       <RcCollapsibleTable
         sections={sections}
         columns={columns}
