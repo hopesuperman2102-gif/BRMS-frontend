@@ -171,7 +171,7 @@ export default function Editor({
         
         console.log(`New version created: ${latestVersion.version}`);
         
-        showAlert(`Changes committed successfully! New version: ${latestVersion.version}`, 'success');
+        showAlert(`Changes committed successfully!`, 'success');
       } else {
         showAlert('Changes committed successfully!', 'success');
       }

@@ -1,14 +1,19 @@
 'use client';
 
-import { Box, Button, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Button, Typography, CircularProgress, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 
+import RcTable from '../../../core/components/RcTable';
+import { CreateUserApi } from '../api/createUserApi';
+
 const { colors, fonts } = brmsTheme;
 
-/* ─── Styled Components (mirrors LoginLeftPanel exactly) ────── */
+/* ─── Styled Components ───────────────────────────────────── */
 
 const LeftPanelRoot = styled(Box)({
   display: 'none',
@@ -34,18 +39,6 @@ const IndigoVignette = styled(Box)({
   pointerEvents: 'none',
 });
 
-// Second vignette top-right for depth
-const IndigoVignetteTop = styled(Box)({
-  position: 'absolute',
-  top: -60,
-  right: -60,
-  width: 280,
-  height: 280,
-  borderRadius: '50%',
-  background: 'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 60%)',
-  pointerEvents: 'none',
-});
-
 const DotGrid = styled(Box)({
   position: 'absolute',
   inset: 0,
@@ -61,12 +54,12 @@ const ContentWrapper = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  padding: '40px 48px',
+  padding: '40px 24px',
 });
 
 const BackButtonWrapper = styled(Box)({
   flexShrink: 0,
-  marginBottom: 'auto',
+  marginBottom: '24px',
 });
 
 const BackButton = styled(Button)({
@@ -87,132 +80,319 @@ const BackButton = styled(Button)({
   transition: 'color 0.15s',
 });
 
-const HeroCopy = styled(Box)({
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-});
-
-const ModeBadgeWrapper = styled(Box)({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '8px',
+const HeadingBlock = styled(Box)({
   marginBottom: '24px',
 });
 
-const ModeBadgeDot = styled(Box)({
-  width: '6px',
-  height: '6px',
-  borderRadius: '50%',
-  backgroundColor: colors.panelIndigo,
-  boxShadow: `0 0 8px ${colors.panelIndigoGlow}`,
-});
-
-const ModeBadgeText = styled(Typography)({
-  fontSize: '0.625rem',
-  fontWeight: 700,
-  color: colors.panelTextLow,
-  letterSpacing: '0.16em',
-  textTransform: 'uppercase',
-  fontFamily: fonts.mono,
-});
-
-const Headline = styled(Typography)({
-  fontSize: 'clamp(2rem, 2.6vw, 2.75rem)',
+const HeadingTitle = styled(Typography)({
+  fontSize: '1.5rem',
   fontWeight: 800,
-  color: colors.textOnPrimary,
-  lineHeight: 1.05,
-  letterSpacing: '-0.04em',
-  marginBottom: '20px',
-  whiteSpace: 'pre-line',
+  color: colors.lightTextHigh,
+  letterSpacing: '-0.03em',
+  lineHeight: 1.1,
+  marginBottom: '8px',
 });
 
-const SubCopy = styled(Typography)({
+const HeadingSubtitle = styled(Typography)({
   fontSize: '0.8125rem',
-  color: colors.panelTextMid,
-  lineHeight: 1.8,
-  marginBottom: '40px',
-  maxWidth: '300px',
+  color: colors.lightTextMid,
   fontWeight: 400,
+  lineHeight: 1.65,
 });
 
-const FeatureRow = styled(Box)<{ last?: boolean }>(({ last }) => ({
+const TableWrapper = styled(Box)({
+  flex: 1,
   display: 'flex',
-  alignItems: 'center',
-  gap: '12px',
-  paddingTop: '12px',
-  paddingBottom: '12px',
-  borderBottom: last ? 'none' : `1px solid ${colors.panelBorder}`,
-}));
-
-const FeatureDot = styled(Box)({
-  width: '4px',
-  height: '4px',
-  borderRadius: '50%',
-  backgroundColor: colors.panelIndigo,
-  flexShrink: 0,
+  flexDirection: 'column',
+  minHeight: 0,
+  overflow: 'hidden',
+  padding: '24px',
+  background: colors.white,
+  borderRadius: '12px',
+  border: `1px solid ${colors.lightBorder}`,
+  '& table': {
+    '& thead th': {
+      fontSize: '0.875rem !important',
+      fontWeight: '700 !important',
+      padding: '14px 16px !important',
+    },
+    '& tbody td': {
+      fontSize: '0.9375rem !important',
+      padding: '16px !important',
+    },
+    '& tbody tr': {
+      height: '60px',
+    },
+  },
 });
 
-const FeatureText = styled(Typography)({
-  fontSize: '0.8rem',
-  color: colors.panelTextMid,
-  fontWeight: 400,
-  lineHeight: 1,
-  letterSpacing: '0.01em',
-});
+/* ─── Component ───────────────────────────────────────────── */
 
-const Feature = ({ children, last }: { children: string; last?: boolean }) => (
-  <FeatureRow last={last}>
-    <FeatureDot />
-    <FeatureText>{children}</FeatureText>
-  </FeatureRow>
-);
-
-/* ─── Component ─────────────────────────────────────────────── */
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  roles: string[];
+  created_at: string;
+}
 
 export default function CreateUserLeftPanel() {
   const navigate = useNavigate();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await CreateUserApi.getUsers(1, 100);
+      const usersList = Array.isArray(response) ? response : response?.users || [];
+      setUsers(usersList || []);
+      setError('');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to fetch users');
+      }
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, userId: string) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setSelectedUserId(userId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedUserId) return;
+    setDeleting(true);
+    try {
+      await CreateUserApi.deleteUser(selectedUserId);
+      setUsers(users.filter(u => u.id !== selectedUserId));
+      setDeleteDialogOpen(false);
+      setSelectedUserId(null);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to delete user');
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!selectedUserId) return;
+    console.log('Update password for user:', selectedUserId);
+    handleMenuClose();
+  };
+
+  const formatRoles = (roles: string[] | undefined) => {
+    if (!roles || !Array.isArray(roles)) return '-';
+    return roles.map(role => role.replace('_', ' ')).join(', ');
+  };
+
+  const tableHeaders = ['Username', 'Email', 'Role', 'Actions'];
+  const tableRows = (users || []).map((user) => ({
+    'Username': user.username,
+    'Email': user.email,
+    'Role': formatRoles(user.roles),
+    'Actions': (
+      <IconButton
+        size="small"
+        onClick={(e) => handleMenuOpen(e as any, user.id)}
+        sx={{
+          color: '#ffffff',
+          backgroundColor: '#ffffff',
+          borderRadius: '4px',
+          padding: '4px',
+        }}
+      >
+        <MoreVertIcon sx={{ fontSize: '18px', color: '#000000' }} />
+      </IconButton>
+    ),
+  }));
 
   return (
     <LeftPanelRoot>
       <IndigoVignette />
-      <IndigoVignetteTop />
       <DotGrid />
 
       <ContentWrapper>
         <BackButtonWrapper>
-          <BackButton disableRipple onClick={() => navigate(-1)}>
-            <ArrowBackIcon sx={{ fontSize: '12px !important' }} />
+          <BackButton
+            startIcon={<ArrowBackIcon sx={{ fontSize: '12px !important' }} />}
+            onClick={() => navigate(-1)}
+            disableRipple
+          >
             Back
           </BackButton>
         </BackButtonWrapper>
 
-        <HeroCopy>
-          <ModeBadgeWrapper>
-            <ModeBadgeDot />
-            <ModeBadgeText>Admin · User Management</ModeBadgeText>
-          </ModeBadgeWrapper>
+        <HeadingBlock>
+          <HeadingTitle>Team Members</HeadingTitle>
+          <HeadingSubtitle>
+            Manage users, roles, and access permissions for your workspace.
+          </HeadingSubtitle>
+        </HeadingBlock>
 
-          <Headline>{'Add to \na Workspace'}</Headline>
-
-          <SubCopy>
-            Provision new accounts for your team. Set credentials and roles so collaborators can access the platform immediately.
-          </SubCopy>
-
-          <Box>
-            {[
-              'Credentials are securely hashed on creation',
-              'User gets immediate access upon account creation',
-              'Manage and revoke access anytime from settings',
-            ].map((label, i) => (
-              <Feature key={label} last={i === 2}>
-                {label}
-              </Feature>
-            ))}
+        {/* Loading State */}
+        {loading ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flex: 1,
+            }}
+          >
+            <CircularProgress size={40} sx={{ color: colors.panelIndigo }} />
           </Box>
-        </HeroCopy>
+        ) : error ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flex: 1,
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>
+              {error}
+            </Typography>
+            <Button size="small" onClick={fetchUsers} sx={{ color: colors.panelIndigo }}>
+              Retry
+            </Button>
+          </Box>
+        ) : users.length === 0 ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flex: 1,
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>
+              No users created yet
+            </Typography>
+          </Box>
+        ) : (
+          <TableWrapper>
+            <RcTable
+              headers={tableHeaders}
+              rows={tableRows}
+              onRowClick={() => {}}
+            />
+          </TableWrapper>
+        )}
       </ContentWrapper>
+
+      {/* Actions Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            background: colors.formBg,
+            border: `1px solid ${colors.panelBorder}`,
+            borderRadius: '6px',
+          },
+        }}
+      >
+        <MenuItem
+          onClick={handleUpdatePassword}
+          sx={{
+            color: colors.panelIndigo,
+            fontSize: '0.875rem',
+            '&:hover': {
+              backgroundColor: colors.primaryGlowSoft,
+            },
+          }}
+        >
+          Update Password
+        </MenuItem>
+        <MenuItem
+          onClick={handleDeleteClick}
+          sx={{
+            color: colors.errorText,
+            fontSize: '0.875rem',
+            '&:hover': {
+              backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            },
+          }}
+        >
+          Delete
+        </MenuItem>
+      </Menu>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            background: colors.formBg,
+            borderRadius: '8px',
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: colors.textOnPrimary, fontWeight: 700 }}>
+          Delete User
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ color: colors.lightTextHigh, mt: 2 }}>
+            Are you sure you want to delete this user? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            sx={{ color: colors.panelTextMid }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            disabled={deleting}
+            sx={{
+              color: colors.errorText,
+              '&:hover': {
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+              },
+            }}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </LeftPanelRoot>
   );
 }

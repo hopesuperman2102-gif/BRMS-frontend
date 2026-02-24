@@ -4,25 +4,22 @@ import { useState } from 'react';
 import { Box } from '@mui/material';
 import CreateUserLeftPanel from '../components/CreateUserLeftPanel';
 import CreateUserRightPanel, { CreateUserFormData } from '../components/CreateUserRightPanel';
+import { CreateUserApi } from '../api/createUserApi';
 
 
-/* ─── Placeholder — swap with your real API call ────────────── */
-async function createUserApi(data: { username: string; password: string }): Promise<void> {
-  // Replace with your actual endpoint, e.g.:
-  // await apiClient.post('/users', data);
-  await new Promise(res => setTimeout(res, 900));
-  if (!data.username || !data.password) throw new Error('Invalid payload');
-}
+/* ─── Email Validation Regex ────────────────────────────────── */
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /* ─── Page ──────────────────────────────────────────────────── */
-
 export default function CreateUserPage() {
   const [formData, setFormData] = useState<CreateUserFormData>({
     username: '',
+    email: '',
     password: '',
     confirmPassword: '',
+    roles: [],
   });
-  const [error,   setError]   = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -32,41 +29,89 @@ export default function CreateUserPage() {
     setSuccess(false);
   };
 
+  const handleRoleSelect = (role: string) => {
+    setFormData(prev => ({ ...prev, roles: [role] }));
+    setError('');
+    setSuccess(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess(false);
 
-    // Client-side validation
+    // ─── Client-side validation ───
     if (!formData.username.trim()) {
       setError('Username is required.');
       return;
     }
+
     if (formData.username.trim().length < 3) {
       setError('Username must be at least 3 characters.');
       return;
     }
+
+    if (!formData.email.trim()) {
+      setError('Email is required.');
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(formData.email.trim())) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
     if (!formData.password) {
       setError('Password is required.');
       return;
     }
+
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters.');
       return;
     }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
 
+    if (!formData.roles.length) {
+      setError('Please select a role.');
+      return;
+    }
+
     setLoading(true);
+
     try {
-      await createUserApi({ username: formData.username.trim(), password: formData.password });
+      await CreateUserApi.createUser({
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        roles: formData.roles,
+      });
+
       setSuccess(true);
-      // Reset form after successful creation
-      setFormData({ username: '', password: '', confirmPassword: '' });
+
+      // ─── Reset form after successful creation ───
+      setFormData({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        roles: [],
+      });
+
+      // ─── Clear success message after 3 seconds ───
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to create user. Please try again.');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to create user. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -90,6 +135,7 @@ export default function CreateUserPage() {
         error={error}
         success={success}
         onChange={handleChange}
+        onRoleSelect={handleRoleSelect}
         onSubmit={handleSubmit}
       />
     </Box>

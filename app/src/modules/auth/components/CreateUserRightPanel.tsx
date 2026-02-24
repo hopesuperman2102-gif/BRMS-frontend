@@ -13,6 +13,7 @@ import {
 import { styled } from '@mui/material/styles';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
+import EmailIcon from '@mui/icons-material/Email';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -240,8 +241,10 @@ function PasswordStrength({ password }: { password: string }) {
 
 export interface CreateUserFormData {
   username: string;
+  email: string;
   password: string;
   confirmPassword: string;
+  roles: string[];
 }
 
 interface CreateUserRightPanelProps {
@@ -250,6 +253,7 @@ interface CreateUserRightPanelProps {
   error: string;
   success: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRoleSelect: (role: string) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -261,6 +265,7 @@ export default function CreateUserRightPanel({
   error,
   success,
   onChange,
+  onRoleSelect,
   onSubmit,
 }: CreateUserRightPanelProps) {
   const [focused, setFocused] = useState<string | null>(null);
@@ -269,6 +274,13 @@ export default function CreateUserRightPanel({
 
   const passwordMismatch =
     !!formData.confirmPassword && formData.password !== formData.confirmPassword;
+
+  const roleOptions = [
+    { label: "Viewer", value: "VIEWER" },
+    { label: "Reviewer", value: "REVIEWER" },
+    { label: "Rule Author", value: "RULE_AUTHOR" },
+    { label: "Super Admin", value: "SUPER_ADMIN" },
+  ];
 
   return (
     <RightPanelRoot sx={{ px: { xs: '24px', sm: '48px', lg: '72px' } }}>
@@ -336,6 +348,30 @@ export default function CreateUserRightPanel({
                   ),
                 }}
                 sx={inputSx(focused === 'username')}
+              />
+            </Box>
+
+            {/* Email */}
+            <Box>
+              <Label required>Email</Label>
+              <TextField
+                fullWidth
+                name="email"
+                type="email"
+                placeholder="e.g. john.doe@example.com"
+                value={formData.email}
+                onChange={onChange}
+                onFocus={() => setFocused('email')}
+                onBlur={() => setFocused(null)}
+                autoComplete="off"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={inputSx(focused === 'email')}
               />
             </Box>
 
@@ -423,20 +459,17 @@ export default function CreateUserRightPanel({
               )}
             </Box>
 
+            {/* Role Selection */}
             <Box>
-              <Label required>Dashboard</Label>
+              <Label required>Role</Label>
               <RcDropdown
                 label="Select Role"
                 startIcon={<PersonIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
-                items={[
-                    { label: "Viewer",      value: "viewer" },
-                    { label: "Reviewer",    value: "reviewer" },
-                    { label: "Rule Author", value: "rule_author" },
-                    { label: "Super Admin", value: "super_admin" },
-                ]}
-                onSelect={(value) => {}}
-                />
-             
+                items={roleOptions}
+                value={formData.roles[0] || null}
+                onSelect={onRoleSelect}
+                fullWidth={true}
+              />
             </Box>
 
           </FieldsWrapper>
@@ -446,7 +479,7 @@ export default function CreateUserRightPanel({
           <SubmitButton
             fullWidth
             type="submit"
-            disabled={loading || passwordMismatch}
+            disabled={loading || passwordMismatch || !formData.roles.length}
             disableRipple
           >
             {loading ? 'Creating user…' : 'Create User'}
