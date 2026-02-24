@@ -1,9 +1,8 @@
-// LeftPanel.tsx
+// LeftPanel-with-animation.tsx
 import React from 'react';
 import { Box, Typography, styled } from '@mui/material';
 import LayersIcon from '@mui/icons-material/Layers';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { VerticalLeftPanelProps } from '../types/verticalTypes';
 
 const LeftPanelContainer = styled(Box)({
   display: 'none',
@@ -108,16 +107,7 @@ const BadgeText = styled(Typography)({
   fontFamily: brmsTheme.fonts.mono,
 });
 
-const Headline = styled(Typography)({
-  fontSize: 'clamp(2rem, 2.6vw, 2.75rem)',
-  fontWeight: 800,
-  color: brmsTheme.colors.panelTextHigh,
-  lineHeight: 1.05,
-  letterSpacing: '-0.04em',
-  marginBottom: '20px',
-  whiteSpace: 'pre-line',
-});
-
+// 🎨 NEW: Animated SubText with smooth transition
 const SubText = styled(Typography)({
   fontSize: '0.8125rem',
   color: brmsTheme.colors.panelTextMid,
@@ -126,6 +116,12 @@ const SubText = styled(Typography)({
   maxWidth: '300px',
   fontWeight: 400,
   fontFamily: brmsTheme.fonts.sans,
+  // Smooth fade transition
+  transition: 'opacity 0.3s ease-in-out, color 0.3s ease-in-out',
+  opacity: 1,
+  '&.transitioning': {
+    opacity: 0.6,
+  },
 });
 
 const FeatureContainer = styled(Box)({});
@@ -175,7 +171,6 @@ const CountText = styled(Typography)({
   letterSpacing: '0.08em',
 });
 
-
 const Feature = ({ children, last }: { children: string; last?: boolean }) => (
   <FeatureItem last={last}>
     <FeatureDot />
@@ -183,7 +178,23 @@ const Feature = ({ children, last }: { children: string; last?: boolean }) => (
   </FeatureItem>
 );
 
-export default function VerticalLeftPanel({ verticalCount, loading }: VerticalLeftPanelProps) {
+interface VerticalLeftPanelProps {
+  verticalCount: number;
+  loading: boolean;
+  selectedVerticalDescription?: string;
+}
+
+export default function VerticalLeftPanel({ 
+  verticalCount, 
+  loading,
+  selectedVerticalDescription 
+}: VerticalLeftPanelProps) {
+  const DEFAULT_DESCRIPTION = 'Each vertical is an isolated decision domain. Select one to manage its projects, rules, and deployment pipelines.';
+  const displayDescription = selectedVerticalDescription || DEFAULT_DESCRIPTION;
+  
+  // Track if we're in a transition state for animation
+  const isCustomDescription = !!selectedVerticalDescription;
+
   return (
     <LeftPanelContainer>
       <GlowEffect />
@@ -206,12 +217,15 @@ export default function VerticalLeftPanel({ verticalCount, loading }: VerticalLe
             <BadgeText>Select · Vertical</BadgeText>
           </Badge>
 
-          {/* Headline */}
-          <Headline>Choose your{'\n'}vertical.</Headline>
-
-          {/* Sub-copy */}
-          <SubText>
-            Each vertical is an isolated decision domain. Select one to manage its projects, rules, and deployment pipelines.
+          {/* Sub-copy - WITH ANIMATION */}
+          <SubText 
+            className={isCustomDescription ? 'transitioning' : ''}
+            sx={{
+              opacity: isCustomDescription ? 0.8 : 1,
+              transition: 'opacity 0.4s ease-in-out, color 0.4s ease-in-out',
+            }}
+          >
+            {displayDescription}
           </SubText>
 
           {/* Feature list */}

@@ -79,7 +79,6 @@ const VerticalList = styled(Box)({
 const VerticalCard = styled(Box)<{ isHovered: boolean }>(({ isHovered }) => ({
   borderRadius: '10px',
   border: `1px solid ${isHovered ? brmsTheme.colors.panelIndigo : brmsTheme.colors.lightBorder}`,
-  background: isHovered ? brmsTheme.colors.panelIndigoMuted : brmsTheme.colors.white,
   padding: '16px 20px',
   cursor: 'pointer',
   transition: 'all 0.15s ease',
@@ -95,7 +94,6 @@ const VerticalInfo = styled(Box)({});
 const VerticalName = styled(Typography)<{ isHovered: boolean }>(({ isHovered }) => ({
   fontWeight: 700,
   fontSize: '0.9375rem',
-  color: isHovered ? brmsTheme.colors.panelIndigo : brmsTheme.colors.lightTextHigh,
   letterSpacing: '-0.01em',
   fontFamily: brmsTheme.fonts.sans,
   transition: 'color 0.15s',

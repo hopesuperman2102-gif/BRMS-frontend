@@ -3,6 +3,7 @@ import { VerticalView } from "../api/verticalsApi";
 export interface VerticalLeftPanelProps {
   verticalCount: number;
   loading: boolean;
+  selectedVerticalDescription: string;
 }
 
 export interface VerticalRightPanelProps {
