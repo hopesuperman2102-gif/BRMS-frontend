@@ -42,11 +42,19 @@ export default function VerticalSelectionPage() {
     setHoveredKey(key);
   };
 
+  // 🔧 NEW: Find the description of the currently hovered vertical
+  const getHoveredVerticalDescription = (): string | undefined => {
+    if (!hoveredKey) return undefined;
+    const hovered = verticals.find((v) => v.vertical_key === hoveredKey);
+    return hovered?.description;
+  };
+
   return (
     <MainContainer>
       <VerticalLeftPanel 
         verticalCount={verticals.length} 
-        loading={loading} 
+        loading={loading}
+        selectedVerticalDescription={getHoveredVerticalDescription()}
       />
       <VerticalRightPanel
         verticals={verticals}
