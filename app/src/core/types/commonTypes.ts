@@ -85,21 +85,24 @@ export interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-//Dropdown types
-export type RcDropdownItem = {
+// Dropdown Types
+
+export interface RcDropdownItem {
   label: string;
   value: string;
   icon?: React.ReactNode;
-  isAddNew?: boolean; 
-};
-export type RcDropdownProps = {
+  isAddNew?: boolean;
+}
+
+export interface RcDropdownProps {
   label: string;
   items: RcDropdownItem[];
   onSelect: (value: string) => void;
   startIcon?: React.ReactNode;
   disabled?: boolean;
   fullWidth?: boolean;
-};
+  value?: string | null;
+}
 
 //Types for MonthlyBarChart
 export interface MonthlyData {
