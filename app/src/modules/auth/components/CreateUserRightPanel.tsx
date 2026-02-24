@@ -17,6 +17,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
+import RcDropdown from 'app/src/core/components/RcDropdown';
 
 const { colors, fonts } = brmsTheme;
 
@@ -420,6 +421,22 @@ export default function CreateUserRightPanel({
                   Passwords do not match
                 </Typography>
               )}
+            </Box>
+
+            <Box>
+              <Label required>Dashboard</Label>
+              <RcDropdown
+                label="Select Role"
+                startIcon={<PersonIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
+                items={[
+                    { label: "Viewer",      value: "viewer" },
+                    { label: "Reviewer",    value: "reviewer" },
+                    { label: "Rule Author", value: "rule_author" },
+                    { label: "Super Admin", value: "super_admin" },
+                ]}
+                onSelect={(value) => {}}
+                />
+             
             </Box>
 
           </FieldsWrapper>

@@ -35,7 +35,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
   const [settingsAnchor, setSettingsAnchor] = useState<HTMLElement | null>(null);
 
   const user = {
-    name: "Ram Kumar",
+    name: "Thanmai",
     id: "20250521235157",
     email: "ram.kumar@gmail.com",
     avatar: "",

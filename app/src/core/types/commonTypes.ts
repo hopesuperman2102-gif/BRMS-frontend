@@ -98,6 +98,7 @@ export type RcDropdownProps = {
   onSelect: (value: string) => void;
   startIcon?: React.ReactNode;
   disabled?: boolean;
+  fullWidth?: boolean;
 };
 
 //Types for MonthlyBarChart
