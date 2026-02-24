@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Box, Typography, CircularProgress, Paper, Chip, IconButton } from '@mui/material';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { useNavigate } from 'react-router-dom';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 import { logsApi, HourlyLogEntry, ParsedLogLine } from '../api/logsApi';
+import RcDropdown from '../../../core/components/RcDropdown'; // ← adjust import path if needed
 
 const { colors } = brmsTheme;
 const MotionPaper = motion(Paper);
@@ -333,6 +335,26 @@ const ErrorSvg = ({ c }: { c: string }) => (
   </svg>
 );
 
+// ─── Helper: extract date string from file_key ────────────────────────────────
+// file_key format assumed: "logs-YYYY-MM-DD-HH"  e.g. "logs-2026-02-24-14"
+// Adjust the slice if your format differs.
+function extractDate(fileKey: string): string {
+  // Take everything except the last segment (the hour)
+  const parts = fileKey.split('-');
+  return parts.slice(0, -1).join('-'); // "logs-2026-02-24"
+}
+
+function formatDateLabel(dateKey: string): string {
+  // dateKey e.g. "logs-2026-02-24" → show "2026-02-24"
+  // Strip a leading prefix like "logs-" if present
+  const match = dateKey.match(/(\d{4}-\d{2}-\d{2})$/);
+  if (match) {
+    const d = new Date(match[1]);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+  return dateKey;
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function LogsPage() {
   const navigate = useNavigate();
@@ -343,13 +365,21 @@ export default function LogsPage() {
   const [error,    setError]    = useState<string | null>(null);
   const [filter,   setFilter]   = useState<'ALL' | 'INFO' | 'WARNING' | 'ERROR'>('ALL');
 
+  // ── NEW: selected day ───────────────────────────────────────────────────────
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
   useEffect(() => {
     async function fetchLogs() {
       try {
         setLoading(true);
         const data = await logsApi.getHourlyLogs();
         setEntries(data);
-        if (data.length > 0) setSelected(data[0].file_key);
+        if (data.length > 0) {
+          // Auto-select the most recent day
+          const firstDay = extractDate(data[0].file_key);
+          setSelectedDay(firstDay);
+          setSelected(data[0].file_key);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load logs');
       } finally {
@@ -359,9 +389,41 @@ export default function LogsPage() {
     fetchLogs();
   }, []);
 
+  // ── Derive unique days from all entries (preserving order) ─────────────────
+  const uniqueDays = useMemo(() => {
+    const seen = new Set<string>();
+    const days: string[] = [];
+    for (const e of entries) {
+      const d = extractDate(e.file_key);
+      if (!seen.has(d)) { seen.add(d); days.push(d); }
+    }
+    return days;
+  }, [entries]);
+
+  // ── Day dropdown items for RcDropdown ──────────────────────────────────────
+  const dayDropdownItems = useMemo(() =>
+    uniqueDays.map(d => ({ value: d, label: formatDateLabel(d) })),
+    [uniqueDays]
+  );
+
+  // ── Entries filtered to the selected day ───────────────────────────────────
+  const dayEntries = useMemo(() =>
+    selectedDay ? entries.filter(e => extractDate(e.file_key) === selectedDay) : entries,
+    [entries, selectedDay]
+  );
+
+  // When day changes, auto-select the first hour of that day
+  const handleDaySelect = (day: string) => {
+    setSelectedDay(day);
+    setFilter('ALL');
+    const firstOfDay = entries.find(e => extractDate(e.file_key) === day);
+    if (firstOfDay) setSelected(firstOfDay.file_key);
+  };
+
   const activeEntry   = entries.find(e => e.file_key === selected);
   const filteredLines = (activeEntry?.lines ?? []).filter(l => filter === 'ALL' || l.level === filter);
 
+  // Stats are computed over ALL entries (full picture across all days)
   const totalInfo     = entries.reduce((s, e) => s + e.info, 0);
   const totalWarnings = entries.reduce((s, e) => s + e.warnings, 0);
   const totalErrors   = entries.reduce((s, e) => s + e.errors, 0);
@@ -392,23 +454,15 @@ export default function LogsPage() {
         transition={{ duration: 0.35 }}
         sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        {/* Left: back button + title stack */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          {/* Back button — matches HubPage / DashboardPage pattern exactly */}
           <IconButton
             onClick={() => navigate(-1)}
             sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '10px',
+              width: 36, height: 36, borderRadius: '10px',
               backgroundColor: colors.primaryGlowSoft,
-              color: colors.primary,
-              flexShrink: 0,
+              color: colors.primary, flexShrink: 0,
               transition: 'all 0.2s',
-              '&:hover': {
-                backgroundColor: colors.primaryGlowMid,
-                transform: 'translateX(-2px)',
-              },
+              '&:hover': { backgroundColor: colors.primaryGlowMid, transform: 'translateX(-2px)' },
             }}
           >
             <ArrowBackIcon sx={{ fontSize: 20 }} />
@@ -419,12 +473,11 @@ export default function LogsPage() {
               System Logs
             </Typography>
             <Typography variant="body2" sx={{ color: colors.textSecondary, mt: 0.3 }}>
-              {entries.length} hours recorded today · real-time monitoring
+              {entries.length} hours recorded · {uniqueDays.length} day{uniqueDays.length !== 1 ? 's' : ''} · real-time monitoring
             </Typography>
           </Box>
         </Box>
 
-        {/* Right: live indicator */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <PulseDot color="#2e7d32" active />
           <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#2e7d32' }}>Live</Typography>
@@ -434,34 +487,64 @@ export default function LogsPage() {
       {/* ── Stats row ────────────────────────────────────────────────────────── */}
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 2.5, mb: 3 }}>
         <LogOverviewPanel entries={entries} totalInfo={totalInfo} totalWarnings={totalWarnings} totalErrors={totalErrors} />
-
         <LogStatCard title="Info Events" value={totalInfo} color="#1976d2" accent="#42a5f5" icon={<InfoSvg c="#1976d2" />} sparkData={infoSpark} delta={delta(infoSpark)} badge="NOMINAL" badgeSeverity="ok" delay={0.08} />
         <LogStatCard title="Warnings" value={totalWarnings} color="#ed6c02" accent="#ffb74d" icon={<WarnSvg c="#ed6c02" />} sparkData={warnSpark} delta={delta(warnSpark)} badge={totalWarnings > 0 ? 'REVIEW' : 'CLEAR'} badgeSeverity={totalWarnings > 0 ? 'warn' : 'ok'} delay={0.16} />
         <LogStatCard title="Errors" value={totalErrors} color="#d32f2f" accent="#ef9a9a" icon={<ErrorSvg c="#d32f2f" />} sparkData={errorSpark} delta={delta(errorSpark)} badge={totalErrors > 0 ? 'ACTION REQ.' : 'CLEAR'} badgeSeverity={totalErrors > 0 ? 'crit' : 'ok'} delay={0.24} />
       </Box>
 
-      {/* ── Hour selector ─────────────────────────────────────────────────────── */}
+      {/* ── Hour selector (with day dropdown) ────────────────────────────────── */}
       <RcCard delay={0.2} sx={{ mb: 3, p: '14px 20px' }}>
+
+        {/* Row 1: label + day dropdown */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
           <Typography sx={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: colors.textSecondary }}>
             Hour Selector
           </Typography>
-          <Typography sx={{ fontSize: '11px', color: colors.textSecondary }}>
-            {selected?.split('-').pop()}:00 active
-          </Typography>
+
+          {/* ── Day filter dropdown ───────────────────────────────────────────── */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography sx={{ fontSize: '11px', color: colors.textSecondary }}>
+              {selected?.split('-').pop()}:00 active
+            </Typography>
+
+            {dayDropdownItems.length > 0 && (
+              <RcDropdown
+                label="Select Day"
+                items={dayDropdownItems}
+                value={selectedDay ?? undefined}
+                onSelect={handleDaySelect}
+                startIcon={<CalendarTodayIcon sx={{ fontSize: 16, color: brmsTheme.colors.panelIndigo }} />}
+              />
+            )}
+          </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {entries.map(e => (
-            <HourBadge
-              key={e.file_key}
-              fileKey={e.file_key}
-              active={selected === e.file_key}
-              errors={e.errors}
-              warnings={e.warnings}
-              onClick={() => { setSelected(e.file_key); setFilter('ALL'); }}
-            />
-          ))}
-        </Box>
+
+        {/* Row 2: hour badges for the selected day only */}
+        <AnimatePresence mode="wait">
+          <MotionBox
+            key={selectedDay ?? 'all'}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.18 }}
+            sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}
+          >
+            {dayEntries.length === 0 ? (
+              <Typography sx={{ fontSize: 12, color: colors.textSecondary }}>No log hours found for this day.</Typography>
+            ) : (
+              dayEntries.map(e => (
+                <HourBadge
+                  key={e.file_key}
+                  fileKey={e.file_key}
+                  active={selected === e.file_key}
+                  errors={e.errors}
+                  warnings={e.warnings}
+                  onClick={() => { setSelected(e.file_key); setFilter('ALL'); }}
+                />
+              ))
+            )}
+          </MotionBox>
+        </AnimatePresence>
       </RcCard>
 
       {/* ── Log viewer ───────────────────────────────────────────────────────── */}

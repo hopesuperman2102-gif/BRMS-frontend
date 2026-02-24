@@ -1,17 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography, CircularProgress, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
+  Box, Button, Typography, CircularProgress, IconButton, Menu, MenuItem,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
-
 import RcTable from '../../../core/components/RcTable';
-import { CreateUserApi } from '../api/createUserApi';
+import { CreateUserApi, UserResponse } from '../api/createUserApi';
+import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
+import UpdatePasswordDialog from './UpdatePasswordDialog';
 
-const { colors, fonts } = brmsTheme;
+const { colors } = brmsTheme;
 
 /* ─── Styled Components ───────────────────────────────────── */
 
@@ -136,7 +139,11 @@ interface User {
   created_at: string;
 }
 
-export default function CreateUserLeftPanel() {
+interface CreateUserLeftPanelProps {
+  newUser?: UserResponse | null;
+}
+
+export default function CreateUserLeftPanel({ newUser }: CreateUserLeftPanelProps) {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,9 +153,18 @@ export default function CreateUserLeftPanel() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // ─── Update Password Modal state ───
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    if (newUser) {
+      setUsers(prev => [...prev, newUser]);
+    }
+  }, [newUser]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -203,9 +219,9 @@ export default function CreateUserLeftPanel() {
     }
   };
 
-  const handleUpdatePassword = async () => {
-    if (!selectedUserId) return;
-    console.log('Update password for user:', selectedUserId);
+  // ─── Update Password handlers ───
+  const handleUpdatePassword = () => {
+    setPasswordDialogOpen(true);
     handleMenuClose();
   };
 
@@ -258,58 +274,22 @@ export default function CreateUserLeftPanel() {
           </HeadingSubtitle>
         </HeadingBlock>
 
-        {/* Loading State */}
         {loading ? (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flex: 1,
-            }}
-          >
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
             <CircularProgress size={40} sx={{ color: colors.panelIndigo }} />
           </Box>
         ) : error ? (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flex: 1,
-              flexDirection: 'column',
-              gap: '12px',
-            }}
-          >
-            <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>
-              {error}
-            </Typography>
-            <Button size="small" onClick={fetchUsers} sx={{ color: colors.panelIndigo }}>
-              Retry
-            </Button>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', gap: '12px' }}>
+            <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>{error}</Typography>
+            <Button size="small" onClick={fetchUsers} sx={{ color: colors.panelIndigo }}>Retry</Button>
           </Box>
         ) : users.length === 0 ? (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flex: 1,
-              flexDirection: 'column',
-              gap: '12px',
-            }}
-          >
-            <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>
-              No users created yet
-            </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', gap: '12px' }}>
+            <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>No users created yet</Typography>
           </Box>
         ) : (
           <TableWrapper>
-            <RcTable
-              headers={tableHeaders}
-              rows={tableRows}
-              onRowClick={() => {}}
-            />
+            <RcTable headers={tableHeaders} rows={tableRows} onRowClick={() => {}} />
           </TableWrapper>
         )}
       </ContentWrapper>
@@ -329,70 +309,38 @@ export default function CreateUserLeftPanel() {
       >
         <MenuItem
           onClick={handleUpdatePassword}
-          sx={{
-            color: colors.panelIndigo,
-            fontSize: '0.875rem',
-            '&:hover': {
-              backgroundColor: colors.primaryGlowSoft,
-            },
-          }}
+          sx={{ color: colors.panelIndigo, fontSize: '0.875rem', '&:hover': { backgroundColor: colors.primaryGlowSoft } }}
         >
           Update Password
         </MenuItem>
         <MenuItem
           onClick={handleDeleteClick}
-          sx={{
-            color: colors.errorText,
-            fontSize: '0.875rem',
-            '&:hover': {
-              backgroundColor: 'rgba(239, 68, 68, 0.12)',
-            },
-          }}
+          sx={{ color: colors.errorText, fontSize: '0.875rem', '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.12)' } }}
         >
           Delete
         </MenuItem>
       </Menu>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
+      {/* ─── Delete Confirmation Dialog (using RcConfirmDialog) ─── */}
+      <RcConfirmDialog
         open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        PaperProps={{
-          sx: {
-            background: colors.formBg,
-            borderRadius: '8px',
-          },
-        }}
-      >
-        <DialogTitle sx={{ color: colors.textOnPrimary, fontWeight: 700 }}>
-          Delete User
-        </DialogTitle>
-        <DialogContent>
-          <Typography sx={{ color: colors.lightTextHigh, mt: 2 }}>
-            Are you sure you want to delete this user? This action cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setDeleteDialogOpen(false)}
-            sx={{ color: colors.panelTextMid }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            disabled={deleting}
-            sx={{
-              color: colors.errorText,
-              '&:hover': {
-                backgroundColor: 'rgba(239, 68, 68, 0.12)',
-              },
-            }}
-          >
-            {deleting ? 'Deleting...' : 'Delete'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmText={deleting ? 'Deleting...' : 'Delete'}
+        cancelText="Cancel"
+        isDangerous
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
+
+      {/* ─── Update Password Dialog ─────────────────────────────── */}
+      <UpdatePasswordDialog
+        open={passwordDialogOpen}
+        userId={selectedUserId}
+        onClose={() => setPasswordDialogOpen(false)}
+        onChangePassword={CreateUserApi.changePassword}
+      />
+
     </LeftPanelRoot>
   );
 }

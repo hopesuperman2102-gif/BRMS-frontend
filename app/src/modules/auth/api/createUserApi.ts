@@ -79,10 +79,17 @@ export const CreateUserApi = {
 
   deleteUser: async (userId: string): Promise<unknown> => {
     const res = await axiosInstance.delete<unknown>(
-      `${BASE}/api/v1/users/${userId}`,
-      { data: { userId } }
+      `${BASE}/api/v1/users/${userId}`
     );
     return res.data;
   },
+
+  changePassword: async (userId: string, newPassword: string): Promise<unknown> => {
+  const res = await axiosInstance.post<unknown>(
+    `${BASE}/api/v1/users/change-password`,
+    { new_password: newPassword }
+  );
+  return res.data;
+},
 
 };
