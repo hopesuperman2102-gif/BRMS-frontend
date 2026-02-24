@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 export type HeaderIconProps = {
   icon: React.ReactNode;
   tooltip: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 export type LogoTitleProps = {
@@ -98,6 +98,7 @@ export type RcDropdownProps = {
   onSelect: (value: string) => void;
   startIcon?: React.ReactNode;
   disabled?: boolean;
+  fullWidth?: boolean;
 };
 
 //Types for MonthlyBarChart

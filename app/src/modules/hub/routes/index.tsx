@@ -5,6 +5,7 @@ import HubPage from '../page/HubPage';
 import RulesTable from '../components/RulesTable';
 import DeployTabPage from '../../deploy/page/DeployTabPage';
 import CreateProjectPage from '../page/CreateProjectPage';
+import LogsPage from '../components/LogsPage';
 
 const hubRoutes: AppRoute[] = [
   {
@@ -37,6 +38,14 @@ const hubRoutes: AppRoute[] = [
     layout: 'main',
     metadata: {
       title: 'Deploy',
+    },
+  },
+ {
+    path: '/logs',
+    element: LogsPage,
+    layout: 'main',
+    metadata: {
+      title: 'Logs',
     },
   },
 ];

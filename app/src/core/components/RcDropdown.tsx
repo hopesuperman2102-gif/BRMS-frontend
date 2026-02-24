@@ -13,6 +13,7 @@ const RcDropdown: React.FC<RcDropdownProps> = ({
   onSelect,
   startIcon,
   disabled = false,
+  fullWidth = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -30,6 +31,7 @@ const RcDropdown: React.FC<RcDropdownProps> = ({
       <Button variant="outlined"
         color="inherit"
         onClick={handleOpen}
+        fullWidth={fullWidth}
         startIcon={startIcon ?? <FolderIcon sx={{ color: brmsTheme.colors.panelIndigo }} />}
         endIcon={<KeyboardArrowDownIcon sx={{ color: brmsTheme.colors.textGray }} />}
         disabled={disabled}
@@ -49,6 +51,7 @@ const RcDropdown: React.FC<RcDropdownProps> = ({
       <Menu
         anchorEl={anchorEl}
         open={open}
+        
         onClose={handleClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
