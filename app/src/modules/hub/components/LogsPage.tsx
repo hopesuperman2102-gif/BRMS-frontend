@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Box, Typography, CircularProgress, IconButton } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -42,21 +42,21 @@ function countByLevel(lines: ParsedLogLine[]) {
 // ─── level config — 100% brmsTheme tokens ────────────────────────────────────
 const LEVEL_CFG = {
   INFO: {
-    color:  colors.info,                  // #1976d2
-    bg:     colors.statusDefaultBg,       // #F8FAFC
-    border: colors.statusDefaultBorder,   // #E2E8F0
+    color:  colors.info,
+    bg:     colors.statusDefaultBg,
+    border: colors.statusDefaultBorder,
     label:  'INFO',
   },
   WARNING: {
-    color:  colors.warning,               // #ed6c02
-    bg:     colors.statusInactiveBg,      // #FFF7ED
-    border: colors.statusInactiveBorder,  // #FED7AA
+    color:  colors.warning,
+    bg:     colors.statusInactiveBg,
+    border: colors.statusInactiveBorder,
     label:  'WARN',
   },
   ERROR: {
-    color:  colors.error,                 // #d32f2f
-    bg:     colors.errorBg,              // #FEF2F2
-    border: colors.errorBorder,          // #FECACA
+    color:  colors.error,
+    bg:     colors.errorBg,
+    border: colors.errorBorder,
     label:  'ERR',
   },
 } as const;
@@ -154,7 +154,6 @@ function VolumeChart({ entries, selected }: { entries: HourlyLogEntry[]; selecte
             sx={{
               flex: 1, borderRadius: '2px 2px 0 0',
               height: `${Math.max(pct, 5)}%`,
-              // active: solid primary, inactive: soft glow tint, hover: mid tint
               background: isActive ? colors.primary : colors.panelIndigoMuted,
               transition: 'all 0.2s', cursor: 'default',
               '&:hover': { background: colors.panelIndigoTint15 },
@@ -197,8 +196,6 @@ function HourBadge({ fileKey, createdAt, active, onClick }: {
         {time && (
           <Typography sx={{
             fontSize: 9, mt: '3px',
-            // active: use panelTextMid (white 45%) — on dark gradient bg
-            // inactive: lightTextLow (#94A3B8)
             color: active ? colors.panelTextMid : colors.lightTextLow,
             fontFamily: fonts.mono,
           }}>
@@ -222,7 +219,6 @@ function LogLine({ line, index }: { line: ParsedLogLine; index: number }) {
       '&:hover': { background: colors.primaryGlowSoft },
       transition: 'background 0.1s',
     }}>
-      {/* level badge */}
       <Box sx={{
         px: '5px', py: '1px', borderRadius: '3px',
         background: cfg.bg, border: `1px solid ${cfg.border}`,
@@ -233,12 +229,10 @@ function LogLine({ line, index }: { line: ParsedLogLine; index: number }) {
         </Typography>
       </Box>
 
-      {/* time */}
       <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono, pl: '6px' }}>
         {line.timestamp.split(' ')[1]}
       </Typography>
 
-      {/* source */}
       <Typography sx={{
         fontSize: 11, fontFamily: fonts.mono, px: '6px',
         color: colors.panelIndigo,
@@ -247,7 +241,6 @@ function LogLine({ line, index }: { line: ParsedLogLine; index: number }) {
         {line.source.split('.').slice(-2).join('.')}
       </Typography>
 
-      {/* message */}
       <Typography sx={{
         fontSize: 12, fontFamily: fonts.mono, lineHeight: 1.4, wordBreak: 'break-all',
         color: line.level === 'ERROR'
@@ -310,13 +303,13 @@ export default function LogsPage() {
 
   const PAGE_SIZE = logsApi.PAGE_SIZE;
 
-  const fetchPage = async (fileKey: string, page: number) => {
+  const fetchPage = useCallback(async (fileKey: string, page: number) => {
     setLinesLoading(true);
     try {
       const { lines, total } = await logsApi.getHourlyLogPage(fileKey, page * PAGE_SIZE);
       setVisibleLines(lines); setCurrentPage(page); setPageTotal(total);
     } catch { /* keep */ } finally { setLinesLoading(false); }
-  };
+  }, [PAGE_SIZE]);
 
   useEffect(() => {
     async function init() {
@@ -340,7 +333,7 @@ export default function LogsPage() {
     if (!selected) return;
     setVisibleLines([]); setCurrentPage(0); setPageTotal(0);
     fetchPage(selected, 0);
-  }, [selected]);
+  }, [selected, fetchPage]);
 
   // ── derived ──────────────────────────────────────────────────────────────────
   const uniqueDays = useMemo(() => {
@@ -397,7 +390,6 @@ export default function LogsPage() {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
 
-          {/* back */}
           <IconButton
             onClick={() => navigate(-1)}
             sx={{
@@ -416,7 +408,6 @@ export default function LogsPage() {
             <ArrowBackIcon sx={{ fontSize: 18 }} />
           </IconButton>
 
-          {/* breadcrumb */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <Typography sx={{ fontSize: 12, color: colors.lightTextLow, fontFamily: fonts.mono }}>
               monitoring
@@ -427,7 +418,6 @@ export default function LogsPage() {
             </Typography>
           </Box>
 
-          {/* live pill — uses approvedBg/Text/Border tokens */}
           <Box sx={{
             display: 'flex', alignItems: 'center', gap: '6px',
             px: 1.2, py: '4px', borderRadius: '6px',
@@ -451,7 +441,6 @@ export default function LogsPage() {
           </Box>
         </Box>
 
-        {/* day dropdown */}
         {dayDropdownItems.length > 0 && (
           <RcDropdown
             label="Select Day"
@@ -464,221 +453,212 @@ export default function LogsPage() {
       </MotionBox>
 
       {/* ── Main layout ─────────────────────────────────────────────────────── */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-
-          {/* Hour timeline */}
-          <Panel delay={0.05}>
-            <PanelHeader right={
-              selectedDay
-                ? <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
-                    {formatDateLabel(selectedDay)}
-                  </Typography>
-                : null
-            }>
-              Hour Timeline
-            </PanelHeader>
-
-            {/* volume bars */}
-            <Box sx={{ px: 2, pt: 2, pb: 0 }}>
-              <VolumeChart entries={chartEntries} selected={selected} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: '4px', mb: 1 }}>
-                <Typography sx={{ fontSize: 9, color: colors.lightTextLow, fontFamily: fonts.mono }}>
-                  {chartEntries[0]?.file_key.split('-').pop()}:00
+        {/* Hour timeline */}
+        <Panel delay={0.05}>
+          <PanelHeader right={
+            selectedDay
+              ? <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                  {formatDateLabel(selectedDay)}
                 </Typography>
-                <Typography sx={{ fontSize: 9, color: colors.lightTextLow, fontFamily: fonts.mono }}>
-                  {chartEntries.slice(-1)[0]?.file_key.split('-').pop()}:00
-                </Typography>
-              </Box>
-            </Box>
+              : null
+          }>
+            Hour Timeline
+          </PanelHeader>
 
-            {/* hour badges */}
-            <Box sx={{ px: 2, pb: 2, pt: 1.5, borderTop: `1px solid ${colors.lightBorder}` }}>
-              <AnimatePresence mode="wait">
-                <MotionBox
-                  key={selectedDay ?? 'all'}
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  sx={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}
-                >
-                  {dayEntries.length === 0
-                    ? <Typography sx={{ fontSize: 12, color: colors.lightTextLow, fontFamily: fonts.mono }}>No hours found.</Typography>
-                    : dayEntries.map(e => (
-                        <HourBadge
-                          key={e.file_key}
-                          fileKey={e.file_key}
-                          createdAt={e.created_at}
-                          active={selected === e.file_key}
-                          onClick={() => setSelected(e.file_key)}
-                        />
-                      ))
-                  }
-                </MotionBox>
-              </AnimatePresence>
+          <Box sx={{ px: 2, pt: 2, pb: 0 }}>
+            <VolumeChart entries={chartEntries} selected={selected} />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: '4px', mb: 1 }}>
+              <Typography sx={{ fontSize: 9, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                {chartEntries[0]?.file_key.split('-').pop()}:00
+              </Typography>
+              <Typography sx={{ fontSize: 9, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                {chartEntries.slice(-1)[0]?.file_key.split('-').pop()}:00
+              </Typography>
             </Box>
-          </Panel>
+          </Box>
 
-          {/* Log viewer */}
-          <AnimatePresence mode="wait">
-            {activeEntry && (
+          <Box sx={{ px: 2, pb: 2, pt: 1.5, borderTop: `1px solid ${colors.lightBorder}` }}>
+            <AnimatePresence mode="wait">
               <MotionBox
-                key={activeEntry.file_key}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                sx={{ background: colors.white, border: `1px solid ${colors.lightBorder}`, borderRadius: '10px', overflow: 'hidden' }}
+                key={selectedDay ?? 'all'}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                sx={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}
               >
-                {/* viewer header */}
-                <Box sx={{
-                  px: 2, py: '10px',
-                  background: colors.surfaceBase,
-                  borderBottom: `1px solid ${colors.lightBorder}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  flexWrap: 'wrap', gap: 1,
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    {/* file key badge */}
-                    <Box sx={{
-                      px: 1, py: '3px', borderRadius: '5px',
-                      background: colors.primaryGlowSoft,
-                      border: `1px solid ${colors.primaryGlowMid}`,
-                    }}>
-                      <Typography sx={{ fontSize: 11, fontWeight: 700, color: colors.primary, fontFamily: fonts.mono }}>
-                        {activeEntry.file_key}
-                      </Typography>
-                    </Box>
-                    <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
-                      page {currentPage + 1} of {totalPages}
-                    </Typography>
-                    {activeEntry.created_at && (
-                      <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
-                        · {formatCreatedAt(activeEntry.created_at)}
-                      </Typography>
-                    )}
-                  </Box>
+                {dayEntries.length === 0
+                  ? <Typography sx={{ fontSize: 12, color: colors.lightTextLow, fontFamily: fonts.mono }}>No hours found.</Typography>
+                  : dayEntries.map(e => (
+                      <HourBadge
+                        key={e.file_key}
+                        fileKey={e.file_key}
+                        createdAt={e.created_at}
+                        active={selected === e.file_key}
+                        onClick={() => setSelected(e.file_key)}
+                      />
+                    ))
+                }
+              </MotionBox>
+            </AnimatePresence>
+          </Box>
+        </Panel>
 
-                  {/* per-page breakdown — computed from already-fetched lines, zero extra calls */}
-                  {!linesLoading && visibleLines.length > 0 && (
-                    <PageBreakdown lines={visibleLines} />
+        {/* Log viewer */}
+        <AnimatePresence mode="wait">
+          {activeEntry && (
+            <MotionBox
+              key={activeEntry.file_key}
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              sx={{ background: colors.white, border: `1px solid ${colors.lightBorder}`, borderRadius: '10px', overflow: 'hidden' }}
+            >
+              <Box sx={{
+                px: 2, py: '10px',
+                background: colors.surfaceBase,
+                borderBottom: `1px solid ${colors.lightBorder}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                flexWrap: 'wrap', gap: 1,
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{
+                    px: 1, py: '3px', borderRadius: '5px',
+                    background: colors.primaryGlowSoft,
+                    border: `1px solid ${colors.primaryGlowMid}`,
+                  }}>
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: colors.primary, fontFamily: fonts.mono }}>
+                      {activeEntry.file_key}
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                    page {currentPage + 1} of {totalPages}
+                  </Typography>
+                  {activeEntry.created_at && (
+                    <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                      · {formatCreatedAt(activeEntry.created_at)}
+                    </Typography>
                   )}
                 </Box>
 
-                {/* column headers */}
-                <Box sx={{
-                  display: 'grid', gridTemplateColumns: '44px 72px 160px 1fr',
-                  px: 2, py: '5px',
-                  background: colors.bgGrayLight,
-                  borderBottom: `1px solid ${colors.lightBorder}`,
-                }}>
-                  {['LEVEL', 'TIME', 'SOURCE', 'MESSAGE'].map((h, i) => (
-                    <Typography key={h} sx={{
-                      fontSize: 9, fontWeight: 800,
-                      color: colors.lightTextLow,
-                      letterSpacing: '0.1em', fontFamily: fonts.mono,
-                      pl: i > 0 ? '6px' : 0,
-                    }}>
-                      {h}
-                    </Typography>
-                  ))}
-                </Box>
+                {!linesLoading && visibleLines.length > 0 && (
+                  <PageBreakdown lines={visibleLines} />
+                )}
+              </Box>
 
-                {/* log lines */}
-                <AnimatePresence mode="wait">
-                  <MotionBox
-                    key={`${activeEntry.file_key}-p${currentPage}`}
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    transition={{ duration: 0.1 }}
-                  >
-                    {linesLoading ? (
-                      <Box sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-                        <CircularProgress size={20} sx={{ color: colors.primary }} />
-                        <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono }}>
-                          Fetching page {currentPage + 1}…
-                        </Typography>
-                      </Box>
-                    ) : visibleLines.length === 0 ? (
-                      <Box sx={{ py: 6, textAlign: 'center' }}>
-                        <Typography sx={{ color: colors.lightTextLow, fontSize: 12, fontFamily: fonts.mono }}>
-                          — no events on this page —
-                        </Typography>
-                      </Box>
-                    ) : visibleLines.map((line, i) => (
-                      <LogLine key={i} line={line} index={i} />
-                    ))}
-                  </MotionBox>
-                </AnimatePresence>
-
-                {/* pagination footer */}
-                <Box sx={{
-                  px: 2, py: '8px',
-                  borderTop: `1px solid ${colors.lightBorder}`,
-                  background: colors.surfaceBase,
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                }}>
-                  <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono, minWidth: 160 }}>
-                    {linesLoading
-                      ? 'loading…'
-                      : `rows ${currentPage * PAGE_SIZE + 1}–${Math.min((currentPage + 1) * PAGE_SIZE, pageTotal)} of ${pageTotal}`}
+              <Box sx={{
+                display: 'grid', gridTemplateColumns: '44px 72px 160px 1fr',
+                px: 2, py: '5px',
+                background: colors.bgGrayLight,
+                borderBottom: `1px solid ${colors.lightBorder}`,
+              }}>
+                {['LEVEL', 'TIME', 'SOURCE', 'MESSAGE'].map((h, i) => (
+                  <Typography key={h} sx={{
+                    fontSize: 9, fontWeight: 800,
+                    color: colors.lightTextLow,
+                    letterSpacing: '0.1em', fontFamily: fonts.mono,
+                    pl: i > 0 ? '6px' : 0,
+                  }}>
+                    {h}
                   </Typography>
+                ))}
+              </Box>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <PageArrow direction="prev" enabled={hasPrev && !linesLoading} onClick={() => fetchPage(selected!, currentPage - 1)} />
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      {Array.from({ length: totalPages }, (_, i) => {
-                        const isActive      = i === currentPage;
-                        const nearCurrent   = Math.abs(i - currentPage) <= 1;
-                        const isEdge        = i === 0 || i === totalPages - 1;
-                        const showEllBefore = i === currentPage - 2 && currentPage > 2;
-                        const showEllAfter  = i === currentPage + 2 && currentPage < totalPages - 3;
-
-                        if (showEllBefore || showEllAfter) return (
-                          <Typography key={i} sx={{ fontSize: 11, color: colors.lightTextLow, px: '2px', userSelect: 'none', fontFamily: fonts.mono }}>
-                            …
-                          </Typography>
-                        );
-                        if (!isEdge && !nearCurrent) return null;
-
-                        return (
-                          <motion.div key={i} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                            <Box
-                              onClick={() => !linesLoading && fetchPage(selected!, i)}
-                              sx={{
-                                minWidth: 26, height: 26, borderRadius: '5px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: linesLoading ? 'default' : 'pointer',
-                                background: isActive ? gradients.primary : 'transparent',
-                                border: `1px solid ${isActive ? colors.primary : colors.lightBorder}`,
-                                boxShadow: isActive ? shadows.primarySoft : 'none',
-                                transition: 'all 0.12s',
-                                '&:hover': !isActive ? { background: colors.primaryGlowSoft } : {},
-                              }}
-                            >
-                              <Typography sx={{
-                                fontSize: 11,
-                                fontWeight: isActive ? 800 : 500,
-                                color: isActive ? colors.textOnPrimary : colors.lightTextMid,
-                                fontFamily: fonts.mono,
-                                userSelect: 'none',
-                              }}>
-                                {i + 1}
-                              </Typography>
-                            </Box>
-                          </motion.div>
-                        );
-                      })}
+              <AnimatePresence mode="wait">
+                <MotionBox
+                  key={`${activeEntry.file_key}-p${currentPage}`}
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  {linesLoading ? (
+                    <Box sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                      <CircularProgress size={20} sx={{ color: colors.primary }} />
+                      <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                        Fetching page {currentPage + 1}…
+                      </Typography>
                     </Box>
+                  ) : visibleLines.length === 0 ? (
+                    <Box sx={{ py: 6, textAlign: 'center' }}>
+                      <Typography sx={{ color: colors.lightTextLow, fontSize: 12, fontFamily: fonts.mono }}>
+                        — no events on this page —
+                      </Typography>
+                    </Box>
+                  ) : visibleLines.map((line, i) => (
+                    <LogLine key={i} line={line} index={i} />
+                  ))}
+                </MotionBox>
+              </AnimatePresence>
 
-                    <PageArrow direction="next" enabled={hasNext && !linesLoading} onClick={() => fetchPage(selected!, currentPage + 1)} />
+              <Box sx={{
+                px: 2, py: '8px',
+                borderTop: `1px solid ${colors.lightBorder}`,
+                background: colors.surfaceBase,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}>
+                <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono, minWidth: 160 }}>
+                  {linesLoading
+                    ? 'loading…'
+                    : `rows ${currentPage * PAGE_SIZE + 1}–${Math.min((currentPage + 1) * PAGE_SIZE, pageTotal)} of ${pageTotal}`}
+                </Typography>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <PageArrow direction="prev" enabled={hasPrev && !linesLoading} onClick={() => fetchPage(selected!, currentPage - 1)} />
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                    {Array.from({ length: totalPages }, (_, i) => {
+                      const isActive      = i === currentPage;
+                      const nearCurrent   = Math.abs(i - currentPage) <= 1;
+                      const isEdge        = i === 0 || i === totalPages - 1;
+                      const showEllBefore = i === currentPage - 2 && currentPage > 2;
+                      const showEllAfter  = i === currentPage + 2 && currentPage < totalPages - 3;
+
+                      if (showEllBefore || showEllAfter) return (
+                        <Typography key={i} sx={{ fontSize: 11, color: colors.lightTextLow, px: '2px', userSelect: 'none', fontFamily: fonts.mono }}>
+                          …
+                        </Typography>
+                      );
+                      if (!isEdge && !nearCurrent) return null;
+
+                      return (
+                        <motion.div key={i} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <Box
+                            onClick={() => !linesLoading && fetchPage(selected!, i)}
+                            sx={{
+                              minWidth: 26, height: 26, borderRadius: '5px',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              cursor: linesLoading ? 'default' : 'pointer',
+                              background: isActive ? gradients.primary : 'transparent',
+                              border: `1px solid ${isActive ? colors.primary : colors.lightBorder}`,
+                              boxShadow: isActive ? shadows.primarySoft : 'none',
+                              transition: 'all 0.12s',
+                              '&:hover': !isActive ? { background: colors.primaryGlowSoft } : {},
+                            }}
+                          >
+                            <Typography sx={{
+                              fontSize: 11,
+                              fontWeight: isActive ? 800 : 500,
+                              color: isActive ? colors.textOnPrimary : colors.lightTextMid,
+                              fontFamily: fonts.mono,
+                              userSelect: 'none',
+                            }}>
+                              {i + 1}
+                            </Typography>
+                          </Box>
+                        </motion.div>
+                      );
+                    })}
                   </Box>
 
-                  <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono, textAlign: 'right', minWidth: 160 }}>
-                    {pageTotal} total lines
-                  </Typography>
+                  <PageArrow direction="next" enabled={hasNext && !linesLoading} onClick={() => fetchPage(selected!, currentPage + 1)} />
                 </Box>
-              </MotionBox>
-            )}
-          </AnimatePresence>
-        </Box>
+
+                <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono, textAlign: 'right', minWidth: 160 }}>
+                  {pageTotal} total lines
+                </Typography>
+              </Box>
+            </MotionBox>
+          )}
+        </AnimatePresence>
+      </Box>
     </Box>
   );
 }

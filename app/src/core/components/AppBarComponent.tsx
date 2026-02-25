@@ -32,10 +32,12 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUserApi, LoggedInUser } from "../../modules/auth/UserService";
 import { useAuth } from "../../modules/auth/Authcontext";
 import { logoutApi } from "../../modules/auth/Authservice";
+import { useRole } from "../../modules/auth/useRole";
 
 const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationName }) => {
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuth();
+  const { isRuleAuthor } = useRole();
   const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(null);
   const [settingsAnchor, setSettingsAnchor] = useState<HTMLElement | null>(null);
   const [user, setUser] = useState<LoggedInUser | null>(null);
@@ -88,11 +90,13 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
         <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
           <LogoTitle logo={logo} organizationName={organizationName} />
           <Box display="flex" alignItems="center" gap={1}>
-            <HeaderIcon
-              icon={<SettingsIcon />}
-              tooltip="Settings"
-              onClick={(e) => setSettingsAnchor(e.currentTarget)}
-            />
+            {!isRuleAuthor && (
+              <HeaderIcon
+                icon={<SettingsIcon />}
+                tooltip="Settings"
+                onClick={(e) => setSettingsAnchor(e.currentTarget)}
+              />
+            )}
             <HeaderIcon
               icon={<AccountCircleIcon />}
               tooltip="Profile"
@@ -211,55 +215,57 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
         </Card>
       </Popover>
 
-      {/* Settings Menu */}
-      <Menu
-        anchorEl={settingsAnchor}
-        open={!!settingsAnchor}
-        onClose={() => setSettingsAnchor(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: {
-            mt: 1,
-            borderRadius: "12px",
-            minWidth: 200,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-            border: "1px solid #f3f4f6",
-          },
-        }}
-      >
-        <MenuItem
-          onClick={() => {
-            setSettingsAnchor(null);
-            navigate("/logs");
+      {/* Settings Menu — hidden for RULE_AUTHOR */}
+      {!isRuleAuthor && (
+        <Menu
+          anchorEl={settingsAnchor}
+          open={!!settingsAnchor}
+          onClose={() => setSettingsAnchor(null)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          PaperProps={{
+            sx: {
+              mt: 1,
+              borderRadius: "12px",
+              minWidth: 200,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+              border: "1px solid #f3f4f6",
+            },
           }}
-          sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: "#f5f3ff" } }}
         >
-          <ListItemIcon>
-            <AuditIcon fontSize="small" sx={{ color: "#6366f1" }} />
-          </ListItemIcon>
-          <ListItemText
-            primary="Audit Logs"
-            primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: "#111827" }}
-          />
-        </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setSettingsAnchor(null);
+              navigate("/logs");
+            }}
+            sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: "#f5f3ff" } }}
+          >
+            <ListItemIcon>
+              <AuditIcon fontSize="small" sx={{ color: "#6366f1" }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Audit Logs"
+              primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: "#111827" }}
+            />
+          </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            setSettingsAnchor(null);
-            navigate("/signup");
-          }}
-          sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: "#f5f3ff" } }}
-        >
-          <ListItemIcon>
-            <PersonAddIcon fontSize="small" sx={{ color: "#6366f1" }} />
-          </ListItemIcon>
-          <ListItemText
-            primary="User Create"
-            primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: "#111827" }}
-          />
-        </MenuItem>
-      </Menu>
+          <MenuItem
+            onClick={() => {
+              setSettingsAnchor(null);
+              navigate("/signup");
+            }}
+            sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: "#f5f3ff" } }}
+          >
+            <ListItemIcon>
+              <PersonAddIcon fontSize="small" sx={{ color: "#6366f1" }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="User Create"
+              primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: "#111827" }}
+            />
+          </MenuItem>
+        </Menu>
+      )}
     </AppBar>
   );
 };
