@@ -4,15 +4,8 @@
 
 import React from 'react';
 import { Box } from '@mui/material';
-import { DeployedRule } from '../types/featureFlagTypes';
+import { EnvironmentHistoryProps } from '../types/featureFlagTypes';
 import { ActiveRules} from './ActiveRules';
-
-interface EnvironmentHistoryProps {
-  rules: DeployedRule[];
-  onRollback: (ruleKey: string) => void;
-  onViewLogs: (ruleKey: string) => void;
-  environment: string;
-}
 
 export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
   rules,

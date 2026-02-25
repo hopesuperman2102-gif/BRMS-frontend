@@ -16,7 +16,7 @@ import {
 import { motion } from 'framer-motion';
 import UndoIcon from '@mui/icons-material/Undo';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { DeployedRule } from '../types/featureFlagTypes';
+import { ActiveRulesProps } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 
 // Defined OUTSIDE the component so the reference never changes between renders.
@@ -25,14 +25,6 @@ const MotionTableRow = motion(TableRow);
 // Each row is ~53px tall; show 3 rows before scrolling
 const ROW_HEIGHT = 53;
 const MAX_VISIBLE_ROWS = 3;
-
-interface ActiveRulesProps {
-  rules: DeployedRule[];
-  onRollback: (ruleKey: string) => void;
-  onViewLogs: (ruleKey: string) => void;
-  environment: string;
-  delay?: number;
-}
 
 export const ActiveRules: React.FC<ActiveRulesProps> = ({
   rules,

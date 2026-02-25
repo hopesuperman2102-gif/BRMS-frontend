@@ -6,19 +6,9 @@ import { motion } from 'framer-motion';
 import { RcCard } from 'app/src/core/components/RcCard';
 
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { Environment } from '../types/featureFlagTypes';
+import { DeployHeaderProps, Environment } from '../types/featureFlagTypes';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
 import RcDropdown from 'app/src/core/components/RcDropdown';
-
-interface DeployHeaderProps {
-  totalRules: number;
-  projectItems: RcDropdownItem[];
-  selectedProject: string;
-  onProjectSelect: (value: string) => void;
-  environments: Environment[];
-  activeEnvironment?: Environment | 'ALL';
-  onEnvironmentClick?: (env: Environment | 'ALL') => void;
-}
 
 export const DeployHeader: React.FC<DeployHeaderProps> = ({
   totalRules,

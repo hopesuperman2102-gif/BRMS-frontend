@@ -5,13 +5,7 @@
 import React from 'react';
 import { Typography } from '@mui/material';
 import { RcCard } from 'app/src/core/components/RcCard';
-
-interface PendingSyncProps {
-  title: string;
-  value: number | string;
-  timestamp?: string;
-  delay?: number;
-}
+import { PendingSyncProps } from '../types/featureFlagTypes';
 
 export const PendingSync: React.FC<PendingSyncProps> = ({
   title,

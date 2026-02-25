@@ -3,14 +3,8 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { RcCard } from 'app/src/core/components/RcCard';
-import { EnvHealth } from '../types/featureFlagTypes';
+import { DeploymentHealthProps, EnvHealth } from '../types/featureFlagTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-
-interface DeploymentHealthProps {
-  title: string;
-  health: EnvHealth;
-  delay?: number;
-}
 
 export const DeploymentHealth: React.FC<DeploymentHealthProps> = ({
   title,

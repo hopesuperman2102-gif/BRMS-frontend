@@ -1,5 +1,8 @@
 // app/src/modules/feature-flags/types/featureFlagTypes.ts
 
+import { MonthlyData, RcDropdownItem } from "app/src/core/types/commonTypes";
+import type { SxProps, Theme } from '@mui/material/styles';
+
 export type Environment = 'DEV' | 'QA' | 'PROD';
 
 export type RuleStatus = 'active' | 'pending' | 'veatus';
@@ -74,4 +77,102 @@ export interface BreadcrumbItem {
 export interface EnvironmentConfig {
   name: Environment;
   color: string;
+}
+
+// ActiveRules Props
+export interface ActiveRulesProps {
+  rules: DeployedRule[];
+  onRollback: (ruleKey: string) => void;
+  onViewLogs: (ruleKey: string) => void;
+  environment: string;
+  delay?: number;
+}
+
+// ControlSection Props
+export interface ControlSectionProps {
+  rules: Rule[];
+  selectedRules: Set<string>;
+  selectedVersions: Map<string, string>;
+  onToggleRule: (ruleId: string) => void;
+  onVersionChange: (ruleKey: string, version: string) => void;
+  environments: Environment[];
+  selectedEnvironment: Environment;
+  onEnvironmentChange: (env: Environment) => void;
+  onDeploy: () => void;
+  lastDeployedBy?: string;
+  lastDeployedTime?: string;
+  isLoading?: boolean;
+}
+
+// DeployHeader Props
+export interface DeployHeaderProps {
+  totalRules: number;
+  projectItems: RcDropdownItem[];
+  selectedProject: string;
+  onProjectSelect: (value: string) => void;
+  environments: Environment[];
+  activeEnvironment?: Environment | 'ALL';
+  onEnvironmentClick?: (env: Environment | 'ALL') => void;
+}
+
+// DeploymentHealth Props
+export interface DeploymentHealthProps {
+  title: string;
+  health: EnvHealth;
+  delay?: number;
+}
+
+// EnvironmentDeployment Props 
+export interface EnvironmentDeploymentProps {
+  environments: Environment[];
+  selectedEnvironment: Environment;
+  onEnvironmentChange: (env: Environment) => void;
+  onDeploy: () => void;
+  lastDeployedBy?: string;
+  lastDeployedTime?: string;
+  delay?: number;
+  sx?: SxProps<Theme>;
+}
+
+// EnvironmentHistory Props
+export interface EnvironmentHistoryProps {
+  rules: DeployedRule[];
+  onRollback: (ruleKey: string) => void;
+  onViewLogs: (ruleKey: string) => void;
+  environment: string;
+}
+
+// PendingSync Props
+export interface PendingSyncProps {
+  title: string;
+  value: number | string;
+  timestamp?: string;
+  delay?: number;
+}
+
+// RuleVersionControl Props
+export interface RuleVersionControlProps {
+  rules: Rule[];
+  selectedRules: Set<string>;
+  selectedVersions: Map<string, string>;
+  onToggleRule: (ruleKey: string) => void;
+  onVersionChange: (ruleKey: string, version: string) => void;
+  delay?: number;
+  isLoading?: boolean;
+  sx?: SxProps<Theme>;
+}
+
+// StatsSection Props
+export interface StatsSectionProps {
+  stats: {
+    totalRuleVersions: number;
+    pendingVersions: number;
+    approvedVersions: number;
+    rejectedVersions: number;
+    deployedVersions: number;
+    approvedNotDeployedVersions: number;
+    monthlyDeployments: MonthlyData[];
+  };
+  selectedYear: number;
+  onYearChange: (year: number) => void;
 }

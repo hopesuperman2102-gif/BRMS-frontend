@@ -1,27 +1,11 @@
-// app/src/modules/feature-flags/components/ControlSection.tsx
-
 'use client';
 
 import React from 'react';
 import { Grid } from '@mui/material';
-import { Environment, Rule } from '../types/featureFlagTypes';
+import { ControlSectionProps, Environment, Rule } from '../types/featureFlagTypes';
 import { EnvironmentDeployment } from './EnvironmentDeployment';
-import { RuleVersionControl } from './Ruleversioncontrol';
+import { RuleVersionControl } from './RuleVersionControl';
 
-interface ControlSectionProps {
-  rules: Rule[];
-  selectedRules: Set<string>;
-  selectedVersions: Map<string, string>;
-  onToggleRule: (ruleId: string) => void;
-  onVersionChange: (ruleKey: string, version: string) => void;
-  environments: Environment[];
-  selectedEnvironment: Environment;
-  onEnvironmentChange: (env: Environment) => void;
-  onDeploy: () => void;
-  lastDeployedBy?: string;
-  lastDeployedTime?: string;
-  isLoading?: boolean;
-}
 
 export const ControlSection: React.FC<ControlSectionProps> = ({
   rules,

@@ -15,19 +15,8 @@ import type { SxProps, Theme } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import CodeIcon from '@mui/icons-material/Code';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { Rule, GroupedRule } from '../types/featureFlagTypes';
+import { GroupedRule, RuleVersionControlProps } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
-
-interface RuleVersionControlProps {
-  rules: Rule[];
-  selectedRules: Set<string>;
-  selectedVersions: Map<string, string>;
-  onToggleRule: (ruleKey: string) => void;
-  onVersionChange: (ruleKey: string, version: string) => void;
-  delay?: number;
-  isLoading?: boolean;
-  sx?: SxProps<Theme>;
-}
 
 const VersionPicker: React.FC<{
   versions: string[];

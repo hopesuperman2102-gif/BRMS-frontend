@@ -4,23 +4,9 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import { DeploymentHealth } from './DeploymentHealth';
 import { PendingSync } from './PendingSync';
-import { MonthlyData } from '../api/deployApi';
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-
-interface StatsSectionProps {
-  stats: {
-    totalRuleVersions: number;
-    pendingVersions: number;
-    approvedVersions: number;
-    rejectedVersions: number;
-    deployedVersions: number;
-    approvedNotDeployedVersions: number;
-    monthlyDeployments: MonthlyData[];
-  };
-  selectedYear: number;
-  onYearChange: (year: number) => void;
-}
+import { StatsSectionProps } from '../types/featureFlagTypes';
 
 export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear, onYearChange }) => {
   return (

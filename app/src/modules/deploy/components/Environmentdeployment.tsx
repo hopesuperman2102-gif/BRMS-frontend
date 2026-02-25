@@ -4,23 +4,11 @@
 
 import React from 'react';
 import { Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import { Environment } from '../types/featureFlagTypes';
+import { EnvironmentDeploymentProps } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-
-interface EnvironmentDeploymentProps {
-  environments: Environment[];
-  selectedEnvironment: Environment;
-  onEnvironmentChange: (env: Environment) => void;
-  onDeploy: () => void;
-  lastDeployedBy?: string;
-  lastDeployedTime?: string;
-  delay?: number;
-  sx?: SxProps<Theme>;
-}
 
 export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
   environments,
