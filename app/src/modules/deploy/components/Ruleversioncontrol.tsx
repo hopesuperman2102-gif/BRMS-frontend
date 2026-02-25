@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Divider,
 } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import CodeIcon from '@mui/icons-material/Code';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';

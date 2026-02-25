@@ -1,398 +1,350 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Box, Typography, CircularProgress, Paper, Chip, IconButton } from '@mui/material';
-import { motion, AnimatePresence, animate } from 'framer-motion';
+import { Box, Typography, CircularProgress, IconButton } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { useNavigate } from 'react-router-dom';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 import { logsApi, HourlyLogEntry, ParsedLogLine } from '../api/logsApi';
-import RcDropdown from '../../../core/components/RcDropdown'; // ← adjust import path if needed
+import RcDropdown from '../../../core/components/RcDropdown';
 
-const { colors } = brmsTheme;
-const MotionPaper = motion(Paper);
+const { colors, fonts, gradients, shadows } = brmsTheme;
 const MotionBox = motion(Box);
 
-// ─── Animated counter hook ────────────────────────────────────────────────────
-function useAnimatedCounter(target: number, duration = 1.2) {
-  const [display, setDisplay] = useState(0);
-  useEffect(() => {
-    const controls = animate(0, target, {
-      duration,
-      ease: [0.25, 0.46, 0.45, 0.94],
-      onUpdate: (v) => setDisplay(Math.round(v)),
-    });
-    return controls.stop;
-  }, [target]);
-  return display;
+// ─── helpers ──────────────────────────────────────────────────────────────────
+function extractDate(fileKey: string): string {
+  return fileKey.split('-').slice(0, -1).join('-');
+}
+function formatDateLabel(dateKey: string): string {
+  const match = dateKey.match(/(\d{4}-\d{2}-\d{2})$/);
+  if (match) return new Date(match[1]).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  return dateKey;
+}
+function formatCreatedAt(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// ─── Mini sparkline SVG ───────────────────────────────────────────────────────
-function Sparkline({ data, color, height = 32 }: { data: number[]; color: string; height?: number }) {
-  if (!data || data.length < 2) return null;
-  const w = 80;
-  const max = Math.max(...data, 1);
-  const pts = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * w;
-    const y = height - (v / max) * height * 0.85;
-    return `${x},${y}`;
-  });
-  const linePath = `M${pts.join(' L')}`;
-  const fillPath = `M${pts[0]} L${pts.join(' L')} L${w},${height} L0,${height} Z`;
-  const uid = `sg${color.replace(/[^a-z0-9]/gi, '')}`;
-
-  return (
-    <svg width={w} height={height} viewBox={`0 0 ${w} ${height}`} style={{ overflow: 'visible', display: 'block' }}>
-      <defs>
-        <linearGradient id={uid} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.01" />
-        </linearGradient>
-      </defs>
-      <path d={fillPath} fill={`url(#${uid})`} />
-      <path d={linePath} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+// ─── per-page level counts ────────────────────────────────────────────────────
+function countByLevel(lines: ParsedLogLine[]) {
+  return lines.reduce(
+    (acc, l) => {
+      if      (l.level === 'INFO')    acc.info++;
+      else if (l.level === 'WARNING') acc.warn++;
+      else if (l.level === 'ERROR')   acc.error++;
+      return acc;
+    },
+    { info: 0, warn: 0, error: 0 },
   );
 }
 
-// ─── Live pulse dot ───────────────────────────────────────────────────────────
-function PulseDot({ color, active = false }: { color: string; active?: boolean }) {
+// ─── level config — 100% brmsTheme tokens ────────────────────────────────────
+const LEVEL_CFG = {
+  INFO: {
+    color:  colors.info,                  // #1976d2
+    bg:     colors.statusDefaultBg,       // #F8FAFC
+    border: colors.statusDefaultBorder,   // #E2E8F0
+    label:  'INFO',
+  },
+  WARNING: {
+    color:  colors.warning,               // #ed6c02
+    bg:     colors.statusInactiveBg,      // #FFF7ED
+    border: colors.statusInactiveBorder,  // #FED7AA
+    label:  'WARN',
+  },
+  ERROR: {
+    color:  colors.error,                 // #d32f2f
+    bg:     colors.errorBg,              // #FEF2F2
+    border: colors.errorBorder,          // #FECACA
+    label:  'ERR',
+  },
+} as const;
+
+// ─── Panel ────────────────────────────────────────────────────────────────────
+function Panel({ children, delay = 0, sx = {} }: {
+  children: React.ReactNode; delay?: number; sx?: object;
+}) {
   return (
-    <Box sx={{ position: 'relative', width: 8, height: 8, flexShrink: 0 }}>
-      <Box sx={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
-      {active && (
-        <Box sx={{
-          position: 'absolute', top: 0, left: 0,
-          width: 8, height: 8, borderRadius: '50%',
-          background: color,
-          '@keyframes pulse-out': {
-            '0%': { transform: 'scale(1)', opacity: 0.7 },
-            '100%': { transform: 'scale(3)', opacity: 0 },
-          },
-          animation: 'pulse-out 1.8s ease-out infinite',
-        }} />
-      )}
+    <MotionBox
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+      sx={{
+        background: colors.white,
+        border: `1px solid ${colors.lightBorder}`,
+        borderRadius: '10px',
+        overflow: 'hidden',
+        ...sx,
+      }}
+    >
+      {children}
+    </MotionBox>
+  );
+}
+
+function PanelHeader({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+  return (
+    <Box sx={{
+      px: 2, py: '9px',
+      borderBottom: `1px solid ${colors.lightBorder}`,
+      background: colors.surfaceBase,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+      <Typography sx={{
+        fontSize: '10px', fontWeight: 700,
+        color: colors.lightTextMid,
+        textTransform: 'uppercase', letterSpacing: '0.1em',
+        fontFamily: fonts.mono,
+      }}>
+        {children}
+      </Typography>
+      {right}
     </Box>
   );
 }
 
-// ─── Enterprise Stat Card ─────────────────────────────────────────────────────
-interface LogStatCardProps {
-  title: string;
-  value: number;
-  color: string;
-  accent: string;
-  icon: React.ReactNode;
-  sparkData: number[];
-  delta: number;
-  badge: string;
-  badgeSeverity: 'ok' | 'warn' | 'crit';
-  delay?: number;
-}
-
-function LogStatCard({ title, value, color, accent, icon, sparkData, delta, badge, badgeSeverity, delay = 0 }: LogStatCardProps) {
-  const count = useAnimatedCounter(value);
-
-  const badgePalette = {
-    ok:   { bg: '#F0FDF4', border: '#BBF7D0', text: '#16a34a' },
-    warn: { bg: '#FFF7ED', border: '#FED7AA', text: '#c2410c' },
-    crit: { bg: '#FEF2F2', border: '#FECACA', text: '#b91c1c' },
-  }[badgeSeverity];
-
-  const deltaColor = delta === 0 ? colors.textSecondary : delta > 0 ? colors.error : colors.success;
-  const deltaLabel = delta === 0 ? '— no change' : delta > 0 ? `+${delta} from prev` : `${delta} from prev`;
-
-  return (
-    <MotionPaper
-      initial={{ opacity: 0, y: 20, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay, duration: 0.45, ease: [0.21, 0.47, 0.32, 0.98] }}
-      elevation={0}
-      whileHover={{ y: -3, boxShadow: `0 12px 40px ${color}1A, 0 2px 8px rgba(0,0,0,0.06)` }}
-      sx={{
-        borderRadius: '16px',
-        border: `1px solid ${color}28`,
-        background: `linear-gradient(150deg, #ffffff 0%, ${color}07 100%)`,
-        overflow: 'hidden',
-        cursor: 'default',
-        transition: 'box-shadow 0.25s ease',
-      }}
-    >
-      <Box sx={{ height: '3px', background: `linear-gradient(90deg, ${color}, ${accent})` }} />
-      <Box sx={{ p: '16px 18px 14px' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '14px' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-            <Box sx={{
-              width: 30, height: 30,
-              background: `${color}14`,
-              border: `1px solid ${color}28`,
-              borderRadius: '9px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              {icon}
-            </Box>
-            <Typography sx={{ fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: colors.textSecondary }}>
-              {title}
-            </Typography>
-          </Box>
-          <Box sx={{ px: 1.2, py: '3px', borderRadius: '6px', background: badgePalette.bg, border: `1px solid ${badgePalette.border}` }}>
-            <Typography sx={{ fontSize: '9.5px', fontWeight: 800, color: badgePalette.text, letterSpacing: '0.06em' }}>
-              {badge}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', mb: '12px' }}>
-          <Typography sx={{ fontSize: '1.95rem', fontWeight: 800, color: colors.textPrimary, lineHeight: 1, letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums' }}>
-            {count.toLocaleString()}
-          </Typography>
-          <Box sx={{ pb: '2px' }}>
-            <Sparkline data={sparkData} color={color} height={28} />
-          </Box>
-        </Box>
-
-        <Box sx={{ pt: '10px', borderTop: `1px solid ${colors.lightBorder}`, display: 'flex', alignItems: 'center', gap: 0.8 }}>
-          <Typography sx={{ fontSize: '11px', fontWeight: 700, color: deltaColor, fontVariantNumeric: 'tabular-nums' }}>
-            {deltaLabel}
-          </Typography>
-        </Box>
-      </Box>
-    </MotionPaper>
-  );
-}
-
-// ─── Overview panel ───────────────────────────────────────────────────────────
-function LogOverviewPanel({ entries, totalInfo, totalWarnings, totalErrors }: {
-  entries: HourlyLogEntry[];
-  totalInfo: number;
-  totalWarnings: number;
-  totalErrors: number;
-}) {
-  const total = totalInfo + totalWarnings + totalErrors;
-  const healthColor = totalErrors > 0 ? '#d32f2f' : totalWarnings > 0 ? '#ed6c02' : '#2e7d32';
-  const healthLabel = totalErrors > 0 ? 'Degraded' : totalWarnings > 0 ? 'Warning' : 'Healthy';
-
-  const bars = [
-    { value: totalInfo,     color: '#1976d2', label: 'Info'  },
-    { value: totalWarnings, color: '#ed6c02', label: 'Warn'  },
-    { value: totalErrors,   color: '#d32f2f', label: 'Error' },
+// ─── per-page breakdown badges ────────────────────────────────────────────────
+function PageBreakdown({ lines }: { lines: ParsedLogLine[] }) {
+  const { info, warn, error } = countByLevel(lines);
+  const items = [
+    { count: info,  ...LEVEL_CFG.INFO    },
+    { count: warn,  ...LEVEL_CFG.WARNING },
+    { count: error, ...LEVEL_CFG.ERROR   },
   ];
-
   return (
-    <MotionPaper
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: [0.21, 0.47, 0.32, 0.98] }}
-      elevation={0}
-      sx={{ borderRadius: '16px', border: `1px solid ${colors.lightBorder}`, overflow: 'hidden', background: '#fff' }}
-    >
-      <Box sx={{ background: 'linear-gradient(135deg, #17203D 0%, #2c3e6b 100%)', p: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box>
-          <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', mb: 0.5 }}>
-            Log Overview
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono, mr: 0.5 }}>
+        this page:
+      </Typography>
+      {items.map(({ count, label, color, bg, border }) => (
+        <Box
+          key={label}
+          sx={{
+            display: 'flex', alignItems: 'center', gap: '4px',
+            px: '7px', py: '3px', borderRadius: '5px',
+            background: bg, border: `1px solid ${border}`,
+          }}
+        >
+          <Box sx={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }} />
+          <Typography sx={{ fontSize: 10, fontWeight: 800, color, fontFamily: fonts.mono, fontVariantNumeric: 'tabular-nums' }}>
+            {count}
           </Typography>
-          <Typography sx={{ color: '#fff', fontSize: '12px', fontWeight: 600 }}>
-            {entries.length} hours · {total.toLocaleString()} events
+          <Typography sx={{ fontSize: 10, color, fontFamily: fonts.mono, opacity: 0.8 }}>
+            {label}
           </Typography>
         </Box>
-        <Box sx={{ px: 1.5, py: 0.5, borderRadius: '8px', background: `${healthColor}30`, border: `1px solid ${healthColor}50`, display: 'inline-flex', alignItems: 'center', gap: 0.8 }}>
-          <PulseDot color={healthColor} active={healthColor !== '#2e7d32'} />
-          <Typography sx={{ fontSize: '11px', fontWeight: 700, color: healthColor === '#d32f2f' ? '#fca5a5' : healthColor === '#ed6c02' ? '#fdba74' : '#86efac' }}>
-            {healthLabel}
-          </Typography>
-        </Box>
-      </Box>
-
-      <Box sx={{ p: '14px 18px' }}>
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: 'flex', height: 7, borderRadius: 99, overflow: 'hidden', background: colors.lightBorder, gap: '1px' }}>
-            {bars.map((b, i) => (
-              <MotionBox
-                key={i}
-                initial={{ width: 0 }}
-                animate={{ width: total > 0 ? `${(b.value / total) * 100}%` : 0 }}
-                transition={{ delay: 0.25 + i * 0.1, duration: 0.6, ease: 'easeOut' }}
-                sx={{ height: '100%', background: b.color, minWidth: b.value > 0 ? 3 : 0 }}
-              />
-            ))}
-          </Box>
-        </Box>
-        {bars.map((b, i) => (
-          <Box key={i} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: '8px', borderBottom: i < bars.length - 1 ? `1px solid ${colors.lightBorder}` : 'none' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 7, height: 7, borderRadius: '50%', background: b.color, flexShrink: 0 }} />
-              <Typography sx={{ fontSize: '12px', color: colors.textSecondary }}>{b.label}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 700, color: colors.textPrimary, fontVariantNumeric: 'tabular-nums' }}>
-                {b.value.toLocaleString()}
-              </Typography>
-              <Typography sx={{ fontSize: '10px', fontWeight: 600, color: b.color, minWidth: 30, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                {total > 0 ? `${Math.round((b.value / total) * 100)}%` : '—'}
-              </Typography>
-            </Box>
-          </Box>
-        ))}
-      </Box>
-    </MotionPaper>
+      ))}
+    </Box>
   );
 }
 
-// ─── Shared RcCard ────────────────────────────────────────────────────────────
-function RcCard({ children, delay = 0, sx = {} }: { children: React.ReactNode; delay?: number; sx?: object }) {
+// ─── Volume bar chart ─────────────────────────────────────────────────────────
+function VolumeChart({ entries, selected }: { entries: HourlyLogEntry[]; selected: string | null }) {
+  const max = Math.max(...entries.map(e => e.total), 1);
   return (
-    <MotionPaper
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      elevation={0}
-      sx={{ p: 3, borderRadius: '16px', background: '#fff', border: `1px solid ${colors.lightBorder}`, ...sx }}
-    >
-      {children}
-    </MotionPaper>
+    <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: 52 }}>
+      {entries.map((e, i) => {
+        const pct      = (e.total / max) * 100;
+        const isActive = e.file_key === selected;
+        return (
+          <Box
+            key={i}
+            title={`${e.file_key.split('-').pop()}:00`}
+            sx={{
+              flex: 1, borderRadius: '2px 2px 0 0',
+              height: `${Math.max(pct, 5)}%`,
+              // active: solid primary, inactive: soft glow tint, hover: mid tint
+              background: isActive ? colors.primary : colors.panelIndigoMuted,
+              transition: 'all 0.2s', cursor: 'default',
+              '&:hover': { background: colors.panelIndigoTint15 },
+            }}
+          />
+        );
+      })}
+    </Box>
   );
 }
 
-// ─── Hour Badge ───────────────────────────────────────────────────────────────
-function HourBadge({ fileKey, active, onClick, errors, warnings }: {
-  fileKey: string; active: boolean; onClick: () => void; errors: number; warnings: number;
+// ─── Hour badge ───────────────────────────────────────────────────────────────
+function HourBadge({ fileKey, createdAt, active, onClick }: {
+  fileKey: string; createdAt: string; active: boolean; onClick: () => void;
 }) {
   const hour = fileKey.split('-').pop() + ':00';
-  const hasError = errors > 0;
-  const hasWarn  = warnings > 0 && !hasError;
+  const time = createdAt
+    ? new Date(createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+    : null;
   return (
-    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-      <Box onClick={onClick} sx={{
-        px: 2.5, py: 1.2, borderRadius: '10px', cursor: 'pointer',
-        background: active ? brmsTheme.gradients.primary : colors.white,
-        border: `1px solid ${active ? 'transparent' : hasError ? colors.errorBorder : hasWarn ? '#FED7AA' : colors.lightBorder}`,
-        boxShadow: active ? brmsTheme.shadows.primarySoft : 'none',
-        position: 'relative', transition: 'all 0.15s',
-      }}>
-        <Typography sx={{ fontSize: 13, fontWeight: 700, color: active ? '#fff' : colors.textPrimary, fontFamily: 'monospace' }}>
+    <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+      <Box
+        onClick={onClick}
+        sx={{
+          px: '12px', py: '9px', borderRadius: '8px', cursor: 'pointer',
+          background: active ? gradients.primary : colors.white,
+          border: `1px solid ${active ? colors.primary : colors.lightBorder}`,
+          boxShadow: active ? shadows.primarySoft : 'none',
+          transition: 'all 0.15s', textAlign: 'center', minWidth: 60,
+          '&:hover': !active ? { borderColor: colors.lightBorderHover, background: colors.lightSurfaceHover } : {},
+        }}
+      >
+        <Typography sx={{
+          fontSize: 13, fontWeight: 700, lineHeight: 1,
+          color: active ? colors.textOnPrimary : colors.lightTextHigh,
+          fontFamily: fonts.mono,
+        }}>
           {hour}
         </Typography>
-        {(hasError || hasWarn) && (
-          <Box sx={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, borderRadius: '50%', background: hasError ? colors.error : colors.warning, border: '1.5px solid white' }} />
+        {time && (
+          <Typography sx={{
+            fontSize: 9, mt: '3px',
+            // active: use panelTextMid (white 45%) — on dark gradient bg
+            // inactive: lightTextLow (#94A3B8)
+            color: active ? colors.panelTextMid : colors.lightTextLow,
+            fontFamily: fonts.mono,
+          }}>
+            {time}
+          </Typography>
         )}
       </Box>
     </motion.div>
   );
 }
 
-// ─── Log Line ─────────────────────────────────────────────────────────────────
-const LEVEL_CONFIG = {
-  INFO:    { color: colors.info,    bg: '#EFF6FF', label: 'INFO'  },
-  WARNING: { color: colors.warning, bg: '#FFF7ED', label: 'WARN'  },
-  ERROR:   { color: colors.error,   bg: '#FEF2F2', label: 'ERROR' },
-};
-
-function LogLine({ line }: { line: ParsedLogLine }) {
-  const cfg = LEVEL_CONFIG[line.level] ?? LEVEL_CONFIG.INFO;
+// ─── Log line row ─────────────────────────────────────────────────────────────
+function LogLine({ line, index }: { line: ParsedLogLine; index: number }) {
+  const cfg = LEVEL_CFG[line.level as keyof typeof LEVEL_CFG] ?? LEVEL_CFG.INFO;
   return (
     <Box sx={{
-      display: 'flex', alignItems: 'flex-start', gap: 1.5,
-      px: 2, py: '6px',
+      display: 'grid', gridTemplateColumns: '44px 72px 160px 1fr',
+      alignItems: 'center', px: 2, py: '5px',
       borderBottom: `1px solid ${colors.lightBorder}`,
-      '&:hover': { background: colors.lightSurfaceHover },
+      background: index % 2 === 0 ? colors.white : colors.surfaceBase,
+      '&:hover': { background: colors.primaryGlowSoft },
       transition: 'background 0.1s',
     }}>
-      <Box sx={{ flexShrink: 0, mt: '1px', px: 1, py: '1px', borderRadius: 1, background: cfg.bg, minWidth: 46, textAlign: 'center', border: `1px solid ${cfg.color}30` }}>
-        <Typography sx={{ fontSize: 10, fontWeight: 700, color: cfg.color, fontFamily: 'monospace' }}>{cfg.label}</Typography>
+      {/* level badge */}
+      <Box sx={{
+        px: '5px', py: '1px', borderRadius: '3px',
+        background: cfg.bg, border: `1px solid ${cfg.border}`,
+        display: 'inline-flex', justifyContent: 'center', width: 'fit-content',
+      }}>
+        <Typography sx={{ fontSize: 9, fontWeight: 800, color: cfg.color, letterSpacing: '0.05em', fontFamily: fonts.mono }}>
+          {cfg.label}
+        </Typography>
       </Box>
-      <Typography sx={{ flexShrink: 0, fontSize: 11, color: colors.textSecondary, fontFamily: 'monospace', mt: '2px', minWidth: 70 }}>
+
+      {/* time */}
+      <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono, pl: '6px' }}>
         {line.timestamp.split(' ')[1]}
       </Typography>
-      <Typography sx={{ flexShrink: 0, fontSize: 11, color: colors.primary, fontFamily: 'monospace', mt: '2px', minWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+
+      {/* source */}
+      <Typography sx={{
+        fontSize: 11, fontFamily: fonts.mono, px: '6px',
+        color: colors.panelIndigo,
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+      }}>
         {line.source.split('.').slice(-2).join('.')}
       </Typography>
-      <Typography sx={{ fontSize: 12, fontFamily: 'monospace', wordBreak: 'break-word', color: line.level === 'ERROR' ? colors.error : line.level === 'WARNING' ? colors.warning : colors.textPrimary }}>
+
+      {/* message */}
+      <Typography sx={{
+        fontSize: 12, fontFamily: fonts.mono, lineHeight: 1.4, wordBreak: 'break-all',
+        color: line.level === 'ERROR'
+          ? colors.error
+          : line.level === 'WARNING'
+          ? colors.warning
+          : colors.lightTextHigh,
+      }}>
         {line.message}
       </Typography>
     </Box>
   );
 }
 
-// ─── SVG Icons ────────────────────────────────────────────────────────────────
-const InfoSvg  = ({ c }: { c: string }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="9" stroke={c} strokeWidth="2.2"/>
-    <path d="M12 8v1M12 11v5" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
-  </svg>
-);
-const WarnSvg  = ({ c }: { c: string }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-    <path d="M12 3L22 20H2L12 3z" stroke={c} strokeWidth="2.2" strokeLinejoin="round"/>
-    <path d="M12 10v4M12 17v.5" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
-  </svg>
-);
-const ErrorSvg = ({ c }: { c: string }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="9" stroke={c} strokeWidth="2.2"/>
-    <path d="M9 9l6 6M15 9l-6 6" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
-  </svg>
-);
-
-// ─── Helper: extract date string from file_key ────────────────────────────────
-// file_key format assumed: "logs-YYYY-MM-DD-HH"  e.g. "logs-2026-02-24-14"
-// Adjust the slice if your format differs.
-function extractDate(fileKey: string): string {
-  // Take everything except the last segment (the hour)
-  const parts = fileKey.split('-');
-  return parts.slice(0, -1).join('-'); // "logs-2026-02-24"
-}
-
-function formatDateLabel(dateKey: string): string {
-  // dateKey e.g. "logs-2026-02-24" → show "2026-02-24"
-  // Strip a leading prefix like "logs-" if present
-  const match = dateKey.match(/(\d{4}-\d{2}-\d{2})$/);
-  if (match) {
-    const d = new Date(match[1]);
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  }
-  return dateKey;
+// ─── Pagination arrow ─────────────────────────────────────────────────────────
+function PageArrow({ direction, enabled, onClick }: {
+  direction: 'prev' | 'next'; enabled: boolean; onClick: () => void;
+}) {
+  return (
+    <motion.div whileHover={{ scale: enabled ? 1.08 : 1 }} whileTap={{ scale: enabled ? 0.92 : 1 }}>
+      <Box
+        onClick={() => enabled && onClick()}
+        sx={{
+          width: 28, height: 28, borderRadius: '6px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: enabled ? 'pointer' : 'default',
+          background: enabled ? colors.primaryGlowSoft : 'transparent',
+          border: `1px solid ${enabled ? colors.primaryGlowMid : colors.lightBorder}`,
+          opacity: enabled ? 1 : 0.4,
+          transition: 'all 0.15s',
+          '&:hover': enabled ? { background: colors.primaryGlowMid } : {},
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <path
+            d={direction === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'}
+            stroke={enabled ? colors.primary : colors.lightTextLow}
+            strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          />
+        </svg>
+      </Box>
+    </motion.div>
+  );
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function LogsPage() {
   const navigate = useNavigate();
 
-  const [entries,  setEntries]  = useState<HourlyLogEntry[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState<string | null>(null);
-  const [filter,   setFilter]   = useState<'ALL' | 'INFO' | 'WARNING' | 'ERROR'>('ALL');
-
-  // ── NEW: selected day ───────────────────────────────────────────────────────
+  const [entries,     setEntries]     = useState<HourlyLogEntry[]>([]);
+  const [selected,    setSelected]    = useState<string | null>(null);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
+  const [visibleLines, setVisibleLines] = useState<ParsedLogLine[]>([]);
+  const [currentPage,  setCurrentPage]  = useState(0);
+  const [pageTotal,    setPageTotal]    = useState(0);
+  const [linesLoading, setLinesLoading] = useState(false);
+
+  const PAGE_SIZE = logsApi.PAGE_SIZE;
+
+  const fetchPage = async (fileKey: string, page: number) => {
+    setLinesLoading(true);
+    try {
+      const { lines, total } = await logsApi.getHourlyLogPage(fileKey, page * PAGE_SIZE);
+      setVisibleLines(lines); setCurrentPage(page); setPageTotal(total);
+    } catch { /* keep */ } finally { setLinesLoading(false); }
+  };
+
   useEffect(() => {
-    async function fetchLogs() {
+    async function init() {
       try {
         setLoading(true);
         const data = await logsApi.getHourlyLogs();
         setEntries(data);
         if (data.length > 0) {
-          // Auto-select the most recent day
           const firstDay = extractDate(data[0].file_key);
           setSelectedDay(firstDay);
           setSelected(data[0].file_key);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load logs');
-      } finally {
-        setLoading(false);
-      }
+      } finally { setLoading(false); }
     }
-    fetchLogs();
+    init();
   }, []);
 
-  // ── Derive unique days from all entries (preserving order) ─────────────────
+  useEffect(() => {
+    if (!selected) return;
+    setVisibleLines([]); setCurrentPage(0); setPageTotal(0);
+    fetchPage(selected, 0);
+  }, [selected]);
+
+  // ── derived ──────────────────────────────────────────────────────────────────
   const uniqueDays = useMemo(() => {
-    const seen = new Set<string>();
-    const days: string[] = [];
+    const seen = new Set<string>(); const days: string[] = [];
     for (const e of entries) {
       const d = extractDate(e.file_key);
       if (!seen.has(d)) { seen.add(d); days.push(d); }
@@ -400,237 +352,333 @@ export default function LogsPage() {
     return days;
   }, [entries]);
 
-  // ── Day dropdown items for RcDropdown ──────────────────────────────────────
   const dayDropdownItems = useMemo(() =>
     uniqueDays.map(d => ({ value: d, label: formatDateLabel(d) })),
-    [uniqueDays]
-  );
+    [uniqueDays]);
 
-  // ── Entries filtered to the selected day ───────────────────────────────────
   const dayEntries = useMemo(() =>
     selectedDay ? entries.filter(e => extractDate(e.file_key) === selectedDay) : entries,
-    [entries, selectedDay]
-  );
+    [entries, selectedDay]);
 
-  // When day changes, auto-select the first hour of that day
   const handleDaySelect = (day: string) => {
     setSelectedDay(day);
-    setFilter('ALL');
-    const firstOfDay = entries.find(e => extractDate(e.file_key) === day);
-    if (firstOfDay) setSelected(firstOfDay.file_key);
+    const first = entries.find(e => extractDate(e.file_key) === day);
+    if (first) setSelected(first.file_key);
   };
 
-  const activeEntry   = entries.find(e => e.file_key === selected);
-  const filteredLines = (activeEntry?.lines ?? []).filter(l => filter === 'ALL' || l.level === filter);
-
-  // Stats are computed over ALL entries (full picture across all days)
-  const totalInfo     = entries.reduce((s, e) => s + e.info, 0);
-  const totalWarnings = entries.reduce((s, e) => s + e.warnings, 0);
-  const totalErrors   = entries.reduce((s, e) => s + e.errors, 0);
-
-  const infoSpark  = entries.map(e => e.info);
-  const warnSpark  = entries.map(e => e.warnings);
-  const errorSpark = entries.map(e => e.errors);
-  const delta = (arr: number[]) => arr.length >= 2 ? arr[arr.length - 1] - arr[arr.length - 2] : 0;
+  const activeEntry  = entries.find(e => e.file_key === selected);
+  const totalPages   = Math.ceil(pageTotal / PAGE_SIZE);
+  const hasPrev      = currentPage > 0;
+  const hasNext      = currentPage < totalPages - 1;
+  const chartEntries = dayEntries.length > 0 ? dayEntries : entries;
 
   if (loading) return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-      <CircularProgress sx={{ color: colors.primary }} />
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 2 }}>
+      <CircularProgress sx={{ color: colors.primary }} size={26} />
+      <Typography sx={{ color: colors.lightTextLow, fontFamily: fonts.mono, fontSize: 12 }}>
+        Loading log index…
+      </Typography>
     </Box>
   );
+
   if (error) return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-      <Typography sx={{ color: colors.error }}>{error}</Typography>
+      <Typography sx={{ color: colors.error, fontFamily: fonts.mono }}>{error}</Typography>
     </Box>
   );
 
   return (
-    <Box sx={{ p: '28px 32px', background: colors.surfaceBase, minHeight: '100vh' }}>
+    <Box sx={{ p: '24px 28px', background: colors.surfaceBase, minHeight: '100vh' }}>
 
-      {/* ── Page header ──────────────────────────────────────────────────────── */}
+      {/* ── Toolbar ─────────────────────────────────────────────────────────── */}
       <MotionBox
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
+        initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}
         sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+
+          {/* back */}
           <IconButton
             onClick={() => navigate(-1)}
             sx={{
-              width: 36, height: 36, borderRadius: '10px',
-              backgroundColor: colors.primaryGlowSoft,
-              color: colors.primary, flexShrink: 0,
-              transition: 'all 0.2s',
-              '&:hover': { backgroundColor: colors.primaryGlowMid, transform: 'translateX(-2px)' },
+              width: 34, height: 34, borderRadius: '8px',
+              background: colors.white,
+              border: `1px solid ${colors.lightBorder}`,
+              color: colors.lightTextMid,
+              transition: 'all 0.15s',
+              '&:hover': {
+                background: colors.primaryGlowSoft,
+                color: colors.primary,
+                borderColor: colors.primaryGlowMid,
+              },
             }}
           >
-            <ArrowBackIcon sx={{ fontSize: 20 }} />
+            <ArrowBackIcon sx={{ fontSize: 18 }} />
           </IconButton>
 
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: colors.textPrimary, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              System Logs
+          {/* breadcrumb */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Typography sx={{ fontSize: 12, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+              monitoring
             </Typography>
-            <Typography variant="body2" sx={{ color: colors.textSecondary, mt: 0.3 }}>
-              {entries.length} hours recorded · {uniqueDays.length} day{uniqueDays.length !== 1 ? 's' : ''} · real-time monitoring
+            <Typography sx={{ fontSize: 12, color: colors.lightTextLow, fontFamily: fonts.sans }}>/</Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: colors.lightTextHigh, fontFamily: fonts.mono }}>
+              system-logs
+            </Typography>
+          </Box>
+
+          {/* live pill — uses approvedBg/Text/Border tokens */}
+          <Box sx={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            px: 1.2, py: '4px', borderRadius: '6px',
+            background: colors.approvedBg,
+            border: `1px solid ${colors.approvedBorder}`,
+          }}>
+            <Box sx={{
+              width: 6, height: 6, borderRadius: '50%',
+              background: colors.approvedText,
+              '@keyframes blink': { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.3 } },
+              animation: 'blink 2s ease-in-out infinite',
+            }} />
+            <Typography sx={{
+              fontSize: '10px', fontWeight: 700,
+              color: colors.approvedText,
+              letterSpacing: '0.07em',
+              fontFamily: fonts.mono,
+            }}>
+              LIVE
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <PulseDot color="#2e7d32" active />
-          <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#2e7d32' }}>Live</Typography>
-        </Box>
+        {/* day dropdown */}
+        {dayDropdownItems.length > 0 && (
+          <RcDropdown
+            label="Select Day"
+            items={dayDropdownItems}
+            value={selectedDay ?? undefined}
+            onSelect={handleDaySelect}
+            startIcon={<CalendarTodayIcon sx={{ fontSize: 15, color: colors.primary }} />}
+          />
+        )}
       </MotionBox>
 
-      {/* ── Stats row ────────────────────────────────────────────────────────── */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 2.5, mb: 3 }}>
-        <LogOverviewPanel entries={entries} totalInfo={totalInfo} totalWarnings={totalWarnings} totalErrors={totalErrors} />
-        <LogStatCard title="Info Events" value={totalInfo} color="#1976d2" accent="#42a5f5" icon={<InfoSvg c="#1976d2" />} sparkData={infoSpark} delta={delta(infoSpark)} badge="NOMINAL" badgeSeverity="ok" delay={0.08} />
-        <LogStatCard title="Warnings" value={totalWarnings} color="#ed6c02" accent="#ffb74d" icon={<WarnSvg c="#ed6c02" />} sparkData={warnSpark} delta={delta(warnSpark)} badge={totalWarnings > 0 ? 'REVIEW' : 'CLEAR'} badgeSeverity={totalWarnings > 0 ? 'warn' : 'ok'} delay={0.16} />
-        <LogStatCard title="Errors" value={totalErrors} color="#d32f2f" accent="#ef9a9a" icon={<ErrorSvg c="#d32f2f" />} sparkData={errorSpark} delta={delta(errorSpark)} badge={totalErrors > 0 ? 'ACTION REQ.' : 'CLEAR'} badgeSeverity={totalErrors > 0 ? 'crit' : 'ok'} delay={0.24} />
-      </Box>
+      {/* ── Main layout ─────────────────────────────────────────────────────── */}
 
-      {/* ── Hour selector (with day dropdown) ────────────────────────────────── */}
-      <RcCard delay={0.2} sx={{ mb: 3, p: '14px 20px' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
-        {/* Row 1: label + day dropdown */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-          <Typography sx={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: colors.textSecondary }}>
-            Hour Selector
-          </Typography>
+          {/* Hour timeline */}
+          <Panel delay={0.05}>
+            <PanelHeader right={
+              selectedDay
+                ? <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                    {formatDateLabel(selectedDay)}
+                  </Typography>
+                : null
+            }>
+              Hour Timeline
+            </PanelHeader>
 
-          {/* ── Day filter dropdown ───────────────────────────────────────────── */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography sx={{ fontSize: '11px', color: colors.textSecondary }}>
-              {selected?.split('-').pop()}:00 active
-            </Typography>
-
-            {dayDropdownItems.length > 0 && (
-              <RcDropdown
-                label="Select Day"
-                items={dayDropdownItems}
-                value={selectedDay ?? undefined}
-                onSelect={handleDaySelect}
-                startIcon={<CalendarTodayIcon sx={{ fontSize: 16, color: brmsTheme.colors.panelIndigo }} />}
-              />
-            )}
-          </Box>
-        </Box>
-
-        {/* Row 2: hour badges for the selected day only */}
-        <AnimatePresence mode="wait">
-          <MotionBox
-            key={selectedDay ?? 'all'}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.18 }}
-            sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}
-          >
-            {dayEntries.length === 0 ? (
-              <Typography sx={{ fontSize: 12, color: colors.textSecondary }}>No log hours found for this day.</Typography>
-            ) : (
-              dayEntries.map(e => (
-                <HourBadge
-                  key={e.file_key}
-                  fileKey={e.file_key}
-                  active={selected === e.file_key}
-                  errors={e.errors}
-                  warnings={e.warnings}
-                  onClick={() => { setSelected(e.file_key); setFilter('ALL'); }}
-                />
-              ))
-            )}
-          </MotionBox>
-        </AnimatePresence>
-      </RcCard>
-
-      {/* ── Log viewer ───────────────────────────────────────────────────────── */}
-      <AnimatePresence mode="wait">
-        {activeEntry && (
-          <MotionPaper
-            key={activeEntry.file_key}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22 }}
-            elevation={0}
-            sx={{ borderRadius: '16px', border: `1px solid ${colors.lightBorder}`, overflow: 'hidden', background: '#fff' }}
-          >
-            <Box sx={{
-              px: 3, py: '11px',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              borderBottom: `1px solid ${colors.lightBorder}`,
-              background: colors.surfaceBase,
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography sx={{ fontSize: 12, fontWeight: 700, color: colors.textPrimary, fontFamily: 'monospace' }}>
-                  {activeEntry.file_key}
+            {/* volume bars */}
+            <Box sx={{ px: 2, pt: 2, pb: 0 }}>
+              <VolumeChart entries={chartEntries} selected={selected} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: '4px', mb: 1 }}>
+                <Typography sx={{ fontSize: 9, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                  {chartEntries[0]?.file_key.split('-').pop()}:00
                 </Typography>
-                {[
-                  { value: activeEntry.info,     color: colors.info,    label: 'info'  },
-                  { value: activeEntry.warnings, color: colors.warning, label: 'warn'  },
-                  { value: activeEntry.errors,   color: colors.error,   label: 'error' },
-                ].map(({ value, color, label }) => (
-                  <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 0.6, px: 1.2, py: '3px', borderRadius: '6px', background: `${color}10`, border: `1px solid ${color}25` }}>
-                    <Box sx={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color, fontVariantNumeric: 'tabular-nums' }}>{value}</Typography>
-                    <Typography sx={{ fontSize: 11, color: colors.textSecondary }}>{label}</Typography>
-                  </Box>
-                ))}
-              </Box>
-              <Box sx={{ display: 'flex', gap: 0.8 }}>
-                {(['ALL', 'INFO', 'WARNING', 'ERROR'] as const).map(f => (
-                  <motion.div key={f} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Chip
-                      label={f}
-                      size="small"
-                      onClick={() => setFilter(f)}
-                      sx={{
-                        fontWeight: 700, fontSize: 10, cursor: 'pointer', height: 24,
-                        background: filter === f ? brmsTheme.gradients.primary : 'transparent',
-                        color: filter === f ? '#fff' : colors.textSecondary,
-                        border: `1px solid ${filter === f ? 'transparent' : colors.lightBorder}`,
-                        boxShadow: filter === f ? brmsTheme.shadows.primarySoft : 'none',
-                        letterSpacing: '0.04em',
-                      }}
-                    />
-                  </motion.div>
-                ))}
+                <Typography sx={{ fontSize: 9, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                  {chartEntries.slice(-1)[0]?.file_key.split('-').pop()}:00
+                </Typography>
               </Box>
             </Box>
 
-            <Box sx={{
-              maxHeight: 480, overflowY: 'auto',
-              '&::-webkit-scrollbar': { width: 5 },
-              '&::-webkit-scrollbar-thumb': { background: colors.primary + '40', borderRadius: 3 },
-            }}>
-              {filteredLines.length === 0 ? (
-                <Box sx={{ py: 8, textAlign: 'center' }}>
-                  <Typography sx={{ color: colors.textSecondary, fontSize: 13 }}>
-                    No {filter !== 'ALL' ? filter.toLowerCase() : ''} events in this window
+            {/* hour badges */}
+            <Box sx={{ px: 2, pb: 2, pt: 1.5, borderTop: `1px solid ${colors.lightBorder}` }}>
+              <AnimatePresence mode="wait">
+                <MotionBox
+                  key={selectedDay ?? 'all'}
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  sx={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}
+                >
+                  {dayEntries.length === 0
+                    ? <Typography sx={{ fontSize: 12, color: colors.lightTextLow, fontFamily: fonts.mono }}>No hours found.</Typography>
+                    : dayEntries.map(e => (
+                        <HourBadge
+                          key={e.file_key}
+                          fileKey={e.file_key}
+                          createdAt={e.created_at}
+                          active={selected === e.file_key}
+                          onClick={() => setSelected(e.file_key)}
+                        />
+                      ))
+                  }
+                </MotionBox>
+              </AnimatePresence>
+            </Box>
+          </Panel>
+
+          {/* Log viewer */}
+          <AnimatePresence mode="wait">
+            {activeEntry && (
+              <MotionBox
+                key={activeEntry.file_key}
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                sx={{ background: colors.white, border: `1px solid ${colors.lightBorder}`, borderRadius: '10px', overflow: 'hidden' }}
+              >
+                {/* viewer header */}
+                <Box sx={{
+                  px: 2, py: '10px',
+                  background: colors.surfaceBase,
+                  borderBottom: `1px solid ${colors.lightBorder}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  flexWrap: 'wrap', gap: 1,
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    {/* file key badge */}
+                    <Box sx={{
+                      px: 1, py: '3px', borderRadius: '5px',
+                      background: colors.primaryGlowSoft,
+                      border: `1px solid ${colors.primaryGlowMid}`,
+                    }}>
+                      <Typography sx={{ fontSize: 11, fontWeight: 700, color: colors.primary, fontFamily: fonts.mono }}>
+                        {activeEntry.file_key}
+                      </Typography>
+                    </Box>
+                    <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                      page {currentPage + 1} of {totalPages}
+                    </Typography>
+                    {activeEntry.created_at && (
+                      <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                        · {formatCreatedAt(activeEntry.created_at)}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {/* per-page breakdown — computed from already-fetched lines, zero extra calls */}
+                  {!linesLoading && visibleLines.length > 0 && (
+                    <PageBreakdown lines={visibleLines} />
+                  )}
+                </Box>
+
+                {/* column headers */}
+                <Box sx={{
+                  display: 'grid', gridTemplateColumns: '44px 72px 160px 1fr',
+                  px: 2, py: '5px',
+                  background: colors.bgGrayLight,
+                  borderBottom: `1px solid ${colors.lightBorder}`,
+                }}>
+                  {['LEVEL', 'TIME', 'SOURCE', 'MESSAGE'].map((h, i) => (
+                    <Typography key={h} sx={{
+                      fontSize: 9, fontWeight: 800,
+                      color: colors.lightTextLow,
+                      letterSpacing: '0.1em', fontFamily: fonts.mono,
+                      pl: i > 0 ? '6px' : 0,
+                    }}>
+                      {h}
+                    </Typography>
+                  ))}
+                </Box>
+
+                {/* log lines */}
+                <AnimatePresence mode="wait">
+                  <MotionBox
+                    key={`${activeEntry.file_key}-p${currentPage}`}
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    {linesLoading ? (
+                      <Box sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                        <CircularProgress size={20} sx={{ color: colors.primary }} />
+                        <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono }}>
+                          Fetching page {currentPage + 1}…
+                        </Typography>
+                      </Box>
+                    ) : visibleLines.length === 0 ? (
+                      <Box sx={{ py: 6, textAlign: 'center' }}>
+                        <Typography sx={{ color: colors.lightTextLow, fontSize: 12, fontFamily: fonts.mono }}>
+                          — no events on this page —
+                        </Typography>
+                      </Box>
+                    ) : visibleLines.map((line, i) => (
+                      <LogLine key={i} line={line} index={i} />
+                    ))}
+                  </MotionBox>
+                </AnimatePresence>
+
+                {/* pagination footer */}
+                <Box sx={{
+                  px: 2, py: '8px',
+                  borderTop: `1px solid ${colors.lightBorder}`,
+                  background: colors.surfaceBase,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                }}>
+                  <Typography sx={{ fontSize: 11, color: colors.lightTextLow, fontFamily: fonts.mono, minWidth: 160 }}>
+                    {linesLoading
+                      ? 'loading…'
+                      : `rows ${currentPage * PAGE_SIZE + 1}–${Math.min((currentPage + 1) * PAGE_SIZE, pageTotal)} of ${pageTotal}`}
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <PageArrow direction="prev" enabled={hasPrev && !linesLoading} onClick={() => fetchPage(selected!, currentPage - 1)} />
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      {Array.from({ length: totalPages }, (_, i) => {
+                        const isActive      = i === currentPage;
+                        const nearCurrent   = Math.abs(i - currentPage) <= 1;
+                        const isEdge        = i === 0 || i === totalPages - 1;
+                        const showEllBefore = i === currentPage - 2 && currentPage > 2;
+                        const showEllAfter  = i === currentPage + 2 && currentPage < totalPages - 3;
+
+                        if (showEllBefore || showEllAfter) return (
+                          <Typography key={i} sx={{ fontSize: 11, color: colors.lightTextLow, px: '2px', userSelect: 'none', fontFamily: fonts.mono }}>
+                            …
+                          </Typography>
+                        );
+                        if (!isEdge && !nearCurrent) return null;
+
+                        return (
+                          <motion.div key={i} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                            <Box
+                              onClick={() => !linesLoading && fetchPage(selected!, i)}
+                              sx={{
+                                minWidth: 26, height: 26, borderRadius: '5px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: linesLoading ? 'default' : 'pointer',
+                                background: isActive ? gradients.primary : 'transparent',
+                                border: `1px solid ${isActive ? colors.primary : colors.lightBorder}`,
+                                boxShadow: isActive ? shadows.primarySoft : 'none',
+                                transition: 'all 0.12s',
+                                '&:hover': !isActive ? { background: colors.primaryGlowSoft } : {},
+                              }}
+                            >
+                              <Typography sx={{
+                                fontSize: 11,
+                                fontWeight: isActive ? 800 : 500,
+                                color: isActive ? colors.textOnPrimary : colors.lightTextMid,
+                                fontFamily: fonts.mono,
+                                userSelect: 'none',
+                              }}>
+                                {i + 1}
+                              </Typography>
+                            </Box>
+                          </motion.div>
+                        );
+                      })}
+                    </Box>
+
+                    <PageArrow direction="next" enabled={hasNext && !linesLoading} onClick={() => fetchPage(selected!, currentPage + 1)} />
+                  </Box>
+
+                  <Typography sx={{ fontSize: 10, color: colors.lightTextLow, fontFamily: fonts.mono, textAlign: 'right', minWidth: 160 }}>
+                    {pageTotal} total lines
                   </Typography>
                 </Box>
-              ) : filteredLines.map((line, i) => <LogLine key={i} line={line} />)}
-            </Box>
-
-            <Box sx={{
-              px: 3, py: 1.5, borderTop: `1px solid ${colors.lightBorder}`,
-              background: colors.surfaceBase,
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            }}>
-              <Typography sx={{ fontSize: 11, color: colors.textSecondary, fontFamily: 'monospace' }}>
-                {filteredLines.length} / {activeEntry.total} lines{filter !== 'ALL' && ` · ${filter}`}
-              </Typography>
-              <Typography sx={{ fontSize: 11, color: colors.textSecondary, fontFamily: 'monospace' }}>
-                {new Date(activeEntry.created_at).toLocaleString()}
-              </Typography>
-            </Box>
-          </MotionPaper>
-        )}
-      </AnimatePresence>
+              </MotionBox>
+            )}
+          </AnimatePresence>
+        </Box>
     </Box>
   );
 }

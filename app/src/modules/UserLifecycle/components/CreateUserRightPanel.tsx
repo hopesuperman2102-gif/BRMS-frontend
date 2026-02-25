@@ -201,7 +201,6 @@ function PasswordStrength({ password }: { password: string }) {
 
   const strength = checks.filter(c => c.pass).length;
   const barColor = strength === 1 ? '#ef4444' : strength === 2 ? '#ed6c02' : '#22c55e';
-  const barLabel = strength === 1 ? 'Weak' : strength === 2 ? 'Fair' : 'Strong';
 
   return (
     <Box sx={{ mt: 1 }}>

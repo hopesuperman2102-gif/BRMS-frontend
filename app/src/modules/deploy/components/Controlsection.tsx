@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Grid } from '@mui/material';
-import { ControlSectionProps, Environment, Rule } from '../types/featureFlagTypes';
+import { ControlSectionProps } from '../types/featureFlagTypes';
 import { EnvironmentDeployment } from './EnvironmentDeployment';
 import { RuleVersionControl } from './RuleVersionControl';
 

@@ -16,6 +16,7 @@ import '../../modules/rules/routes';
 import '../../modules/JdmEditorPage/routes';
 import '../../modules/vertical/routes';
 import '../../modules/dashboard/routes';
+import '../../modules/UserLifecycle/routes';
 import { AuthProvider, useAuth } from 'app/src/modules/auth/Authcontext';
 import { refreshApi } from 'app/src/modules/auth/Authservice';
 import { useBindAuth } from 'app/src/modules/auth/Usebindauth';

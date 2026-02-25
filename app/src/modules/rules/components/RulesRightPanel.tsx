@@ -1,15 +1,13 @@
 'use client';
 
 import {
-  Box, Typography, Button, Menu, MenuItem,
-  IconButton, Breadcrumbs, Link, Divider, CircularProgress,
+  Box, Typography, Button, Menu, MenuItem, Breadcrumbs, Link, Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import HomeIcon from '@mui/icons-material/Home';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddIcon from '@mui/icons-material/Add';
 import { FileCard } from './FileCard';

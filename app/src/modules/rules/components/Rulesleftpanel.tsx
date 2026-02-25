@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AccountTree from '@mui/icons-material/AccountTree';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { FileNode, FolderNode, RulesLeftPanelProps } from '../types/Explorertypes';
+import { RulesLeftPanelProps } from '../types/Explorertypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -116,65 +116,6 @@ const StatLabel = styled(Typography)({
   textTransform: 'uppercase' as const,
 });
 
-const StatusSection = styled(Box)({
-  marginBottom: 24,
-});
-
-const SectionLabel = styled(Typography)({
-  fontSize: '0.625rem',
-  fontWeight: 700,
-  color: colors.panelTextLow,
-  fontFamily: fonts.mono,
-  letterSpacing: '0.14em',
-  textTransform: 'uppercase' as const,
-  marginBottom: 10,
-});
-
-const StatusRow = styled(Box)<{ hasborder: string }>(({ hasborder }) => ({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '10px 0',
-  borderBottom: hasborder === 'true' ? `1px solid ${colors.panelBorder}` : 'none',
-}));
-
-const StatusLeft = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-});
-
-const STATUS_DOT: Record<string, string> = {
-  using:      '#10b981',
-  active:     '#10b981',
-  draft:      '#f59e0b',
-  inactive:   '#94a3b8',
-  deprecated: '#ef4444',
-};
-
-const StatusDot = styled(Box)<{ dotcolor: string }>(({ dotcolor }) => ({
-  width: 6,
-  height: 6,
-  borderRadius: '50%',
-  backgroundColor: dotcolor,
-  flexShrink: 0,
-}));
-
-const StatusName = styled(Typography)({
-  fontSize: '0.8125rem',
-  color: colors.panelTextMid,
-  textTransform: 'capitalize' as const,
-  fontFamily: fonts.mono,
-  letterSpacing: '0.02em',
-});
-
-const StatusCount = styled(Typography)({
-  fontSize: '0.875rem',
-  fontWeight: 700,
-  color: colors.textOnPrimary,
-  fontFamily: fonts.mono,
-});
-
 const PreviewArea = styled(Box)({
   flex: 1,
 });
@@ -217,29 +158,10 @@ const PlaceholderBox = styled(Box)({
   opacity: 0.3,
 });
 
-const LeftFooter = styled(Typography)({
-  fontSize: '0.625rem',
-  color: colors.panelTextLow,
-  fontWeight: 500,
-  fontFamily: fonts.mono,
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase' as const,
-  marginTop: 32,
-});
-
 /* ─── Component ───────────────────────────────────────────── */
 export default function RulesLeftPanel({ projectName, files, folders, hoveredRule }: RulesLeftPanelProps) {
   const totalRules   = files.length;
   const totalFolders = folders.filter((f) => !f.isTemp).length;
-
-  const statusCounts = files.reduce<Record<string, number>>((acc, f) => {
-    const s = (f.status ?? 'draft').toLowerCase();
-    if (s === 'deleted') return acc;
-    acc[s] = (acc[s] ?? 0) + 1;
-    return acc;
-  }, {});
-
-  const statusEntries = Object.entries(statusCounts);
 
   return (
     <LeftPanel>
