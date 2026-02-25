@@ -3,16 +3,16 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { RcCard } from 'app/src/core/components/RcCard';
-import { DeploymentHealth } from '../types/featureFlagTypes';
+import { EnvHealth } from '../types/featureFlagTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
-interface DeploymentHealthCardProps {
+interface DeploymentHealthProps {
   title: string;
-  health: DeploymentHealth;
+  health: EnvHealth;
   delay?: number;
 }
 
-export const DeploymentHealthCard: React.FC<DeploymentHealthCardProps> = ({
+export const DeploymentHealth: React.FC<DeploymentHealthProps> = ({
   title,
   health,
   delay = 0.1,

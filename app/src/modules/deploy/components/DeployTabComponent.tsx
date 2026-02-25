@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
-import { FeatureFlagHeader } from './FeatureFlagHeader';
+import { DeployHeader } from './DeployHeader';
 import { Environment, Rule, DeployedRule } from '../types/featureFlagTypes';
-import { StatsSection } from './Statssection';
-import { ControlSection } from './Controlsection';
-import { HistorySection } from './Historysection';
 import { deployApi, MonthlyData } from '../api/deployApi';
 import { useParams } from 'react-router-dom';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
-
+import { EnvironmentHistory } from './EnvironmentHistory';
+import { StatsSection } from './StatsSection';
+import { ControlSection } from './ControlSection';
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
@@ -193,7 +192,7 @@ export default function DeployTabComponent() {
   return (
     <Box sx={{ minHeight: '100vh', p: 4 }}>
       <Box sx={{ maxWidth: 1600, mx: 'auto' }}>
-        <FeatureFlagHeader
+        <DeployHeader
           totalRules={totalRules}
           projectItems={projectItems}
           selectedProject={selectedProject}
@@ -224,7 +223,7 @@ export default function DeployTabComponent() {
           isLoading={isLoadingRules}
         />
 
-        <HistorySection
+        <EnvironmentHistory
           rules={deployedRules}
           onRollback={handleRollback}
           onViewLogs={handleViewLogs}

@@ -5,16 +5,16 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { DeployedRule } from '../types/featureFlagTypes';
-import { ActiveRulesTable } from './Activerulestable';
+import { ActiveRules} from './ActiveRules';
 
-interface HistorySectionProps {
+interface EnvironmentHistoryProps {
   rules: DeployedRule[];
   onRollback: (ruleKey: string) => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
 }
 
-export const HistorySection: React.FC<HistorySectionProps> = ({
+export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
   rules,
   onRollback,
   onViewLogs,
@@ -22,7 +22,7 @@ export const HistorySection: React.FC<HistorySectionProps> = ({
 }) => {
   return (
     <Box sx={{ mt: 3 }}>
-      <ActiveRulesTable
+      <ActiveRules
         rules={rules}
         onRollback={onRollback}
         onViewLogs={onViewLogs}

@@ -15,7 +15,6 @@ import type { SxProps, Theme } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import CodeIcon from '@mui/icons-material/Code';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-
 import { Rule, GroupedRule } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 

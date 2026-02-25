@@ -471,7 +471,6 @@ export default function CreateUserRightPanel({
                 fullWidth={true}
               />
             </Box>
-
           </FieldsWrapper>
 
           <FormDivider />

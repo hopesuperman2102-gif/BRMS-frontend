@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Grid } from '@mui/material';
-import { DeploymentHealthCard } from './Deploymenthealthcard';
-import { PendingSyncsCard } from './Pendingsyncscard';
+import { DeploymentHealth } from './DeploymentHealth';
+import { PendingSync } from './PendingSync';
 import { MonthlyData } from '../api/deployApi';
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
@@ -26,7 +26,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear,
   return (
     <Grid container spacing={3} sx={{ mb: 3 }}>
       <Grid size={{ xs: 12, md: 3 }}>
-        <DeploymentHealthCard
+        <DeploymentHealth
           title="Deployment Health"
           health={{
             total: stats.totalRuleVersions,
@@ -38,14 +38,14 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear,
       </Grid>
 
       <Grid size={{ xs: 12, md: 2 }}>
-        <PendingSyncsCard
+        <PendingSync
           title="Active Rules"
           value={stats.deployedVersions}
         />
       </Grid>
 
       <Grid size={{ xs: 12, md: 2 }}>
-        <PendingSyncsCard
+        <PendingSync
           title="Pending Rules"
           value={stats.approvedNotDeployedVersions}
         />

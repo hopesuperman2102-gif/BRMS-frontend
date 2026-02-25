@@ -42,7 +42,7 @@ export interface RuleChange {
   count: number;
 }
 
-export interface DeploymentHealth {
+export interface EnvHealth {
   total: number;
   pending: number;
   approved: number;
@@ -60,7 +60,7 @@ export interface ActiveSync {
 
 export interface DashboardStats {
   totalRules: number;
-  deploymentHealth: DeploymentHealth;
+  deploymentHealth: EnvHealth;
   pendingSyncs: PendingSync[];
   activeSyncs: ActiveSync[];
   ruleChanges: RuleChange[];

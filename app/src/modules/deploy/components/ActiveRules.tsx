@@ -26,7 +26,7 @@ const MotionTableRow = motion(TableRow);
 const ROW_HEIGHT = 53;
 const MAX_VISIBLE_ROWS = 3;
 
-interface ActiveRulesTableProps {
+interface ActiveRulesProps {
   rules: DeployedRule[];
   onRollback: (ruleKey: string) => void;
   onViewLogs: (ruleKey: string) => void;
@@ -34,7 +34,7 @@ interface ActiveRulesTableProps {
   delay?: number;
 }
 
-export const ActiveRulesTable: React.FC<ActiveRulesTableProps> = ({
+export const ActiveRules: React.FC<ActiveRulesProps> = ({
   rules,
   onRollback,
   onViewLogs,

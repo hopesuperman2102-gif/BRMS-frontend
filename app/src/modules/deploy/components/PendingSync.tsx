@@ -6,14 +6,14 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import { RcCard } from 'app/src/core/components/RcCard';
 
-interface PendingSyncsCardProps {
+interface PendingSyncProps {
   title: string;
   value: number | string;
   timestamp?: string;
   delay?: number;
 }
 
-export const PendingSyncsCard: React.FC<PendingSyncsCardProps> = ({
+export const PendingSync: React.FC<PendingSyncProps> = ({
   title,
   value,
   timestamp,

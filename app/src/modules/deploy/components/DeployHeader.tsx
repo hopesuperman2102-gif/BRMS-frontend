@@ -10,7 +10,7 @@ import { Environment } from '../types/featureFlagTypes';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
 import RcDropdown from 'app/src/core/components/RcDropdown';
 
-interface FeatureFlagHeaderProps {
+interface DeployHeaderProps {
   totalRules: number;
   projectItems: RcDropdownItem[];
   selectedProject: string;
@@ -20,7 +20,7 @@ interface FeatureFlagHeaderProps {
   onEnvironmentClick?: (env: Environment | 'ALL') => void;
 }
 
-export const FeatureFlagHeader: React.FC<FeatureFlagHeaderProps> = ({
+export const DeployHeader: React.FC<DeployHeaderProps> = ({
   totalRules,
   projectItems,
   selectedProject,

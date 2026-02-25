@@ -5,8 +5,8 @@
 import React from 'react';
 import { Grid } from '@mui/material';
 import { Environment, Rule } from '../types/featureFlagTypes';
+import { EnvironmentDeployment } from './EnvironmentDeployment';
 import { RuleVersionControl } from './Ruleversioncontrol';
-import { EnvironmentDeployment } from './Environmentdeployment';
 
 interface ControlSectionProps {
   rules: Rule[];
