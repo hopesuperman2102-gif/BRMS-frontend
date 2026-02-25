@@ -9,10 +9,10 @@ import { ProjectListProps } from "../types/projectListTypes";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
 import ProjectListLeftPanel from "./ProjectListLeftPanel";
 import ProjectListRightPanel from "./ProjectListRightPanel";
+import { useRole } from "app/src/modules/auth/useRole";
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Styled Components ───────────────────────────────────── */
 const RootWrapper = styled(Box)({
   width: "100%",
   display: "flex",
@@ -24,7 +24,6 @@ const RootWrapper = styled(Box)({
   height: "calc(100vh - 64px)",
 });
 
-/* ─── Component ───────────────────────────────────────────── */
 export default function ProjectListCard() {
   const [projects, setProjects] = useState<ProjectListProps[]>([]);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -35,6 +34,7 @@ export default function ProjectListCard() {
 
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
+  const { isRuleAuthor } = useRole();
 
   useEffect(() => {
     if (!vertical_Key) return;
@@ -70,12 +70,10 @@ export default function ProjectListCard() {
     return () => controller.abort();
   }, [vertical_Key]);
 
-  /* ─── Derived state ─── */
   const rowsPerPage = 5;
   const totalPages = Math.ceil(projects.length / rowsPerPage);
   const paginatedProjects = projects.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
-  /* ─── Handlers ─── */
   const handleMenuOpen = (e: React.MouseEvent, p: ProjectListProps) => {
     setMenuAnchorEl(e.currentTarget as HTMLElement);
     setSelectedProject(p);
@@ -113,10 +111,8 @@ export default function ProjectListCard() {
   const handleNewProject = () =>
     navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject`);
 
-  /* ─── Render ─── */
   return (
     <RootWrapper>
-
       <ProjectListLeftPanel
         projects={projects}
         hoveredProject={hoveredProject}
@@ -136,6 +132,7 @@ export default function ProjectListCard() {
         onDelete={handleDelete}
         onNewProject={handleNewProject}
         onHoverProject={setHoveredProject}
+        isRuleAuthor={isRuleAuthor}
       />
     </RootWrapper>
   );

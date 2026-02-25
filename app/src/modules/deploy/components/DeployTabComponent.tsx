@@ -9,8 +9,8 @@ import { useParams } from 'react-router-dom';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 import { EnvironmentHistory } from './EnvironmentHistory';
-import { StatsSection } from './StatsSection';
-import { ControlSection } from './ControlSection';
+import { ControlSection } from './Controlsection';
+import { StatsSection } from './Statssection';
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();

@@ -10,9 +10,15 @@ export interface LoginRequest {
 export interface LoginResponse {
   access_token: string;
   token_type: string;
+  roles: string[];
 }
 
-export async function loginApi(credentials: LoginRequest): Promise<string> {
+export interface LoginResult {
+  accessToken: string;
+  roles: string[];
+}
+
+export async function loginApi(credentials: LoginRequest): Promise<LoginResult> {
   const response = await fetch(`${BASE_URL}/api/v1/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -26,7 +32,10 @@ export async function loginApi(credentials: LoginRequest): Promise<string> {
   }
 
   const data: LoginResponse = await response.json();
-  return data.access_token;
+  return {
+    accessToken: data.access_token,
+    roles: data.roles ?? [],
+  };
 }
 
 export async function refreshApi(): Promise<string | null> {
@@ -34,19 +43,14 @@ export async function refreshApi(): Promise<string | null> {
     const response = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // browser sends httpOnly cookie automatically
+      credentials: 'include',
     });
 
-    console.log('[refreshApi] status:', response.status);
-
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.log('[refreshApi] failed:', errorData);
       return null;
     }
 
-    const data: LoginResponse = await response.json();
-    console.log('[refreshApi] success, new access_token received');
+    const data = await response.json();
     return data.access_token;
   } catch (err) {
     console.log('[refreshApi] network error:', err);

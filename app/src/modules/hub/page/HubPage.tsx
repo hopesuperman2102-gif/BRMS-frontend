@@ -10,10 +10,9 @@ import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import ProjectList from '../components/ProjectListCard';
 import RulesTable from '../components/RulesTable';
+import { useRole } from 'app/src/modules/auth/useRole';
 
 const { colors, gradients } = brmsTheme;
-
-/* ─── Styled Components ───────────────────────────────────── */
 
 const HeaderWrapper = styled(Box)({
   paddingLeft: '24px',
@@ -69,13 +68,14 @@ const ContentWrapper = styled(Box)({
   padding: '24px',
 });
 
-/* ─── Component ───────────────────────────────────────────── */
-
 const HubPage = () => {
   const [tab, setTab] = useState(0);
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
   const [verticalName, setVerticalName] = useState<string>('');
+  const { isRuleAuthor, roles } = useRole();
+
+  console.log('DEBUG ROLES:', roles, '| isRuleAuthor:', isRuleAuthor);
 
   useEffect(() => {
     if (!vertical_Key) return;
@@ -98,12 +98,22 @@ const HubPage = () => {
     return () => controller.abort();
   }, [vertical_Key]);
 
+  const visibleTabs = isRuleAuthor
+    ? [{ label: 'Projects', content: <ProjectList /> }]
+    : [
+        { label: 'Projects', content: <ProjectList /> },
+        { label: 'Rules', content: <RulesTable /> },
+        { label: 'Deploy', content: <DeployTabPage /> },
+      ];
+
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     if (vertical_Key) {
       projectsApi.invalidateProjectsCache(vertical_Key);
     }
     setTab(newValue);
   };
+
+  const safeTab = tab < visibleTabs.length ? tab : 0;
 
   return (
     <>
@@ -112,23 +122,18 @@ const HubPage = () => {
           <BackButton onClick={() => navigate(`/vertical/${vertical_Key}/dashboard`)}>
             <ArrowBackIcon sx={{ fontSize: 20 }} />
           </BackButton>
-
-          {verticalName && (
-            <VerticalName>{verticalName}</VerticalName>
-          )}
+          {verticalName && <VerticalName>{verticalName}</VerticalName>}
         </BackRow>
 
-        <StyledTabs value={tab} onChange={handleTabChange}>
-          <Tab label="Projects" />
-          <Tab label="Rules" />
-          <Tab label="Deploy" />
+        <StyledTabs value={safeTab} onChange={handleTabChange}>
+          {visibleTabs.map((t) => (
+            <Tab key={t.label} label={t.label} />
+          ))}
         </StyledTabs>
       </HeaderWrapper>
 
       <ContentWrapper>
-        {tab === 0 && <ProjectList />}
-        {tab === 1 && <RulesTable />}
-        {tab === 2 && <DeployTabPage />}
+        {visibleTabs[safeTab]?.content}
       </ContentWrapper>
     </>
   );
