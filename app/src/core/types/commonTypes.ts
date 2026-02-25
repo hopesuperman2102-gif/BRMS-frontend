@@ -137,3 +137,15 @@ export type SectionHeaderProps = {
   left: ReactNode;
   right?: ReactNode;
 };
+
+export interface RcEmailProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  name?: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  sx?: SxProps<Theme>;
+  onFocus?: () => void;
+  onBlur?: () => void;
+}
