@@ -19,6 +19,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 import RcDropdown from 'app/src/core/components/RcDropdown';
+import RcEmail from 'app/src/core/components/RcEmail';
 
 const { colors, fonts } = brmsTheme;
 
@@ -351,28 +352,17 @@ export default function CreateUserRightPanel({
             </Box>
 
             {/* Email */}
-            <Box>
-              <Label required>Email</Label>
-              <TextField
-                fullWidth
-                name="email"
-                type="email"
-                placeholder="e.g. john.doe@example.com"
-                value={formData.email}
-                onChange={onChange}
-                onFocus={() => setFocused('email')}
-                onBlur={() => setFocused(null)}
-                autoComplete="off"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={inputSx(focused === 'email')}
-              />
-            </Box>
+
+          <Box>
+  <Label required>Email</Label>
+  <RcEmail
+    value={formData.email}
+    onChange={onChange}
+    sx={inputSx(focused === 'email')}
+    onFocus={() => setFocused('email')}
+    onBlur={() => setFocused(null)}
+  />
+</Box>
 
             {/* Password */}
             <Box>
