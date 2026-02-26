@@ -18,6 +18,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { ActiveRulesProps } from '../types/featureFlagTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
+import RedoIcon from '@mui/icons-material/Redo';
 
 // Defined OUTSIDE the component so the reference never changes between renders.
 const MotionTableRow = motion(TableRow);
@@ -38,9 +39,25 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
       <CardHeader title="Environment-Specific Rule Listing & History" />
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" fontWeight={600} color="text.primary" sx={{ mb: 2 }}>
-          Active Rules in {environment}
-        </Typography>
+         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+    <Typography variant="h6" fontWeight={600} color="text.primary">
+      Active Rules in {environment}
+    </Typography>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <motion.div whileHover={{ scale: 1.1 }}>
+        <IconButton
+          size="small"
+          onClick={() => onViewLogs('')}
+          sx={{ color: 'text.secondary' }}
+        >
+          <DescriptionIcon fontSize="small" />
+        </IconButton>
+      </motion.div>
+      <Typography variant="caption" color="text.secondary">
+        View Logs
+      </Typography>
+    </Box>
+  </Box>
 
         <TableContainer
           sx={{
@@ -153,7 +170,7 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
                           </IconButton>
                         </motion.div>
                         <Typography variant="caption" color="text.secondary">
-                          Rollback
+                          Revoke
                         </Typography>
 
                         <motion.div whileHover={{ scale: 1.1 }}>
@@ -165,11 +182,11 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
                             }}
                             sx={{ color: 'text.secondary', ml: 1 }}
                           >
-                            <DescriptionIcon fontSize="small" />
+                            <RedoIcon fontSize="small" />
                           </IconButton>
                         </motion.div>
                         <Typography variant="caption" color="text.secondary">
-                          View Logs
+                          Promote
                         </Typography>
                       </Box>
                     </TableCell>

@@ -244,7 +244,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
               <AuditIcon fontSize="small" sx={{ color: "#6366f1" }} />
             </ListItemIcon>
             <ListItemText
-              primary="Audit Logs"
+              primary="Activity Logs"
               primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: "#111827" }}
             />
           </MenuItem>
