@@ -37,7 +37,7 @@ import { useRole } from "../../modules/auth/useRole";
 const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationName }) => {
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuth();
-  const { isRuleAuthor } = useRole();
+  const { isRuleAuthor, isReviewer } = useRole();
   const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(null);
   const [settingsAnchor, setSettingsAnchor] = useState<HTMLElement | null>(null);
   const [user, setUser] = useState<LoggedInUser | null>(null);
@@ -90,7 +90,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
         <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
           <LogoTitle logo={logo} organizationName={organizationName} />
           <Box display="flex" alignItems="center" gap={1}>
-            {!isRuleAuthor && (
+            {!isRuleAuthor && !isReviewer && (
               <HeaderIcon
                 icon={<SettingsIcon />}
                 tooltip="Settings"
@@ -216,7 +216,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
       </Popover>
 
       {/* Settings Menu — hidden for RULE_AUTHOR */}
-      {!isRuleAuthor && (
+      {!isRuleAuthor && !isReviewer && (
         <Menu
           anchorEl={settingsAnchor}
           open={!!settingsAnchor}

@@ -43,6 +43,7 @@ interface RulesRightPanelProps {
   onNameKeyDown: (e: React.KeyboardEvent) => void;
   onMouseEnterFile: (item: FileNode) => void;
   onMouseLeaveFile: () => void;
+  isReviewer?: boolean;
 }
 
 /* ─── Styled Components ───────────────────────────────────── */
@@ -263,6 +264,7 @@ export default function RulesRightPanel({
   onNameKeyDown,
   onMouseEnterFile,
   onMouseLeaveFile,
+  isReviewer = false,
 }: RulesRightPanelProps) {
   return (
     <RightPanel>
@@ -274,44 +276,48 @@ export default function RulesRightPanel({
           <RightSubtitle>Browse and manage rules for {projectName || 'this project'}</RightSubtitle>
         </Box>
 
-        <NewButton
-          variant="contained"
-          startIcon={<AddIcon sx={{ fontSize: '14px !important' }} />}
-          endIcon={<KeyboardArrowDownIcon sx={{ fontSize: '14px !important' }} />}
-          onClick={onNewMenuOpen}
-          disableRipple
-          disableElevation
-        >
-          New
-        </NewButton>
+        {!isReviewer && (
+          <>
+            <NewButton
+              variant="contained"
+              startIcon={<AddIcon sx={{ fontSize: '14px !important' }} />}
+              endIcon={<KeyboardArrowDownIcon sx={{ fontSize: '14px !important' }} />}
+              onClick={onNewMenuOpen}
+              disableRipple
+              disableElevation
+            >
+              New
+            </NewButton>
 
-        <Menu
-          anchorEl={newMenuAnchor}
-          open={!!newMenuAnchor}
-          onClose={onNewMenuClose}
-          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-          sx={NewMenuPaper}
-        >
-          <MenuItem
-            onClick={onCreateNewRule}
-            sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.panelIndigoMuted } }}
-          >
-            <MenuIconBox variant="file">
-              <InsertDriveFileOutlinedIcon sx={{ fontSize: 14, color: colors.tabTextInactive }} />
-            </MenuIconBox>
-            New Rule
-          </MenuItem>
-          <MenuItem
-            onClick={onCreateNewFolder}
-            sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.statusDraftBg } }}
-          >
-            <MenuIconBox variant="folder">
-              <FolderIcon sx={{ fontSize: 14, color: colors.lightTextLow }} />
-            </MenuIconBox>
-            New Folder
-          </MenuItem>
-        </Menu>
+            <Menu
+              anchorEl={newMenuAnchor}
+              open={!!newMenuAnchor}
+              onClose={onNewMenuClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              sx={NewMenuPaper}
+            >
+              <MenuItem
+                onClick={onCreateNewRule}
+                sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.panelIndigoMuted } }}
+              >
+                <MenuIconBox variant="file">
+                  <InsertDriveFileOutlinedIcon sx={{ fontSize: 14, color: colors.tabTextInactive }} />
+                </MenuIconBox>
+                New Rule
+              </MenuItem>
+              <MenuItem
+                onClick={onCreateNewFolder}
+                sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.lightTextHigh, mx: '6px', borderRadius: '6px', py: '9px', px: '10px', gap: '10px', '&:hover': { bgcolor: colors.statusDraftBg } }}
+              >
+                <MenuIconBox variant="folder">
+                  <FolderIcon sx={{ fontSize: 14, color: colors.lightTextLow }} />
+                </MenuIconBox>
+                New Folder
+              </MenuItem>
+            </Menu>
+          </>
+        )}
       </RightHeader>
 
       {/* ─── Breadcrumb Bar ─── */}
@@ -375,6 +381,7 @@ export default function RulesRightPanel({
                   onNameChange={onNameChange}
                   onNameBlur={onNameBlur}
                   onNameKeyDown={onNameKeyDown}
+                  isReviewer={isReviewer}
                 />
               ) : (
                 <FileCard
@@ -384,6 +391,7 @@ export default function RulesRightPanel({
                   onMenuOpen={(e) => onMenuOpen(e, item)}
                   onMouseEnter={() => onMouseEnterFile(item)}
                   onMouseLeave={onMouseLeaveFile}
+                  isReviewer={isReviewer}
                 />
               )
             )}
@@ -392,17 +400,19 @@ export default function RulesRightPanel({
       </ScrollArea>
 
       {/* ─── Context Menu ─── */}
-      <StyledMenu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={onMenuClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        <EditMenuItem onClick={onEdit}>Rename</EditMenuItem>
-        <Divider sx={{ my: '4px', borderColor: colors.lightBorder }} />
-        <DeleteMenuItem onClick={onDelete}>Delete</DeleteMenuItem>
-      </StyledMenu>
+      {!isReviewer && (
+        <StyledMenu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={onMenuClose}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <EditMenuItem onClick={onEdit}>Rename</EditMenuItem>
+          <Divider sx={{ my: '4px', borderColor: colors.lightBorder }} />
+          <DeleteMenuItem onClick={onDelete}>Delete</DeleteMenuItem>
+        </StyledMenu>
+      )}
     </RightPanel>
   );
 }

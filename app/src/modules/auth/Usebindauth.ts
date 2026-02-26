@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { bindAuthToAxios } from './Axiosinstance';
 import { useAuth } from './Authcontext';
 
-
 /**
  * useBindAuth
  * Connects React AuthContext (access token getter/setter) to axiosInstance

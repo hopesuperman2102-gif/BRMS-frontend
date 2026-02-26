@@ -34,7 +34,7 @@ export default function ProjectListCard() {
 
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
-  const { isRuleAuthor } = useRole();
+  const { isRuleAuthor, isReviewer } = useRole();
 
   useEffect(() => {
     if (!vertical_Key) return;
@@ -132,7 +132,7 @@ export default function ProjectListCard() {
         onDelete={handleDelete}
         onNewProject={handleNewProject}
         onHoverProject={setHoveredProject}
-        isRuleAuthor={isRuleAuthor}
+        isRuleAuthor={isRuleAuthor || isReviewer}
       />
     </RootWrapper>
   );

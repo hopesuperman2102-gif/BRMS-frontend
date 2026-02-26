@@ -12,6 +12,7 @@ import HistoryIcon from '@mui/icons-material/History';
 
 interface EditorPropsExtended extends EditorProps {
   onSimulatorRun: (jdm: DecisionGraphType, context: JsonObject) => Promise<ExecuteResponse>;
+  isReviewer?: boolean;
 }
 
 const EMPTY_GRAPH: DecisionGraphType = {
@@ -23,6 +24,7 @@ export default function Editor({
   items,
   selectedId,
   onSimulatorRun,
+  isReviewer = false,
 }: EditorPropsExtended) {
   const [selectedVersion, setSelectedVersion] = useState('');
   const [versions, setVersions] = useState<RuleVersion[]>([]);
@@ -289,42 +291,46 @@ export default function Editor({
             </FormControl>
           </Box>
 
-          <Divider orientation="vertical" flexItem sx={{ my: 0.5, backgroundColor: '#e5e7eb' }} />
+          {!isReviewer && (
+            <>
+              <Divider orientation="vertical" flexItem sx={{ my: 0.5, backgroundColor: '#e5e7eb' }} />
 
-          {/* Commit Button */}
-          <Button
-            variant="contained"
-            onClick={handleCommit}
-            disabled={!selectedItem || !currentGraph || isCommitting}
-            startIcon={<SaveIcon sx={{ fontSize: 18 }} />}
-            sx={{
-              height: 36,
-              backgroundColor: '#6552D0',
-              color: '#ffffff',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              textTransform: 'none',
-              px: 2.5,
-              borderRadius: '6px',
-              boxShadow: 'none',
-              letterSpacing: '-0.01em',
-              '&:hover': {
-                backgroundColor: '#2563eb',
-                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-              },
-              '&:active': {
-                backgroundColor: '#1d4ed8',
-              },
-              '&:disabled': {
-                backgroundColor: '#e5e7eb',
-                color: '#9ca3af',
-              },
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {isCommitting ? 'Saving...' : 'Commit Changes'}
-          </Button>
+              {/* Commit Button */}
+              <Button
+                variant="contained"
+                onClick={handleCommit}
+                disabled={!selectedItem || !currentGraph || isCommitting}
+                startIcon={<SaveIcon sx={{ fontSize: 18 }} />}
+                sx={{
+                  height: 36,
+                  backgroundColor: '#6552D0',
+                  color: '#ffffff',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  px: 2.5,
+                  borderRadius: '6px',
+                  boxShadow: 'none',
+                  letterSpacing: '-0.01em',
+                  '&:hover': {
+                    backgroundColor: '#2563eb',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                  },
+                  '&:active': {
+                    backgroundColor: '#1d4ed8',
+                  },
+                  '&:disabled': {
+                    backgroundColor: '#e5e7eb',
+                    color: '#9ca3af',
+                  },
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {isCommitting ? 'Saving...' : 'Commit Changes'}
+              </Button>
+            </>
+          )}
         </Box>
       </Box>
 
@@ -371,8 +377,9 @@ export default function Editor({
             ) : currentGraph !== null ? (
               <JdmEditorComponent
                 value={currentGraph}
-                onChange={handleGraphChange}
+                onChange={isReviewer ? () => {} : handleGraphChange}
                 onSimulatorRun={onSimulatorRun}
+                isReviewer={isReviewer}
               />
             ) : (
               <Box

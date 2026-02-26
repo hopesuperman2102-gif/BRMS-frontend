@@ -39,7 +39,7 @@ export const rulesTableApi = {
     );
     verticalCache = null;
     return res.data;
-  },
+  },    
 
   invalidateCache: () => {
     verticalCache = null;

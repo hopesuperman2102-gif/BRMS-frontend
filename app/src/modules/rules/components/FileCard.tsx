@@ -177,7 +177,7 @@ const MenuButton = styled(IconButton)({
   },
 });
 
-export function FileCard({ item, onOpen, onMenuOpen, onMouseEnter, onMouseLeave }: FileCardProps) {
+export function FileCard({ item, onOpen, onMenuOpen, onMouseEnter, onMouseLeave, isReviewer = false }: FileCardProps & { isReviewer?: boolean }) {
   return (
     <CardRoot
       onClick={onOpen}
@@ -201,14 +201,16 @@ export function FileCard({ item, onOpen, onMenuOpen, onMouseEnter, onMouseLeave 
         </MetaWrap>
       </CardInner>
 
-      <MenuButton
-        className="file-action"
-        size="small"
-        onClick={(e) => { e.stopPropagation(); onMenuOpen(e); }}
-        disableRipple
-      >
-        <MoreVertIcon sx={{ fontSize: 16 }} />
-      </MenuButton>
+      {!isReviewer && (
+        <MenuButton
+          className="file-action"
+          size="small"
+          onClick={(e) => { e.stopPropagation(); onMenuOpen(e); }}
+          disableRipple
+        >
+          <MoreVertIcon sx={{ fontSize: 16 }} />
+        </MenuButton>
+      )}
     </CardRoot>
   );
 }
