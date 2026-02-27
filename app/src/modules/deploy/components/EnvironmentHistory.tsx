@@ -1,4 +1,3 @@
-// app/src/modules/feature-flags/components/HistorySection.tsx
 
 'use client';
 
@@ -9,7 +8,7 @@ import { ActiveRules} from './ActiveRules';
 
 export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
   rules,
-  onRollback,
+  onRevoked,
   onViewLogs,
   environment,
 }) => {
@@ -17,7 +16,7 @@ export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
     <Box sx={{ mt: 3 }}>
       <ActiveRules
         rules={rules}
-        onRollback={onRollback}
+        onRevoked={onRevoked}
         onViewLogs={onViewLogs}
         environment={environment}
         delay={0.7}

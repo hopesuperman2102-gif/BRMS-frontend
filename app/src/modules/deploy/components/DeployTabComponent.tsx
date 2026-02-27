@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { DeployHeader } from './DeployHeader';
 import { Environment, Rule, DeployedRule } from '../types/featureFlagTypes';
@@ -9,8 +9,9 @@ import { useParams } from 'react-router-dom';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 import { EnvironmentHistory } from './EnvironmentHistory';
-import { StatsSection } from './StatsSection';
-import { ControlSection } from './ControlSection';
+import { StatsSection } from './Statssection';
+import { ControlSection } from './Controlsection';
+import { EnvironmentLogs } from './EnvironmentLogs';
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
@@ -29,10 +30,10 @@ export default function DeployTabComponent() {
   const [isLoadingRules, setIsLoadingRules] = useState(false);
   const [deployedRules, setDeployedRules] = useState<DeployedRule[]>([]);
   const [selectedVersions, setSelectedVersions] = useState<Map<string, string>>(new Map());
+  const [logsOpen, setLogsOpen] = useState(false);
 
   const environments: Environment[] = ['DEV', 'QA', 'PROD'];
 
-  // Chart year state lives here in the page
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const [statsData, setStatsData] = useState({
@@ -44,6 +45,49 @@ export default function DeployTabComponent() {
     approvedNotDeployedVersions: 0,
     monthlyDeployments: [] as MonthlyData[],
   });
+
+  // Refs to always read latest values — no stale closure
+  const selectedProjectKeyRef = useRef(selectedProjectKey);
+  const activeEnvironmentRef = useRef(activeEnvironment);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => { selectedProjectKeyRef.current = selectedProjectKey; }, [selectedProjectKey]);
+  useEffect(() => { activeEnvironmentRef.current = activeEnvironment; }, [activeEnvironment]);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
+
+  /* ── Shared stats refresh ─────────────────────────────────── */
+  const refreshStats = useCallback(async () => {
+    const projectKey = selectedProjectKeyRef.current;
+    const environment = activeEnvironmentRef.current;
+    if (!projectKey) return;
+    setIsLoadingRules(true);
+    try {
+      const data = await deployApi.getDashboardStats(projectKey, environment);
+      if (!isMountedRef.current) return;
+      setStatsData({
+        totalRuleVersions: data.total_rule_versions,
+        pendingVersions: data.pending_versions,
+        approvedVersions: data.approved_versions,
+        rejectedVersions: data.rejected_versions,
+        deployedVersions: data.deployed_versions,
+        approvedNotDeployedVersions: data.approved_not_deployed_versions,
+        monthlyDeployments: data.monthly_deployments || [],
+      });
+      setUndeployedRules(data.undeployed_approved_versions || []);
+      setDeployedRules(data.deployed_rules || []);
+      setSelectedVersions(new Map());
+      setSelectedRules(new Set());
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error);
+      setUndeployedRules([]);
+      setDeployedRules([]);
+    } finally {
+      if (isMountedRef.current) setIsLoadingRules(false);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchDashboardSummary = async () => {
@@ -75,35 +119,9 @@ export default function DeployTabComponent() {
   }, [vertical_Key]);
 
   useEffect(() => {
-    const fetchDashboardStats = async () => {
-      if (!selectedProjectKey) return;
-      setIsLoadingRules(true);
-      try {
-        // Send 'ALL' to backend when ALL is selected, otherwise send the specific env
-        const data = await deployApi.getDashboardStats(selectedProjectKey, activeEnvironment);
-        setStatsData({
-          totalRuleVersions: data.total_rule_versions,
-          pendingVersions: data.pending_versions,
-          approvedVersions: data.approved_versions,
-          rejectedVersions: data.rejected_versions,
-          deployedVersions: data.deployed_versions,
-          approvedNotDeployedVersions: data.approved_not_deployed_versions,
-          monthlyDeployments: data.monthly_deployments || [],
-        });
-        setUndeployedRules(data.undeployed_approved_versions || []);
-        setDeployedRules(data.deployed_rules || []);
-        setSelectedVersions(new Map());
-        setSelectedRules(new Set());
-      } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error);
-        setUndeployedRules([]);
-        setDeployedRules([]);
-      } finally {
-        setIsLoadingRules(false);
-      }
-    };
-    fetchDashboardStats();
-  }, [selectedProjectKey, activeEnvironment]);
+    if (!selectedProjectKey) return;
+    refreshStats();
+  }, [selectedProjectKey, activeEnvironment, refreshStats]);
 
   const handleProjectSelect = (value: string) => {
     setSelectedProject(value);
@@ -155,38 +173,20 @@ export default function DeployTabComponent() {
     try {
       await Promise.all(deployPromises);
       showAlert(`Successfully deployed ${selectedRules.size} rule(s) to ${deployTargetEnvironment}`, 'success');
-
-      if (selectedProjectKey) {
-        setIsLoadingRules(true);
-        try {
-          const data = await deployApi.getDashboardStats(selectedProjectKey, activeEnvironment);
-          setStatsData({
-            totalRuleVersions: data.total_rule_versions,
-            pendingVersions: data.pending_versions,
-            approvedVersions: data.approved_versions,
-            rejectedVersions: data.rejected_versions,
-            deployedVersions: data.deployed_versions,
-            approvedNotDeployedVersions: data.approved_not_deployed_versions,
-            monthlyDeployments: data.monthly_deployments || [],
-          });
-          setUndeployedRules(data.undeployed_approved_versions || []);
-          setDeployedRules(data.deployed_rules || []);
-          setSelectedVersions(new Map());
-          setSelectedRules(new Set());
-        } catch (refreshError) {
-          console.error('Failed to refresh after deploy:', refreshError);
-        } finally {
-          setIsLoadingRules(false);
-        }
-      }
+      await refreshStats();
     } catch (error) {
       console.error('Deployment failed:', error);
       showAlert(`Deployment failed: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     }
   };
 
-  const handleRollback = (ruleKey: string) => showAlert(`Rolling back rule: ${ruleKey}`, 'info');
-  const handleViewLogs = (ruleKey: string) => showAlert(`Viewing logs for rule: ${ruleKey}`, 'info');
+  const handleRevoked = useCallback(async () => {
+    showAlert('Rule revoked successfully.', 'success');
+    await refreshStats();
+  }, [refreshStats, showAlert]);
+
+  const handleViewLogs = useCallback(() => setLogsOpen(true), []);
+
   const handleEnvironmentClick = (env: Environment | 'ALL') => setActiveEnvironment(env);
 
   return (
@@ -225,10 +225,17 @@ export default function DeployTabComponent() {
 
         <EnvironmentHistory
           rules={deployedRules}
-          onRollback={handleRollback}
+          onRevoked={handleRevoked}
           onViewLogs={handleViewLogs}
           environment={activeEnvironment === 'ALL' ? 'DEV' : activeEnvironment}
         />
+
+        <EnvironmentLogs
+          open={logsOpen}
+          environment={activeEnvironment === 'ALL' ? 'DEV' : activeEnvironment}
+          onClose={() => setLogsOpen(false)}
+        />
+
         <RcAlertComponent />
       </Box>
     </Box>

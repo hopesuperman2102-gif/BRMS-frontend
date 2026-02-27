@@ -48,6 +48,14 @@ export interface DeployRuleResponse {
   [key: string]: string | boolean | number | null | undefined;
 }
 
+export interface EnvironmentLog {
+  id: string;
+  content: string;
+  file_key: string;
+  environment: string;
+  created_at: string;
+}
+
 export const deployApi = {
   getDashboardSummary: async (vertical_key: string): Promise<DashboardSummary> => {
     const res = await axiosInstance.post<DashboardSummary>(
@@ -77,6 +85,29 @@ export const deployApi = {
     const res = await axiosInstance.post<DeployRuleResponse>(
       `${API_BASE_URL}/api/v1/bindings`,
       payload
+    );
+    return res.data;
+  },
+
+  revokeRule: async (rule_key: string, version: string, environment: string): Promise<void> => {
+    await axiosInstance.delete(
+      `${API_BASE_URL}/api/v1/bindings/${rule_key}/${version}/${environment}`
+    );
+  },
+
+  promoteRule: async (rule_key: string, target_env: string, current_env: string): Promise<void> => {
+  await axiosInstance.put(
+    `${API_BASE_URL}/api/v1/bindings/${rule_key}/${current_env}`,
+    {
+      SetEnvironment: target_env,
+      activated_by: 'super_admin', // TODO: replace with auth context user
+    }
+  );
+},
+
+getEnvironmentLogs: async (environment: string): Promise<EnvironmentLog[]> => {
+    const res = await axiosInstance.get<EnvironmentLog[]>(
+      `${API_BASE_URL}/api/v1/environment-logs/${environment}`
     );
     return res.data;
   },
