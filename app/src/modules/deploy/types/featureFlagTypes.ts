@@ -29,6 +29,7 @@ export interface DeployedRule {
   rule_name: string;
   version: string;
   environment: string;
+  deployable_env: string[];
 }
 
 export interface DeploymentHistory {
@@ -82,7 +83,7 @@ export interface EnvironmentConfig {
 // ActiveRules Props
 export interface ActiveRulesProps {
   rules: DeployedRule[];
-  onRollback: (ruleKey: string) => void;
+  onRevoked: () => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
   delay?: number;
@@ -137,7 +138,7 @@ export interface EnvironmentDeploymentProps {
 // EnvironmentHistory Props
 export interface EnvironmentHistoryProps {
   rules: DeployedRule[];
-  onRollback: (ruleKey: string) => void;
+  onRevoked: () => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
 }

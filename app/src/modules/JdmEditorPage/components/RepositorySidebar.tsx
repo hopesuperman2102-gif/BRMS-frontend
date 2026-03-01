@@ -30,6 +30,7 @@ export default function RepositorySidebar({
         backgroundColor: brmsTheme.colors.white,
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
       {/* Header */}
@@ -114,12 +115,13 @@ export default function RepositorySidebar({
         </Typography>
       </Box>
 
-      {/* Repo Tree */}
+      {/* Repo Tree  */}
       <Box 
         sx={{ 
           flex: 1, 
           overflowY: 'auto',
           backgroundColor: brmsTheme.colors.white,
+          minHeight: 0,
           '&::-webkit-scrollbar': {
             width: '6px',
           },
