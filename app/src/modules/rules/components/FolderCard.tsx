@@ -138,7 +138,7 @@ function FolderNameEditor({ folderName, onChange, onBlur, onKeyDown }: {
 
 /* ─── FolderCard ────────────────────────────────────────── */
 
-export function FolderCard({ item, isEditing, editingFolderName, onOpen, onMenuOpen, onNameChange, onNameBlur, onNameKeyDown }: FolderCardProps) {
+export function FolderCard({ item, isEditing, editingFolderName, onOpen, onMenuOpen, onNameChange, onNameBlur, onNameKeyDown, isReviewer = false }: FolderCardProps & { isReviewer?: boolean }) {
   return (
     <CardRoot
       isediting={String(isEditing)}
@@ -160,14 +160,16 @@ export function FolderCard({ item, isEditing, editingFolderName, onOpen, onMenuO
             <FolderName>{item.name}</FolderName>
           </CardInner>
 
-          <MenuButton
-            className="folder-action"
-            size="small"
-            onClick={(e) => { e.stopPropagation(); onMenuOpen(e); }}
-            disableRipple
-          >
-            <MoreVertIcon sx={{ fontSize: 16 }} />
-          </MenuButton>
+          {!isReviewer && (
+            <MenuButton
+              className="folder-action"
+              size="small"
+              onClick={(e) => { e.stopPropagation(); onMenuOpen(e); }}
+              disableRipple
+            >
+              <MoreVertIcon sx={{ fontSize: 16 }} />
+            </MenuButton>
+          )}
         </>
       )}
     </CardRoot>

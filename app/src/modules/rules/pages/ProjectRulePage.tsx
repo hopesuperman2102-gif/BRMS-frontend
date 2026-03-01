@@ -13,6 +13,7 @@ import { ConfirmDialogState, RuleResponse } from '../types/rulesTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 import RulesRightPanel from '../components/RulesRightPanel';
 import RulesLeftPanel from '../components/Rulesleftpanel';
+import { useRole } from 'app/src/modules/auth/useRole';
 
 const { colors, fonts } = brmsTheme;
 
@@ -91,6 +92,7 @@ export default function ProjectRulePage() {
   const { project_key, vertical_Key } = useParams<{ project_key: string; vertical_Key: string }>();
   const navigate = useNavigate();
   const { showAlert } = useAlertStore();
+  const { isReviewer } = useRole();
 
   const [projectName, setProjectName]   = useState('');
   const [verticalName, setVerticalName] = useState('');
@@ -380,6 +382,7 @@ export default function ProjectRulePage() {
             onMouseEnterFile={setHoveredRule}
             onMouseLeaveFile={() => setHoveredRule(null)}
             onBack={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
+            isReviewer={isReviewer}
           />
         </RootWrapper>
       </Box>

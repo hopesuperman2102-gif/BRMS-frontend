@@ -10,6 +10,7 @@ import { executionApi } from 'app/src/modules/JdmEditorPage/api/executionApi';
 import RepositorySidebar from './RepositorySidebar';
 import { JsonObject, RepoItem } from '../types/JdmEditorTypes';
 import RcAlertComponent from '../../../core/components/RcAlertComponent';
+import { useRole } from 'app/src/modules/auth/useRole';
 
 /* ---------- Same helper functions as ProjectRuleComponent ---------- */
 const splitPath = (path: string): string[] => path.split('/').filter(Boolean);
@@ -84,6 +85,7 @@ export default function JdmEditorWithSimulator() {
   }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { isReviewer } = useRole();
 
   const [items, setItems]                     = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId]           = useState<string | number | null>(null);
@@ -216,6 +218,7 @@ export default function JdmEditorWithSimulator() {
             openFiles={openFiles}
             setOpenFiles={setOpenFiles}
             onSimulatorRun={handleSimulatorRun}
+            isReviewer={isReviewer}
           />
         </Box>
       </Box>

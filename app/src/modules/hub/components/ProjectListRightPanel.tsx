@@ -18,7 +18,6 @@ import { brmsTheme } from "app/src/core/theme/brmsTheme";
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Styled Components ───────────────────────────────────── */
 const RightPanel = styled(Box)({
   flex: 1,
   background: colors.formBg,
@@ -274,7 +273,6 @@ const DeleteMenuItem = styled(MenuItem)({
   "&:hover": { backgroundColor: colors.errorBg },
 });
 
-/* ─── Component ───────────────────────────────────────────── */
 export default function ProjectListRightPanel({
   loading,
   paginatedProjects,
@@ -289,6 +287,7 @@ export default function ProjectListRightPanel({
   onDelete,
   onNewProject,
   onHoverProject,
+  isRuleAuthor = false,
 }: ProjectListRightPanelProps) {
   return (
     <RightPanel>
@@ -299,9 +298,11 @@ export default function ProjectListRightPanel({
           <RightTitle>All Projects</RightTitle>
           <RightSubtitle>Select a project to manage its rules</RightSubtitle>
         </Box>
-        <NewProjectButton variant="contained" onClick={onNewProject}>
-          + New Project
-        </NewProjectButton>
+        {!isRuleAuthor && (
+          <NewProjectButton variant="contained" onClick={onNewProject}>
+            + New Project
+          </NewProjectButton>
+        )}
       </RightHeader>
 
       {/* ─── List ─── */}
@@ -341,15 +342,17 @@ export default function ProjectListRightPanel({
                 </CardLeft>
                 <CardRight>
                   {project.domain && <DomainBadge>{project.domain}</DomainBadge>}
-                  <CardMenuButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMenuOpen(e, project);
-                    }}
-                  >
-                    <MoreVertIcon sx={{ fontSize: 16 }} />
-                  </CardMenuButton>
+                  {!isRuleAuthor && (
+                    <CardMenuButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMenuOpen(e, project);
+                      }}
+                    >
+                      <MoreVertIcon sx={{ fontSize: 16 }} />
+                    </CardMenuButton>
+                  )}
                 </CardRight>
               </ProjectCard>
             ))}
@@ -368,15 +371,17 @@ export default function ProjectListRightPanel({
         </PaginationRow>
       )}
 
-      {/* ─── Context Menu ─── */}
-      <StyledMenu
-        anchorEl={menuAnchorEl}
-        open={Boolean(menuAnchorEl)}
-        onClose={onMenuClose}
-      >
-        <EditMenuItem onClick={onEdit}>Edit</EditMenuItem>
-        <DeleteMenuItem onClick={onDelete}>Delete</DeleteMenuItem>
-      </StyledMenu>
+      {/* ─── Context Menu (hidden for RULE_AUTHOR) ─── */}
+      {!isRuleAuthor && (
+        <StyledMenu
+          anchorEl={menuAnchorEl}
+          open={Boolean(menuAnchorEl)}
+          onClose={onMenuClose}
+        >
+          <EditMenuItem onClick={onEdit}>Edit</EditMenuItem>
+          <DeleteMenuItem onClick={onDelete}>Delete</DeleteMenuItem>
+        </StyledMenu>
+      )}
     </RightPanel>
   );
 }

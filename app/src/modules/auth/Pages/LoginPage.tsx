@@ -11,7 +11,7 @@ import LoginRightPanel from '../components/Loginrightpanel';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setAccessToken, setIsAuthenticated } = useAuth();
+  const { setAccessToken, setIsAuthenticated, setRoles } = useAuth();
 
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -33,9 +33,13 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const accessToken = await loginApi({ username: formData.username, password: formData.password });
+      const { accessToken, roles } = await loginApi({
+        username: formData.username,
+        password: formData.password,
+      });
       setAccessToken(accessToken);
       setIsAuthenticated(true);
+      setRoles(roles);
       navigate('/vertical');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');

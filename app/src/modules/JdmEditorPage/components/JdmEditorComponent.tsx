@@ -19,12 +19,14 @@ const JdmConfigProvider = dynamic(
 
 interface JdmEditorComponentProps extends JdmEditorProps {
   onSimulatorRun?: (jdm: JdmEditorProps['value'], context: JsonObject) => Promise<ExecuteResponse>;
+  isReviewer?: boolean;
 }
 
 export default function JdmEditorComponent({
   value,
   onChange,
   onSimulatorRun,
+  isReviewer = false,
 }: JdmEditorComponentProps) {
   const handleSimulationRun = async (context: JsonObject): Promise<ExecuteResponse> => {
     console.log('Running simulation with context:', context);
@@ -54,7 +56,8 @@ export default function JdmEditorComponent({
       <div style={{ width: '100%', height: '100%' }}>
         <DecisionGraph
           value={value}
-          onChange={onChange}
+          onChange={isReviewer ? () => {} : onChange}
+          disabled={isReviewer}
           panels={[
             {
               id: 'simulator',

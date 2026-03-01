@@ -20,6 +20,7 @@ import '../../modules/UserLifecycle/routes';
 import { AuthProvider, useAuth } from 'app/src/modules/auth/Authcontext';
 import { refreshApi } from 'app/src/modules/auth/Authservice';
 import { useBindAuth } from 'app/src/modules/auth/Usebindauth';
+import { getCurrentUserApi } from 'app/src/modules/auth/UserService';
 
 function RouteWrapper({ route }: { route: AppRoute }) {
   const Element = route.element as React.ComponentType<unknown>;
@@ -62,42 +63,45 @@ function renderRoutes(routes: AppRoute[]): React.ReactNode {
 
 function AppRouterInner() {
   const routes = getRegisteredRoutes();
-  const { setAccessToken, setIsAuthenticated, isAuthenticated } = useAuth();
+  const { setAccessToken, setIsAuthenticated, isAuthenticated, setRoles } = useAuth();
   const [isReady, setIsReady] = useState(false);
 
   useBindAuth();
 
   useEffect(() => {
     async function init() {
-      // If user is on login page — skip refresh entirely
-      // Tokens do not exist yet before login
-      // Skip refresh on login page OR on root path (before redirect happens)
       const path = window.location.pathname;
       if (path === '/login' || path === '/') {
         setAccessToken(null);
         setIsAuthenticated(false);
+        setRoles([]);
         setIsReady(true);
         return;
       }
 
-      // Any other page — user was previously logged in
-      // Browser sends httpOnly cookie automatically, backend returns new access_token
       const accessToken = await refreshApi();
 
       if (accessToken) {
         setAccessToken(accessToken);
         setIsAuthenticated(true);
+        // Restore roles on refresh — fetch from API
+        try {
+          const user = await getCurrentUserApi();
+          setRoles(user.roles ?? []);
+        } catch {
+          setRoles([]);
+        }
       } else {
-        // Cookie expired or missing — redirect to login
         setAccessToken(null);
         setIsAuthenticated(false);
+        setRoles([]);
       }
 
       setIsReady(true);
     }
 
     init();
-  }, [setAccessToken, setIsAuthenticated]);
+  }, [setAccessToken, setIsAuthenticated, setRoles]);
 
   if (!isReady) {
     return (

@@ -238,7 +238,7 @@ export default function CreateUserLeftPanel({ newUser }: CreateUserLeftPanelProp
     'Actions': (
       <IconButton
         size="small"
-        onClick={(e) => handleMenuOpen(e as any, user.id)}
+        onClick={(e) => handleMenuOpen(e as React.MouseEvent<HTMLElement>, user.id)}
         sx={{
           color: '#ffffff',
           backgroundColor: '#ffffff',

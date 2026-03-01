@@ -7,8 +7,6 @@ export type ProjectListProps = {
   updatedAt: string;
 };
 
-// rules tables api endpoints types
-
 export interface ProjectView {
   id: string;
   project_key: string;
@@ -26,8 +24,6 @@ export interface VerticalProjectsResponse {
   status: string;
   projects: ProjectView[];
 }
-
-//Project list left panel types
 
 export interface ProjectListLeftPanelProps {
   projects: ProjectListProps[];
@@ -48,4 +44,6 @@ export interface ProjectListRightPanelProps {
   onDelete: () => void;
   onNewProject: () => void;
   onHoverProject: (project: ProjectListProps | null) => void;
+  /** When true, hides the context menu (Edit/Delete) and New Project button */
+  isRuleAuthor?: boolean;
 }
