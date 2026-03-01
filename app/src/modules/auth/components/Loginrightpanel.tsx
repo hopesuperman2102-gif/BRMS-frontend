@@ -2,21 +2,13 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  InputAdornment,
-  IconButton,
-} from '@mui/material';
+import { Box, Typography, Button, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
+import RcInputField from 'app/src/core/components/RcInputField';
+import RcPasswordField from 'app/src/core/components/RcPasswordField';
 
 const { colors, fonts } = brmsTheme;
 
@@ -210,7 +202,6 @@ export default function LoginRightPanel({
   onSubmit,
 }: LoginRightPanelProps) {
   const [focused, setFocused] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <RightPanelRoot sx={{ px: { xs: '24px', sm: '48px', lg: '72px' } }}>
@@ -230,25 +221,20 @@ export default function LoginRightPanel({
 
         <Box component="form" onSubmit={onSubmit}>
           <FieldsWrapper>
+
             {/* Username */}
             <Box>
               <Label required>Username</Label>
-              <TextField
-                fullWidth
+              <RcInputField
                 name="username"
-                placeholder="your username"
                 value={formData.username}
                 onChange={onChange}
                 onFocus={() => setFocused('username')}
                 onBlur={() => setFocused(null)}
+                placeholder="your username"
                 autoComplete="username"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />
-                    </InputAdornment>
-                  ),
-                }}
+                maxLength={30}
+                startIcon={<PersonIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
                 sx={inputSx(focused === 'username')}
               />
             </Box>
@@ -256,38 +242,20 @@ export default function LoginRightPanel({
             {/* Password */}
             <Box>
               <Label required>Password</Label>
-              <TextField
-                fullWidth
+              <RcPasswordField
                 name="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
                 value={formData.password}
                 onChange={onChange}
                 onFocus={() => setFocused('password')}
                 onBlur={() => setFocused(null)}
+                placeholder="••••••••"
                 autoComplete="current-password"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        disableRipple
-                        sx={{ color: colors.lightTextLow, mr: '-4px' }}
-                      >
-                        {showPassword ? <VisibilityOff sx={{ fontSize: '16px' }} /> : <Visibility sx={{ fontSize: '16px' }} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
+                maxLength={30}
+                startIcon={<LockIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
                 sx={inputSx(focused === 'password')}
               />
             </Box>
+
           </FieldsWrapper>
 
           {/* Forgot password */}
@@ -317,13 +285,7 @@ export default function LoginRightPanel({
 
           {/* Sign up link */}
           <Box sx={{ textAlign: 'center', mt: '20px' }}>
-            <Typography
-              sx={{
-                fontSize: '0.8125rem',
-                color: colors.lightTextMid,
-                fontFamily: fonts.mono,
-              }}
-            >
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.lightTextMid, fontFamily: fonts.mono }}>
               Don&apos;t have an account?{' '}
               <Typography
                 component={Link}

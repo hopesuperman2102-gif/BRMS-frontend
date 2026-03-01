@@ -1,4 +1,3 @@
-// src/api/apiClient.ts
 
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ENV } from '../config/env';

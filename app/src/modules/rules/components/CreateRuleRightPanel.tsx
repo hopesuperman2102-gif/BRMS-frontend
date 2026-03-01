@@ -1,10 +1,12 @@
 'use client';
 
-import { Box, Typography, TextField, Button, Alert } from '@mui/material';
+import { Box, Typography, Button, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { CreateRuleRightPanelProps } from '../types/rulesTypes';
+import RcTextArea from 'app/src/core/components/RcTextArea';
+import RcInputField from 'app/src/core/components/RcInputField';
 
 const { colors, fonts } = brmsTheme;
 
@@ -308,28 +310,33 @@ export default function CreateRuleRightPanel({
           {/* Rule name */}
           <FieldBlock>
             <Label required>Rule Name</Label>
-            <TextField
-              fullWidth
+            <RcInputField
+              name="name"
               placeholder="e.g. Eligibility Check"
               value={form.name}
               onChange={(e) => onFormChange('name', e.target.value)}
               onFocus={() => onFocus('name')}
               onBlur={onBlur}
-              onKeyDown={(e) => { if (e.key === 'Enter') void onSubmit(); }}
+              maxLength={30}
               sx={inputSx(focused === 'name')}
             />
+            <CharCount overlimit={false}>
+              {form.name.length}/100
+            </CharCount>
           </FieldBlock>
 
           {/* Description */}
           <FieldBlock>
             <Label>Description</Label>
-            <TextField
-              fullWidth multiline rows={3}
+            <RcTextArea
+              name="description"
               placeholder="Describe what this rule evaluates or decides…"
               value={form.description}
               onChange={(e) => onFormChange('description', e.target.value)}
               onFocus={() => onFocus('description')}
               onBlur={onBlur}
+              maxLength={300}
+              rows={3}
               sx={inputSx(focused === 'description')}
             />
             <CharCount overlimit={form.description.length > 300}>

@@ -149,3 +149,41 @@ export interface RcEmailProps {
   onFocus?: () => void;
   onBlur?: () => void;
 }
+
+export interface RcInputProps {
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  autoComplete?: string;
+  maxLength?: number;
+  startIcon?: React.ReactNode;
+  sx?: SxProps<Theme>;
+}
+
+export interface RcPasswordProps {
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  autoComplete?: string;
+  maxLength?: number;
+  startIcon?: React.ReactNode;
+  sx?: SxProps<Theme>;
+}
+
+export interface RcTextAreaProps {
+  name?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  maxLength?: number;
+  rows?: number;
+  sx?: SxProps<Theme>;
+}

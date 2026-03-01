@@ -1,17 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-} from '@mui/material';
+import { Box, Typography, Button, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { CreateProjectRightPanelProps } from '../types/createPageTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import RcTextArea from 'app/src/core/components/RcTextArea';
+import RcInputField from 'app/src/core/components/RcInputField';
 
 const { colors, fonts } = brmsTheme;
 
@@ -316,30 +312,33 @@ export default function CreateProjectRightPanel({
           {/* Project name */}
           <Box>
             <Label required>Project Name</Label>
-            <TextField
-              fullWidth
+            <RcInputField
+              name="name"
               placeholder="e.g. Risk Assessment Engine"
               value={form.name}
               onChange={(e) => onFieldChange('name', e.target.value)}
               onFocus={() => setFocused('name')}
               onBlur={() => setFocused(null)}
-              onKeyDown={(e) => { if (e.key === 'Enter') void onSubmit(); }}
+              maxLength={50}
               sx={inputSx(focused === 'name')}
             />
+            <CharCount overlimit={false}>
+              {form.name.length}/100
+            </CharCount>
           </Box>
 
           {/* Description */}
           <Box>
             <Label>Description</Label>
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
+            <RcTextArea
+              name="description"
               placeholder="Briefly describe the purpose and goals of this project…"
               value={form.description}
               onChange={(e) => onFieldChange('description', e.target.value)}
               onFocus={() => setFocused('description')}
               onBlur={() => setFocused(null)}
+              maxLength={300}
+              rows={3}
               sx={inputSx(focused === 'description')}
             />
             <CharCount overlimit={form.description.length > 300}>
@@ -350,13 +349,14 @@ export default function CreateProjectRightPanel({
           {/* Domain */}
           <Box>
             <Label>Domain</Label>
-            <TextField
-              fullWidth
+            <RcInputField
+              name="domain"
               placeholder="e.g. finance, healthcare, retail"
               value={form.domain}
               onChange={(e) => onFieldChange('domain', e.target.value)}
               onFocus={() => setFocused('domain')}
               onBlur={() => setFocused(null)}
+              maxLength={30}
               sx={inputSx(focused === 'domain')}
             />
             <FieldHint>
