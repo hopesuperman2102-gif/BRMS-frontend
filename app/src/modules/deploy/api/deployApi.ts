@@ -96,19 +96,20 @@ export const deployApi = {
   },
 
   promoteRule: async (rule_key: string, target_env: string, current_env: string): Promise<void> => {
-  await axiosInstance.put(
-    `${API_BASE_URL}/api/v1/bindings/${rule_key}/${current_env}`,
-    {
-      SetEnvironment: target_env,
-      activated_by: 'super_admin', // TODO: replace with auth context user
-    }
-  );
-},
+    await axiosInstance.put(
+      `${API_BASE_URL}/api/v1/bindings/${rule_key}/${current_env}`,
+      {
+        SetEnvironment: target_env,
+        activated_by: 'super_admin',
+      }
+    );
+  },
 
-getEnvironmentLogs: async (environment: string): Promise<EnvironmentLog[]> => {
-    const res = await axiosInstance.get<EnvironmentLog[]>(
+  getEnvironmentLogs: async (environment: string): Promise<EnvironmentLog[]> => {
+    const res = await axiosInstance.get(
       `${API_BASE_URL}/api/v1/environment-logs/${environment}`
     );
-    return res.data;
+    const payload = res.data;
+    return Array.isArray(payload) ? payload : payload.logs ?? payload.data ?? [];
   },
 };

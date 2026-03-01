@@ -73,9 +73,9 @@ const HubPage = () => {
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
   const [verticalName, setVerticalName] = useState<string>('');
-  const { isRuleAuthor, isReviewer, roles } = useRole();
+  const { isRuleAuthor, isReviewer, isViewer, roles } = useRole();
 
-  console.log('DEBUG ROLES:', roles, '| isRuleAuthor:', isRuleAuthor, '| isReviewer:', isReviewer);
+  console.log('DEBUG ROLES:', roles, '| isRuleAuthor:', isRuleAuthor, '| isReviewer:', isReviewer, '| isViewer:', isViewer);
 
   useEffect(() => {
     if (!vertical_Key) return;
@@ -98,7 +98,7 @@ const HubPage = () => {
     return () => controller.abort();
   }, [vertical_Key]);
 
-  const visibleTabs = isRuleAuthor
+  const visibleTabs = isRuleAuthor || isViewer
     ? [{ label: 'Projects', content: <ProjectList /> }]
     : isReviewer
     ? [

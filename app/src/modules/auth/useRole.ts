@@ -10,6 +10,7 @@ export function useRole() {
   const isSuperAdmin = hasRole('SUPER_ADMIN');
   const isAdmin = hasRole('ADMIN');
   const isReviewer = hasRole('REVIEWER');
+  const isViewer = hasRole('VIEWER');
 
   return {
     roles,
@@ -18,5 +19,6 @@ export function useRole() {
     isSuperAdmin,
     isAdmin,
     isReviewer,
+    isViewer,
   };
 }

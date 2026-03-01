@@ -85,7 +85,7 @@ export default function JdmEditorWithSimulator() {
   }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isReviewer } = useRole();
+  const { isReviewer, isViewer } = useRole();
 
   const [items, setItems]                     = useState<RepoItem[]>([]);
   const [selectedId, setSelectedId]           = useState<string | number | null>(null);
@@ -99,19 +99,15 @@ export default function JdmEditorWithSimulator() {
 
     const fetchRules = async () => {
       try {
-        // Single call returns vertical_name, project_name, and rules with versions embedded
         const { project_name, rules } = await rulesApi.getProjectRules(project_key, vertical_Key);
 
-        // Set project name from the same response — no separate projectsApi call needed
         if (project_name) setProjectName(project_name);
 
-        // Filter out DELETED rules
         const activeRules = rules.filter((r) => r.status?.toUpperCase() !== 'DELETED');
 
         const treeItems = buildTreeStructure(activeRules);
         setItems(treeItems);
 
-        // Auto-expand all folders
         const allFolderIds = new Set<string | number>();
         const collectFolderIds = (items: RepoItem[]) => {
           items.forEach((item) => {
@@ -124,8 +120,7 @@ export default function JdmEditorWithSimulator() {
         collectFolderIds(treeItems);
         setExpandedFolders(allFolderIds);
 
-        // Auto-select rule from URL or sessionStorage
-        const ruleFromUrl   = searchParams.get('rule');
+        const ruleFromUrl    = searchParams.get('rule');
         const ruleIdToSelect = ruleFromUrl || sessionStorage.getItem('activeRuleId');
 
         if (ruleIdToSelect) {
@@ -218,7 +213,7 @@ export default function JdmEditorWithSimulator() {
             openFiles={openFiles}
             setOpenFiles={setOpenFiles}
             onSimulatorRun={handleSimulatorRun}
-            isReviewer={isReviewer}
+            isReviewer={isReviewer || isViewer}
           />
         </Box>
       </Box>

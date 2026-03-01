@@ -108,7 +108,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
     }
   }, [loading, logs]);
 
-  const allLines = logs.flatMap((entry) =>
+  const allLines = (Array.isArray(logs) ? logs : []).flatMap((entry) =>
     entry.content.split('\n').filter((l) => l.trim()).map(parseLogLine).filter(Boolean) as ParsedLogLine[]
   );
 
@@ -124,7 +124,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           width: { xs: '100vw', sm: 680 },
           display: 'flex',
           flexDirection: 'column',
-          bgcolor: '#0f172a',  // dark terminal background
+          bgcolor: '#0f172a',
         },
       }}
     >

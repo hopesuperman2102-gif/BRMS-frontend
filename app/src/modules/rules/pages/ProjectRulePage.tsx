@@ -92,7 +92,7 @@ export default function ProjectRulePage() {
   const { project_key, vertical_Key } = useParams<{ project_key: string; vertical_Key: string }>();
   const navigate = useNavigate();
   const { showAlert } = useAlertStore();
-  const { isReviewer } = useRole();
+  const { isReviewer, isViewer } = useRole();
 
   const [projectName, setProjectName]   = useState('');
   const [verticalName, setVerticalName] = useState('');
@@ -382,7 +382,7 @@ export default function ProjectRulePage() {
             onMouseEnterFile={setHoveredRule}
             onMouseLeaveFile={() => setHoveredRule(null)}
             onBack={() => navigate(`/vertical/${vertical_Key}/dashboard/hub`)}
-            isReviewer={isReviewer}
+            isReviewer={isReviewer || isViewer}
           />
         </RootWrapper>
       </Box>
