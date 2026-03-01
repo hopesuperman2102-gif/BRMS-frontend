@@ -9,7 +9,7 @@ import { ProjectListProps } from "../types/projectListTypes";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
 import ProjectListLeftPanel from "./ProjectListLeftPanel";
 import ProjectListRightPanel from "./ProjectListRightPanel";
-import { useRole } from "app/src/modules/auth/useRole";
+import { useRole } from "app/src/modules/auth/hooks/useRole";
 
 const { colors, fonts } = brmsTheme;
 

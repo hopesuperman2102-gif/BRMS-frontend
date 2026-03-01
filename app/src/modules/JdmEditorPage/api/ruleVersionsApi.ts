@@ -1,7 +1,7 @@
 
 import { ENV } from '../../../config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import axiosInstance from '../../auth/Axiosinstance';
+import axiosInstance from '../../auth/http/Axiosinstance';
 
 const BASE_URL = ENV.API_BASE_URL;
 

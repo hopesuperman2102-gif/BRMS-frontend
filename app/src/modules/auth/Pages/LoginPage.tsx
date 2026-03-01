@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
-import { useAuth } from '../Authcontext';
-import { loginApi } from '../Authservice';
+import { useAuth } from '../context/Authcontext';
+import { loginApi } from '../services/Authservice';
 import LoginLeftPanel from '../components/Loginleftpanel';
 import LoginRightPanel from '../components/Loginrightpanel';
 

@@ -1,5 +1,5 @@
 import { ENV } from '../../../config/env';
-import axiosInstance from '../../auth/Axiosinstance';
+import axiosInstance from '../../auth/http/Axiosinstance';
 
 
 export interface VerticalView {

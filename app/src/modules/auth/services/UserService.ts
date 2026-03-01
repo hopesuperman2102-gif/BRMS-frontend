@@ -1,5 +1,6 @@
 import { ENV } from "app/src/config/env";
-import axiosInstance from "./Axiosinstance";
+import axiosInstance from "../http/Axiosinstance";
+
 
 const BASE_URL = ENV.API_BASE_URL;
 

@@ -13,7 +13,7 @@ import { ConfirmDialogState, RuleResponse } from '../types/rulesTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 import RulesRightPanel from '../components/RulesRightPanel';
 import RulesLeftPanel from '../components/Rulesleftpanel';
-import { useRole } from 'app/src/modules/auth/useRole';
+import { useRole } from 'app/src/modules/auth/hooks/useRole';
 
 const { colors, fonts } = brmsTheme;
 

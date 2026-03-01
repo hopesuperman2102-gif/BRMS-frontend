@@ -29,10 +29,10 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { AppBarComponentProps } from "../types/commonTypes";
 import SectionHeader from "./SectionHeader";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUserApi, LoggedInUser } from "../../modules/auth/UserService";
-import { useAuth } from "../../modules/auth/Authcontext";
-import { logoutApi } from "../../modules/auth/Authservice";
-import { useRole } from "../../modules/auth/useRole";
+import { useAuth } from "../../modules/auth/context/Authcontext";
+import { logoutApi } from "../../modules/auth/services/Authservice";
+import { useRole } from "../../modules/auth/hooks/useRole";
+import { getCurrentUserApi, LoggedInUser } from "app/src/modules/auth/services/UserService";
 
 const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationName }) => {
   const navigate = useNavigate();

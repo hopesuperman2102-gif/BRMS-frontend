@@ -17,10 +17,10 @@ import '../../modules/JdmEditorPage/routes';
 import '../../modules/vertical/routes';
 import '../../modules/dashboard/routes';
 import '../../modules/UserLifecycle/routes';
-import { AuthProvider, useAuth } from 'app/src/modules/auth/Authcontext';
-import { refreshApi } from 'app/src/modules/auth/Authservice';
-import { useBindAuth } from 'app/src/modules/auth/Usebindauth';
-import { getCurrentUserApi } from 'app/src/modules/auth/UserService';
+import { AuthProvider, useAuth } from 'app/src/modules/auth/context/Authcontext';
+import { refreshApi } from 'app/src/modules/auth/services/Authservice';
+import { useBindAuth } from 'app/src/modules/auth/hooks/Usebindauth';
+import { getCurrentUserApi } from 'app/src/modules/auth/services/UserService';
 
 function RouteWrapper({ route }: { route: AppRoute }) {
   const Element = route.element as React.ComponentType<unknown>;

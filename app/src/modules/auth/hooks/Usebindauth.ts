@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { bindAuthToAxios } from './Axiosinstance';
-import { useAuth } from './Authcontext';
+import { useAuth } from '../context/Authcontext';
+import { bindAuthToAxios } from '../http/Axiosinstance';
 
 /**
  * useBindAuth

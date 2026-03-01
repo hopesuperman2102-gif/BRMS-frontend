@@ -1,6 +1,6 @@
 import { ENV } from '../../../config/env';
+import axiosInstance from '../../auth/http/Axiosinstance';
 import { ProjectView, VerticalProjectsResponse } from '../types/projectListTypes';
-import axiosInstance from '../../auth/Axiosinstance';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 

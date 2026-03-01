@@ -1,4 +1,4 @@
-import { useAuth } from './Authcontext';
+import { useAuth } from '../context/Authcontext';
 
 export function useRole() {
   const { roles } = useAuth();

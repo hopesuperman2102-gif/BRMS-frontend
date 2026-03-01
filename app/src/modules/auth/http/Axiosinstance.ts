@@ -1,7 +1,8 @@
+import { ENV } from 'app/src/config/env';
 import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { ENV } from '../../config/env';
-import { logoutApi, refreshApi } from './Authservice';
+import { logoutApi, refreshApi } from '../services/Authservice';
+
 
 
 // These are set from AuthContext after login/refresh

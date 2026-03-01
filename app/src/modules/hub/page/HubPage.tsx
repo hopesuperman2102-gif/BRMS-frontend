@@ -10,7 +10,7 @@ import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import ProjectList from '../components/ProjectListCard';
 import RulesTable from '../components/RulesTable';
-import { useRole } from 'app/src/modules/auth/useRole';
+import { useRole } from 'app/src/modules/auth/hooks/useRole';
 
 const { colors, gradients } = brmsTheme;
 
