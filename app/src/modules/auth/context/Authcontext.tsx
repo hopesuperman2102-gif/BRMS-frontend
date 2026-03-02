@@ -1,13 +1,5 @@
 import React, { createContext, useContext, useRef, useState, useCallback } from 'react';
-
-interface AuthContextType {
-  getAccessToken: () => string | null;
-  setAccessToken: (token: string | null) => void;
-  isAuthenticated: boolean;
-  setIsAuthenticated: (value: boolean) => void;
-  roles: string[];
-  setRoles: (roles: string[]) => void;
-}
+import { AuthContextType } from '../types/authTypes';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 

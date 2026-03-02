@@ -3,15 +3,9 @@ import AccountTreeOutlined from '@mui/icons-material/AccountTreeOutlined';
 import RuleOutlined from '@mui/icons-material/RuleOutlined';
 import ToggleOnSharp from '@mui/icons-material/ToggleOnSharp';
 import PendingActionsRounded from '@mui/icons-material/PendingActionsRounded';
+import { StatsProps } from '../types/dashboardTypes';
 
-interface Props {
-  totalActiveProjects: number;
-  totalRules: number;
-  activeRules: number;
-  pendingRules: number;
-}
-
-const Stats = ({ totalActiveProjects, totalRules, activeRules, pendingRules }: Props) => {
+const Stats = ({ totalActiveProjects, totalRules, activeRules, pendingRules }: StatsProps) => {
   const stats = [
     {
       title: 'Total Projects',

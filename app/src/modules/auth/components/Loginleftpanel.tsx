@@ -7,8 +7,6 @@ import { brmsTheme } from '../../../core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Styled Components ───────────────────────────────────── */
-
 const LeftPanelRoot = styled(Box)({
   display: 'none',
   '@media (min-width: 1200px)': { display: 'flex' },
@@ -149,16 +147,12 @@ const FeatureText = styled(Typography)({
   letterSpacing: '0.01em',
 });
 
-/* ─── Feature Item ────────────────────────────────────────── */
-
 const Feature = ({ children, last }: { children: string; last?: boolean }) => (
   <FeatureRow last={last}>
     <FeatureDot />
     <FeatureText>{children}</FeatureText>
   </FeatureRow>
 );
-
-/* ─── Component ───────────────────────────────────────────── */
 
 export default function LoginLeftPanel() {
   return (
@@ -184,7 +178,8 @@ export default function LoginLeftPanel() {
           <Headline>{'Welcome\nback.'}</Headline>
 
           <SubCopy>
-            Sign in to manage your rule sets, collaborate with your team, and keep your business logic on track.
+            Sign in to manage your rule sets, collaborate with your team,
+            and keep your business logic on track.
           </SubCopy>
 
           <Box>

@@ -4,13 +4,7 @@ import React, { useMemo } from "react";
 import { Box, Typography, Select, MenuItem } from "@mui/material";
 import { RcCard } from "app/src/core/components/RcCard";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
-import { MonthlyData } from "../api/dashboardApi";
-
-interface Props {
-  data: MonthlyData[];
-  selectedYear: number;
-  onYearChange: (year: number) => void;
-}
+import { DeployedRuleProps } from "../types/dashboardTypes";
 
 const getBarColor = (index: number): string => {
   const colors = ["#1976d2", "#2196f3", "#42a5f5"];
@@ -20,7 +14,7 @@ const getBarColor = (index: number): string => {
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const DeployedRulesChart: React.FC<Props> = ({ data, selectedYear, onYearChange }) => {
+const DeployedRulesChart: React.FC<DeployedRuleProps> = ({ data, selectedYear, onYearChange }) => {
   const currentYear = 2026;
 
   // Generate years from 2026 to 2051 (26 years total)

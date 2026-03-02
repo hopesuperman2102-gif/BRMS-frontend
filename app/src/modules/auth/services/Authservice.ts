@@ -1,22 +1,7 @@
 import { ENV } from "app/src/config/env";
+import { LoginRequest, LoginResponse, LoginResult } from "../types/authTypes";
 
 const BASE_URL = ENV.API_BASE_URL;
-
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  access_token: string;
-  token_type: string;
-  roles: string[];
-}
-
-export interface LoginResult {
-  accessToken: string;
-  roles: string[];
-}
 
 export async function loginApi(credentials: LoginRequest): Promise<LoginResult> {
   const response = await fetch(`${BASE_URL}/api/v1/auth/login`, {

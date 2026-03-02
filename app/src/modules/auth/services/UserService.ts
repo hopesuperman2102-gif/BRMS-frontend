@@ -1,24 +1,9 @@
 import { ENV } from "app/src/config/env";
 import axiosInstance from "../http/Axiosinstance";
+import { LoggedInUser, UserResponse } from "../types/authTypes";
 
 
 const BASE_URL = ENV.API_BASE_URL;
-
-export interface UserResponse {
-  id: string;
-  username: string;
-  email: string;
-  status: string;
-  roles: string[];
-}
-
-export interface LoggedInUser {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  roles: string[];
-}
 
 export async function getCurrentUserApi(): Promise<LoggedInUser> {
   try {

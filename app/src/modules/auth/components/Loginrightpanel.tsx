@@ -9,10 +9,10 @@ import LockIcon from '@mui/icons-material/Lock';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 import RcInputField from 'app/src/core/components/RcInputField';
 import RcPasswordField from 'app/src/core/components/RcPasswordField';
+import { LoginRightPanelProps } from '../types/authTypes';
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Input style factory ─────────────────────────────────── */
 const inputSx = (focused: boolean) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '6px',
@@ -43,8 +43,6 @@ const inputSx = (focused: boolean) => ({
     },
   },
 });
-
-/* ─── Styled Components ───────────────────────────────────── */
 
 const RightPanelRoot = styled(Box)({
   flex: 1,
@@ -147,8 +145,6 @@ const SubmitButton = styled(Button)({
   transition: 'all 0.15s',
 });
 
-/* ─── Label ───────────────────────────────────────────────── */
-
 const LabelWrapper = styled(Box)({
   display: 'flex',
   alignItems: 'center',
@@ -181,18 +177,6 @@ const Label = ({ children, required }: { children: React.ReactNode; required?: b
     {required && <RequiredBadge>required</RequiredBadge>}
   </LabelWrapper>
 );
-
-/* ─── Props ───────────────────────────────────────────────── */
-
-interface LoginRightPanelProps {
-  formData: { username: string; password: string };
-  loading: boolean;
-  error: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
-}
-
-/* ─── Component ───────────────────────────────────────────── */
 
 export default function LoginRightPanel({
   formData,

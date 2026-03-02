@@ -4,9 +4,10 @@ import { Box, IconButton, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardHeader from "../components/DashboardHeader";
 import StatsSection from "../components/Stats";
-import { dashboardApi, DashboardSummary } from '../api/dashboardApi';
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { DashboardSummary } from '../types/dashboardTypes';
+import { dashboardApi } from '../api/dashboardApi';
 
 const { colors } = brmsTheme;
 

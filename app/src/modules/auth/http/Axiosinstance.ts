@@ -3,8 +3,6 @@ import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { logoutApi, refreshApi } from '../services/Authservice';
 
-
-
 // These are set from AuthContext after login/refresh
 // We use a module-level getter/setter so axiosInstance can access React state
 let getTokenFn: (() => string | null) | null = null;

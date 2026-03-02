@@ -4,15 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Box, Typography, Select, MenuItem } from "@mui/material";
 import { RcCard } from "app/src/core/components/RcCard";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
-import { MonthlyData } from "../api/dashboardApi";
-
-
-interface Props {
-  data: MonthlyData[];
-  selectedYear: number;
-  onYearChange: (year: number) => void;
-  height?: number;
-}
+import { RulesCreatedChartProps } from "../types/dashboardTypes";
 
 const getBarColor = (index: number): string => {
   const colors = ["#6552D0", "#7B6AE0", "#9182F0"];
@@ -22,7 +14,7 @@ const getBarColor = (index: number): string => {
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const RulesCreatedChart: React.FC<Props> = ({ data, selectedYear, onYearChange, height = 200 }) => {
+const RulesCreatedChart: React.FC<RulesCreatedChartProps> = ({ data, selectedYear, onYearChange, height = 200 }) => {
   const currentYear = new Date().getFullYear();
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
 
