@@ -91,7 +91,7 @@ const VerticalCard = styled(Box)<{ isHovered: boolean }>(({ isHovered }) => ({
 
 const VerticalInfo = styled(Box)({});
 
-const VerticalName = styled(Typography)<{ isHovered: boolean }>(({ isHovered }) => ({
+const VerticalName = styled(Typography)<{ isHovered: boolean }>(({ }) => ({
   fontWeight: 700,
   fontSize: '0.9375rem',
   letterSpacing: '-0.01em',
