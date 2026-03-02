@@ -483,6 +483,7 @@ export default function RcLeftPanel({
               </BackButtonWrapper>
             ) : null}
 
+            {(badge || headline || heroCopy || (features && features.length > 0) || count) && (
             <HeroCopy>
               {badge && (
                 <BadgeRow>
@@ -521,6 +522,7 @@ export default function RcLeftPanel({
                 </CountRow>
               )}
             </HeroCopy>
+            )}
           </>
         )}
 

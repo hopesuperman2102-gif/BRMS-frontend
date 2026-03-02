@@ -11,11 +11,12 @@ import { styled } from "@mui/material/styles";
 import { brmsTheme } from '../theme/brmsTheme';
 import { RcTableProps } from "../types/commonTypes";
 
+const { colors } = brmsTheme;
 
 // ---------------- STYLED COMPONENTS ----------------
 
 const StyledTableContainer = styled(TableContainer)({
-  backgroundColor: brmsTheme.colors.white,
+  backgroundColor: 'transparent',
   boxShadow: "none",
   borderRadius: 12,
   overflowX: "auto",
@@ -23,20 +24,20 @@ const StyledTableContainer = styled(TableContainer)({
 });
 
 const StyledTableHead = styled(TableHead)({
-  backgroundColor: brmsTheme.colors.lightSurfaceHover,
+  backgroundColor: 'rgba(255,255,255,0.04)',
 });
 
 const StyledTableCell = styled(TableCell)({
-  borderTop: `1px solid ${brmsTheme.colors.lightBorder}`,
-  borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
+  borderTop: `1px solid ${colors.panelBorder}`,
+  borderBottom: `1px solid ${colors.panelBorder}`,
   padding: "10px 16px",
   "&:first-of-type": {
-    borderLeft: `1px solid ${brmsTheme.colors.lightBorder}`,
+    borderLeft: `1px solid ${colors.panelBorder}`,
     borderTopLeftRadius: 12,
     borderBottomLeftRadius: 12,
   },
   "&:last-of-type": {
-    borderRight: `1px solid ${brmsTheme.colors.lightBorder}`,
+    borderRight: `1px solid ${colors.panelBorder}`,
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
   },
@@ -46,14 +47,13 @@ const StyledTableRow = styled(TableRow, {
   shouldForwardProp: (prop) => prop !== "selected",
 })<{ selected?: boolean }>(({ selected }) => ({
   backgroundColor: selected
-    ? brmsTheme.colors.primaryGlowSoft
-    : brmsTheme.colors.white,
+    ? colors.panelIndigoTint15
+    : 'transparent',
   cursor: "pointer",
-
   "&:hover": {
     backgroundColor: selected
-      ? brmsTheme.colors.primaryGlowSoft
-      : brmsTheme.colors.lightSurfaceHover,
+      ? colors.panelIndigoTint15
+      : 'rgba(79,70,229,0.06)',
   },
 }));
 
@@ -75,7 +75,7 @@ const RcTable: React.FC<RcTableProps> = ({
           whiteSpace: "nowrap",
         }}
       >
-        {/* ------------------ HEADER---------------- */}
+        {/* ------------------ HEADER ---------------- */}
         <StyledTableHead>
           <TableRow>
             {headers.map((header, i) => (
@@ -83,7 +83,7 @@ const RcTable: React.FC<RcTableProps> = ({
                 <Typography
                   variant="caption"
                   fontWeight="bold"
-                  sx={{ color: brmsTheme.colors.textGray }}
+                  sx={{ color: colors.panelTextMid }}
                 >
                   {header}
                 </Typography>
@@ -92,7 +92,7 @@ const RcTable: React.FC<RcTableProps> = ({
           </TableRow>
         </StyledTableHead>
 
-        {/* ----------------------BODY--------------------- */}
+        {/* ---------------------- BODY --------------------- */}
         <TableBody>
           {rows.length === 0 ? (
             <TableRow>
@@ -100,7 +100,7 @@ const RcTable: React.FC<RcTableProps> = ({
                 <Typography
                   variant="caption"
                   fontWeight="bold"
-                  sx={{ color: brmsTheme.colors.textGray }}
+                  sx={{ color: colors.panelTextLow }}
                 >
                   No Data Available
                 </Typography>
@@ -115,7 +115,7 @@ const RcTable: React.FC<RcTableProps> = ({
               >
                 {headers.map((header, i) => (
                   <StyledTableCell key={i}>
-                    <Typography variant="caption" sx={{ color: brmsTheme.colors.textDark }}>
+                    <Typography variant="caption" sx={{ color: colors.textOnPrimary }}>
                       {row[header] ?? "-"}
                     </Typography>
                   </StyledTableCell>
