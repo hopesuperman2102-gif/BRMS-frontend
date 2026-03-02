@@ -15,9 +15,7 @@ import { useRole } from 'app/src/modules/auth/hooks/useRole';
 const { colors, gradients } = brmsTheme;
 
 const HeaderWrapper = styled(Box)({
-  paddingLeft: '24px',
-  paddingRight: '24px',
-  paddingTop: '16px',
+  padding: '15px',
 });
 
 const BackRow = styled(Box)({
@@ -28,16 +26,15 @@ const BackRow = styled(Box)({
 });
 
 const BackButton = styled(IconButton)({
-  width: 36,
-  height: 36,
-  borderRadius: '10px',
-  backgroundColor: colors.primaryGlowSoft,
-  color: colors.primary,
-  transition: 'all 0.2s',
-  flexShrink: 0,
+  width: 34, height: 34, borderRadius: '8px',
+  background: colors.white,
+  border: `1px solid ${colors.lightBorder}`,
+  color: colors.lightTextMid,
+  transition: 'all 0.15s',
   '&:hover': {
-    backgroundColor: colors.primaryGlowMid,
-    transform: 'translateX(-2px)',
+    background: colors.primaryGlowSoft,
+    color: colors.primary,
+    borderColor: colors.primaryGlowMid,
   },
 });
 

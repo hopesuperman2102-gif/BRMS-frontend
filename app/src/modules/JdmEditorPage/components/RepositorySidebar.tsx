@@ -8,6 +8,8 @@ import RepoTree from './RepoTree';
 import { RepositorySidebarProps } from '../types/JdmEditorTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
+const { colors } = brmsTheme;
+
 export default function RepositorySidebar({
   projectName,       
   items,
@@ -50,21 +52,19 @@ export default function RepositorySidebar({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {onBackClick && (
             <IconButton
-              size="small"
-              onClick={onBackClick}
-              sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '10px',
-              backgroundColor: brmsTheme.colors.primaryGlowSoft,
-              color: brmsTheme.colors.primary,
-              transition: 'all 0.2s',
-              flexShrink: 0,
-              '&:hover': {
-                backgroundColor: brmsTheme.colors.primaryGlowMid,
-                transform: 'translateX(-2px)',
-              },
-            }}
+            onClick={onBackClick}
+              sx={{        
+                width: 34, height: 34, borderRadius: '8px',
+                background: colors.white,
+                border: `1px solid ${colors.lightBorder}`,
+                color: colors.lightTextMid,
+                transition: 'all 0.15s',
+                '&:hover': {
+                  background: colors.primaryGlowSoft,
+                  color: colors.primary,
+                  borderColor: colors.primaryGlowMid,
+                },
+              }}
             >
               <ArrowBackIcon sx={{ fontSize: 18 }} />
             </IconButton>

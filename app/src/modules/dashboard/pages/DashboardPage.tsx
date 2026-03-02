@@ -6,6 +6,9 @@ import DashboardHeader from "../components/DashboardHeader";
 import StatsSection from "../components/Stats";
 import { dashboardApi, DashboardSummary } from '../api/dashboardApi';
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
+import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+
+const { colors } = brmsTheme;
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -49,16 +52,15 @@ const DashboardPage = () => {
           <IconButton
             onClick={() => navigate('/vertical')}
             sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '10px',
-              backgroundColor: 'rgba(101, 82, 208, 0.08)',
-              color: '#6552D0',
-              transition: 'all 0.2s',
-              flexShrink: 0,
+              width: 34, height: 34, borderRadius: '8px',
+              background: colors.white,
+              border: `1px solid ${colors.lightBorder}`,
+              color: colors.lightTextMid,
+              transition: 'all 0.15s',
               '&:hover': {
-                backgroundColor: 'rgba(101, 82, 208, 0.15)',
-                transform: 'translateX(-2px)',
+                background: colors.primaryGlowSoft,
+                color: colors.primary,
+                borderColor: colors.primaryGlowMid,
               },
             }}
           >
