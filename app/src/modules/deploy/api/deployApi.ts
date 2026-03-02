@@ -1,72 +1,21 @@
 import { ENV } from '../../../config/env';
 import axiosInstance from '../../auth/http/Axiosinstance';
+import { DeployRulePayload, DeployRuleResponse, DeployStats, DeploySummary, EnvironmentLog } from '../types/deployEndpoints';
 import { Rule, DeployedRule } from '../types/featureFlagTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
-export interface MonthlyData {
-  year: number;
-  month: number;
-  total: number;
-}
-
-export interface DashboardSummary {
-  total_active_projects: number;
-  active_projects: Array<{ project_key: string; project_name: string }>;
-  total_active_rules: number;
-}
-
-export interface DashboardStats {
-  project_key: string;
-  total_rule_versions: number;
-  pending_versions: number;
-  approved_versions: number;
-  rejected_versions: number;
-  deployed_versions: number;
-  approved_not_deployed_versions: number;
-  monthly_deployments: MonthlyData[];
-  undeployed_approved_versions: Rule[];
-  deployed_rules: DeployedRule[];
-}
-
-export interface DeploymentRulesResponse {
-  project_key: string;
-  environment: string;
-  rules: Rule[];
-}
-
-export interface DeployRulePayload {
-  rule_key: string;
-  version: string;
-  environment: string;
-  activated_by: string;
-}
-
-export interface DeployRuleResponse {
-  success: boolean;
-  message?: string;
-  [key: string]: string | boolean | number | null | undefined;
-}
-
-export interface EnvironmentLog {
-  id: string;
-  content: string;
-  file_key: string;
-  environment: string;
-  created_at: string;
-}
-
 export const deployApi = {
-  getDashboardSummary: async (vertical_key: string): Promise<DashboardSummary> => {
-    const res = await axiosInstance.post<DashboardSummary>(
+  getDashboardSummary: async (vertical_key: string): Promise<DeploySummary> => {
+    const res = await axiosInstance.post<DeploySummary>(
       `${API_BASE_URL}/api/v1/env/dashboard/summary`,
       { vertical_key }
     );
     return res.data;
   },
 
-  getDashboardStats: async (project_key: string, environment: string): Promise<DashboardStats> => {
-    const res = await axiosInstance.post<DashboardStats>(
+  getDashboardStats: async (project_key: string, environment: string): Promise<DeployStats> => {
+    const res = await axiosInstance.post<DeployStats>(
       `${API_BASE_URL}/api/v1/env/dashboard/stats`,
       { project_key, env: environment }
     );

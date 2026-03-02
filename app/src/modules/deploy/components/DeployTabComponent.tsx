@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { DeployHeader } from './DeployHeader';
 import { Environment, Rule, DeployedRule } from '../types/featureFlagTypes';
-import { deployApi, MonthlyData } from '../api/deployApi';
+import { deployApi } from '../api/deployApi';
 import { useParams } from 'react-router-dom';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
@@ -12,6 +12,7 @@ import { EnvironmentHistory } from './EnvironmentHistory';
 import { StatsSection } from './Statssection';
 import { ControlSection } from './Controlsection';
 import { EnvironmentLogs } from './EnvironmentLogs';
+import { MonthlyDeployData } from '../types/deployEndpoints';
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
@@ -43,7 +44,7 @@ export default function DeployTabComponent() {
     rejectedVersions: 0,
     deployedVersions: 0,
     approvedNotDeployedVersions: 0,
-    monthlyDeployments: [] as MonthlyData[],
+    monthlyDeployments: [] as MonthlyDeployData[],
   });
 
   // Refs to always read latest values — no stale closure
