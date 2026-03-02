@@ -227,7 +227,7 @@ export default function DeployTabComponent() {
           rules={deployedRules}
           onRevoked={handleRevoked}
           onViewLogs={handleViewLogs}
-          environment={activeEnvironment === 'ALL' ? 'DEV' : activeEnvironment}
+          environment={activeEnvironment}
         />
 
         <EnvironmentLogs
