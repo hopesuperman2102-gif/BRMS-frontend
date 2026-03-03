@@ -6,7 +6,7 @@ import { DeploymentHealth } from './DeploymentHealth';
 import { PendingSync } from './PendingSync';
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { StatsSectionProps } from '../types/featureFlagTypes';
+import { StatsSectionProps } from '../types/deployTypes';
 
 export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear, onYearChange }) => {
   return (

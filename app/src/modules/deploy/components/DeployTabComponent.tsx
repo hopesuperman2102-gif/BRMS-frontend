@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { DeployHeader } from './DeployHeader';
-import { Environment, Rule, DeployedRule } from '../types/featureFlagTypes';
+import { Environment, Rule, DeployedRule } from '../types/deployTypes';
 import { deployApi } from '../api/deployApi';
 import { useParams } from 'react-router-dom';
 import { RcDropdownItem } from 'app/src/core/types/commonTypes';
@@ -12,7 +12,7 @@ import { EnvironmentHistory } from './EnvironmentHistory';
 import { StatsSection } from './Statssection';
 import { ControlSection } from './Controlsection';
 import { EnvironmentLogs } from './EnvironmentLogs';
-import { MonthlyDeployData } from '../types/deployEndpoints';
+import { MonthlyDeployData } from '../types/deployEndpointsTypes';
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
@@ -47,7 +47,6 @@ export default function DeployTabComponent() {
     monthlyDeployments: [] as MonthlyDeployData[],
   });
 
-  // Refs to always read latest values — no stale closure
   const selectedProjectKeyRef = useRef(selectedProjectKey);
   const activeEnvironmentRef = useRef(activeEnvironment);
   const isMountedRef = useRef(true);

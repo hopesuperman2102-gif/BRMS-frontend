@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Box } from '@mui/material';
-import { EnvironmentHistoryProps } from '../types/featureFlagTypes';
+import { EnvironmentHistoryProps } from '../types/deployTypes';
 import { ActiveRules} from './ActiveRules';
 
 export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({

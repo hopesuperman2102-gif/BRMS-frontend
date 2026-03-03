@@ -1,4 +1,4 @@
-import { DeployedRule, Rule } from "./featureFlagTypes";
+import { DeployedRule, Rule } from "./deployTypes";
 
 export interface MonthlyDeployData {
   year: number;

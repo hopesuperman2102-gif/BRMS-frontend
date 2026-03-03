@@ -1,11 +1,9 @@
-// app/src/modules/feature-flags/components/PendingSyncsCard.tsx
-
 'use client';
 
 import React from 'react';
 import { Typography } from '@mui/material';
 import { RcCard } from 'app/src/core/components/RcCard';
-import { PendingSyncProps } from '../types/featureFlagTypes';
+import { PendingSyncProps } from '../types/deployTypes';
 
 export const PendingSync: React.FC<PendingSyncProps> = ({
   title,

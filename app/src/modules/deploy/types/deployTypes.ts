@@ -177,3 +177,26 @@ export interface StatsSectionProps {
   selectedYear: number;
   onYearChange: (year: number) => void;
 }
+
+// EnvironmentLogs Props
+
+export interface EnvLogEntry {
+  id: string;
+  content: string;
+  file_key: string;
+  environment: string;
+  created_at: string;
+}
+
+export interface ParsedEnvLogLine {
+  timestamp: string;
+  level: string;
+  source: string;
+  message: string;
+}
+
+export interface EnvironmentLogsProps {
+  open: boolean;
+  environment: string;
+  onClose: () => void;
+}

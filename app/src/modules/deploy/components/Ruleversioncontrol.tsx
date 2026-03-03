@@ -1,5 +1,3 @@
-// app/src/modules/feature-flags/components/RuleVersionControl.tsx
-
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
@@ -14,7 +12,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import CodeIcon from '@mui/icons-material/Code';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { GroupedRule, RuleVersionControlProps } from '../types/featureFlagTypes';
+import { GroupedRule, RuleVersionControlProps } from '../types/deployTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 
 const VersionPicker: React.FC<{

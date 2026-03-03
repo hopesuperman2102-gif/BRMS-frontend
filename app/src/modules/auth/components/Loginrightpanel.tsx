@@ -9,7 +9,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 import RcInputField from 'app/src/core/components/RcInputField';
 import RcPasswordField from 'app/src/core/components/RcPasswordField';
-import { LoginRightPanelProps } from '../types/LoginTypes';
+import { LoginRightPanelProps } from '../types/loginTypes';
 
 const { colors, fonts } = brmsTheme;
 

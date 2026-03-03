@@ -23,7 +23,7 @@ import { motion } from 'framer-motion';
 import UndoIcon from '@mui/icons-material/Undo';
 import DescriptionIcon from '@mui/icons-material/Description';
 import RedoIcon from '@mui/icons-material/Redo';
-import { ActiveRulesProps, DeployedRule } from '../types/featureFlagTypes';
+import { ActiveRulesProps, DeployedRule } from '../types/deployTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 import { deployApi } from '../api/deployApi';
 import RcConfirmDailog from 'app/src/core/components/RcConfirmDailog';

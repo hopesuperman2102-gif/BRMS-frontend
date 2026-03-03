@@ -1,12 +1,10 @@
-// app/src/modules/feature-flags/components/EnvironmentDeployment.tsx
-
 'use client';
 
 import React from 'react';
 import { Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { motion } from 'framer-motion';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import { EnvironmentDeploymentProps } from '../types/featureFlagTypes';
+import { EnvironmentDeploymentProps } from '../types/deployTypes';
 import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 

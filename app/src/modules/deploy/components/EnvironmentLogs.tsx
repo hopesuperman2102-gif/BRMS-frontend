@@ -13,33 +13,11 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { deployApi } from '../api/deployApi';
-
-/* ─── Types ─────────────────────────────────────────────────── */
-
-interface LogEntry {
-  id: string;
-  content: string;
-  file_key: string;
-  environment: string;
-  created_at: string;
-}
-
-interface ParsedLogLine {
-  timestamp: string;
-  level: string;
-  source: string;
-  message: string;
-}
-
-interface EnvironmentLogsProps {
-  open: boolean;
-  environment: string;
-  onClose: () => void;
-}
+import { EnvironmentLogsProps, EnvLogEntry, ParsedEnvLogLine } from '../types/deployTypes';
 
 /* ─── Helpers ───────────────────────────────────────────────── */
 
-const parseLogLine = (line: string): ParsedLogLine | null => {
+const parseLogLine = (line: string): ParsedEnvLogLine | null => {
   // split on | with optional surrounding spaces
   const parts = line.split(/\s*\|\s*/);
   if (parts.length >= 4) {
@@ -77,7 +55,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
   environment,
   onClose,
 }) => {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logs, setLogs] = useState<EnvLogEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -109,7 +87,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
   }, [loading, logs]);
 
   const allLines = (Array.isArray(logs) ? logs : []).flatMap((entry) =>
-    entry.content.split('\n').filter((l) => l.trim()).map(parseLogLine).filter(Boolean) as ParsedLogLine[]
+    entry.content.split('\n').filter((l) => l.trim()).map(parseLogLine).filter(Boolean) as ParsedEnvLogLine[]
   );
 
   const envColor = ENV_COLORS[environment] ?? '#6366f1';

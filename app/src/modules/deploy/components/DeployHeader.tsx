@@ -5,7 +5,7 @@ import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { RcCard } from 'app/src/core/components/RcCard';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { DeployHeaderProps, Environment } from '../types/featureFlagTypes';
+import { DeployHeaderProps, Environment } from '../types/deployTypes';
 import RcDropdown from 'app/src/core/components/RcDropdown';
 
 export const DeployHeader: React.FC<DeployHeaderProps> = ({

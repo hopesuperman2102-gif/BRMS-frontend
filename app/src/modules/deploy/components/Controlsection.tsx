@@ -2,11 +2,9 @@
 
 import React from 'react';
 import { Grid } from '@mui/material';
-import { ControlSectionProps } from '../types/featureFlagTypes';
+import { ControlSectionProps } from '../types/deployTypes';
 import { EnvironmentDeployment } from './Environmentdeployment';
 import { RuleVersionControl } from './Ruleversioncontrol';
-
-
 
 export const ControlSection: React.FC<ControlSectionProps> = ({
   rules,

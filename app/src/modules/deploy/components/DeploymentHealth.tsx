@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { RcCard } from 'app/src/core/components/RcCard';
-import { DeploymentHealthProps } from '../types/featureFlagTypes';
+import { DeploymentHealthProps } from '../types/deployTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 
 export const DeploymentHealth: React.FC<DeploymentHealthProps> = ({

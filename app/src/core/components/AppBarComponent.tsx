@@ -32,7 +32,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../modules/auth/context/Authcontext";
 import { logoutApi } from "../../modules/auth/services/Authservice";
 import { useRole } from "../../modules/auth/hooks/useRole";
-import { getCurrentUserApi, LoggedInUser } from "app/src/modules/auth/services/UserService";
+import { getCurrentUserApi } from "app/src/modules/auth/services/UserService";
+import { LoggedInUser } from "app/src/modules/auth/types/authTypes";
 
 const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationName }) => {
   const navigate = useNavigate();
