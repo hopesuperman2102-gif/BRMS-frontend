@@ -1,5 +1,4 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
-import { registerRoutes } from '../../../core/routeRegistry';
 import DashboardPage from '../pages/DashboardPage';
 
 const dashboardRoutes: AppRoute[] = [
@@ -13,7 +12,5 @@ const dashboardRoutes: AppRoute[] = [
     },
   },
 ];
-
-registerRoutes(dashboardRoutes);
 
 export default dashboardRoutes;

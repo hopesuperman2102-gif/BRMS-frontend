@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
-import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
-import { projectsApi } from '../../hub/api/projectsApi';
+import { rulesApi } from '@/modules/rules/api/rulesApi';
+import { projectsApi } from '@/modules/hub/api/projectsApi';
 import CreateRuleLeftPanel from '../components/CreateRuleLeftPanel';
 import CreateRuleRightPanel from '../components/CreateRuleRightPanel';
 import { FormState } from '../types/rulesTypes';
@@ -75,12 +75,14 @@ export default function CreateRulePage() {
     if (!form.name.trim()) { setError('Rule name is required'); return; }
     if (form.description.length > 300) { setError('Description cannot exceed 300 characters'); return; }
     if (!project_key) { setError('Project key is missing'); return; }
+    if (!vertical_Key) { setError('Vertical key is missing'); return; }
 
+    setLoading(true);
     try {
       const fullDirectory = form.directory ? `${form.directory}/${form.name}` : form.name;
 
       if (isEditMode && ruleKey) {
-        const { rules: existingRules } = await rulesApi.getProjectRules(project_key, vertical_Key!);
+        const { rules: existingRules } = await rulesApi.getProjectRules(project_key, vertical_Key);
         const duplicate = existingRules.some(
           (r: RuleResponse) => r.directory === fullDirectory && r.rule_key !== ruleKey
         );

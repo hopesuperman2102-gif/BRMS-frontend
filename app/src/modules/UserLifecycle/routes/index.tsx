@@ -1,5 +1,4 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
-import { registerRoutes } from '../../../core/routeRegistry';
 import CreateUserPage from '../../UserLifecycle/pages/CreateUserPage';
 
 const UserLifeCycleRoutes: AppRoute[] = [
@@ -13,7 +12,5 @@ const UserLifeCycleRoutes: AppRoute[] = [
     },
   },
 ];
-
-registerRoutes(UserLifeCycleRoutes);
 
 export default UserLifeCycleRoutes;

@@ -1,5 +1,4 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
-import { registerRoutes } from '../../../core/routeRegistry';
 import VerticalSelectionPage from '../pages/VerticalSelectionPage';
 
 
@@ -14,7 +13,5 @@ const verticalRoutes: AppRoute[] = [
     },
   },
 ];
-
-registerRoutes(verticalRoutes);
 
 export default verticalRoutes;

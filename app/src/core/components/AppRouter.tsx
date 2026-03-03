@@ -2,7 +2,7 @@
 'use client';
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { getRegisteredRoutes } from '../routeRegistry';
+import { appRoutes } from '@/core/routes/appRoutes';
 import PageWrapper from './PageWrapper';
 import AppBarComponent from './AppBarComponent';
 import type { AppRoute } from '../types/routeTypes';
@@ -10,17 +10,10 @@ import { Layout } from '../types/routeTypes';
 import { CircularProgress, Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 
-import '../../modules/auth/routes';
-import '../../modules/hub/routes';
-import '../../modules/rules/routes';
-import '../../modules/JdmEditorPage/routes';
-import '../../modules/vertical/routes';
-import '../../modules/dashboard/routes';
-import '../../modules/UserLifecycle/routes';
-import { AuthProvider, useAuth } from 'app/src/modules/auth/context/Authcontext';
-import { refreshApi } from 'app/src/modules/auth/services/Authservice';
-import { useBindAuth } from 'app/src/modules/auth/hooks/Usebindauth';
-import { getCurrentUserApi } from 'app/src/modules/auth/services/UserService';
+import { AuthProvider, useAuth } from '@/modules/auth/context/Authcontext';
+import { refreshApi } from '@/modules/auth/services/Authservice';
+import { useBindAuth } from '@/modules/auth/hooks/Usebindauth';
+import { getCurrentUserApi } from '@/modules/auth/services/UserService';
 
 function RouteWrapper({ route }: { route: AppRoute }) {
   const Element = route.element as React.ComponentType<unknown>;
@@ -62,7 +55,6 @@ function renderRoutes(routes: AppRoute[]): React.ReactNode {
 }
 
 function AppRouterInner() {
-  const routes = getRegisteredRoutes();
   const { setAccessToken, setIsAuthenticated, isAuthenticated, setRoles } = useAuth();
   const [isReady, setIsReady] = useState(false);
 
@@ -118,7 +110,7 @@ function AppRouterInner() {
           path="/"
           element={<Navigate to={isAuthenticated ? '/vertical' : '/login'} replace />}
         />
-        {renderRoutes(routes)}
+        {renderRoutes(appRoutes)}
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,4 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
-import { registerRoutes } from '../../../core/routeRegistry';
 import JdmEditorWithSimulator from '../components/JdmEditorWithSimulator';
 
 const jdmEditorRoutes: AppRoute[] = [
@@ -13,7 +12,5 @@ const jdmEditorRoutes: AppRoute[] = [
     },
   },
 ];
-
-registerRoutes(jdmEditorRoutes);
 
 export default jdmEditorRoutes;

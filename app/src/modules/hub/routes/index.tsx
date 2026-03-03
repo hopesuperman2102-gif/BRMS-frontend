@@ -1,5 +1,4 @@
 import type { AppRoute } from '../../../core/types/routeTypes';
-import { registerRoutes } from '../../../core/routeRegistry';
 
 import HubPage from '../page/HubPage';
 import RulesTable from '../components/RulesTable';
@@ -49,6 +48,4 @@ const hubRoutes: AppRoute[] = [
     },
   },
 ];
-
-registerRoutes(hubRoutes);
 export default hubRoutes;
