@@ -1,9 +1,10 @@
-import { VerticalView } from "../api/verticalsApi";
+import { VerticalView } from "./verticalEndpointsTypes";
+
 
 export interface VerticalLeftPanelProps {
   verticalCount: number;
   loading: boolean;
-  selectedVerticalDescription: string;
+  selectedVerticalDescription?: string;
 }
 
 export interface VerticalRightPanelProps {

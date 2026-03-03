@@ -3,15 +3,10 @@
 import LayersIcon from '@mui/icons-material/Layers';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import RcLeftPanel from 'app/src/core/components/RcLeftPanel';
+import { VerticalLeftPanelProps } from '../types/verticalTypes';
 
 const DEFAULT_DESCRIPTION =
   'Each vertical is an isolated decision domain. Select one to manage its projects, rules, and deployment pipelines.';
-
-interface VerticalLeftPanelProps {
-  verticalCount: number;
-  loading: boolean;
-  selectedVerticalDescription?: string;
-}
 
 export default function VerticalLeftPanel({
   verticalCount,

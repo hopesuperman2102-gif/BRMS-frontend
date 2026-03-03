@@ -1,13 +1,13 @@
-// VerticalSelectionComponent.tsx
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, styled } from '@mui/material';
-import { verticalsApi, VerticalView } from '../api/verticalsApi';
+import { verticalsApi } from '../api/verticalsApi';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import VerticalRightPanel from '../components/VerticalRightPanel';
 import VerticalLeftPanel from '../components/VerticalLeftPanel';
-
+import { VerticalView } from '../types/verticalEndpointsTypes';
 
 const MainContainer = styled(Box)({
   height: '100vh',

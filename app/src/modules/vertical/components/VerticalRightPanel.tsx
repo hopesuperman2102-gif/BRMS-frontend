@@ -1,4 +1,3 @@
-// RightPanel.tsx
 import React from 'react';
 import { Box, Typography, CircularProgress, styled } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
