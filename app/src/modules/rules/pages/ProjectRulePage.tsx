@@ -9,11 +9,12 @@ import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { ConfirmDialogState, RuleResponse } from '../types/rulesTypes';
+import { ConfirmDialogState } from '../types/rulesTypes';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
 import RulesRightPanel from '../components/RulesRightPanel';
 import RulesLeftPanel from '../components/Rulesleftpanel';
 import { useRole } from 'app/src/modules/auth/hooks/useRole';
+import { RuleResponse } from '../types/ruleEndpointsTypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -24,8 +25,6 @@ export const fmtDate      = (iso: string): string => {
   try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
   catch { return iso ?? '—'; }
 };
-
-/* ─── Styled — mirrors HubPage header exactly ─────────────── */
 
 const HeaderWrapper = styled(Box)({
   padding: '15px',
@@ -83,7 +82,6 @@ const RootWrapper = styled(Box)({
   height: 'calc(100vh - 144px)',
 });
 
-/* ─── Page ────────────────────────────────────────────────── */
 export default function ProjectRulePage() {
   const { project_key, vertical_Key } = useParams<{ project_key: string; vertical_Key: string }>();
   const navigate = useNavigate();
@@ -143,7 +141,6 @@ export default function ProjectRulePage() {
     })));
   }, []);
 
-  /* ── URL path init ────────────────────────────────────── */
   const didInitFromUrl = useRef(false);
   useEffect(() => {
     if (didInitFromUrl.current) return;

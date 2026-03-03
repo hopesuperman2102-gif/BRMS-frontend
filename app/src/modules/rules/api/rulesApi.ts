@@ -1,10 +1,9 @@
 import { ENV } from '../../../config/env';
-import { ProjectRulesResult, RuleResponse, RuleVersion, VerticalProjectRulesResponse } from '../types/rulesTypes';
+
 import axiosInstance from '../../auth/http/Axiosinstance';
+import { ProjectRulesResult, RuleResponse, RuleVersion, VerticalProjectRulesResponse } from '../types/ruleEndpointsTypes';
 
 const BASE = ENV.API_BASE_URL;
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getLatestVersion(versions: RuleVersion[]): string {
   if (!versions || versions.length === 0) return 'Unversioned';
@@ -15,8 +14,6 @@ function getLatestVersion(versions: RuleVersion[]): string {
   });
   return sorted[sorted.length - 1].version;
 }
-
-// ─── API ──────────────────────────────────────────────────────────────────────
 
 export const rulesApi = {
 
