@@ -1,36 +1,8 @@
 import { ENV } from '../../../config/env';
 import axiosInstance from '../../auth/http/Axiosinstance';
+import { UserManagementResponse } from '../types/userEndpointsTypes';
 
 const BASE = ENV.API_BASE_URL;
-
-// types/userTypes.ts
-
-export interface UserResponse {
-  id: string;
-  username: string;
-  email: string;
-  roles: string[];
-  created_by?: string;
-  created_at: string;
-  updated_by?: string;
-  updated_at: string;
-}
-
-export interface CreateUserPayload {
-  username: string;
-  email: string;
-  password: string;
-  roles: string[];
-}
-
-export interface UpdateUserPayload {
-  username?: string;
-  email?: string;
-  password?: string;
-  roles?: string[];
-}
-
-// ─── API ──────────────────────────────────────────────────────────────────────
 
 export const CreateUserApi = {
 
@@ -39,16 +11,16 @@ export const CreateUserApi = {
     email: string;
     password: string;
     roles: string[];
-  }): Promise<UserResponse> => {
-    const res = await axiosInstance.post<UserResponse>(
+  }): Promise<UserManagementResponse> => {
+    const res = await axiosInstance.post<UserManagementResponse>(
       `${BASE}/api/v1/users`,
       data
     );
     return res.data;
   },
 
-  getUsers: async (page = 1, pageSize = 10): Promise<{ users: UserResponse[]; total: number }> => {
-    const res = await axiosInstance.get<{ users: UserResponse[]; total: number }>(
+  getUsers: async (page = 1, pageSize = 10): Promise<{ users: UserManagementResponse[]; total: number }> => {
+    const res = await axiosInstance.get<{ users: UserManagementResponse[]; total: number }>(
       `${BASE}/api/v1/users`,
       {
         params: { page, pageSize },
@@ -57,8 +29,8 @@ export const CreateUserApi = {
     return res.data;
   },
 
-  getUserById: async (userId: string): Promise<UserResponse> => {
-    const res = await axiosInstance.get<UserResponse>(
+  getUserById: async (userId: string): Promise<UserManagementResponse> => {
+    const res = await axiosInstance.get<UserManagementResponse>(
       `${BASE}/api/v1/users/${userId}`
     );
     return res.data;
@@ -69,8 +41,8 @@ export const CreateUserApi = {
     email?: string;
     password?: string;
     roles?: string[];
-  }): Promise<UserResponse> => {
-    const res = await axiosInstance.put<UserResponse>(
+  }): Promise<UserManagementResponse> => {
+    const res = await axiosInstance.put<UserManagementResponse>(
       `${BASE}/api/v1/users/${userId}`,
       data
     );

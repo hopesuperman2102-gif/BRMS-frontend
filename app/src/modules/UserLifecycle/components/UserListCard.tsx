@@ -8,13 +8,12 @@ import { styled } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
 import RcTable from '../../../core/components/RcTable';
-import { CreateUserApi, UserResponse } from '../api/createUserApi';
+import { CreateUserApi } from '../api/createUserApi';
 import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
 import UpdatePasswordDialog from './UpdatePasswordDialog';
+import { User, UserListCardProps } from '../types/userTypes';
 
 const { colors } = brmsTheme;
-
-/* ─── Styled ───────────────────────────────────────────────── */
 
 const HeadingBlock = styled(Box)({ marginBottom: '24px' });
 
@@ -33,25 +32,6 @@ const HeadingSubtitle = styled(Typography)({
   fontWeight: 400,
   lineHeight: 1.65,
 });
-
-
-
-/* ─── Types ─────────────────────────────────────────────────── */
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  roles: string[];
-  created_at: string;
-}
-
-export interface UserListCardProps {
-  /** Pass a freshly-created user to append it to the list without a refetch */
-  newUser?: UserResponse | null;
-}
-
-/* ─── Component ─────────────────────────────────────────────── */
 
 export default function UserListCard({ newUser }: UserListCardProps) {
   const [users, setUsers]                           = useState<User[]>([]);

@@ -3,11 +3,7 @@
 import { useNavigate } from 'react-router-dom';
 import RcLeftPanel from 'app/src/core/components/RcLeftPanel';
 import UserListCard from './UserListCard';
-import { UserResponse } from '../api/createUserApi';
-
-interface CreateUserLeftPanelProps {
-  newUser?: UserResponse | null;
-}
+import { CreateUserLeftPanelProps } from '../types/userTypes';
 
 export default function CreateUserLeftPanel({ newUser }: CreateUserLeftPanelProps) {
   const navigate = useNavigate();

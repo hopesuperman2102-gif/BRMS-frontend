@@ -10,6 +10,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useState } from 'react';
 import { brmsTheme } from '../../../core/theme/brmsTheme';
+import { UpdatePasswordDialogProps } from '../types/userTypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -73,14 +74,6 @@ function PasswordStrength({ password }: { password: string }) {
       </Box>
     </Box>
   );
-}
-
-/* ─── Props ── */
-interface UpdatePasswordDialogProps {
-  open: boolean;
-  userId: string | null;
-  onClose: () => void;
-  onChangePassword: (userId: string, newPassword: string) => Promise<unknown>;
 }
 
 /* ─── Component ── */

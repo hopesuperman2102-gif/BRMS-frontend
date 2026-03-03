@@ -11,10 +11,10 @@ import RcDropdown from 'app/src/core/components/RcDropdown';
 import RcEmail from 'app/src/core/components/RcEmail';
 import RcInputField from 'app/src/core/components/RcInputField';
 import RcPasswordField from 'app/src/core/components/RcPasswordField';
+import { CreateUserRightPanelProps } from '../types/userTypes';
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Input style factory (identical to LoginRightPanel) ──── */
 const inputSx = (focused: boolean, error?: boolean) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '6px',
@@ -89,29 +89,10 @@ function PasswordStrength({ password }: { password: string }) {
   );
 }
 
-/* ─── Props ─────────────────────────────────────────────────── */
-
-export interface CreateUserFormData {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  roles: string[];
-}
-
-interface CreateUserRightPanelProps {
-  formData: CreateUserFormData;
-  loading: boolean;
-  error: string;
-  success: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onRoleSelect: (role: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
-}
-
 /* ─── Component ─────────────────────────────────────────────── */
 
-export default function CreateUserRightPanel({ formData, loading, error, success, onChange, onRoleSelect, onSubmit }: CreateUserRightPanelProps) {
+export default function CreateUserRightPanel({ formData, loading, error, success, onChange, onRoleSelect, onSubmit
+ }: CreateUserRightPanelProps) {
   const [focused, setFocused] = useState<string | null>(null);
 
   const passwordMismatch = !!formData.confirmPassword && formData.password !== formData.confirmPassword;

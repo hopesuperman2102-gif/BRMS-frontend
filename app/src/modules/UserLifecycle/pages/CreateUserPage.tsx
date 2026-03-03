@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
 import CreateUserLeftPanel from '../components/CreateUserLeftPanel';
-import CreateUserRightPanel, { CreateUserFormData } from '../components/CreateUserRightPanel';
-import { CreateUserApi, UserResponse } from '../api/createUserApi';
+import CreateUserRightPanel from '../components/CreateUserRightPanel';
+import { CreateUserApi } from '../api/createUserApi';
+import { CreateUserFormData } from '../types/userTypes';
+import { UserManagementResponse } from '../types/userEndpointsTypes';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,7 +21,7 @@ export default function CreateUserPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [newUser, setNewUser] = useState<UserResponse | null>(null); // ← new
+  const [newUser, setNewUser] = useState<UserManagementResponse | null>(null); // ← new
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
