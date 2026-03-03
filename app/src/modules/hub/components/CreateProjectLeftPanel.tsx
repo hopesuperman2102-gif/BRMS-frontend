@@ -1,7 +1,7 @@
 'use client';
 
 import RcLeftPanel from 'app/src/core/components/RcLeftPanel';
-import { CreateProjectLeftPanelProps } from '../types/createPageTypes';
+import { CreateProjectLeftPanelProps } from '../types/hubTypes';
 
 export default function CreateProjectLeftPanel({
   isEditMode,

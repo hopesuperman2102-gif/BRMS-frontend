@@ -7,7 +7,7 @@ import StatsSection from "../components/Stats";
 import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { dashboardApi } from '../api/dashboardApi';
-import { DashboardSummary } from '../types/dashboardEnpoints';
+import { DashboardSummary } from '../types/dashboardEnpointsTypes';
 
 const { colors } = brmsTheme;
 

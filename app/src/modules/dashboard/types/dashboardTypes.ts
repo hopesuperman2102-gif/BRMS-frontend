@@ -1,4 +1,4 @@
-import { MonthlyData } from "./dashboardEnpoints";
+import { MonthlyData } from "./dashboardEnpointsTypes";
 
 //StatCard Props
 export interface StatCardProps {

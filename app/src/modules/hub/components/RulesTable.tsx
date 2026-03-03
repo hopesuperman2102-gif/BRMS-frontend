@@ -9,7 +9,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
-import { ApprovalStatus, ProjectRuleRow, ProjectSection, RuleVersion, VerticalProject, VerticalRule } from '../types/ruleTableTypes';
+import { ApprovalStatus, ProjectRuleRow, ProjectSection, RuleVersion, VerticalProject, VerticalRule } from '../types/hubTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
 import { rulesTableApi } from '../api/entireRuleApi';
 

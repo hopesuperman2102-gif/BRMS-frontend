@@ -1,13 +1,10 @@
 import { ENV } from '../../../config/env';
-import { ReviewResponse, VerticalRulesResponse } from '../types/ruleTableTypes';
 import axiosInstance from '../../auth/http/Axiosinstance';
+import { ReviewResponse, VerticalRulesResponse } from '../types/hubEndpointsTypes';
 
 const BASE = ENV.API_BASE_URL;
 
-// ─── In-memory cache ───
 let verticalCache: VerticalRulesResponse | null = null;
-
-// ─── API ───
 
 export const rulesTableApi = {
 

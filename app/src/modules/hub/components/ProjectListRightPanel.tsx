@@ -13,7 +13,7 @@ import {
 import { styled } from "@mui/material/styles";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import { ProjectListRightPanelProps } from "../types/projectListTypes";
+import { ProjectListRightPanelProps } from "../types/hubTypes";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
 
 const { colors, fonts } = brmsTheme;

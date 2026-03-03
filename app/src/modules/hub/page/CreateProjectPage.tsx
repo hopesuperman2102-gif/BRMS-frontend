@@ -5,7 +5,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
 import CreateProjectLeftPanel from '../components/CreateProjectLeftPanel';
-import { FormState } from '../types/createPageTypes';
+import { FormState } from '../types/hubTypes';
 import CreateProjectRightPanel from '../components/CreateProjectRightPanel';
 
 /* ─── Page ────────────────────────────────────────────────── */

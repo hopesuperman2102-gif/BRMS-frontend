@@ -5,11 +5,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { projectsApi } from "app/src/modules/hub/api/projectsApi";
-import { ProjectListProps } from "../types/projectListTypes";
 import { brmsTheme } from "app/src/core/theme/brmsTheme";
 import ProjectListLeftPanel from "./ProjectListLeftPanel";
 import ProjectListRightPanel from "./ProjectListRightPanel";
 import { useRole } from "app/src/modules/auth/hooks/useRole";
+import { ProjectListProps } from "../types/hubTypes";
 
 const { colors, fonts } = brmsTheme;
 

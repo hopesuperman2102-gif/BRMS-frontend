@@ -1,22 +1,13 @@
 import { ENV } from '../../../config/env';
 import axiosInstance from '../../auth/http/Axiosinstance';
-import { ProjectView, VerticalProjectsResponse } from '../types/projectListTypes';
+import { CacheEntry, ProjectView, VerticalProjectsResponse } from '../types/hubEndpointsTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 
-// ─── Cache ────────────────────────────────────────────────────────────────────
-
 const TTL_MS = 30_000;
-
-interface CacheEntry {
-  data: VerticalProjectsResponse;
-  expiresAt: number;
-}
 
 const dataCache = new Map<string, CacheEntry>();
 const inflightCache = new Map<string, Promise<VerticalProjectsResponse>>();
-
-// ─── API ──────────────────────────────────────────────────────────────────────
 
 export const projectsApi = {
 
