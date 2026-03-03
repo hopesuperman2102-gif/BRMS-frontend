@@ -1,9 +1,8 @@
-// src/api/executionApi.ts
 
 import { ENV } from '../../../config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import { ExecuteResponse, JsonObject } from '../types/JdmEditorTypes';
 import axiosInstance from '../../auth/http/Axiosinstance';
+import { ExecuteResponse , JsonObject} from '../types/jdmEditorEndpointsTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 

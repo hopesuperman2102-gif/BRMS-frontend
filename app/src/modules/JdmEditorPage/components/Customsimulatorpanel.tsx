@@ -8,9 +8,9 @@ import CodeIcon from '@mui/icons-material/Code';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { CustomSimulatorPanelProps, ExecuteResponse, JsonObject } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
+import { CustomSimulatorPanelProps } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
 import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-
+import { ExecuteResponse, JsonObject } from '../types/jdmEditorEndpointsTypes';
 
 export default function CustomSimulatorPanel({
   onRun,

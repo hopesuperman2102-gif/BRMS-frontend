@@ -2,30 +2,13 @@
 import { ENV } from '../../../config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 import axiosInstance from '../../auth/http/Axiosinstance';
+import { CreateRuleVersionRequest, JdmRuleVersion } from '../types/jdmEditorEndpointsTypes';
 
 const BASE_URL = ENV.API_BASE_URL;
 
-export interface RuleVersion {
-  version: string;
-  checksum: string;
-  is_valid: boolean;
-  created_by: string;
-  created_at: string;
-  jdm?: DecisionGraphType;
-}
-
-export interface CreateRuleVersionRequest {
-  rule_key: string;
-  jdm: DecisionGraphType;
-}
-
-export interface ListRuleVersionsRequest {
-  rule_key: string;
-}
-
 export const ruleVersionsApi = {
 
-  listVersions: async (rule_key: string): Promise<RuleVersion[]> => {
+  listVersions: async (rule_key: string): Promise<JdmRuleVersion[]> => {
     try {
       const response = await axiosInstance.get(`/api/v1/rules/${rule_key}/versions`);
       return response.data;
@@ -38,10 +21,10 @@ export const ruleVersionsApi = {
   /**
    * Create a new version for a rule
    */
-  createVersion: async (data: CreateRuleVersionRequest): Promise<RuleVersion> => {
+  createVersion: async (data: CreateRuleVersionRequest): Promise<JdmRuleVersion> => {
     try {
       const response = await axiosInstance.post(`/api/v1/rules/${data.rule_key}/versions`, data);
-      return response.data as RuleVersion;
+      return response.data as JdmRuleVersion;
     } catch (error) {
       console.error('Error creating rule version:', error);
       throw error;

@@ -4,7 +4,8 @@ import dynamic from 'next/dynamic';
 import '@gorules/jdm-editor/dist/style.css';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CustomSimulatorPanel from './Customsimulatorpanel';
-import { ExecuteResponse, JdmEditorProps, JsonObject } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
+import { JdmEditorComponentProps } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
+import { ExecuteResponse, JsonObject } from '../types/jdmEditorEndpointsTypes';
 
 // Client-only imports
 const DecisionGraph = dynamic(
@@ -16,11 +17,6 @@ const JdmConfigProvider = dynamic(
   () => import('@gorules/jdm-editor').then((mod) => mod.JdmConfigProvider),
   { ssr: false }
 );
-
-interface JdmEditorComponentProps extends JdmEditorProps {
-  onSimulatorRun?: (jdm: JdmEditorProps['value'], context: JsonObject) => Promise<ExecuteResponse>;
-  isReviewer?: boolean;
-}
 
 export default function JdmEditorComponent({
   value,

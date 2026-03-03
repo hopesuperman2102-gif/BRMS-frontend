@@ -1,38 +1,17 @@
 import { DecisionGraphType } from "@gorules/jdm-editor";
+import { ExecuteResponse, JsonObject } from "./jdmEditorEndpointsTypes";
 
-// Generic JSON-like types used across API payloads
-export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
-export interface JsonObject {
-  [key: string]: JsonValue;
-}
 // Types for JDM Editor components
-export interface CustomSimulatorPanelProps {
-  onRun: (context: JsonObject) => Promise<ExecuteResponse>;
-  onClear: () => void;
-}
-
-export type EditorProps = {
-  items: RepoItem[];
-  selectedId: string | number | null;
-  openFiles: (string | number)[];               
-  setOpenFiles: (files: (string | number)[]) => void; 
-};
-
 export type JdmEditorProps = {
   value: DecisionGraphType;
   onChange: (val: DecisionGraphType) => void;
 };
 
-export interface RepoItem {
-  id: string | number;
-  name: string;
-  type: 'file' | 'folder';
-  graph?: DecisionGraphType;
-  children?: RepoItem[];   
-  path?: string;           
-  parentPath?: string;    
+export interface JdmEditorComponentProps extends JdmEditorProps {
+  onSimulatorRun?: (jdm: JdmEditorProps['value'], context: JsonObject) => Promise<ExecuteResponse>;
+  isReviewer?: boolean;
 }
-
+// Types for Repository Tree
 export type RepoTreeProps = {
   items: RepoItem[];
   selectedId: string | number | null;
@@ -44,6 +23,7 @@ export type RepoTreeProps = {
   depth?: number;
 };
 
+// Types for Repository Sidebar
 export type RepositorySidebarProps = {
   projectName: string;
   items: RepoItem[];
@@ -58,17 +38,32 @@ export type RepositorySidebarProps = {
 };
 
 
-// API request/response types for execution
-export interface ExecuteRequest {
-  jdm: DecisionGraphType;
-  input: JsonObject;
+// Editor Props
+export type EditorProps = {
+  items: RepoItem[];
+  selectedId: string | number | null;
+  openFiles: (string | number)[];               
+  setOpenFiles: (files: (string | number)[]) => void; 
+};
+
+
+export interface EditorPropsExtended extends EditorProps {
+  onSimulatorRun: (jdm: DecisionGraphType, context: JsonObject) => Promise<ExecuteResponse>;
+  isReviewer?: boolean;
 }
 
-export interface ExecuteResponse {
-  result?: JsonValue;
-  error?: string;
-  performance?: string;
-  trace?: JsonObject;
-  status?: 'success' | 'error';
-  message?: string;
+export interface RepoItem {
+  id: string | number;
+  name: string;
+  type: 'file' | 'folder';
+  graph?: DecisionGraphType;
+  children?: RepoItem[];   
+  path?: string;           
+  parentPath?: string;    
+}
+
+// simulator Panel Props
+export interface CustomSimulatorPanelProps {
+  onRun: (context: JsonObject) => Promise<ExecuteResponse>;
+  onClear: () => void;
 }

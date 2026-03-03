@@ -8,9 +8,10 @@ import Editor from './Editor';
 import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
 import { executionApi } from 'app/src/modules/JdmEditorPage/api/executionApi';
 import RepositorySidebar from './RepositorySidebar';
-import { JsonObject, RepoItem } from '../types/JdmEditorTypes';
+import { RepoItem } from '../types/JdmEditorTypes';
 import RcAlertComponent from '../../../core/components/RcAlertComponent';
 import { useRole } from 'app/src/modules/auth/hooks/useRole';
+import { JsonObject } from '../types/jdmEditorEndpointsTypes';
 
 /* ---------- Same helper functions as ProjectRuleComponent ---------- */
 const splitPath = (path: string): string[] => path.split('/').filter(Boolean);

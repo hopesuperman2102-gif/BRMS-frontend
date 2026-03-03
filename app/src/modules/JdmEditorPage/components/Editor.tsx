@@ -3,17 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Box, Select, MenuItem, Button, FormControl, Typography, Divider } from '@mui/material';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import { EditorProps, ExecuteResponse, JsonObject, RepoItem } from '../types/JdmEditorTypes';
+import { EditorPropsExtended, RepoItem } from '../types/JdmEditorTypes';
 import JdmEditorComponent from './JdmEditorComponent';
-import { ruleVersionsApi, RuleVersion } from 'app/src/modules/JdmEditorPage/api/ruleVersionsApi';
+import { ruleVersionsApi } from 'app/src/modules/JdmEditorPage/api/ruleVersionsApi';
 import { useAlertStore } from '../../../core/components/RcAlertComponent';
 import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
-
-interface EditorPropsExtended extends EditorProps {
-  onSimulatorRun: (jdm: DecisionGraphType, context: JsonObject) => Promise<ExecuteResponse>;
-  isReviewer?: boolean;
-}
+import { JdmRuleVersion } from '../types/jdmEditorEndpointsTypes';
 
 const EMPTY_GRAPH: DecisionGraphType = {
   nodes: [],
@@ -27,7 +23,7 @@ export default function Editor({
   isReviewer = false,
 }: EditorPropsExtended) {
   const [selectedVersion, setSelectedVersion] = useState('');
-  const [versions, setVersions] = useState<RuleVersion[]>([]);
+  const [versions, setVersions] = useState<JdmRuleVersion[]>([]);
   const [currentGraph, setCurrentGraph] = useState<DecisionGraphType | null>(null);
   const [isVersionsLoading, setIsVersionsLoading] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
