@@ -10,10 +10,10 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 import HomeIcon from '@mui/icons-material/Home';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddIcon from '@mui/icons-material/Add';
-import { FileCard } from './FileCard';
-import { FolderCard } from './FolderCard';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
+import { FileCard } from '@/modules/rules/components/FileCard';
+import { FolderCard } from '@/modules/rules/components/FolderCard';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '@/modules/rules/types/Explorertypes';
 
 const { colors, fonts } = brmsTheme;
 

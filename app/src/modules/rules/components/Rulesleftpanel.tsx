@@ -1,9 +1,9 @@
 'use client';
 
 import AccountTree from '@mui/icons-material/AccountTree';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { RulesLeftPanelProps } from '../types/Explorertypes';
-import RcLeftPanel from 'app/src/core/components/RcLeftPanel';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { RulesLeftPanelProps } from '@/modules/rules/types/Explorertypes';
+import RcLeftPanel from '@/core/components/RcLeftPanel';
 
 const { colors } = brmsTheme;
 

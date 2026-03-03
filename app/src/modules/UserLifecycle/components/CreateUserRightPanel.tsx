@@ -6,12 +6,12 @@ import { styled } from '@mui/material/styles';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { brmsTheme } from '../../../core/theme/brmsTheme';
-import RcDropdown from 'app/src/core/components/RcDropdown';
-import RcEmail from 'app/src/core/components/RcEmail';
-import RcInputField from 'app/src/core/components/RcInputField';
-import RcPasswordField from 'app/src/core/components/RcPasswordField';
-import { CreateUserRightPanelProps } from '../types/userTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import RcDropdown from '@/core/components/RcDropdown';
+import RcEmail from '@/core/components/RcEmail';
+import RcInputField from '@/core/components/RcInputField';
+import RcPasswordField from '@/core/components/RcPasswordField';
+import { CreateUserRightPanelProps } from '@/modules/UserLifecycle/types/userTypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -225,3 +225,4 @@ export default function CreateUserRightPanel({ formData, loading, error, success
     </RightPanelRoot>
   );
 }
+

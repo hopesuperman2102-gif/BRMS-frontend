@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box } from '@mui/material';
-import { DeployHeader } from './DeployHeader';
-import { Environment, Rule, DeployedRule } from '../types/deployTypes';
-import { deployApi } from '../api/deployApi';
+import { DeployHeader } from '@/modules/deploy/components/DeployHeader';
+import { Environment, Rule, DeployedRule } from '@/modules/deploy/types/deployTypes';
+import { deployApi } from '@/modules/deploy/api/deployApi';
 import { useParams } from 'react-router-dom';
-import { RcDropdownItem } from 'app/src/core/types/commonTypes';
-import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
-import { EnvironmentHistory } from './EnvironmentHistory';
-import { StatsSection } from './Statssection';
-import { ControlSection } from './Controlsection';
-import { EnvironmentLogs } from './EnvironmentLogs';
-import { MonthlyDeployData } from '../types/deployEndpointsTypes';
+import { RcDropdownItem } from '@/core/types/commonTypes';
+import RcAlertComponent, { useAlertStore } from '@/core/components/RcAlertComponent';
+import { EnvironmentHistory } from '@/modules/deploy/components/EnvironmentHistory';
+import { StatsSection } from '@/modules/deploy/components/Statssection';
+import { ControlSection } from '@/modules/deploy/components/Controlsection';
+import { EnvironmentLogs } from '@/modules/deploy/components/EnvironmentLogs';
+import { MonthlyDeployData } from '@/modules/deploy/types/deployEndpointsTypes';
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();

@@ -3,7 +3,7 @@
 import { Box, Button, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { brmsTheme } from '../../../core/theme/brmsTheme';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
 

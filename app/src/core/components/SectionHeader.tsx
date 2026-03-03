@@ -1,7 +1,7 @@
 'use client';
 
 import { Box } from '@mui/material';
-import { SectionHeaderProps } from '../types/commonTypes';
+import { SectionHeaderProps } from '@/core/types/commonTypes';
 
 export default function SectionHeader({
   left,

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, IconButton, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import DashboardHeader from "../components/DashboardHeader";
-import StatsSection from "../components/Stats";
-import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { dashboardApi } from '../api/dashboardApi';
-import { DashboardSummary } from '../types/dashboardEnpointsTypes';
+import DashboardHeader from "@/modules/dashboard/components/DashboardHeader";
+import StatsSection from "@/modules/dashboard/components/Stats";
+import RcMonthBarChart from '@/core/components/RcMonthBarChart';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { dashboardApi } from '@/modules/dashboard/api/dashboardApi';
+import { DashboardSummary } from '@/modules/dashboard/types/dashboardEnpointsTypes';
 
 const { colors } = brmsTheme;
 

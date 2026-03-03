@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Box, TextField, Typography } from '@mui/material';
-import { RcEmailProps } from '../types/commonTypes';
+import { RcEmailProps } from '@/core/types/commonTypes';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

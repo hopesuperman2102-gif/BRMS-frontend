@@ -1,4 +1,4 @@
-import { DeployedRule, Rule } from "./deployTypes";
+import { DeployedRule, Rule } from "@/modules/deploy/types/deployTypes";
 
 export interface MonthlyDeployData {
   year: number;

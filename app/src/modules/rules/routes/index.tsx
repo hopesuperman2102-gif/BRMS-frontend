@@ -1,6 +1,6 @@
-import type { AppRoute } from '../../../core/types/routeTypes';
-import ProjectRulePage from '../pages/ProjectRulePage';
-import CreateRulePage from '../pages/CreateRulePage';
+import type { AppRoute } from '@/core/types/routeTypes';
+import ProjectRulePage from '@/modules/rules/pages/ProjectRulePage';
+import CreateRulePage from '@/modules/rules/pages/CreateRulePage';
 
 const rulesRoutes: AppRoute[] = [
   {
@@ -25,3 +25,4 @@ const rulesRoutes: AppRoute[] = [
 ];
 
 export default rulesRoutes;
+

@@ -1,7 +1,7 @@
-import { ENV } from '../../../config/env';
+import { ENV } from '@/config/env';
 
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { ProjectRulesResult, RuleResponse, RuleVersion, VerticalProjectRulesResponse } from '../types/ruleEndpointsTypes';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { ProjectRulesResult, RuleResponse, RuleVersion, VerticalProjectRulesResponse } from '@/modules/rules/types/ruleEndpointsTypes';
 
 const BASE = ENV.API_BASE_URL;
 

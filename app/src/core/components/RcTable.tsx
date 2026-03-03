@@ -8,8 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { brmsTheme } from '../theme/brmsTheme';
-import { RcTableProps } from "../types/commonTypes";
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { RcTableProps } from "@/core/types/commonTypes";
 
 const { colors } = brmsTheme;
 

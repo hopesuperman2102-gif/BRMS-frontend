@@ -5,12 +5,12 @@ import { Box, Tabs, Tab, IconButton, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import DeployTabPage from '../../deploy/page/DeployTabPage';
-import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import ProjectList from '../components/ProjectListCard';
-import RulesTable from '../components/RulesTable';
-import { useRole } from 'app/src/modules/auth/hooks/useRole';
+import DeployTabPage from '@/modules/deploy/page/DeployTabPage';
+import { projectsApi } from '@/modules/hub/api/projectsApi';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import ProjectList from '@/modules/hub/components/ProjectListCard';
+import RulesTable from '@/modules/hub/components/RulesTable';
+import { useRole } from '@/modules/auth/hooks/useRole';
 
 const { colors, gradients } = brmsTheme;
 
@@ -142,3 +142,4 @@ const HubPage = () => {
 };
 
 export default HubPage;
+

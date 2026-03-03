@@ -1,4 +1,4 @@
-import { UserManagementResponse } from "./userEndpointsTypes";
+import { UserManagementResponse } from "@/modules/UserLifecycle/types/userEndpointsTypes";
 
 // CreateUserLeftPanel Props
 export interface CreateUserLeftPanelProps {

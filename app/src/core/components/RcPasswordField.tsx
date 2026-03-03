@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { RcPasswordProps } from '../types/commonTypes';
+import { RcPasswordProps } from '@/core/types/commonTypes';
 
 export default function RcPasswordField({
   name,

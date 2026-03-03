@@ -1,7 +1,7 @@
 'use client';
 
 import { TextField } from '@mui/material';
-import { RcTextAreaProps } from '../types/commonTypes';
+import { RcTextAreaProps } from '@/core/types/commonTypes';
 
 export default function RcTextArea({
   name,

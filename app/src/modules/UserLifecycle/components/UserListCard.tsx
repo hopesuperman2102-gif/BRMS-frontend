@@ -6,12 +6,12 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { brmsTheme } from '../../../core/theme/brmsTheme';
-import RcTable from '../../../core/components/RcTable';
-import { CreateUserApi } from '../api/createUserApi';
-import RcConfirmDialog from 'app/src/core/components/RcConfirmDailog';
-import UpdatePasswordDialog from './UpdatePasswordDialog';
-import { User, UserListCardProps } from '../types/userTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import RcTable from '@/core/components/RcTable';
+import { CreateUserApi } from '@/modules/UserLifecycle/api/createUserApi';
+import RcConfirmDialog from '@/core/components/RcConfirmDailog';
+import UpdatePasswordDialog from '@/modules/UserLifecycle/components/UpdatePasswordDialog';
+import { User, UserListCardProps } from '@/modules/UserLifecycle/types/userTypes';
 
 const { colors } = brmsTheme;
 
@@ -174,3 +174,4 @@ export default function UserListCard({ newUser }: UserListCardProps) {
     </>
   );
 }
+

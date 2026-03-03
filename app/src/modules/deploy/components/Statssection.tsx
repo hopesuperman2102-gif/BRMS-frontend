@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { Grid } from '@mui/material';
-import { DeploymentHealth } from './DeploymentHealth';
-import { PendingSync } from './PendingSync';
-import RcMonthBarChart from 'app/src/core/components/RcMonthBarChart';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { StatsSectionProps } from '../types/deployTypes';
+import { DeploymentHealth } from '@/modules/deploy/components/DeploymentHealth';
+import { PendingSync } from '@/modules/deploy/components/PendingSync';
+import RcMonthBarChart from '@/core/components/RcMonthBarChart';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { StatsSectionProps } from '@/modules/deploy/types/deployTypes';
 
 export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear, onYearChange }) => {
   return (
@@ -52,3 +52,4 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear,
     </Grid>
   );
 };
+

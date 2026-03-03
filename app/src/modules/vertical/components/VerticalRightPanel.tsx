@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Typography, CircularProgress, styled } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { VerticalRightPanelProps } from '../types/verticalTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { VerticalRightPanelProps } from '@/modules/vertical/types/verticalTypes';
 
 const RightPanelContainer = styled(Box)({
   flex: 1,
@@ -180,3 +180,4 @@ export default function VerticalRightPanel({
     </RightPanelContainer>
   );
 }
+

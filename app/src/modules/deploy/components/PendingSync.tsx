@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Typography } from '@mui/material';
-import { RcCard } from 'app/src/core/components/RcCard';
-import { PendingSyncProps } from '../types/deployTypes';
+import { RcCard } from '@/core/components/RcCard';
+import { PendingSyncProps } from '@/modules/deploy/types/deployTypes';
 
 export const PendingSync: React.FC<PendingSyncProps> = ({
   title,
@@ -49,3 +49,4 @@ export const PendingSync: React.FC<PendingSyncProps> = ({
     </RcCard>
   );
 };
+

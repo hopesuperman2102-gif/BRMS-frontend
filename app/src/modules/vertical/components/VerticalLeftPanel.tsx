@@ -1,9 +1,9 @@
 'use client';
 
 import LayersIcon from '@mui/icons-material/Layers';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import RcLeftPanel from 'app/src/core/components/RcLeftPanel';
-import { VerticalLeftPanelProps } from '../types/verticalTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import RcLeftPanel from '@/core/components/RcLeftPanel';
+import { VerticalLeftPanelProps } from '@/modules/vertical/types/verticalTypes';
 
 const DEFAULT_DESCRIPTION =
   'Each vertical is an isolated decision domain. Select one to manage its projects, rules, and deployment pipelines.';

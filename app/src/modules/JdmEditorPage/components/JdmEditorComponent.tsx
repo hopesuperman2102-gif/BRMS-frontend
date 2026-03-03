@@ -3,9 +3,9 @@
 import dynamic from 'next/dynamic';
 import '@gorules/jdm-editor/dist/style.css';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import CustomSimulatorPanel from './Customsimulatorpanel';
-import { JdmEditorComponentProps } from 'app/src/modules/JdmEditorPage/types/JdmEditorTypes';
-import { ExecuteResponse, JsonObject } from '../types/jdmEditorEndpointsTypes';
+import CustomSimulatorPanel from '@/modules/JdmEditorPage/components/Customsimulatorpanel';
+import { JdmEditorComponentProps } from '@/modules/JdmEditorPage/types/JdmEditorTypes';
+import { ExecuteResponse, JsonObject } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
 
 // Client-only imports
 const DecisionGraph = dynamic(

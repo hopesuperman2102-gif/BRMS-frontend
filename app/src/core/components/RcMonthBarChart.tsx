@@ -2,9 +2,9 @@
 
 import React, { useState, useMemo } from "react";
 import { Box, Typography, Select, MenuItem } from "@mui/material";
-import { RcCard } from "app/src/core/components/RcCard";
-import { brmsTheme } from "app/src/core/theme/brmsTheme";
-import { Props } from "../types/commonTypes";
+import { RcCard } from "@/core/components/RcCard";
+import { brmsTheme } from "@/core/theme/brmsTheme";
+import { Props } from "@/core/types/commonTypes";
 
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",

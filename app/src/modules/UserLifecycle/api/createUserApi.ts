@@ -1,6 +1,6 @@
-import { ENV } from '../../../config/env';
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { UserManagementResponse } from '../types/userEndpointsTypes';
+import { ENV } from '@/config/env';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { UserManagementResponse } from '@/modules/UserLifecycle/types/userEndpointsTypes';
 
 const BASE = ENV.API_BASE_URL;
 

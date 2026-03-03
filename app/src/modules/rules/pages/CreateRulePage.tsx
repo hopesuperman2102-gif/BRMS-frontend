@@ -5,10 +5,10 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import { rulesApi } from '@/modules/rules/api/rulesApi';
 import { projectsApi } from '@/modules/hub/api/projectsApi';
-import CreateRuleLeftPanel from '../components/CreateRuleLeftPanel';
-import CreateRuleRightPanel from '../components/CreateRuleRightPanel';
-import { FormState } from '../types/rulesTypes';
-import { RuleResponse } from '../types/ruleEndpointsTypes';
+import CreateRuleLeftPanel from '@/modules/rules/components/CreateRuleLeftPanel';
+import CreateRuleRightPanel from '@/modules/rules/components/CreateRuleRightPanel';
+import { FormState } from '@/modules/rules/types/rulesTypes';
+import { RuleResponse } from '@/modules/rules/types/ruleEndpointsTypes';
 
 /* ─── Page ────*/
 export default function CreateRulePage() {

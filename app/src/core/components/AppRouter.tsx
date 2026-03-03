@@ -3,10 +3,10 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { appRoutes } from '@/core/routes/appRoutes';
-import PageWrapper from './PageWrapper';
-import AppBarComponent from './AppBarComponent';
-import type { AppRoute } from '../types/routeTypes';
-import { Layout } from '../types/routeTypes';
+import PageWrapper from '@/core/components/PageWrapper';
+import AppBarComponent from '@/core/components/AppBarComponent';
+import type { AppRoute } from '@/core/types/routeTypes';
+import { Layout } from '@/core/types/routeTypes';
 import { CircularProgress, Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 

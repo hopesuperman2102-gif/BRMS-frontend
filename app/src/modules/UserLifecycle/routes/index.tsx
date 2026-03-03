@@ -1,5 +1,5 @@
-import type { AppRoute } from '../../../core/types/routeTypes';
-import CreateUserPage from '../../UserLifecycle/pages/CreateUserPage';
+import type { AppRoute } from '@/core/types/routeTypes';
+import CreateUserPage from '@/modules/UserLifecycle/pages/CreateUserPage';
 
 const UserLifeCycleRoutes: AppRoute[] = [
   {
@@ -14,3 +14,4 @@ const UserLifeCycleRoutes: AppRoute[] = [
 ];
 
 export default UserLifeCycleRoutes;
+

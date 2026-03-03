@@ -1,7 +1,7 @@
-import { ENV } from 'app/src/config/env';
+import { ENV } from '@/config/env';
 import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { logoutApi, refreshApi } from '../services/Authservice';
+import { logoutApi, refreshApi } from '@/modules/auth/services/Authservice';
 
 // These are set from AuthContext after login/refresh
 // We use a module-level getter/setter so axiosInstance can access React state

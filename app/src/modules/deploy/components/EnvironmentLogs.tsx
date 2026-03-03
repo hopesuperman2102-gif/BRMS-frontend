@@ -12,8 +12,8 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { deployApi } from '../api/deployApi';
-import { EnvironmentLogsProps, EnvLogEntry, ParsedEnvLogLine } from '../types/deployTypes';
+import { deployApi } from '@/modules/deploy/api/deployApi';
+import { EnvironmentLogsProps, EnvLogEntry, ParsedEnvLogLine } from '@/modules/deploy/types/deployTypes';
 
 /* ─── Helpers ───────────────────────────────────────────────── */
 

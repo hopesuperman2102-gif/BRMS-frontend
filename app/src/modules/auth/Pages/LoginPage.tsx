@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
-import { useAuth } from '../context/Authcontext';
-import { loginApi } from '../services/Authservice';
-import LoginLeftPanel from '../components/Loginleftpanel';
-import LoginRightPanel from '../components/Loginrightpanel';
+import { useAuth } from '@/modules/auth/context/Authcontext';
+import { loginApi } from '@/modules/auth/services/Authservice';
+import LoginLeftPanel from '@/modules/auth/components/Loginleftpanel';
+import LoginRightPanel from '@/modules/auth/components/Loginrightpanel';
 
 
 export default function LoginPage() {

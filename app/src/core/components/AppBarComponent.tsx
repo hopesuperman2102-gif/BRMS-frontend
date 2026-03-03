@@ -16,9 +16,9 @@ import {
   ListItemText,
   CircularProgress,
 } from "@mui/material";
-import HeaderIcon from "./HeaderIcon";
-import LogoTitle from "./LogoTitle";
-import { brmsTheme } from "../theme/brmsTheme";
+import HeaderIcon from "@/core/components/HeaderIcon";
+import LogoTitle from "@/core/components/LogoTitle";
+import { brmsTheme } from "@/core/theme/brmsTheme";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CloseIcon from "@mui/icons-material/Close";
@@ -26,14 +26,14 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import EmailIcon from "@mui/icons-material/Email";
 import AuditIcon from "@mui/icons-material/ManageSearch";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { AppBarComponentProps } from "../types/commonTypes";
-import SectionHeader from "./SectionHeader";
+import { AppBarComponentProps } from "@/core/types/commonTypes";
+import SectionHeader from "@/core/components/SectionHeader";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../modules/auth/context/Authcontext";
-import { logoutApi } from "../../modules/auth/services/Authservice";
-import { useRole } from "../../modules/auth/hooks/useRole";
-import { getCurrentUserApi } from "app/src/modules/auth/services/UserService";
-import { LoggedInUser } from "app/src/modules/auth/types/authTypes";
+import { useAuth } from "@/modules/auth/context/Authcontext";
+import { logoutApi } from "@/modules/auth/services/Authservice";
+import { useRole } from "@/modules/auth/hooks/useRole";
+import { getCurrentUserApi } from "@/modules/auth/services/UserService";
+import { LoggedInUser } from "@/modules/auth/types/authTypes";
 
 const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationName }) => {
   const navigate = useNavigate();
@@ -272,3 +272,4 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
 };
 
 export default AppBarComponent;
+

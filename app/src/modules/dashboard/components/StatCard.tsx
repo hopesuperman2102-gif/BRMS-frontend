@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { RcCard } from "app/src/core/components/RcCard";
-import { brmsTheme } from "app/src/core/theme/brmsTheme";
-import { StatCardProps } from "../types/dashboardTypes";
+import { RcCard } from "@/core/components/RcCard";
+import { brmsTheme } from "@/core/theme/brmsTheme";
+import { StatCardProps } from "@/modules/dashboard/types/dashboardTypes";
 
 const StatCard: React.FC<StatCardProps> = ({
   title,
@@ -83,3 +83,4 @@ const StatCard: React.FC<StatCardProps> = ({
 };
 
 export default StatCard;
+

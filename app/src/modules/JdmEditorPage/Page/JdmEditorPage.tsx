@@ -1,4 +1,4 @@
-import JdmEditorWithSimulator from "../components/JdmEditorWithSimulator";
+import JdmEditorWithSimulator from "@/modules/JdmEditorPage/components/JdmEditorWithSimulator";
 
 export default function JdmEditorPage() {
   return <JdmEditorWithSimulator/>;

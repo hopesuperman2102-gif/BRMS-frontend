@@ -9,8 +9,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useState } from 'react';
-import { brmsTheme } from '../../../core/theme/brmsTheme';
-import { UpdatePasswordDialogProps } from '../types/userTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { UpdatePasswordDialogProps } from '@/modules/UserLifecycle/types/userTypes';
 
 const { colors, fonts } = brmsTheme;
 

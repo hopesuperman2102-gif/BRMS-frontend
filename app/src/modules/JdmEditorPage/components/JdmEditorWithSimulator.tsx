@@ -4,14 +4,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import Editor from './Editor';
-import { rulesApi } from 'app/src/modules/rules/api/rulesApi';
-import { executionApi } from 'app/src/modules/JdmEditorPage/api/executionApi';
-import RepositorySidebar from './RepositorySidebar';
-import { RepoItem } from '../types/JdmEditorTypes';
-import RcAlertComponent from '../../../core/components/RcAlertComponent';
-import { useRole } from 'app/src/modules/auth/hooks/useRole';
-import { JsonObject } from '../types/jdmEditorEndpointsTypes';
+import Editor from '@/modules/JdmEditorPage/components/Editor';
+import { rulesApi } from '@/modules/rules/api/rulesApi';
+import { executionApi } from '@/modules/JdmEditorPage/api/executionApi';
+import RepositorySidebar from '@/modules/JdmEditorPage/components/RepositorySidebar';
+import { RepoItem } from '@/modules/JdmEditorPage/types/JdmEditorTypes';
+import RcAlertComponent from '@/core/components/RcAlertComponent';
+import { useRole } from '@/modules/auth/hooks/useRole';
+import { JsonObject } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
 
 /* ---------- Same helper functions as ProjectRuleComponent ---------- */
 const splitPath = (path: string): string[] => path.split('/').filter(Boolean);
@@ -223,3 +223,4 @@ export default function JdmEditorWithSimulator() {
     </Box>
   );
 }
+

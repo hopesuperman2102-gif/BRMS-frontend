@@ -1,5 +1,5 @@
 import { DecisionGraphType } from "@gorules/jdm-editor";
-import { ExecuteResponse, JsonObject } from "./jdmEditorEndpointsTypes";
+import { ExecuteResponse, JsonObject } from "@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes";
 
 // Types for JDM Editor components
 export type JdmEditorProps = {

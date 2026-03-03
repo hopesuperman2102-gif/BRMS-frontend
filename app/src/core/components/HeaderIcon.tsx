@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-import { HeaderIconProps } from '../types/commonTypes';
+import { HeaderIconProps } from '@/core/types/commonTypes';
 
 const HeaderIcon: React.FC<HeaderIconProps> = ({
   icon,

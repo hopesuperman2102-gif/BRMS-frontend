@@ -1,6 +1,6 @@
-import { ENV } from '../../../config/env';
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { CacheEntry, ProjectView, VerticalProjectsResponse } from '../types/hubEndpointsTypes';
+import { ENV } from '@/config/env';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { CacheEntry, ProjectView, VerticalProjectsResponse } from '@/modules/hub/types/hubEndpointsTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 

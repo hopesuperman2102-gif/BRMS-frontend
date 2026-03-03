@@ -1,6 +1,6 @@
 "use client";
 
-import DeployTabComponent from "../components/DeployTabComponent";
+import DeployTabComponent from "@/modules/deploy/components/DeployTabComponent";
 
 export default function DeployTabPage() {
   return <DeployTabComponent />;

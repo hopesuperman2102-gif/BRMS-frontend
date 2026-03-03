@@ -1,5 +1,4 @@
-import { VerticalView } from "./verticalEndpointsTypes";
-
+import { VerticalView } from "@/modules/vertical/types/verticalEndpointsTypes"
 
 export interface VerticalLeftPanelProps {
   verticalCount: number;

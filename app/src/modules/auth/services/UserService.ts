@@ -1,6 +1,6 @@
-import { ENV } from "app/src/config/env";
-import axiosInstance from "../http/Axiosinstance";
-import { LoggedInUser, UserResponse } from "../types/authTypes";
+import { ENV } from "@/config/env";
+import axiosInstance from "@/modules/auth/http/Axiosinstance";
+import { LoggedInUser, UserResponse } from "@/modules/auth/types/authTypes";
 
 
 const BASE_URL = ENV.API_BASE_URL;

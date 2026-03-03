@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { Box, Typography, Button, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import RcTextArea from 'app/src/core/components/RcTextArea';
-import RcInputField from 'app/src/core/components/RcInputField';
-import { CreateProjectRightPanelProps } from '../types/hubTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import RcTextArea from '@/core/components/RcTextArea';
+import RcInputField from '@/core/components/RcInputField';
+import { CreateProjectRightPanelProps } from '@/modules/hub/types/hubTypes';
 
 const { colors, fonts } = brmsTheme;
 

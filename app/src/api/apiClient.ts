@@ -1,6 +1,6 @@
 
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { ENV } from '../config/env';
+import { ENV } from '@/config/env';
 
 class ApiClient {
   private client: AxiosInstance;

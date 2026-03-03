@@ -1,12 +1,10 @@
-// app/src/modules/feature-flags/components/ui/Card.tsx
-
 'use client';
 
 import React from 'react';
 import { Paper, Typography, Box } from '@mui/material';
 import { motion } from 'framer-motion';
-import { brmsTheme } from '../theme/brmsTheme';
-import { CardHeaderProps, CardProps } from '../types/commonTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { CardHeaderProps, CardProps } from '@/core/types/commonTypes';
 
 
 // Pre-create motion component to avoid creating components during render

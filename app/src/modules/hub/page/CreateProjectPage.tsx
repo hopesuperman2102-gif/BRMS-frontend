@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
-import { projectsApi } from 'app/src/modules/hub/api/projectsApi';
-import CreateProjectLeftPanel from '../components/CreateProjectLeftPanel';
-import { FormState } from '../types/hubTypes';
-import CreateProjectRightPanel from '../components/CreateProjectRightPanel';
+import { projectsApi } from '@/modules/hub/api/projectsApi';
+import CreateProjectLeftPanel from '@/modules/hub/components/CreateProjectLeftPanel';
+import { FormState } from '@/modules/hub/types/hubTypes';
+import CreateProjectRightPanel from '@/modules/hub/components/CreateProjectRightPanel';
 
 /* ─── Page ────────────────────────────────────────────────── */
 export default function CreateProjectPage() {

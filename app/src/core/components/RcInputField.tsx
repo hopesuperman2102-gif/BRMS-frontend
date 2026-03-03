@@ -1,7 +1,7 @@
 'use client';
 
 import { TextField, InputAdornment } from '@mui/material';
-import { RcInputProps } from '../types/commonTypes';
+import { RcInputProps } from '@/core/types/commonTypes';
 
 export default function RcInputField({
   name,

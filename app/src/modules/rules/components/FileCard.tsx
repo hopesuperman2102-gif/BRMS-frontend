@@ -4,9 +4,9 @@ import { Typography, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { FileCardProps } from '../types/Explorertypes';
-import { fmtDate } from '../pages/ProjectRulePage';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { FileCardProps } from '@/modules/rules/types/Explorertypes';
+import { fmtDate } from '@/modules/rules/pages/ProjectRulePage';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
 

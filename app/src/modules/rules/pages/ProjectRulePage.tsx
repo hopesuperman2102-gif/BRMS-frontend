@@ -6,15 +6,15 @@ import { Box, Typography, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { rulesApi } from '@/modules/rules/api/rulesApi';
-import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '../types/Explorertypes';
+import { Breadcrumb, ExplorerItem, FileNode, FolderNode } from '@/modules/rules/types/Explorertypes';
 import RcConfirmDialog from '@/core/components/RcConfirmDailog';
 import { brmsTheme } from '@/core/theme/brmsTheme';
-import { ConfirmDialogState } from '../types/rulesTypes';
+import { ConfirmDialogState } from '@/modules/rules/types/rulesTypes';
 import RcAlertComponent, { useAlertStore } from '@/core/components/RcAlertComponent';
-import RulesRightPanel from '../components/RulesRightPanel';
-import RulesLeftPanel from '../components/Rulesleftpanel';
+import RulesRightPanel from '@/modules/rules/components/RulesRightPanel';
+import RulesLeftPanel from '@/modules/rules/components/Rulesleftpanel';
 import { useRole } from '@/modules/auth/hooks/useRole';
-import { RuleResponse } from '../types/ruleEndpointsTypes';
+import { RuleResponse } from '@/modules/rules/types/ruleEndpointsTypes';
 
 const { colors, fonts } = brmsTheme;
 

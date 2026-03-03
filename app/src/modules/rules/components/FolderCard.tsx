@@ -5,8 +5,8 @@ import { styled } from '@mui/material/styles';
 import FolderIcon from '@mui/icons-material/Folder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useEffect, useRef } from 'react';
-import { FolderCardProps } from '../types/Explorertypes';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { FolderCardProps } from '@/modules/rules/types/Explorertypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
 

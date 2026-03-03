@@ -12,8 +12,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import CodeIcon from '@mui/icons-material/Code';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { GroupedRule, RuleVersionControlProps } from '../types/deployTypes';
-import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
+import { GroupedRule, RuleVersionControlProps } from '@/modules/deploy/types/deployTypes';
+import { RcCard, CardHeader } from '@/core/components/RcCard';
 
 const VersionPicker: React.FC<{
   versions: string[];

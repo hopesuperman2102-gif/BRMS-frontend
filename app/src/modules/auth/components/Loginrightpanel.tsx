@@ -6,10 +6,10 @@ import { Box, Typography, Button, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
-import { brmsTheme } from '../../../core/theme/brmsTheme';
-import RcInputField from 'app/src/core/components/RcInputField';
-import RcPasswordField from 'app/src/core/components/RcPasswordField';
-import { LoginRightPanelProps } from '../types/loginTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import RcInputField from '@/core/components/RcInputField';
+import RcPasswordField from '@/core/components/RcPasswordField';
+import { LoginRightPanelProps } from '@/modules/auth/types/loginTypes';
 
 const { colors, fonts } = brmsTheme;
 
@@ -292,3 +292,4 @@ export default function LoginRightPanel({
     </RightPanelRoot>
   );
 }
+

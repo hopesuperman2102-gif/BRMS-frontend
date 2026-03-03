@@ -4,9 +4,9 @@ import React from 'react';
 import { Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { motion } from 'framer-motion';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import { EnvironmentDeploymentProps } from '../types/deployTypes';
-import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import { EnvironmentDeploymentProps } from '@/modules/deploy/types/deployTypes';
+import { RcCard, CardHeader } from '@/core/components/RcCard';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
   environments,

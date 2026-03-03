@@ -1,6 +1,6 @@
-// app/src/modules/feature-flags/types/featureFlagTypes.ts
+// @/modules/feature-flags/types/featureFlagTypes.ts
 
-import { MonthlyData, RcDropdownItem } from "app/src/core/types/commonTypes";
+import { MonthlyData, RcDropdownItem } from "@/core/types/commonTypes";
 import type { SxProps, Theme } from '@mui/material/styles';
 
 export type Environment = 'DEV' | 'QA' | 'PROD';

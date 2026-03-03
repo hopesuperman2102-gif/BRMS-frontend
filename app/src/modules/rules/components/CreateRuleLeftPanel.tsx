@@ -1,7 +1,7 @@
 'use client';
 
-import RcLeftPanel from 'app/src/core/components/RcLeftPanel';
-import { CreateRuleLeftPanelProps } from '../types/rulesTypes';
+import RcLeftPanel from '@/core/components/RcLeftPanel';
+import { CreateRuleLeftPanelProps } from '@/modules/rules/types/rulesTypes';
 
 export default function CreateRuleLeftPanel({ isEditMode, onBack }: CreateRuleLeftPanelProps) {
   return (

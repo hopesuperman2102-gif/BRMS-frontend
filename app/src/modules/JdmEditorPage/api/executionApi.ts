@@ -1,8 +1,8 @@
 
-import { ENV } from '../../../config/env';
+import { ENV } from '@/config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { ExecuteResponse , JsonObject} from '../types/jdmEditorEndpointsTypes';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { ExecuteResponse , JsonObject} from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 

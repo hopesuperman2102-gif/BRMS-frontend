@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { Box } from '@mui/material';
-import CreateUserLeftPanel from '../components/CreateUserLeftPanel';
-import CreateUserRightPanel from '../components/CreateUserRightPanel';
-import { CreateUserApi } from '../api/createUserApi';
-import { CreateUserFormData } from '../types/userTypes';
-import { UserManagementResponse } from '../types/userEndpointsTypes';
+import CreateUserLeftPanel from '@/modules/UserLifecycle/components/CreateUserLeftPanel';
+import CreateUserRightPanel from '@/modules/UserLifecycle/components/CreateUserRightPanel';
+import { CreateUserApi } from '@/modules/UserLifecycle/api/createUserApi';
+import { CreateUserFormData } from '@/modules/UserLifecycle/types/userTypes';
+import { UserManagementResponse } from '@/modules/UserLifecycle/types/userEndpointsTypes';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

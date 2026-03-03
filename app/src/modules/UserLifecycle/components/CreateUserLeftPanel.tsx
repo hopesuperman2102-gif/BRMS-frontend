@@ -1,9 +1,9 @@
 'use client';
 
 import { useNavigate } from 'react-router-dom';
-import RcLeftPanel from 'app/src/core/components/RcLeftPanel';
-import UserListCard from './UserListCard';
-import { CreateUserLeftPanelProps } from '../types/userTypes';
+import RcLeftPanel from '@/core/components/RcLeftPanel';
+import UserListCard from '@/modules/UserLifecycle/components/UserListCard';
+import { CreateUserLeftPanelProps } from '@/modules/UserLifecycle/types/userTypes';
 
 export default function CreateUserLeftPanel({ newUser }: CreateUserLeftPanelProps) {
   const navigate = useNavigate();

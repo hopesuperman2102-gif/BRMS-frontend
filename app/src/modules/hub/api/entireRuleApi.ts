@@ -1,6 +1,6 @@
-import { ENV } from '../../../config/env';
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { ReviewResponse, VerticalRulesResponse } from '../types/hubEndpointsTypes';
+import { ENV } from '@/config/env';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { ReviewResponse, VerticalRulesResponse } from '@/modules/hub/types/hubEndpointsTypes';
 
 const BASE = ENV.API_BASE_URL;
 

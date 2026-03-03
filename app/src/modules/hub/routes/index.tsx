@@ -1,10 +1,10 @@
-import type { AppRoute } from '../../../core/types/routeTypes';
+import type { AppRoute } from '@/core/types/routeTypes';
 
-import HubPage from '../page/HubPage';
-import RulesTable from '../components/RulesTable';
-import DeployTabPage from '../../deploy/page/DeployTabPage';
-import CreateProjectPage from '../page/CreateProjectPage';
-import LogsPage from '../components/LogsPage';
+import HubPage from '@/modules/hub/page/HubPage';
+import RulesTable from '@/modules/hub/components/RulesTable';
+import DeployTabPage from '@/modules/deploy/page/DeployTabPage';
+import CreateProjectPage from '@/modules/hub/page/CreateProjectPage';
+import LogsPage from '@/modules/hub/components/LogsPage';
 
 const hubRoutes: AppRoute[] = [
   {
@@ -49,3 +49,4 @@ const hubRoutes: AppRoute[] = [
   },
 ];
 export default hubRoutes;
+

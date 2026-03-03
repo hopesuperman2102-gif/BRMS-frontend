@@ -1,4 +1,4 @@
-import { VerticalProject } from "./hubTypes";
+import { VerticalProject } from "@/modules/hub/types/hubTypes";
 
 //rules Endpoints Types
 export interface VerticalRulesResponse {

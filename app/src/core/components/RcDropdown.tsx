@@ -5,8 +5,8 @@ import { Button, Menu, MenuItem, Box, Typography } from "@mui/material";
 import FolderIcon from '@mui/icons-material/Folder';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CheckIcon from '@mui/icons-material/Check';
-import { brmsTheme } from '../theme/brmsTheme';
-import { RcDropdownProps } from "../types/commonTypes";
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { RcDropdownProps } from "@/core/types/commonTypes";
 
 const RcDropdown: React.FC<RcDropdownProps> = ({
   label,

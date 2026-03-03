@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { projectsApi } from "app/src/modules/hub/api/projectsApi";
-import { brmsTheme } from "app/src/core/theme/brmsTheme";
-import ProjectListLeftPanel from "./ProjectListLeftPanel";
-import ProjectListRightPanel from "./ProjectListRightPanel";
-import { useRole } from "app/src/modules/auth/hooks/useRole";
-import { ProjectListProps } from "../types/hubTypes";
+import { projectsApi } from "@/modules/hub/api/projectsApi";
+import { brmsTheme } from "@/core/theme/brmsTheme";
+import ProjectListLeftPanel from "@/modules/hub/components/ProjectListLeftPanel";
+import ProjectListRightPanel from "@/modules/hub/components/ProjectListRightPanel";
+import { useRole } from "@/modules/auth/hooks/useRole";
+import { ProjectListProps } from "@/modules/hub/types/hubTypes";
 
 const { colors, fonts } = brmsTheme;
 

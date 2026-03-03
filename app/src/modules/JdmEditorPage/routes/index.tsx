@@ -1,5 +1,5 @@
-import type { AppRoute } from '../../../core/types/routeTypes';
-import JdmEditorWithSimulator from '../components/JdmEditorWithSimulator';
+import type { AppRoute } from '@/core/types/routeTypes';
+import JdmEditorWithSimulator from '@/modules/JdmEditorPage/components/JdmEditorWithSimulator';
 
 const jdmEditorRoutes: AppRoute[] = [
   {
@@ -14,3 +14,4 @@ const jdmEditorRoutes: AppRoute[] = [
 ];
 
 export default jdmEditorRoutes;
+

@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { Box } from '@mui/material';
-import { EnvironmentHistoryProps } from '../types/deployTypes';
-import { ActiveRules} from './ActiveRules';
+import { EnvironmentHistoryProps } from '@/modules/deploy/types/deployTypes';
+import { ActiveRules} from '@/modules/deploy/components/ActiveRules';
 
 export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
   rules,

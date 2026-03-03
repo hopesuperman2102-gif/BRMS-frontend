@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { RcCard } from 'app/src/core/components/RcCard';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { RcCard } from '@/core/components/RcCard';
 
 const DashboardHeader = () => {
   const location = useLocation();

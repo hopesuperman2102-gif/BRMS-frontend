@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { LogoTitleProps } from '../types/commonTypes';
+import { LogoTitleProps } from '@/core/types/commonTypes';
 
 const LogoTitle: React.FC<LogoTitleProps> = ({
   logo,

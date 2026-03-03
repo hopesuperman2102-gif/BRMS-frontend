@@ -1,5 +1,5 @@
-import type { AppRoute } from '../../../core/types/routeTypes';
-import VerticalSelectionPage from '../pages/VerticalSelectionPage';
+import type { AppRoute } from '@/core/types/routeTypes';
+import VerticalSelectionPage from '@/modules/vertical/pages/VerticalSelectionPage';
 
 
 const verticalRoutes: AppRoute[] = [
@@ -15,3 +15,4 @@ const verticalRoutes: AppRoute[] = [
 ];
 
 export default verticalRoutes;
+

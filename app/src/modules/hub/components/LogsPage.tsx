@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { useNavigate } from 'react-router-dom';
-import { brmsTheme } from '../../../core/theme/brmsTheme';
-import { logsApi } from '../api/logsApi';
-import RcDropdown from '../../../core/components/RcDropdown';
-import { HourlyLogEntry, ParsedLogLine } from '../types/hubEndpointsTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { logsApi } from '@/modules/hub/api/logsApi';
+import RcDropdown from '@/core/components/RcDropdown';
+import { HourlyLogEntry, ParsedLogLine } from '@/modules/hub/types/hubEndpointsTypes';
 
 const { colors, fonts, gradients, shadows } = brmsTheme;
 const MotionBox = motion(Box);

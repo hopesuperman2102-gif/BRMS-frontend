@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Box, Select, MenuItem, Button, FormControl, Typography, Divider } from '@mui/material';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import { EditorPropsExtended, RepoItem } from '../types/JdmEditorTypes';
-import JdmEditorComponent from './JdmEditorComponent';
-import { ruleVersionsApi } from 'app/src/modules/JdmEditorPage/api/ruleVersionsApi';
-import { useAlertStore } from '../../../core/components/RcAlertComponent';
+import { EditorPropsExtended, RepoItem } from '@/modules/JdmEditorPage/types/JdmEditorTypes';
+import JdmEditorComponent from '@/modules/JdmEditorPage/components/JdmEditorComponent';
+import { ruleVersionsApi } from '@/modules/JdmEditorPage/api/ruleVersionsApi';
+import { useAlertStore } from '@/core/components/RcAlertComponent';
 import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
-import { JdmRuleVersion } from '../types/jdmEditorEndpointsTypes';
+import { JdmRuleVersion } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
 
 const EMPTY_GRAPH: DecisionGraphType = {
   nodes: [],
@@ -474,3 +474,4 @@ export default function Editor({
     </Box>
   );
 }
+

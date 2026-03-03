@@ -1,5 +1,5 @@
-import type { AppRoute } from '../../../core/types/routeTypes';
-import LoginPage from '../Pages/LoginPage';
+import type { AppRoute } from '@/core/types/routeTypes';
+import LoginPage from '@/modules/auth/Pages/LoginPage';
 
 const authRoutes: AppRoute[] = [
   {
@@ -15,3 +15,4 @@ const authRoutes: AppRoute[] = [
 ];
 
 export default authRoutes;
+

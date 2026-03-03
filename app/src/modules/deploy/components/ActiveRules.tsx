@@ -23,10 +23,10 @@ import { motion } from 'framer-motion';
 import UndoIcon from '@mui/icons-material/Undo';
 import DescriptionIcon from '@mui/icons-material/Description';
 import RedoIcon from '@mui/icons-material/Redo';
-import { ActiveRulesProps, DeployedRule } from '../types/deployTypes';
-import { RcCard, CardHeader } from 'app/src/core/components/RcCard';
-import { deployApi } from '../api/deployApi';
-import RcConfirmDailog from 'app/src/core/components/RcConfirmDailog';
+import { ActiveRulesProps, DeployedRule } from '@/modules/deploy/types/deployTypes';
+import { RcCard, CardHeader } from '@/core/components/RcCard';
+import { deployApi } from '@/modules/deploy/api/deployApi';
+import RcConfirmDailog from '@/core/components/RcConfirmDailog';
 
 const MotionTableRow = motion(TableRow);
 

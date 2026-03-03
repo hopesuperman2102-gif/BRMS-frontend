@@ -1,6 +1,6 @@
-import { ENV } from '../../../config/env';
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { DashboardSummary } from '../types/dashboardEnpointsTypes';
+import { ENV } from '@/config/env';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { DashboardSummary } from '@/modules/dashboard/types/dashboardEnpointsTypes';
 
 
 const BASE = ENV.API_BASE_URL;

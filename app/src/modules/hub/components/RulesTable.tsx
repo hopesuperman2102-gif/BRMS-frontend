@@ -3,15 +3,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Typography, CircularProgress, Box, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { RcCollapsibleTable } from 'app/src/core/components/RcCollapsibleTable';
+import { RcCollapsibleTable } from '@/core/components/RcCollapsibleTable';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import RcAlertComponent, { useAlertStore } from 'app/src/core/components/RcAlertComponent';
-import { ApprovalStatus, ProjectRuleRow, ProjectSection, RuleVersion, VerticalProject, VerticalRule } from '../types/hubTypes';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { rulesTableApi } from '../api/entireRuleApi';
+import RcAlertComponent, { useAlertStore } from '@/core/components/RcAlertComponent';
+import { ApprovalStatus, ProjectRuleRow, ProjectSection, RuleVersion, VerticalProject, VerticalRule } from '@/modules/hub/types/hubTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { rulesTableApi } from '@/modules/hub/api/entireRuleApi';
 
 const { colors } = brmsTheme;
 

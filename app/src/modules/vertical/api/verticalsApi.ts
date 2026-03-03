@@ -1,6 +1,6 @@
-import { ENV } from '../../../config/env';
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { VerticalView } from '../types/verticalEndpointsTypes';
+import { ENV } from '@/config/env';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { VerticalView } from '@/modules/vertical/types/verticalEndpointsTypes';
 
 export const verticalsApi = {
   getVerticalsView: async (): Promise<VerticalView[]> => {

@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, styled } from '@mui/material';
-import { verticalsApi } from '../api/verticalsApi';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import VerticalRightPanel from '../components/VerticalRightPanel';
-import VerticalLeftPanel from '../components/VerticalLeftPanel';
-import { VerticalView } from '../types/verticalEndpointsTypes';
+import { verticalsApi } from '@/modules/vertical/api/verticalsApi';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import VerticalRightPanel from '@/modules/vertical/components/VerticalRightPanel';
+import VerticalLeftPanel from '@/modules/vertical/components/VerticalLeftPanel';
+import { VerticalView } from '@/modules/vertical/types/verticalEndpointsTypes';
 
 const MainContainer = styled(Box)({
   height: '100vh',

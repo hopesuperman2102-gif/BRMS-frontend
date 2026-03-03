@@ -1,5 +1,5 @@
-import { ENV } from "app/src/config/env";
-import { LoginRequest, LoginResponse, LoginResult } from "../types/authTypes";
+import { ENV } from "@/config/env";
+import { LoginRequest, LoginResponse, LoginResult } from "@/modules/auth/types/authTypes";
 
 const BASE_URL = ENV.API_BASE_URL;
 

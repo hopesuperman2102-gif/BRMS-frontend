@@ -3,10 +3,10 @@
 import React from 'react';
 import { Box, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
-import { RcCard } from 'app/src/core/components/RcCard';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
-import { DeployHeaderProps, Environment } from '../types/deployTypes';
-import RcDropdown from 'app/src/core/components/RcDropdown';
+import { RcCard } from '@/core/components/RcCard';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { DeployHeaderProps, Environment } from '@/modules/deploy/types/deployTypes';
+import RcDropdown from '@/core/components/RcDropdown';
 
 export const DeployHeader: React.FC<DeployHeaderProps> = ({
   totalRules,
@@ -80,3 +80,4 @@ export const DeployHeader: React.FC<DeployHeaderProps> = ({
     </RcCard>
   );
 };
+

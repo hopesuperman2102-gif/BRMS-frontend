@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { brmsTheme } from '../theme/brmsTheme';
-import { RcCollapsibleTableProps } from '../types/commonTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+import { RcCollapsibleTableProps } from '@/core/types/commonTypes';
 
 
 export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({

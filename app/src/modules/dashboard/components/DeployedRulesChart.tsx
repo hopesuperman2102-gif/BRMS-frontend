@@ -2,9 +2,9 @@
 
 import React, { useMemo } from "react";
 import { Box, Typography, Select, MenuItem } from "@mui/material";
-import { RcCard } from "app/src/core/components/RcCard";
-import { brmsTheme } from "app/src/core/theme/brmsTheme";
-import { DeployedRuleProps } from "../types/dashboardTypes";
+import { RcCard } from "@/core/components/RcCard";
+import { brmsTheme } from "@/core/theme/brmsTheme";
+import { DeployedRuleProps } from "@/modules/dashboard/types/dashboardTypes";
 
 const getBarColor = (index: number): string => {
   const colors = ["#1976d2", "#2196f3", "#42a5f5"];

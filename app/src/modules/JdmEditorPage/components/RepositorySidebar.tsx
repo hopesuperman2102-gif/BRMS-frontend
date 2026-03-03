@@ -4,9 +4,9 @@ import { Box, Typography, IconButton} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import AccountTree from '@mui/icons-material/AccountTree';
-import RepoTree from './RepoTree';
-import { RepositorySidebarProps } from '../types/JdmEditorTypes';
-import { brmsTheme } from 'app/src/core/theme/brmsTheme';
+import RepoTree from '@/modules/JdmEditorPage/components/RepoTree';
+import { RepositorySidebarProps } from '@/modules/JdmEditorPage/types/JdmEditorTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const { colors } = brmsTheme;
 

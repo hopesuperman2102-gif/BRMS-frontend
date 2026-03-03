@@ -1,7 +1,7 @@
-import { ENV } from '../../../config/env';
-import axiosInstance from '../../auth/http/Axiosinstance';
-import { DeployRulePayload, DeployRuleResponse, DeployStats, DeploySummary, EnvironmentLog } from '../types/deployEndpointsTypes';
-import { Rule } from '../types/deployTypes';
+import { ENV } from '@/config/env';
+import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import { DeployRulePayload, DeployRuleResponse, DeployStats, DeploySummary, EnvironmentLog } from '@/modules/deploy/types/deployEndpointsTypes';
+import { Rule } from '@/modules/deploy/types/deployTypes';
 
 const API_BASE_URL = ENV.API_BASE_URL;
 

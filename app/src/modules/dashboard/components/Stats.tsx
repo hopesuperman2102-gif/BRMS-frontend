@@ -1,9 +1,9 @@
-import StatCard from './StatCard';
+import StatCard from '@/modules/dashboard/components/StatCard';
 import AccountTreeOutlined from '@mui/icons-material/AccountTreeOutlined';
 import RuleOutlined from '@mui/icons-material/RuleOutlined';
 import ToggleOnSharp from '@mui/icons-material/ToggleOnSharp';
 import PendingActionsRounded from '@mui/icons-material/PendingActionsRounded';
-import { StatsProps } from '../types/dashboardTypes';
+import { StatsProps } from '@/modules/dashboard/types/dashboardTypes';
 
 const Stats = ({ totalActiveProjects, totalRules, activeRules, pendingRules }: StatsProps) => {
   const stats = [

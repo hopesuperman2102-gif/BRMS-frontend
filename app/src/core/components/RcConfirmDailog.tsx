@@ -1,6 +1,6 @@
 // src/core/components/ConfirmDialog.tsx
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
-import { ConfirmDialogProps } from '../types/commonTypes';
+import { ConfirmDialogProps } from '@/core/types/commonTypes';
 
 export default function RcConfirmDialog({
   open,

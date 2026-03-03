@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { refreshApi } from '../services/Authservice';
+import { refreshApi } from '@/modules/auth/services/Authservice';
 
 
 export function useAuthInit() {
