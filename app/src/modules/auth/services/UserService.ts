@@ -1,13 +1,9 @@
-import { ENV } from "@/config/env";
-import axiosInstance from "@/modules/auth/http/Axiosinstance";
+import axiosInstance from "@/api/apiClient";
 import { LoggedInUser, UserResponse } from "@/modules/auth/types/authTypes";
-
-
-const BASE_URL = ENV.API_BASE_URL;
 
 export async function getCurrentUserApi(): Promise<LoggedInUser> {
   try {
-    const response = await axiosInstance.get<UserResponse>(`${BASE_URL}/api/v1/users/user`);
+    const response = await axiosInstance.get<UserResponse>('/api/v1/users/user');
     return {
       id: response.data.id,
       name: response.data.username,
@@ -23,7 +19,7 @@ export async function getCurrentUserApi(): Promise<LoggedInUser> {
 
 export async function getUserByIdApi(userId: string): Promise<LoggedInUser> {
   try {
-    const response = await axiosInstance.get<UserResponse>(`${BASE_URL}/api/v1/users/${userId}`);
+    const response = await axiosInstance.get<UserResponse>(`/api/v1/users/${userId}`);
     return {
       id: response.data.id,
       name: response.data.username,
@@ -40,7 +36,7 @@ export async function getUserByIdApi(userId: string): Promise<LoggedInUser> {
 export async function updateUserApi(userId: string, updates: Partial<UserResponse>): Promise<LoggedInUser> {
   try {
     const response = await axiosInstance.put<UserResponse>(
-      `${BASE_URL}/api/v1/users/${userId}`,
+      `/api/v1/users/${userId}`,
       updates
     );
     return {
@@ -55,3 +51,4 @@ export async function updateUserApi(userId: string, updates: Partial<UserRespons
     throw error;
   }
 }
+

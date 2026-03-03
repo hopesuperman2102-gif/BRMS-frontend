@@ -1,8 +1,5 @@
-import { ENV } from '@/config/env';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { UserManagementResponse } from '@/modules/UserLifecycle/types/userEndpointsTypes';
-
-const BASE = ENV.API_BASE_URL;
 
 export const CreateUserApi = {
 
@@ -13,7 +10,7 @@ export const CreateUserApi = {
     roles: string[];
   }): Promise<UserManagementResponse> => {
     const res = await axiosInstance.post<UserManagementResponse>(
-      `${BASE}/api/v1/users`,
+      '/api/v1/users',
       data
     );
     return res.data;
@@ -21,7 +18,7 @@ export const CreateUserApi = {
 
   getUsers: async (page = 1, pageSize = 10): Promise<{ users: UserManagementResponse[]; total: number }> => {
     const res = await axiosInstance.get<{ users: UserManagementResponse[]; total: number }>(
-      `${BASE}/api/v1/users`,
+      '/api/v1/users',
       {
         params: { page, pageSize },
       }
@@ -31,7 +28,7 @@ export const CreateUserApi = {
 
   getUserById: async (userId: string): Promise<UserManagementResponse> => {
     const res = await axiosInstance.get<UserManagementResponse>(
-      `${BASE}/api/v1/users/${userId}`
+      `/api/v1/users/${userId}`
     );
     return res.data;
   },
@@ -43,7 +40,7 @@ export const CreateUserApi = {
     roles?: string[];
   }): Promise<UserManagementResponse> => {
     const res = await axiosInstance.put<UserManagementResponse>(
-      `${BASE}/api/v1/users/${userId}`,
+      `/api/v1/users/${userId}`,
       data
     );
     return res.data;
@@ -51,17 +48,18 @@ export const CreateUserApi = {
 
   deleteUser: async (userId: string): Promise<unknown> => {
     const res = await axiosInstance.delete<unknown>(
-      `${BASE}/api/v1/users/${userId}`
+      `/api/v1/users/${userId}`
     );
     return res.data;
   },
 
   changePassword: async (userId: string, newPassword: string): Promise<unknown> => {
   const res = await axiosInstance.post<unknown>(
-    `${BASE}/api/v1/users/change-password`,
+    '/api/v1/users/change-password',
     { new_password: newPassword }
   );
   return res.data;
 },
 
 };
+

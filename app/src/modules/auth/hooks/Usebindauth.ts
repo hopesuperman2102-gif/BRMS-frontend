@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/modules/auth/context/Authcontext';
-import { bindAuthToAxios } from '@/modules/auth/http/Axiosinstance';
+import { bindAuthToAxios } from '@/api/apiClient';
 
 export function useBindAuth() {
   const { getAccessToken, setAccessToken } = useAuth();

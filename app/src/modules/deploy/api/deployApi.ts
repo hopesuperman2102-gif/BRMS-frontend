@@ -1,14 +1,11 @@
-import { ENV } from '@/config/env';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { DeployRulePayload, DeployRuleResponse, DeployStats, DeploySummary, EnvironmentLog } from '@/modules/deploy/types/deployEndpointsTypes';
 import { Rule } from '@/modules/deploy/types/deployTypes';
-
-const API_BASE_URL = ENV.API_BASE_URL;
 
 export const deployApi = {
   getDashboardSummary: async (vertical_key: string): Promise<DeploySummary> => {
     const res = await axiosInstance.post<DeploySummary>(
-      `${API_BASE_URL}/api/v1/env/dashboard/summary`,
+      '/api/v1/env/dashboard/summary',
       { vertical_key }
     );
     return res.data;
@@ -16,7 +13,7 @@ export const deployApi = {
 
   getDashboardStats: async (project_key: string, environment: string): Promise<DeployStats> => {
     const res = await axiosInstance.post<DeployStats>(
-      `${API_BASE_URL}/api/v1/env/dashboard/stats`,
+      '/api/v1/env/dashboard/stats',
       { project_key, env: environment }
     );
     return res.data;
@@ -24,7 +21,7 @@ export const deployApi = {
 
   getDeploymentRules: async (project_key: string, environment: string): Promise<Rule[]> => {
     const res = await axiosInstance.post<{ rules?: Rule[]; undeployed_approved_versions?: Rule[] }>(
-      `${API_BASE_URL}/api/v1/bindings/`,
+      '/api/v1/bindings/',
       { project_key, env: environment }
     );
     return res.data.rules || res.data.undeployed_approved_versions || [];
@@ -32,7 +29,7 @@ export const deployApi = {
 
   deployRule: async (payload: DeployRulePayload): Promise<DeployRuleResponse> => {
     const res = await axiosInstance.post<DeployRuleResponse>(
-      `${API_BASE_URL}/api/v1/bindings`,
+      '/api/v1/bindings',
       payload
     );
     return res.data;
@@ -40,13 +37,13 @@ export const deployApi = {
 
   revokeRule: async (rule_key: string, version: string, environment: string): Promise<void> => {
     await axiosInstance.delete(
-      `${API_BASE_URL}/api/v1/bindings/${rule_key}/${version}/${environment}`
+      `/api/v1/bindings/${rule_key}/${version}/${environment}`
     );
   },
 
   promoteRule: async (rule_key: string, target_env: string, current_env: string): Promise<void> => {
     await axiosInstance.put(
-      `${API_BASE_URL}/api/v1/bindings/${rule_key}/${current_env}`,
+      `/api/v1/bindings/${rule_key}/${current_env}`,
       {
         SetEnvironment: target_env,
         activated_by: 'super_admin',
@@ -56,9 +53,10 @@ export const deployApi = {
 
   getEnvironmentLogs: async (environment: string): Promise<EnvironmentLog[]> => {
     const res = await axiosInstance.get(
-      `${API_BASE_URL}/api/v1/environment-logs/${environment}`
+      `/api/v1/environment-logs/${environment}`
     );
     const payload = res.data;
     return Array.isArray(payload) ? payload : payload.logs ?? payload.data ?? [];
   },
 };
+

@@ -1,9 +1,5 @@
-import { ENV } from '@/config/env';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { DashboardSummary } from '@/modules/dashboard/types/dashboardEnpointsTypes';
-
-
-const BASE = ENV.API_BASE_URL;
 
 const inflightCache = new Map<string, Promise<DashboardSummary>>();
 
@@ -16,7 +12,7 @@ export const dashboardApi = {
     }
 
     const promise = axiosInstance
-      .get<DashboardSummary>(`${BASE}/api/v1/dashboard/${vertical_key}`)
+      .get<DashboardSummary>(`/api/v1/dashboard/${vertical_key}`)
       .then((res) => {
         inflightCache.delete(vertical_key); 
         return res.data;
@@ -38,3 +34,4 @@ export const dashboardApi = {
     }
   },
 };
+

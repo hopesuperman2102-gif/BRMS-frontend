@@ -1,10 +1,6 @@
-
-import { ENV } from '@/config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { ExecuteResponse , JsonObject} from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
-
-const API_BASE_URL = ENV.API_BASE_URL;
 
 export const executionApi = {
   /**
@@ -16,7 +12,7 @@ export const executionApi = {
   execute: async (jdm: DecisionGraphType, input: JsonObject): Promise<ExecuteResponse> => {
     try {
       const response = await axiosInstance.post<ExecuteResponse>(
-        `${API_BASE_URL}/api/v1/execution/simulate`,
+        '/api/v1/execution/simulate',
         { jdm, input }
       );
 
@@ -26,3 +22,4 @@ export const executionApi = {
     }
   },
 };
+

@@ -1,10 +1,8 @@
 
-import { ENV } from '@/config/env';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { CreateRuleVersionRequest, JdmRuleVersion } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
 
-const BASE_URL = ENV.API_BASE_URL;
 
 export const ruleVersionsApi = {
 
@@ -37,7 +35,7 @@ export const ruleVersionsApi = {
     version: string
   ): Promise<{ jdm: DecisionGraphType }> => {
     try {
-      const response = await axiosInstance.get(`api/v1/rules/${rule_key}/versions/${version}`);
+      const response = await axiosInstance.get(`/api/v1/rules/${rule_key}/versions/${version}`);
       return response.data as { jdm: DecisionGraphType };
     } catch (error) {
       console.error('Error fetching version data:', error);
@@ -46,7 +44,5 @@ export const ruleVersionsApi = {
   },
 };
 
-// Log API endpoint in development
-if (ENV.DEBUG_MODE) {
-  console.log('📡 Rule Versions API Base URL:', BASE_URL);
-}
+
+

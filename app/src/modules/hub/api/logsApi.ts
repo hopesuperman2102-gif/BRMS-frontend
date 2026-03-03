@@ -1,8 +1,5 @@
-import { ENV } from '@/config/env';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { HourlyLogEntry, ParsedLogLine, RawHourlyListResponse, RawHourlyLogDetail } from '@/modules/hub/types/hubEndpointsTypes';
-
-const BASE = ENV.API_BASE_URL;
 
 function parseLogLine(line: string): ParsedLogLine | null {
   const parts = line.split(' | ');
@@ -37,7 +34,7 @@ export const logsApi = {
 
   getHourlyLogs: async (): Promise<HourlyLogEntry[]> => {
     const res = await axiosInstance.get<RawHourlyListResponse>(
-      `${BASE}/api/v1/logs/hourly`
+      '/api/v1/logs/hourly'
     );
     return res.data.data.map((meta): HourlyLogEntry => ({
       file_key:    meta.file_key,
@@ -57,7 +54,7 @@ export const logsApi = {
     skip = 0,
   ): Promise<{ lines: ParsedLogLine[]; total: number; count: number }> => {
     const res = await axiosInstance.get<RawHourlyLogDetail>(
-      `${BASE}/api/v1/logs/hourly/${fileKey}`,
+      `/api/v1/logs/hourly/${fileKey}`,
       { params: { skip, limit: PAGE_SIZE } }
     );
     return {
@@ -69,3 +66,4 @@ export const logsApi = {
 
   PAGE_SIZE,
 };
+

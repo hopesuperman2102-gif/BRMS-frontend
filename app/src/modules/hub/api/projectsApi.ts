@@ -1,8 +1,6 @@
 import { ENV } from '@/config/env';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { CacheEntry, ProjectView, VerticalProjectsResponse } from '@/modules/hub/types/hubEndpointsTypes';
-
-const API_BASE_URL = ENV.API_BASE_URL;
 
 const TTL_MS = 30_000;
 
@@ -27,7 +25,7 @@ export const projectsApi = {
     // 3. New request
     const promise = axiosInstance
       .get<VerticalProjectsResponse>(
-        `${API_BASE_URL}/api/v1/verticals/${vertical_key}/projects?status=ACTIVE`
+        `/api/v1/verticals/${vertical_key}/projects?status=ACTIVE`
       )
       .then((res) => {
         dataCache.set(vertical_key, { data: res.data, expiresAt: Date.now() + TTL_MS });
@@ -65,7 +63,7 @@ export const projectsApi = {
     domain: string;
   }) => {
     if (ENV.ENABLE_LOGGING) console.log('Creating project:', data);
-    const res = await axiosInstance.post(`${API_BASE_URL}/api/v1/projects/`, data);
+    const res = await axiosInstance.post('/api/v1/projects/', data);
     projectsApi.invalidateProjectsCache(data.vertical_key);
     if (ENV.ENABLE_LOGGING) console.log('Project created:', res.data);
     return res.data;
@@ -74,7 +72,7 @@ export const projectsApi = {
   deleteProject: async (project_key: string, deleted_by: string) => {
     if (ENV.ENABLE_LOGGING) console.log('Deleting project:', project_key);
     const res = await axiosInstance.delete(
-      `${API_BASE_URL}/api/v1/projects/${project_key}?deleted_by=${deleted_by}`
+      `/api/v1/projects/${project_key}?deleted_by=${deleted_by}`
     );
     projectsApi.invalidateProjectsCache();
     if (ENV.ENABLE_LOGGING) console.log('Project deleted:', project_key);
@@ -87,7 +85,7 @@ export const projectsApi = {
   ) => {
     if (ENV.ENABLE_LOGGING) console.log('Updating project:', project_key, data);
     const res = await axiosInstance.put(
-      `${API_BASE_URL}/api/v1/projects/${project_key}`,
+      `/api/v1/projects/${project_key}`,
       { ...data, updated_by: 'admin' }
     );
     projectsApi.invalidateProjectsCache();
@@ -108,6 +106,3 @@ export const projectsApi = {
   },
 };
 
-if (ENV.DEBUG_MODE) {
-  console.log('Projects API Base URL:', API_BASE_URL);
-}

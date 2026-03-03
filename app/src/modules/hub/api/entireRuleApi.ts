@@ -1,8 +1,5 @@
-import { ENV } from '@/config/env';
-import axiosInstance from '@/modules/auth/http/Axiosinstance';
+import axiosInstance from '@/api/apiClient';
 import { ReviewResponse, VerticalRulesResponse } from '@/modules/hub/types/hubEndpointsTypes';
-
-const BASE = ENV.API_BASE_URL;
 
 let verticalCache: VerticalRulesResponse | null = null;
 
@@ -12,7 +9,7 @@ export const rulesTableApi = {
   getVerticalRules: async (vertical_key = 'loan'): Promise<VerticalRulesResponse> => {
     if (verticalCache) return verticalCache;
     const res = await axiosInstance.get<VerticalRulesResponse>(
-      `${BASE}/api/v1/verticals/${vertical_key}/rules`
+      `/api/v1/verticals/${vertical_key}/rules`
     );
     verticalCache = res.data;
     return res.data;
@@ -31,7 +28,7 @@ export const rulesTableApi = {
     reviewed_by: string,
   ): Promise<ReviewResponse> => {
     const res = await axiosInstance.patch<ReviewResponse>(
-      `${BASE}/api/v1/rules/${rule_key}/versions/${version}/review`,
+      `/api/v1/rules/${rule_key}/versions/${version}/review`,
       { action, reviewed_by }
     );
     verticalCache = null;
@@ -43,3 +40,4 @@ export const rulesTableApi = {
   },
 
 };
+
