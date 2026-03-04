@@ -51,8 +51,8 @@ export default function CreateRulePage() {
       try {
         const rule = await rulesApi.getRuleDetails(ruleKey);
         if (!rule) { setError('Rule not found'); return; }
-        const parts = (rule.directory || 'rule').split('/');
-        const parentDirectory = parts.slice(0, -1).join('/') || 'rule';
+        const parts = (rule.directory || '').split('/').filter(Boolean);
+        const parentDirectory = parts.slice(0, -1).join('/');
         setForm({ name: rule.name, description: rule.description || '', directory: parentDirectory });
       } catch { setError('Failed to load rule'); }
       finally   { setLoadingRule(false); }

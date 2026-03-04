@@ -409,7 +409,6 @@ export default function RulesRightPanel({
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
           <EditMenuItem onClick={onEdit}>Rename</EditMenuItem>
-          <Divider sx={{ my: '4px', borderColor: colors.lightBorder }} />
           <DeleteMenuItem onClick={onDelete}>Delete</DeleteMenuItem>
         </StyledMenu>
       )}
