@@ -37,7 +37,7 @@ import { LoggedInUser } from "@/modules/auth/types/authTypes";
 
 const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationName }) => {
   const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuth();
+  const { setAccessToken, setIsAuthenticated } = useAuth();
   const { isRuleAuthor, isReviewer, isViewer } = useRole();
   const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(null);
   const [settingsAnchor, setSettingsAnchor] = useState<HTMLElement | null>(null);
@@ -68,6 +68,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
     try {
       setProfileAnchor(null);
       await logoutApi();
+      setAccessToken(null);
       setIsAuthenticated(false);
       setUser(null);
       navigate("/login");

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ENV } from '@/config/env';
-import { logoutApi, refreshApi } from '@/modules/auth/services/Authservice';
+import { refreshApi } from '@/modules/auth/services/Authservice';
 
 type TokenGetter = () => string | null;
 type TokenSetter = (token: string | null) => void;
@@ -82,7 +82,7 @@ apiClient.interceptors.response.use(
       const newAccessToken = await refreshApi();
       if (!newAccessToken) {
         processQueue(new Error('Refresh failed'), null);
-        await logoutApi();
+        if (setTokenFn) setTokenFn(null);
         return Promise.reject(error);
       }
 
@@ -95,7 +95,7 @@ apiClient.interceptors.response.use(
       return apiClient(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
-      await logoutApi();
+      if (setTokenFn) setTokenFn(null);
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

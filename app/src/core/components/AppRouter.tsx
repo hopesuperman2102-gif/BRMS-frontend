@@ -63,7 +63,7 @@ function AppRouterInner() {
   useEffect(() => {
     async function init() {
       const path = window.location.pathname;
-      if (path === '/login' || path === '/') {
+      if (path === '/login') {
         setAccessToken(null);
         setIsAuthenticated(false);
         setRoles([]);
