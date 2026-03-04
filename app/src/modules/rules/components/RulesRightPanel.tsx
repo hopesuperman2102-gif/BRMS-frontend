@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  Box, Typography, Button, Menu, MenuItem, Breadcrumbs, Link, Divider,
+  Box, Typography, Button, Menu, MenuItem, Breadcrumbs, Link
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import FolderIcon from '@mui/icons-material/Folder';

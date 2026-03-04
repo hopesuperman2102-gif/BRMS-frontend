@@ -14,23 +14,30 @@ import { AuthProvider, useAuth } from '@/modules/auth/context/Authcontext';
 import { refreshApi } from '@/modules/auth/services/Authservice';
 import { useBindAuth } from '@/modules/auth/hooks/Usebindauth';
 import { getCurrentUserApi } from '@/modules/auth/services/UserService';
+import RequireAuth from '@/modules/auth/components/RequireAuth';
 
 function RouteWrapper({ route }: { route: AppRoute }) {
   const Element = route.element as React.ComponentType<unknown>;
   if (!Element) return null;
+  const isPublicRoute = route.path === '/login';
 
-  if (route.layout === Layout.MAIN || route.layout === 'main') {
-    return (
-      <PageWrapper>
-        <AppBarComponent logo={<img src="/Logo.svg" height={32} alt="logo" />} organizationName="Business Rules Management" />
-        <Element />
-      </PageWrapper>
-    );
-  }
-  if (route.layout === Layout.NONE || route.layout === 'none') {
-    return <PageWrapper><Element /></PageWrapper>;
-  }
-  return <Element />;
+  const withLayout = (() => {
+    if (route.layout === Layout.MAIN || route.layout === 'main') {
+      return (
+        <PageWrapper>
+          <AppBarComponent logo={<img src="/Logo.svg" height={32} alt="logo" />} organizationName="Business Rules Management" />
+          <Element />
+        </PageWrapper>
+      );
+    }
+    if (route.layout === Layout.NONE || route.layout === 'none') {
+      return <PageWrapper><Element /></PageWrapper>;
+    }
+    return <Element />;
+  })();
+
+  if (isPublicRoute) return withLayout;
+  return <RequireAuth>{withLayout}</RequireAuth>;
 }
 
 function renderRoutes(routes: AppRoute[]): React.ReactNode {

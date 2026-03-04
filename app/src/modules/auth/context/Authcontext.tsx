@@ -2,12 +2,9 @@ import React, { createContext, useContext, useRef, useState, useCallback } from 
 import { AuthContextType } from '@/modules/auth/types/authTypes';
 
 const AuthContext = createContext<AuthContextType | null>(null);
-const ACCESS_TOKEN_KEY = 'brms_access_token';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const initialToken =
-    typeof window !== 'undefined' ? window.sessionStorage.getItem(ACCESS_TOKEN_KEY) : null;
-  const accessTokenRef = useRef<string | null>(initialToken);
+  const accessTokenRef = useRef<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [roles, setRoles] = useState<string[]>([]);
 
@@ -15,10 +12,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const setAccessToken = useCallback((token: string | null) => {
     accessTokenRef.current = token;
-    if (typeof window !== 'undefined') {
-      if (token) window.sessionStorage.setItem(ACCESS_TOKEN_KEY, token);
-      else window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
-    }
   }, []);
 
   return (

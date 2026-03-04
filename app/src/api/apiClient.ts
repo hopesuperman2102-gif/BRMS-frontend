@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ENV } from '@/config/env';
 import { refreshApi } from '@/modules/auth/services/Authservice';
+import { createAuthRefreshQueue } from '@/api/authQueue';
 
 type TokenGetter = () => string | null;
 type TokenSetter = (token: string | null) => void;
@@ -10,28 +11,14 @@ type RetryableRequest = InternalAxiosRequestConfig & {
   _retry?: boolean;
 };
 
-type QueueItem = {
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-};
-
 let getTokenFn: TokenGetter | null = null;
 let setTokenFn: TokenSetter | null = null;
 let isRefreshing = false;
-let failedQueue: QueueItem[] = [];
+const refreshQueue = createAuthRefreshQueue();
 
 export function bindAuthToAxios(getter: TokenGetter, setter: TokenSetter): void {
   getTokenFn = getter;
   setTokenFn = setter;
-}
-
-function processQueue(error: unknown, token: string | null): void {
-  failedQueue.forEach((item) => {
-    if (error) item.reject(error);
-    else if (token) item.resolve(token);
-    else item.reject(new Error('Token refresh failed'));
-  });
-  failedQueue = [];
 }
 
 const apiClient: AxiosInstance = axios.create({
@@ -65,9 +52,7 @@ apiClient.interceptors.response.use(
     }
 
     if (isRefreshing) {
-      return new Promise<string>((resolve, reject) => {
-        failedQueue.push({ resolve, reject });
-      })
+      return refreshQueue.enqueue()
         .then((newToken) => {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return apiClient(originalRequest);
@@ -81,7 +66,7 @@ apiClient.interceptors.response.use(
     try {
       const newAccessToken = await refreshApi();
       if (!newAccessToken) {
-        processQueue(new Error('Refresh failed'), null);
+        refreshQueue.rejectAll(new Error('Refresh failed'));
         if (setTokenFn) setTokenFn(null);
         return Promise.reject(error);
       }
@@ -90,11 +75,11 @@ apiClient.interceptors.response.use(
 
       apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-      processQueue(null, newAccessToken);
+      refreshQueue.resolveAll(newAccessToken);
 
       return apiClient(originalRequest);
     } catch (refreshError) {
-      processQueue(refreshError, null);
+      refreshQueue.rejectAll(refreshError);
       if (setTokenFn) setTokenFn(null);
       return Promise.reject(refreshError);
     } finally {
