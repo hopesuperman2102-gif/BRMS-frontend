@@ -45,9 +45,19 @@ export async function refreshApi(): Promise<string | null> {
   }
 }
 
-export async function logoutApi(): Promise<void> {
+export async function logoutApi(accessToken?: string | null): Promise<void> {
   try {
-    await authHttp.post('/api/v1/auth/logout', {});
+    await authHttp.post(
+      '/api/v1/auth/logout',
+      {},
+      accessToken
+        ? {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        : undefined
+    );
   } catch {
     // ignore
   } finally {
