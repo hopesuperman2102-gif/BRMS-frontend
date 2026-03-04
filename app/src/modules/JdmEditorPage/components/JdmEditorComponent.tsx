@@ -25,17 +25,12 @@ export default function JdmEditorComponent({
   isReviewer = false,
 }: JdmEditorComponentProps) {
   const handleSimulationRun = async (context: JsonObject): Promise<ExecuteResponse> => {
-    console.log('Running simulation with context:', context);
-    console.log('Current JDM graph:', value);
-    
     if (!onSimulatorRun) {
-      console.warn('No onSimulatorRun handler provided');
       return {} as ExecuteResponse;
     }
 
     try {
       const result = await onSimulatorRun(value, context);
-      console.log('Simulation result:', result);
       return result;
     } catch (error) {
       console.error('Error executing simulation:', error);
