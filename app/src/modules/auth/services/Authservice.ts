@@ -40,8 +40,7 @@ export async function refreshApi(): Promise<string | null> {
     }
 
     return response.data.access_token ?? null;
-  } catch (err) {
-    console.log('[refreshApi] network error:', err);
+  } catch {
     return null;
   }
 }

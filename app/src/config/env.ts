@@ -27,8 +27,4 @@ export const ENV = {
   // Helper function
   export const isDevelopment = () => ENV.IS_DEVELOPMENT;
   export const isProduction = () => ENV.IS_PRODUCTION;
-  
-  // Debug helper
-  if (ENV.DEBUG_MODE) {
-    console.log('🔧 Environment Config:', ENV);
-  }
+

@@ -70,9 +70,7 @@ const HubPage = () => {
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
   const [verticalName, setVerticalName] = useState<string>('');
-  const { isRuleAuthor, isReviewer, isViewer, roles } = useRole();
-
-  console.log('DEBUG ROLES:', roles, '| isRuleAuthor:', isRuleAuthor, '| isReviewer:', isReviewer, '| isViewer:', isViewer);
+  const { isRuleAuthor, isReviewer, isViewer } = useRole();
 
   useEffect(() => {
     if (!vertical_Key) return;

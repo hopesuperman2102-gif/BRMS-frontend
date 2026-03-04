@@ -62,20 +62,16 @@ export const projectsApi = {
     vertical_key: string;
     domain: string;
   }) => {
-    if (ENV.ENABLE_LOGGING) console.log('Creating project:', data);
     const res = await axiosInstance.post('/api/v1/projects/', data);
     projectsApi.invalidateProjectsCache(data.vertical_key);
-    if (ENV.ENABLE_LOGGING) console.log('Project created:', res.data);
     return res.data;
   },
 
   deleteProject: async (project_key: string, deleted_by: string) => {
-    if (ENV.ENABLE_LOGGING) console.log('Deleting project:', project_key);
     const res = await axiosInstance.delete(
       `/api/v1/projects/${project_key}?deleted_by=${deleted_by}`
     );
     projectsApi.invalidateProjectsCache();
-    if (ENV.ENABLE_LOGGING) console.log('Project deleted:', project_key);
     return res.data;
   },
 
@@ -83,13 +79,11 @@ export const projectsApi = {
     project_key: string,
     data: { name: string; description?: string; domain?: string },
   ) => {
-    if (ENV.ENABLE_LOGGING) console.log('Updating project:', project_key, data);
     const res = await axiosInstance.put(
       `/api/v1/projects/${project_key}`,
       { ...data, updated_by: 'admin' }
     );
     projectsApi.invalidateProjectsCache();
-    if (ENV.ENABLE_LOGGING) console.log('Project updated:', res.data);
     return res.data;
   },
 

@@ -334,7 +334,6 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
                         versions={rule.versions}
                         chosen={chosenVersion}
                         onChange={(version) => {
-                          console.log('Version selected:', version, 'for rule:', rule.rule_key);
                           onVersionChange(rule.rule_key, version);
                         }}
                       />

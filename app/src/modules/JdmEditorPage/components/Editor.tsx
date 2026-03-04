@@ -55,13 +55,10 @@ export default function Editor({
     const fetchVersionsForSelectedRule = async () => {
       setIsVersionsLoading(true);
       try {
-        console.log(`Fetching versions for rule: ${selectedItemId}`);
-        
         // Only call list API once for THIS rule only
         const versionsList = await ruleVersionsApi.listVersions(String(selectedItemId));
 
         if (versionsList && versionsList.length > 0) {
-          console.log(`Found ${versionsList.length} versions for rule ${selectedItemId}`);
           setVersions(versionsList);
           
           // Set the latest version (first in array) as selected
@@ -86,7 +83,6 @@ export default function Editor({
           }
         } else {
           // No versions exist for this rule
-          console.log(`No versions found for rule ${selectedItemId}`);
           setVersions([]);
           setSelectedVersion('');
           // Show an empty editor so user can start drawing immediately
@@ -148,15 +144,11 @@ export default function Editor({
 
     setIsCommitting(true);
     try {
-      console.log(`Committing changes for rule: ${selectedItem.id}`);
-      
       // Create new version
       await ruleVersionsApi.createVersion({
         rule_key: String(selectedItem.id),
         jdm: currentGraph,
       });
-
-      console.log('Version created successfully');
       
       // Refresh versions list to get the newly created version
       const updatedVersions = await ruleVersionsApi.listVersions(String(selectedItem.id));
@@ -166,9 +158,7 @@ export default function Editor({
         // Set the latest version as selected (first item in array)
         const latestVersion = updatedVersions[0];
         setSelectedVersion(latestVersion.version);
-        
-        console.log(`New version created: ${latestVersion.version}`);
-        
+
         showAlert(`Changes committed successfully!`, 'success');
       } else {
         showAlert('Changes committed successfully!', 'success');
