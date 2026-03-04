@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Drawer,
@@ -9,16 +9,32 @@ import {
   Chip,
   CircularProgress,
   Tooltip,
+  Select,
+  MenuItem,
+  FormControl,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { deployApi } from '@/modules/deploy/api/deployApi';
-import { EnvironmentLogsProps, EnvLogEntry, ParsedEnvLogLine } from '@/modules/deploy/types/deployTypes';
+import { EnvironmentLogsProps, ParsedEnvLogLine } from '@/modules/deploy/types/deployTypes';
+import { RawEnvLogFileMeta } from '@/modules/deploy/types/deployEndpointsTypes';
 
-/* ─── Helpers ───────────────────────────────────────────────── */
+const PAGE_SIZE = 10;
+const DATE_LOOKBACK_DAYS = 14;
+
+function formatLocalDateYYYYMMDD(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatDateLabel(date: string): string {
+  const parsed = new Date(`${date}T00:00:00`);
+  return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
 
 const parseLogLine = (line: string): ParsedEnvLogLine | null => {
-  // split on | with optional surrounding spaces
   const parts = line.split(/\s*\|\s*/);
   if (parts.length >= 4) {
     return {
@@ -32,11 +48,11 @@ const parseLogLine = (line: string): ParsedEnvLogLine | null => {
 };
 
 const LEVEL_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  INFO:    { color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   label: 'INFO'  },
-  ERROR:   { color: '#ef4444', bg: 'rgba(239,68,68,0.1)',   label: 'ERROR' },
-  WARN:    { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  label: 'WARN'  },
-  WARNING: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  label: 'WARN'  },
-  DEBUG:   { color: '#60a5fa', bg: 'rgba(96,165,250,0.1)',  label: 'DEBUG' },
+  INFO: { color: '#22c55e', bg: 'rgba(34,197,94,0.1)', label: 'INFO' },
+  ERROR: { color: '#ef4444', bg: 'rgba(239,68,68,0.1)', label: 'ERROR' },
+  WARN: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', label: 'WARN' },
+  WARNING: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', label: 'WARN' },
+  DEBUG: { color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', label: 'DEBUG' },
 };
 
 const getLevelConfig = (level: string) =>
@@ -44,53 +60,162 @@ const getLevelConfig = (level: string) =>
 
 const ENV_COLORS: Record<string, string> = {
   PROD: '#ef4444',
-  QA:   '#f59e0b',
-  DEV:  '#6366f1',
+  QA: '#f59e0b',
+  DEV: '#6366f1',
 };
 
-/* ─── Component ─────────────────────────────────────────────── */
+function countLevels(lines: ParsedEnvLogLine[]): { info: number; warn: number; error: number } {
+  return lines.reduce(
+    (acc, line) => {
+      const level = line.level.toUpperCase();
+      if (level === 'INFO') acc.info += 1;
+      else if (level === 'WARN' || level === 'WARNING') acc.warn += 1;
+      else if (level === 'ERROR') acc.error += 1;
+      return acc;
+    },
+    { info: 0, warn: 0, error: 0 },
+  );
+}
+
+function PageArrow({ direction, enabled, onClick }: {
+  direction: 'prev' | 'next';
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Box
+      onClick={() => enabled && onClick()}
+      sx={{
+        width: 28,
+        height: 28,
+        borderRadius: '6px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: enabled ? 'pointer' : 'default',
+        background: enabled ? 'rgba(99,102,241,0.15)' : 'transparent',
+        border: `1px solid ${enabled ? '#6366f1' : '#334155'}`,
+        opacity: enabled ? 1 : 0.4,
+        transition: 'all 0.15s',
+        '&:hover': enabled ? { background: 'rgba(99,102,241,0.22)' } : {},
+      }}
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+        <path
+          d={direction === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'}
+          stroke={enabled ? '#cbd5e1' : '#475569'}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </Box>
+  );
+}
 
 export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
   open,
   environment,
   onClose,
 }) => {
-  const [logs, setLogs] = useState<EnvLogEntry[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>(formatLocalDateYYYYMMDD(new Date()));
+  const [files, setFiles] = useState<RawEnvLogFileMeta[]>([]);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [lines, setLines] = useState<ParsedEnvLogLine[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageTotal, setPageTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [linesLoading, setLinesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const fetchLogs = async () => {
+  const dateOptions = useMemo(() => {
+    const base = new Date();
+    return Array.from({ length: DATE_LOOKBACK_DAYS }, (_, idx) => {
+      const d = new Date(base);
+      d.setDate(base.getDate() - idx);
+      const value = formatLocalDateYYYYMMDD(d);
+      return { value, label: formatDateLabel(value) };
+    });
+  }, []);
+
+  const fetchPage = useCallback(async (fileKey: string, page: number) => {
+    setLinesLoading(true);
+    try {
+      const res = await deployApi.getEnvironmentLogPage(environment, fileKey, page * PAGE_SIZE);
+      const parsed = res.data
+        .filter((l) => l.trim())
+        .map(parseLogLine)
+        .filter(Boolean) as ParsedEnvLogLine[];
+      setLines(parsed);
+      setCurrentPage(page);
+      setPageTotal(res.total);
+    } catch {
+      setError('Failed to load log page. Please try again.');
+      setLines([]);
+      setPageTotal(0);
+    } finally {
+      setLinesLoading(false);
+    }
+  }, [environment]);
+
+  const fetchLogs = useCallback(async () => {
     if (!environment) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await deployApi.getEnvironmentLogs(environment);
-      setLogs(data);
-    } catch (err) {
-      console.error('Failed to fetch logs:', err);
+      const fileList = await deployApi.getEnvironmentLogFiles(environment, selectedDate);
+      setFiles(fileList);
+      if (!fileList.length) {
+        setSelectedFile(null);
+        setLines([]);
+        setPageTotal(0);
+        setCurrentPage(0);
+        return;
+      }
+      const first = fileList[0].file_key;
+      setSelectedFile(first);
+      await fetchPage(first, 0);
+    } catch {
       setError('Failed to load logs. Please try again.');
+      setFiles([]);
+      setSelectedFile(null);
+      setLines([]);
+      setPageTotal(0);
+      setCurrentPage(0);
     } finally {
       setLoading(false);
     }
-  };
+  }, [environment, fetchPage, selectedDate]);
 
   useEffect(() => {
-    if (open) fetchLogs();
-    else { setLogs([]); setError(null); }
-  }, [open, environment]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!loading && logs.length > 0) {
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    if (open) {
+      void fetchLogs();
+    } else {
+      setSelectedDate(formatLocalDateYYYYMMDD(new Date()));
+      setFiles([]);
+      setSelectedFile(null);
+      setLines([]);
+      setError(null);
+      setCurrentPage(0);
+      setPageTotal(0);
+      setLoading(false);
+      setLinesLoading(false);
     }
-  }, [loading, logs]);
-
-  const allLines = (Array.isArray(logs) ? logs : []).flatMap((entry) =>
-    entry.content.split('\n').filter((l) => l.trim()).map(parseLogLine).filter(Boolean) as ParsedEnvLogLine[]
-  );
+  }, [open, fetchLogs]);
 
   const envColor = ENV_COLORS[environment] ?? '#6366f1';
+  const totalPages = Math.max(1, Math.ceil(pageTotal / PAGE_SIZE));
+  const hasPrev = currentPage > 0;
+  const hasNext = currentPage < totalPages - 1;
+  const selectedMeta = useMemo(
+    () => files.find((f) => f.file_key === selectedFile),
+    [files, selectedFile],
+  );
+  const selectedFileIndex = useMemo(
+    () => files.findIndex((f) => f.file_key === selectedFile),
+    [files, selectedFile],
+  );
+  const levelStats = useMemo(() => countLevels(lines), [lines]);
 
   return (
     <Drawer
@@ -106,19 +231,19 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
         },
       }}
     >
-      {/* ── Header ─────────────────────────────────────────── */}
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        px: 3,
-        py: 2,
-        bgcolor: '#1e293b',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        flexShrink: 0,
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 3,
+          py: 2,
+          bgcolor: '#1e293b',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          flexShrink: 0,
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          {/* Terminal dot decorations */}
           <Box sx={{ display: 'flex', gap: '6px', mr: 1 }}>
             {['#ef4444', '#f59e0b', '#22c55e'].map((c) => (
               <Box key={c} sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: c, opacity: 0.8 }} />
@@ -139,27 +264,138 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
               letterSpacing: '0.06em',
             }}
           />
+          <FormControl size="small" sx={{ minWidth: 148 }}>
+            <Select
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(String(e.target.value))}
+              disabled={loading || linesLoading}
+              sx={{
+                height: 24,
+                color: '#e2e8f0',
+                fontSize: '0.72rem',
+                fontFamily: 'monospace',
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                '& .MuiSelect-icon': { color: '#94a3b8' },
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: '#0f172a',
+                    border: '1px solid #334155',
+                    mt: 0.5,
+                  },
+                },
+              }}
+            >
+              {dateOptions.map((d) => (
+                <MenuItem
+                  key={d.value}
+                  value={d.value}
+                  sx={{
+                    color: '#cbd5e1',
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {d.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <Tooltip title="Refresh logs">
             <span>
-              <IconButton size="small" onClick={fetchLogs} disabled={loading}
-                sx={{ color: '#64748b', '&:hover': { color: '#f1f5f9' } }}>
+              <IconButton
+                size="small"
+                onClick={() => void fetchLogs()}
+                disabled={loading || linesLoading}
+                sx={{ color: '#64748b', '&:hover': { color: '#f1f5f9' } }}
+              >
                 <RefreshIcon fontSize="small" />
               </IconButton>
             </span>
           </Tooltip>
-          <IconButton size="small" onClick={onClose}
-            sx={{ color: '#64748b', '&:hover': { color: '#f1f5f9' } }}>
+          <IconButton size="small" onClick={onClose} sx={{ color: '#64748b', '&:hover': { color: '#f1f5f9' } }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
       </Box>
 
-      {/* ── Meta bar ───────────────────────────────────────── */}
-      {logs.length > 0 && !loading && (
-        <Box sx={{
+      <Box
+        sx={{
+          px: 2,
+          py: 1.25,
+          bgcolor: '#1e293b',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        {files.length === 0 ? (
+          <Typography variant="caption" sx={{ color: '#64748b', fontFamily: 'monospace' }}>
+            No log files found
+          </Typography>
+        ) : (
+          <FormControl size="small" sx={{ minWidth: 320 }}>
+            <Select
+              value={selectedFile ?? ''}
+              renderValue={(value) => String(value)}
+              onChange={(e) => {
+                const next = String(e.target.value);
+                if (!next || next === selectedFile || linesLoading) return;
+                setSelectedFile(next);
+                void fetchPage(next, 0);
+              }}
+              disabled={loading || linesLoading}
+              sx={{
+                height: 30,
+                color: '#e2e8f0',
+                fontSize: '0.72rem',
+                fontFamily: 'monospace',
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
+                '& .MuiSelect-icon': { color: '#94a3b8' },
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: '#0f172a',
+                    border: '1px solid #334155',
+                    mt: 0.5,
+                    maxHeight: 320,
+                  },
+                },
+              }}
+            >
+              {files.map((f) => (
+                <MenuItem
+                  key={f.file_key}
+                  value={f.file_key}
+                  sx={{
+                    color: '#cbd5e1',
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                  }}
+                >
+                  <Box component="span">{f.file_key}</Box>
+                  <Box component="span" sx={{ color: '#94a3b8' }}>
+                    {f.line_count ?? '-'}
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+      </Box>
+
+      <Box
+        sx={{
           display: 'flex',
           alignItems: 'center',
           gap: 2,
@@ -168,28 +404,35 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           bgcolor: '#1e293b',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           flexShrink: 0,
-        }}>
-          <Typography variant="caption" sx={{ color: '#475569', fontFamily: 'monospace' }}>
-            <Box component="span" sx={{ color: '#22c55e', mr: 0.5 }}>●</Box>
-            {allLines.length} entries
-          </Typography>
-          <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>│</Typography>
-          <Typography variant="caption" sx={{ color: '#475569', fontFamily: 'monospace' }}>
-            {logs[0].file_key}
-          </Typography>
-          <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>│</Typography>
-          <Typography variant="caption" sx={{ color: '#475569', fontFamily: 'monospace' }}>
-            {new Date(logs[0].created_at).toLocaleString()}
-          </Typography>
-        </Box>
-      )}
+        }}
+      >
+        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+          page {currentPage + 1} of {totalPages}
+        </Typography>
+        <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>|</Typography>
+        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+          file {selectedFileIndex >= 0 ? selectedFileIndex + 1 : 0} of {files.length}
+        </Typography>
+        <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>|</Typography>
+        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+          {selectedFile ?? '-'}
+        </Typography>
+        <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>|</Typography>
+        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+          {selectedMeta?.created_at ? new Date(selectedMeta.created_at).toLocaleString() : '-'}
+        </Typography>
+      </Box>
 
-      {/* ── Log body ───────────────────────────────────────── */}
-      <Box sx={{ flex: 1, overflow: 'auto', py: 2,
-        '&::-webkit-scrollbar': { width: 4 },
-        '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
-        '&::-webkit-scrollbar-thumb': { bgcolor: '#334155', borderRadius: 2 },
-      }}>
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          py: 2,
+          '&::-webkit-scrollbar': { width: 4 },
+          '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
+          '&::-webkit-scrollbar-thumb': { bgcolor: '#334155', borderRadius: 2 },
+        }}
+      >
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <CircularProgress size={24} sx={{ color: '#6366f1' }} />
@@ -198,7 +441,11 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <Typography variant="body2" sx={{ color: '#ef4444', fontFamily: 'monospace' }}>{error}</Typography>
           </Box>
-        ) : allLines.length === 0 ? (
+        ) : linesLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <CircularProgress size={20} sx={{ color: '#6366f1' }} />
+          </Box>
+        ) : lines.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <Typography variant="body2" sx={{ color: '#475569', fontFamily: 'monospace' }}>
               No logs found for {environment}
@@ -206,11 +453,11 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           </Box>
         ) : (
           <Box sx={{ px: 2 }}>
-            {allLines.map((line, idx) => {
+            {lines.map((line, idx) => {
               const cfg = getLevelConfig(line.level);
               return (
                 <Box
-                  key={idx}
+                  key={`${line.timestamp}-${idx}`}
                   sx={{
                     display: 'grid',
                     gridTemplateColumns: '152px 52px 1fr',
@@ -222,28 +469,27 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                     '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
                   }}
                 >
-                  {/* Timestamp */}
                   <Typography sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#475569', whiteSpace: 'nowrap' }}>
                     {line.timestamp}
                   </Typography>
 
-                  {/* Level badge */}
-                  <Box sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    px: 0.75,
-                    py: '1px',
-                    borderRadius: '4px',
-                    bgcolor: cfg.bg,
-                    border: `1px solid ${cfg.color}22`,
-                  }}>
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      px: 0.75,
+                      py: '1px',
+                      borderRadius: '4px',
+                      bgcolor: cfg.bg,
+                      border: `1px solid ${cfg.color}22`,
+                    }}
+                  >
                     <Typography sx={{ fontSize: '0.6rem', fontFamily: 'monospace', fontWeight: 700, color: cfg.color, letterSpacing: '0.05em' }}>
                       {cfg.label}
                     </Typography>
                   </Box>
 
-                  {/* Source + Message */}
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', minWidth: 0 }}>
                     <Typography
                       sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#6366f1', whiteSpace: 'nowrap', flexShrink: 0 }}
@@ -252,7 +498,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                       {line.source.split('.').pop()}
                     </Typography>
                     <Typography sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#334155', flexShrink: 0 }}>
-                      ›
+                      &gt;
                     </Typography>
                     <Typography sx={{ fontSize: '0.72rem', fontFamily: 'monospace', color: '#94a3b8', wordBreak: 'break-word' }}>
                       {line.message}
@@ -261,9 +507,109 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                 </Box>
               );
             })}
-            <div ref={bottomRef} />
           </Box>
         )}
+      </Box>
+
+      <Box
+        sx={{
+          px: 2,
+          py: '8px',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          bgcolor: '#1e293b',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 1,
+          flexWrap: 'wrap',
+        }}
+      >
+        <Typography sx={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace', minWidth: 160 }}>
+          {pageTotal === 0
+            ? 'rows 0-0 of 0'
+            : `rows ${currentPage * PAGE_SIZE + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, pageTotal)} of ${pageTotal}`}
+        </Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.28)' }}>
+            <Typography sx={{ fontSize: 10, color: '#22c55e', fontFamily: 'monospace' }}>INFO {levelStats.info}</Typography>
+          </Box>
+          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.28)' }}>
+            <Typography sx={{ fontSize: 10, color: '#f59e0b', fontFamily: 'monospace' }}>WARN {levelStats.warn}</Typography>
+          </Box>
+          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.28)' }}>
+            <Typography sx={{ fontSize: 10, color: '#ef4444', fontFamily: 'monospace' }}>ERROR {levelStats.error}</Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <PageArrow
+            direction="prev"
+            enabled={hasPrev && !linesLoading && !!selectedFile}
+            onClick={() => selectedFile && void fetchPage(selectedFile, currentPage - 1)}
+          />
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            {Array.from({ length: totalPages }, (_, i) => {
+              const isActive = i === currentPage;
+              const nearCurrent = Math.abs(i - currentPage) <= 1;
+              const isEdge = i === 0 || i === totalPages - 1;
+              const showEllBefore = i === currentPage - 2 && currentPage > 2;
+              const showEllAfter = i === currentPage + 2 && currentPage < totalPages - 3;
+
+              if (showEllBefore || showEllAfter) {
+                return (
+                  <Typography key={`ellipsis-${i}`} sx={{ fontSize: 11, color: '#64748b', px: '2px', userSelect: 'none', fontFamily: 'monospace' }}>
+                    ...
+                  </Typography>
+                );
+              }
+              if (!isEdge && !nearCurrent) return null;
+
+              return (
+                <Box
+                  key={i}
+                  onClick={() => selectedFile && !linesLoading && void fetchPage(selectedFile, i)}
+                  sx={{
+                    minWidth: 26,
+                    height: 26,
+                    borderRadius: '5px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: linesLoading || !selectedFile ? 'default' : 'pointer',
+                    background: isActive ? '#6366f1' : 'transparent',
+                    border: `1px solid ${isActive ? '#6366f1' : '#334155'}`,
+                    transition: 'all 0.12s',
+                    '&:hover': !isActive ? { background: 'rgba(99,102,241,0.15)' } : {},
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 11,
+                      fontWeight: isActive ? 800 : 500,
+                      color: isActive ? '#f8fafc' : '#94a3b8',
+                      fontFamily: 'monospace',
+                      userSelect: 'none',
+                    }}
+                  >
+                    {i + 1}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+
+          <PageArrow
+            direction="next"
+            enabled={hasNext && !linesLoading && !!selectedFile}
+            onClick={() => selectedFile && void fetchPage(selectedFile, currentPage + 1)}
+          />
+        </Box>
+
+        <Typography sx={{ fontSize: 10, color: '#64748b', fontFamily: 'monospace', textAlign: 'right', minWidth: 160 }}>
+          {pageTotal} total lines
+        </Typography>
       </Box>
     </Drawer>
   );

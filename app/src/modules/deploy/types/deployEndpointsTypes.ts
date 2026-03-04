@@ -51,3 +51,25 @@ export interface EnvironmentLog {
   environment: string;
   created_at: string;
 }
+
+export interface RawEnvLogFileMeta {
+  file_key: string;
+  created_at?: string;
+  line_count?: number;
+}
+
+export interface RawEnvLogListResponse {
+  data?: RawEnvLogFileMeta[];
+  logs?: RawEnvLogFileMeta[];
+  total?: number;
+}
+
+export interface RawEnvLogFileResponse {
+  file_key?: string;
+  data?: string[];
+  logs?: string[];
+  total?: number;
+  count?: number;
+  skip?: number;
+  limit?: number;
+}

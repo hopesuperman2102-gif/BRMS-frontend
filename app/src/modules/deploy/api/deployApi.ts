@@ -1,6 +1,28 @@
 import axiosInstance from '@/api/apiClient';
-import { DeployRulePayload, DeployRuleResponse, DeployStats, DeploySummary, EnvironmentLog } from '@/modules/deploy/types/deployEndpointsTypes';
+import {
+  DeployRulePayload,
+  DeployRuleResponse,
+  DeployStats,
+  DeploySummary,
+  EnvironmentLog,
+  RawEnvLogFileMeta,
+  RawEnvLogFileResponse,
+  RawEnvLogListResponse,
+} from '@/modules/deploy/types/deployEndpointsTypes';
 import { Rule } from '@/modules/deploy/types/deployTypes';
+
+function formatLocalDateYYYYMMDD(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const ENV_LOGS_PAGE_SIZE = 10;
+function resolveEnvLogFiles(payload: RawEnvLogListResponse | RawEnvLogFileMeta[]): RawEnvLogFileMeta[] {
+  if (Array.isArray(payload)) return payload;
+  return payload.data ?? payload.logs ?? [];
+}
 
 export const deployApi = {
   getDashboardSummary: async (vertical_key: string): Promise<DeploySummary> => {
@@ -51,12 +73,56 @@ export const deployApi = {
     );
   },
 
-  getEnvironmentLogs: async (environment: string): Promise<EnvironmentLog[]> => {
-    const res = await axiosInstance.get(
-      `/api/v1/environment-logs/${environment}`
+  getEnvironmentLogFiles: async (environment: string, date?: string): Promise<RawEnvLogFileMeta[]> => {
+    const day = date ?? formatLocalDateYYYYMMDD(new Date());
+    const listRes = await axiosInstance.get<RawEnvLogListResponse | RawEnvLogFileMeta[]>(
+      `/api/v1/env-logs/${environment}/date/${day}`
     );
-    const payload = res.data;
-    return Array.isArray(payload) ? payload : payload.logs ?? payload.data ?? [];
+    return resolveEnvLogFiles(listRes.data);
+  },
+
+  getEnvironmentLogPage: async (
+    environment: string,
+    fileKey: string,
+    skip = 0,
+  ): Promise<{ file_key: string; environment: string; data: string[]; total: number; count: number; skip: number; limit: number }> => {
+    const detailRes = await axiosInstance.get<RawEnvLogFileResponse>(
+      `/api/v1/env-logs/${environment}/file/${fileKey}`,
+      { params: { skip, limit: ENV_LOGS_PAGE_SIZE } }
+    );
+    const detailPayload = detailRes.data;
+    const lines = detailPayload.data ?? detailPayload.logs ?? [];
+    return {
+      file_key: detailPayload.file_key ?? fileKey,
+      environment,
+      data: Array.isArray(lines) ? lines : [],
+      total: detailPayload.total ?? 0,
+      count: detailPayload.count ?? (Array.isArray(lines) ? lines.length : 0),
+      skip: detailPayload.skip ?? skip,
+      limit: detailPayload.limit ?? ENV_LOGS_PAGE_SIZE,
+    };
+  },
+
+  getEnvironmentLogs: async (environment: string): Promise<EnvironmentLog[]> => {
+    const date = formatLocalDateYYYYMMDD(new Date());
+    const files = await deployApi.getEnvironmentLogFiles(environment, date);
+
+    if (!files.length) return [];
+
+    const entries = await Promise.all(
+      files.map(async (file): Promise<EnvironmentLog> => {
+        const detail = await deployApi.getEnvironmentLogPage(environment, file.file_key, 0);
+
+        return {
+          id: file.file_key,
+          file_key: file.file_key,
+          environment,
+          created_at: file.created_at ?? new Date().toISOString(),
+          content: detail.data.join('\n'),
+        };
+      })
+    );
+
+    return entries;
   },
 };
-

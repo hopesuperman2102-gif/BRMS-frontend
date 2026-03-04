@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { refreshApi } from '@/modules/auth/services/Authservice';
 
-
 export function useAuthInit() {
   const [isReady, setIsReady] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);

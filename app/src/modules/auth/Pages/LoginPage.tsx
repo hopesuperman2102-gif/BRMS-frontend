@@ -8,7 +8,6 @@ import { loginApi } from '@/modules/auth/services/Authservice';
 import LoginLeftPanel from '@/modules/auth/components/Loginleftpanel';
 import LoginRightPanel from '@/modules/auth/components/Loginrightpanel';
 
-
 export default function LoginPage() {
   const navigate = useNavigate();
   const { setAccessToken, setIsAuthenticated, setRoles } = useAuth();
