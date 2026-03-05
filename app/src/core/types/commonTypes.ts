@@ -148,6 +148,8 @@ export interface RcEmailProps {
   sx?: SxProps<Theme>;
   onFocus?: () => void;
   onBlur?: () => void;
+  startIcon?: React.ReactNode;
+  autoComplete?: string;
 }
 
 export interface RcInputProps {

@@ -171,6 +171,9 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
                     <Typography sx={{ color: "rgba(255,255,255,0.75)", fontSize: "0.78rem" }}>
                       {user.id}
                     </Typography>
+                    <Typography sx={{ color: "rgba(255,255,255,0.75)", fontSize: "0.78rem" }}>
+                      {user.roles.length ? user.roles.join(", ") : "No role assigned"}
+                    </Typography>                                       
                   </Box>
                 </Box>
               </>

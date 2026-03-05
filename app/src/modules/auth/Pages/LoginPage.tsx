@@ -12,7 +12,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { setAccessToken, setIsAuthenticated, setRoles } = useAuth();
 
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', emailid: '', password: '' });
+  const [loginMode, setLoginMode] = useState<'username' | 'email'>('username');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,20 +23,22 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  e.preventDefault();
+  setError('');
 
-    if (!formData.username || !formData.password) {
-      setError('Please fill in all fields');
-      return;
-    }
+  const identifier = loginMode === 'username' ? formData.username : formData.emailid;
+  if (!identifier || !formData.password) {
+    setError('Please fill in all fields');
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const { accessToken, roles } = await loginApi({
-        username: formData.username,
-        password: formData.password,
-      });
+  setLoading(true);
+  try {
+    const { accessToken, roles } = await loginApi(
+      loginMode === 'username'
+        ? { username: formData.username, password: formData.password }
+        : { emailid: formData.emailid, password: formData.password }
+    );
       setAccessToken(accessToken);
       setIsAuthenticated(true);
       setRoles(roles);
@@ -61,6 +64,8 @@ export default function LoginPage() {
       <LoginLeftPanel />
       <LoginRightPanel
         formData={formData}
+        loginMode={loginMode}
+        setLoginMode={setLoginMode}
         loading={loading}
         error={error}
         onChange={handleChange}
