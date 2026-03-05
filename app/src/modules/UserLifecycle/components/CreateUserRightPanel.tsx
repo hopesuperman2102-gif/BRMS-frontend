@@ -151,6 +151,7 @@ export default function CreateUserRightPanel({ formData, loading, error, success
 
             {/* Email */}
             <Box>
+              <Label required>Email</Label>
               <RcEmail
                 name="email"
                 value={formData.email}
