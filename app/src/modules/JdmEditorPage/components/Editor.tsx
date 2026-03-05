@@ -136,6 +136,11 @@ export default function Editor({
   };
 
   const handleCommit = async () => {
+    if (isReviewer) {
+      showAlert('You do not have permission to commit changes.', 'info');
+      return;
+    }
+
     if (!selectedItem || !currentGraph) {
       console.error('No item selected or no graph data');
       showAlert('No item selected or no graph data', 'error');

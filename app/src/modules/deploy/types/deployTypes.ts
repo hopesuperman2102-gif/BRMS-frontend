@@ -101,6 +101,7 @@ export interface ControlSectionProps {
   selectedEnvironment: Environment;
   onEnvironmentChange: (env: Environment) => void;
   onDeploy: () => void;
+  canDeploy?: boolean;
   lastDeployedBy?: string;
   lastDeployedTime?: string;
   isLoading?: boolean;
@@ -130,6 +131,7 @@ export interface EnvironmentDeploymentProps {
   selectedEnvironment: Environment;
   onEnvironmentChange: (env: Environment) => void;
   onDeploy: () => void;
+  canDeploy?: boolean;
   lastDeployedBy?: string;
   lastDeployedTime?: string;
   delay?: number;

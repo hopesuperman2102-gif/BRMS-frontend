@@ -13,10 +13,13 @@ import { StatsSection } from '@/modules/deploy/components/Statssection';
 import { ControlSection } from '@/modules/deploy/components/Controlsection';
 import { EnvironmentLogs } from '@/modules/deploy/components/EnvironmentLogs';
 import { MonthlyDeployData } from '@/modules/deploy/types/deployEndpointsTypes';
+import { useRole } from '@/modules/auth/hooks/useRole';
 
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
   const { showAlert } = useAlertStore();
+  const { isAdmin, isSuperAdmin } = useRole();
+  const canManageDeploy = isAdmin || isSuperAdmin;
 
   const [activeEnvironment, setActiveEnvironment] = useState<Environment | 'ALL'>('ALL');
   const [deployTargetEnvironment, setDeployTargetEnvironment] = useState<Environment>('DEV');
@@ -148,6 +151,10 @@ export default function DeployTabComponent() {
   };
 
   const handleDeploy = async () => {
+    if (!canManageDeploy) {
+      showAlert('You do not have permission to deploy rules.', 'info');
+      return;
+    }
     if (selectedRules.size === 0) {
       showAlert('Please select at least one rule to deploy.', 'warning');
       return;
@@ -218,6 +225,7 @@ export default function DeployTabComponent() {
           selectedEnvironment={deployTargetEnvironment}
           onEnvironmentChange={setDeployTargetEnvironment}
           onDeploy={handleDeploy}
+          canDeploy={canManageDeploy}
           lastDeployedBy="John Doe"
           lastDeployedTime="2m ago"
           isLoading={isLoadingRules}
@@ -228,6 +236,7 @@ export default function DeployTabComponent() {
           onRevoked={handleRevoked}
           onViewLogs={handleViewLogs}
           environment={activeEnvironment}
+          canManageActions={canManageDeploy}
         />
 
         <EnvironmentLogs

@@ -27,6 +27,7 @@ import { ActiveRulesProps, DeployedRule } from '@/modules/deploy/types/deployTyp
 import { RcCard, CardHeader } from '@/core/components/RcCard';
 import { deployApi } from '@/modules/deploy/api/deployApi';
 import RcConfirmDailog from '@/core/components/RcConfirmDailog';
+import { useAlertStore } from '@/core/components/RcAlertComponent';
 
 const MotionTableRow = motion(TableRow);
 
@@ -38,8 +39,10 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
   onRevoked,
   onViewLogs,
   environment,
+  canManageActions = true,
   delay = 0.7,
 }) => {
+  const { showAlert } = useAlertStore();
   const [revokeLoadingKey, setRevokeLoadingKey] = useState<string | null>(null);
 
   const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
@@ -50,6 +53,10 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
 
   /* ── Revoke ─────────────────────────────────────────────── */
   const handleRevoke = (rule: DeployedRule) => {
+  if (!canManageActions) {
+    showAlert('You do not have permission to revoke rules.', 'info');
+    return;
+  }
   setRuleToRevoke(rule);
   };
 
@@ -70,6 +77,10 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
 
   /* ── Promote dialog ─────────────────────────────────────── */
   const handleOpenPromote = (rule: DeployedRule) => {
+  if (!canManageActions) {
+    showAlert('You do not have permission to promote rules.', 'info');
+    return;
+  }
   setSelectedRule(rule);
   setPromoteTarget(rule.deployable_env[0] ?? '');
   setPromoteDialogOpen(true);
@@ -198,7 +209,7 @@ const handlePromoteSubmit = async () => {
                           <motion.div whileHover={{ scale: 1.1 }}>
                             <IconButton
                               size="small"
-                              disabled={isRevoking}
+                              disabled={isRevoking || !canManageActions}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleRevoke(rule);
@@ -218,6 +229,7 @@ const handlePromoteSubmit = async () => {
                           <motion.div whileHover={{ scale: 1.1 }}>
                             <IconButton
                               size="small"
+                              disabled={!canManageActions}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleOpenPromote(rule);
@@ -329,7 +341,7 @@ const handlePromoteSubmit = async () => {
     <Button
       variant="contained"
       onClick={handlePromoteSubmit}
-      disabled={!promoteTarget || isPromoting}
+      disabled={!promoteTarget || isPromoting || !canManageActions}
       sx={{
         borderRadius: '8px',
         textTransform: 'none',
