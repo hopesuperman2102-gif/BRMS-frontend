@@ -16,6 +16,7 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
   selectedEnvironment,
   onEnvironmentChange,
   onDeploy,
+  canDeploy,
   lastDeployedBy,
   lastDeployedTime,
   isLoading,
@@ -43,6 +44,7 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
           selectedEnvironment={selectedEnvironment}
           onEnvironmentChange={onEnvironmentChange}
           onDeploy={onDeploy}
+          canDeploy={canDeploy}
           lastDeployedBy={lastDeployedBy}
           lastDeployedTime={lastDeployedTime}
           delay={0.5}

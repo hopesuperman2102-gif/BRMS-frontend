@@ -11,6 +11,7 @@ export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
   onRevoked,
   onViewLogs,
   environment,
+  canManageActions,
 }) => {
   return (
     <Box sx={{ mt: 3 }}>
@@ -19,6 +20,7 @@ export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
         onRevoked={onRevoked}
         onViewLogs={onViewLogs}
         environment={environment}
+        canManageActions={canManageActions}
         delay={0.7}
       />
     </Box>

@@ -13,6 +13,7 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
   selectedEnvironment,
   onEnvironmentChange,
   onDeploy,
+  canDeploy = true,
   delay = 0.5,
   sx,
 }) => {
@@ -53,6 +54,7 @@ export const EnvironmentDeployment: React.FC<EnvironmentDeploymentProps> = ({
           size="large"
           startIcon={<RocketLaunchIcon />}
           onClick={onDeploy}
+          disabled={!canDeploy}
           sx={{
             py: 2.5,
             fontSize: '1.1rem',
