@@ -9,11 +9,14 @@ import CreateRuleLeftPanel from '@/modules/rules/components/CreateRuleLeftPanel'
 import CreateRuleRightPanel from '@/modules/rules/components/CreateRuleRightPanel';
 import { FormState } from '@/modules/rules/types/rulesTypes';
 import { RuleResponse } from '@/modules/rules/types/ruleEndpointsTypes';
+import { useRole } from '@/modules/auth/hooks/useRole';
 
 /* ─── Page ────*/
 export default function CreateRulePage() {
   const navigate = useNavigate();
   const { vertical_Key, project_key } = useParams<{ vertical_Key: string; project_key: string }>();
+  const { isReviewer, isViewer } = useRole();
+  const canManageRules = !(isReviewer || isViewer);
   const [searchParams] = useSearchParams();
 
   const ruleKey    = searchParams.get('key');
@@ -71,6 +74,10 @@ export default function CreateRulePage() {
     navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules?path=${encodeURIComponent(form.directory)}`);
 
   const handleSubmit = async () => {
+    if (!canManageRules) {
+      setError('You do not have permission to create or edit rules');
+      return;
+    }
     setError(null);
     if (!form.name.trim()) { setError('Rule name is required'); return; }
     if (form.description.length > 300) { setError('Description cannot exceed 300 characters'); return; }

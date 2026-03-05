@@ -13,6 +13,7 @@ import RcAlertComponent, { useAlertStore } from '@/core/components/RcAlertCompon
 import { ApprovalStatus, ProjectRuleRow, ProjectSection, RuleVersion, VerticalProject, VerticalRule } from '@/modules/hub/types/hubTypes';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import { rulesTableApi } from '@/modules/hub/api/entireRuleApi';
+import { useRole } from '@/modules/auth/hooks/useRole';
 
 const { colors } = brmsTheme;
 
@@ -161,10 +162,12 @@ const RejectChip = styled(StatusChip)({
 
 export default function RulesTable() {
   const { vertical_Key } = useParams<{ vertical_Key: string }>();
+  const { isReviewer, isAdmin, isSuperAdmin } = useRole();
   const [sections, setSections] = useState<ProjectSection[]>([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);
   const { showAlert }           = useAlertStore();
+  const canReview = isReviewer || isAdmin || isSuperAdmin;
 
   const fetchAllData = useCallback(async () => {
     if (!vertical_Key) {
@@ -195,6 +198,11 @@ export default function RulesTable() {
     version:    string,
     status:     'Approved' | 'Rejected',
   ) => {
+    if (!canReview) {
+      showAlert('You do not have permission to review rule versions.', 'info');
+      return;
+    }
+
     try {
       const action   = status === 'Approved' ? 'APPROVED' : 'REJECTED';
       const response = await rulesTableApi.reviewRuleVersion(ruleKey, version, action, 'qa_user');
@@ -271,13 +279,13 @@ export default function RulesTable() {
 
         const approveStatus = row.approvalStatus === 'Approved'
           ? 'approved'
-          : row.approvalStatus === 'Pending'
+          : row.approvalStatus === 'Pending' && canReview
             ? 'pending'
             : 'disabled';
 
         const rejectStatus = row.approvalStatus === 'Rejected'
           ? 'rejected'
-          : row.approvalStatus === 'Pending'
+          : row.approvalStatus === 'Pending' && canReview
             ? 'pending'
             : 'disabled';
 

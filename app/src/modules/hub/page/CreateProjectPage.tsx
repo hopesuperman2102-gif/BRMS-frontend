@@ -7,11 +7,14 @@ import { projectsApi } from '@/modules/hub/api/projectsApi';
 import CreateProjectLeftPanel from '@/modules/hub/components/CreateProjectLeftPanel';
 import { FormState } from '@/modules/hub/types/hubTypes';
 import CreateProjectRightPanel from '@/modules/hub/components/CreateProjectRightPanel';
+import { useRole } from '@/modules/auth/hooks/useRole';
 
 /* ─── Page ────────────────────────────────────────────────── */
 export default function CreateProjectPage() {
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
+  const { isRuleAuthor, isReviewer, isViewer } = useRole();
+  const canManageProjects = !(isRuleAuthor || isReviewer || isViewer);
   const [searchParams] = useSearchParams();
   const projectKey = searchParams.get('key');
   const isEditMode = Boolean(projectKey);
@@ -48,6 +51,10 @@ export default function CreateProjectPage() {
   const handleBack = () => navigate(`/vertical/${vertical_Key}/dashboard/hub`);
 
   const handleSubmit = async () => {
+    if (!canManageProjects) {
+      setError('You do not have permission to create or edit projects');
+      return;
+    }
     setError(null);
     if (!form.name.trim()) { setError('Project name is required'); return; }
     if (form.description.length > 300) { setError('Description cannot exceed 300 characters'); return; }
