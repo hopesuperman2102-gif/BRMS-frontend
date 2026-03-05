@@ -86,6 +86,7 @@ export interface ActiveRulesProps {
   onRevoked: () => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
+  canManageActions?: boolean;
   delay?: number;
 }
 
@@ -141,6 +142,7 @@ export interface EnvironmentHistoryProps {
   onRevoked: () => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
+  canManageActions?: boolean;
 }
 
 // PendingSync Props

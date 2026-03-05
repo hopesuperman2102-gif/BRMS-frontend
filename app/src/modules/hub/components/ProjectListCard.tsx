@@ -10,6 +10,7 @@ import ProjectListLeftPanel from "@/modules/hub/components/ProjectListLeftPanel"
 import ProjectListRightPanel from "@/modules/hub/components/ProjectListRightPanel";
 import { useRole } from "@/modules/auth/hooks/useRole";
 import { ProjectListProps } from "@/modules/hub/types/hubTypes";
+import { useAlertStore } from "@/core/components/RcAlertComponent";
 
 const { colors, fonts } = brmsTheme;
 
@@ -35,6 +36,8 @@ export default function ProjectListCard() {
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
   const { isRuleAuthor, isReviewer, isViewer } = useRole();
+  const { showAlert } = useAlertStore();
+  const canManageProjects = !(isRuleAuthor || isReviewer || isViewer);
 
   useEffect(() => {
     if (!vertical_Key) return;
@@ -85,6 +88,10 @@ export default function ProjectListCard() {
   };
 
   const handleDelete = async () => {
+    if (!canManageProjects) {
+      showAlert("You do not have permission to delete projects.", "info");
+      return;
+    }
     if (!selectedProject) return;
     try {
       await projectsApi.deleteProject(selectedProject.project_key, "admin");
@@ -98,6 +105,10 @@ export default function ProjectListCard() {
   };
 
   const handleEdit = () => {
+    if (!canManageProjects) {
+      showAlert("You do not have permission to edit projects.", "info");
+      return;
+    }
     if (!selectedProject) return;
     navigate(
       `/vertical/${vertical_Key}/dashboard/hub/createproject?key=${selectedProject.project_key}`
@@ -109,7 +120,9 @@ export default function ProjectListCard() {
     navigate(`/vertical/${vertical_Key}/dashboard/hub/${p.project_key}/rules`);
 
   const handleNewProject = () =>
-    navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject`);
+    canManageProjects
+      ? navigate(`/vertical/${vertical_Key}/dashboard/hub/createproject`)
+      : showAlert("You do not have permission to create projects.", "info");
 
   return (
     <RootWrapper>
