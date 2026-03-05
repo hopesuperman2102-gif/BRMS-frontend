@@ -56,7 +56,7 @@ export const CreateUserApi = {
   changePassword: async (userId: string, newPassword: string): Promise<unknown> => {
   const res = await axiosInstance.post<unknown>(
     '/api/v1/users/change-password',
-    { new_password: newPassword }
+    { username: userId, new_password: newPassword }
   );
   return res.data;
 },
