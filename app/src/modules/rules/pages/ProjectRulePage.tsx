@@ -22,7 +22,17 @@ const { colors, fonts } = brmsTheme;
 export const splitPath    = (path: string): string[] => path.split('/').filter(Boolean);
 export const parentOfPath = (path: string): string => splitPath(path).slice(0, -1).join('/');
 export const fmtDate      = (iso: string): string => {
-  try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+  try {
+    return new Date(iso).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  }
   catch { return iso ?? '—'; }
 };
 
