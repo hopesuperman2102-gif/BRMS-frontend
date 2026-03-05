@@ -30,7 +30,8 @@ export interface ExecuteResponse {
   error?: string;
   performance?: string;
   trace?: JsonObject;
-  status?: 'success' | 'error';
+  nodeData?: JsonObject;
+  status?: 'success' | 'error' | 'SUCCESS' | 'ERROR';
   message?: string;
 }
 export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
