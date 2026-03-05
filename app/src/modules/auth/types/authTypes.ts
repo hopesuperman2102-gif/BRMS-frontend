@@ -12,7 +12,8 @@ export interface AuthContextType {
 
 //auth service types
 export interface LoginRequest {
-  username: string;
+  username?: string;
+  emailid?: string;
   password: string;
 }
 
