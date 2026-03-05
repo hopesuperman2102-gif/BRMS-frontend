@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { Typography, CircularProgress, Box, Alert } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { RcCollapsibleTable } from '@/core/components/RcCollapsibleTable';
@@ -159,23 +160,31 @@ const RejectChip = styled(StatusChip)({
 /* ─── Component ───────────────────────────────────────────── */
 
 export default function RulesTable() {
+  const { vertical_Key } = useParams<{ vertical_Key: string }>();
   const [sections, setSections] = useState<ProjectSection[]>([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);
   const { showAlert }           = useAlertStore();
 
   const fetchAllData = useCallback(async () => {
+    if (!vertical_Key) {
+      setSections([]);
+      setLoading(false);
+      setError('Vertical key is missing');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const vertical = await rulesTableApi.refreshVerticalRules();
+      const vertical = await rulesTableApi.refreshVerticalRules(vertical_Key);
       setSections(buildSections(vertical.projects));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [vertical_Key]);
 
   useEffect(() => { void fetchAllData(); }, [fetchAllData]);
 

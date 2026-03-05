@@ -1,23 +1,24 @@
 import axiosInstance from '@/api/apiClient';
 import { ReviewResponse, VerticalRulesResponse } from '@/modules/hub/types/hubEndpointsTypes';
 
-let verticalCache: VerticalRulesResponse | null = null;
+const verticalCache = new Map<string, VerticalRulesResponse>();
 
 export const rulesTableApi = {
 
   // ONE call — returns all projects + rules + versions for the vertical
-  getVerticalRules: async (vertical_key = 'loan'): Promise<VerticalRulesResponse> => {
-    if (verticalCache) return verticalCache;
+  getVerticalRules: async (vertical_key: string): Promise<VerticalRulesResponse> => {
+    const cached = verticalCache.get(vertical_key);
+    if (cached) return cached;
     const res = await axiosInstance.get<VerticalRulesResponse>(
       `/api/v1/verticals/${vertical_key}/rules`
     );
-    verticalCache = res.data;
+    verticalCache.set(vertical_key, res.data);
     return res.data;
   },
 
   // Force fresh fetch — bypasses cache
-  refreshVerticalRules: async (vertical_key = 'loan'): Promise<VerticalRulesResponse> => {
-    verticalCache = null;
+  refreshVerticalRules: async (vertical_key: string): Promise<VerticalRulesResponse> => {
+    verticalCache.delete(vertical_key);
     return rulesTableApi.getVerticalRules(vertical_key);
   },
 
@@ -31,12 +32,16 @@ export const rulesTableApi = {
       `/api/v1/rules/${rule_key}/versions/${version}/review`,
       { action, reviewed_by }
     );
-    verticalCache = null;
+    verticalCache.clear();
     return res.data;
   },    
 
-  invalidateCache: () => {
-    verticalCache = null;
+  invalidateCache: (vertical_key?: string) => {
+    if (vertical_key) {
+      verticalCache.delete(vertical_key);
+      return;
+    }
+    verticalCache.clear();
   },
 
 };
