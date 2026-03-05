@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
-import EmailIcon from '@mui/icons-material/Email';
 import { RcEmailProps } from '@/core/types/commonTypes';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
