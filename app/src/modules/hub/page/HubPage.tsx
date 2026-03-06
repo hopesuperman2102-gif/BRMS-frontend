@@ -8,25 +8,25 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeployTabPage from '@/modules/deploy/page/DeployTabPage';
 import { projectsApi } from '@/modules/hub/api/projectsApi';
 import { brmsTheme } from '@/core/theme/brmsTheme';
-import ProjectList from '@/modules/hub/components/ProjectListCard';
-import RulesTable from '@/modules/hub/components/RulesTable';
 import { useRole } from '@/modules/auth/hooks/useRole';
+import HubProjects from '@/modules/hub/components/HubProjects';
+import HubRules from '@/modules/hub/components/HubRules';
 
 const { colors, gradients } = brmsTheme;
 
 const HeaderWrapper = styled(Box)({
-  padding: '15px',
+  padding: '8px 12px 6px',
 });
 
 const BackRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: '12px',
-  marginBottom: '16px',
+  gap: '10px',
+  marginBottom: '8px',
 });
 
 const BackButton = styled(IconButton)({
-  width: 34, height: 34, borderRadius: '8px',
+  width: 32, height: 32, borderRadius: '8px',
   background: colors.white,
   border: `1px solid ${colors.lightBorder}`,
   color: colors.lightTextMid,
@@ -39,30 +39,46 @@ const BackButton = styled(IconButton)({
 });
 
 const VerticalName = styled(Typography)({
-  fontSize: '0.95rem',
+  fontSize: '0.9rem',
   fontWeight: 600,
   color: colors.navTextHigh,
   whiteSpace: 'nowrap',
 });
 
 const StyledTabs = styled(Tabs)({
+  minHeight: 0,
+  padding: '4px',
+  borderRadius: '12px',
+  background: 'linear-gradient(180deg, rgba(248,250,252,0.9) 0%, rgba(241,245,249,0.9) 100%)',
+  border: `1px solid ${colors.lightBorder}`,
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
   '& .MuiTabs-indicator': {
-    background: gradients.primary,
-    height: 3,
-    borderRadius: '3px 3px 0 0',
+    display: 'none',
   },
   '& .MuiTab-root': {
+    minHeight: 34,
+    padding: '6px 14px',
+    borderRadius: '9px',
     textTransform: 'none',
-    fontWeight: 600,
-    fontSize: '0.95rem',
+    fontWeight: 700,
+    fontSize: '0.86rem',
+    letterSpacing: '0.01em',
     color: colors.tabTextInactive,
-    '&.Mui-selected': { color: colors.primary },
-    '&:hover': { color: colors.primary },
+    transition: 'all 0.18s ease',
+    '&.Mui-selected': {
+      color: colors.white,
+      background: gradients.primary,
+      boxShadow: brmsTheme.shadows.primarySoft,
+    },
+    '&:hover': {
+      color: colors.primary,
+      backgroundColor: 'rgba(101, 82, 208, 0.08)',
+    },
   },
 });
 
 const ContentWrapper = styled(Box)({
-  padding: '24px',
+  padding: '10px 12px 14px',
 });
 
 const HubPage = () => {
@@ -94,15 +110,15 @@ const HubPage = () => {
   }, [vertical_Key]);
 
   const visibleTabs = isRuleAuthor || isViewer
-    ? [{ label: 'Projects', content: <ProjectList /> }]
+    ? [{ label: 'Projects', content: <HubProjects /> }]
     : isReviewer
     ? [
-        { label: 'Projects', content: <ProjectList /> },
-        { label: 'Rules', content: <RulesTable /> },
+        { label: 'Projects', content: <HubProjects /> },
+        { label: 'Rules', content: <HubRules /> },
       ]
     : [
-        { label: 'Projects', content: <ProjectList /> },
-        { label: 'Rules', content: <RulesTable /> },
+        { label: 'Projects', content: <HubProjects /> },
+        { label: 'Rules', content: <HubRules /> },
         { label: 'Deploy', content: <DeployTabPage /> },
       ];
 

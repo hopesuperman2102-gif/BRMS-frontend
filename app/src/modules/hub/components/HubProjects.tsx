@@ -25,7 +25,7 @@ const RootWrapper = styled(Box)({
   height: "calc(100vh - 64px)",
 });
 
-export default function ProjectListCard() {
+export default function HubProjects() {
   const [projects, setProjects] = useState<ProjectListProps[]>([]);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedProject, setSelectedProject] = useState<ProjectListProps | null>(null);

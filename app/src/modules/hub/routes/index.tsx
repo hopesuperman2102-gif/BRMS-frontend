@@ -1,10 +1,10 @@
 import type { AppRoute } from '@/core/types/routeTypes';
 
 import HubPage from '@/modules/hub/page/HubPage';
-import RulesTable from '@/modules/hub/components/RulesTable';
+import RulesTable from '@/modules/hub/components/HubRules';
 import DeployTabPage from '@/modules/deploy/page/DeployTabPage';
 import CreateProjectPage from '@/modules/hub/page/CreateProjectPage';
-import LogsPage from '@/modules/hub/components/LogsPage';
+import LogsPage from '@/modules/hub/page/LogsPage';
 
 const hubRoutes: AppRoute[] = [
   {

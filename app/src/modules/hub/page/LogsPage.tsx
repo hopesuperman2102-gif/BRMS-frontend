@@ -14,7 +14,6 @@ import { HourlyLogEntry, ParsedLogLine } from '@/modules/hub/types/hubEndpointsT
 const { colors, fonts, gradients, shadows } = brmsTheme;
 const MotionBox = motion(Box);
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
 function extractDate(fileKey: string): string {
   return fileKey.split('-').slice(0, -1).join('-');
 }
@@ -27,7 +26,6 @@ function formatCreatedAt(iso: string): string {
   return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// ─── per-page level counts ────────────────────────────────────────────────────
 function countByLevel(lines: ParsedLogLine[]) {
   return lines.reduce(
     (acc, l) => {
@@ -40,7 +38,6 @@ function countByLevel(lines: ParsedLogLine[]) {
   );
 }
 
-// ─── level config — 100% brmsTheme tokens ────────────────────────────────────
 const LEVEL_CFG = {
   INFO: {
     color:  colors.info,
@@ -62,7 +59,6 @@ const LEVEL_CFG = {
   },
 } as const;
 
-// ─── Panel ────────────────────────────────────────────────────────────────────
 function Panel({ children, delay = 0, sx = {} }: {
   children: React.ReactNode; delay?: number; sx?: object;
 }) {
@@ -105,7 +101,6 @@ function PanelHeader({ children, right }: { children: React.ReactNode; right?: R
   );
 }
 
-// ─── per-page breakdown badges ────────────────────────────────────────────────
 function PageBreakdown({ lines }: { lines: ParsedLogLine[] }) {
   const { info, warn, error } = countByLevel(lines);
   const items = [
@@ -140,7 +135,6 @@ function PageBreakdown({ lines }: { lines: ParsedLogLine[] }) {
   );
 }
 
-// ─── Volume bar chart ─────────────────────────────────────────────────────────
 function VolumeChart({ entries, selected }: { entries: HourlyLogEntry[]; selected: string | null }) {
   const max = Math.max(...entries.map(e => e.total), 1);
   return (
@@ -166,7 +160,6 @@ function VolumeChart({ entries, selected }: { entries: HourlyLogEntry[]; selecte
   );
 }
 
-// ─── Hour badge ───────────────────────────────────────────────────────────────
 function HourBadge({ fileKey, createdAt, active, onClick }: {
   fileKey: string; createdAt: string; active: boolean; onClick: () => void;
 }) {
@@ -208,7 +201,6 @@ function HourBadge({ fileKey, createdAt, active, onClick }: {
   );
 }
 
-// ─── Log line row ─────────────────────────────────────────────────────────────
 function LogLine({ line, index }: { line: ParsedLogLine; index: number }) {
   const cfg = LEVEL_CFG[line.level as keyof typeof LEVEL_CFG] ?? LEVEL_CFG.INFO;
   return (

@@ -101,3 +101,11 @@ export interface ProjectListRightPanelProps {
   /** When true, hides the context menu (Edit/Delete) and New Project button */
   isRuleAuthor?: boolean;
 }
+
+//Rules Drawer Types
+export type ReviewRow = ProjectRuleRow & { projectName: string };
+
+export interface RulesDrawerProps {
+  selectedRow: ReviewRow | null;
+  canReview: boolean;
+}

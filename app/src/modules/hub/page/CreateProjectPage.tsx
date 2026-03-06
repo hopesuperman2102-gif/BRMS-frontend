@@ -9,7 +9,6 @@ import { FormState } from '@/modules/hub/types/hubTypes';
 import CreateProjectRightPanel from '@/modules/hub/components/CreateProjectRightPanel';
 import { useRole } from '@/modules/auth/hooks/useRole';
 
-/* ─── Page ────────────────────────────────────────────────── */
 export default function CreateProjectPage() {
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
