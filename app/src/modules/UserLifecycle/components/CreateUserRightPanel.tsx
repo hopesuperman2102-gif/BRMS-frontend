@@ -9,6 +9,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import RcDropdown from '@/core/components/RcDropdown';
 import RcEmail from '@/core/components/RcEmail';
+import EmailIcon from '@mui/icons-material/Email';
 import RcInputField from '@/core/components/RcInputField';
 import RcPasswordField from '@/core/components/RcPasswordField';
 import { CreateUserRightPanelProps } from '@/modules/UserLifecycle/types/userTypes';
@@ -152,11 +153,15 @@ export default function CreateUserRightPanel({ formData, loading, error, success
             <Box>
               <Label required>Email</Label>
               <RcEmail
+                name="email"
                 value={formData.email}
                 onChange={onChange}
-                sx={inputSx(focused === 'email')}
+                required
+                autoComplete='email'
                 onFocus={() => setFocused('email')}
                 onBlur={() => setFocused(null)}
+                startIcon={<EmailIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
+                sx={inputSx(focused === 'email')}
               />
             </Box>
 

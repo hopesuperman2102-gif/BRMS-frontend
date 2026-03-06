@@ -8,11 +8,14 @@ import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import RcInputField from '@/core/components/RcInputField';
+import RcEmail from '@/core/components/RcEmail';
 import RcPasswordField from '@/core/components/RcPasswordField';
+import { Checkbox, FormControlLabel } from '@mui/material';
+import { Email } from '@mui/icons-material';
 import { LoginRightPanelProps } from '@/modules/auth/types/loginTypes';
 
 const { colors, fonts } = brmsTheme;
-
+ 
 const inputSx = (focused: boolean) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '6px',
@@ -43,7 +46,7 @@ const inputSx = (focused: boolean) => ({
     },
   },
 });
-
+ 
 const RightPanelRoot = styled(Box)({
   flex: 1,
   display: 'flex',
@@ -54,14 +57,14 @@ const RightPanelRoot = styled(Box)({
   position: 'relative',
   background: colors.formBg,
 });
-
+ 
 const FormCard = styled(Box)({
   width: '100%',
   maxWidth: '420px',
   paddingTop: '48px',
   paddingBottom: '48px',
 });
-
+ 
 const AccentLine = styled(Box)({
   width: '32px',
   height: '2px',
@@ -70,11 +73,11 @@ const AccentLine = styled(Box)({
   marginBottom: '24px',
   opacity: 0.9,
 });
-
+ 
 const HeadingBlock = styled(Box)({
   marginBottom: '32px',
 });
-
+ 
 const HeadingTitle = styled(Typography)({
   fontSize: '1.5rem',
   fontWeight: 800,
@@ -83,14 +86,14 @@ const HeadingTitle = styled(Typography)({
   lineHeight: 1.1,
   marginBottom: '8px',
 });
-
+ 
 const HeadingSubtitle = styled(Typography)({
   fontSize: '0.8125rem',
   color: colors.lightTextMid,
   fontWeight: 400,
   lineHeight: 1.65,
 });
-
+ 
 const StyledAlert = styled(Alert)({
   marginBottom: '24px',
   borderRadius: '6px',
@@ -106,20 +109,20 @@ const StyledAlert = styled(Alert)({
     fontSize: '1rem',
   },
 });
-
+ 
 const FieldsWrapper = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   gap: '20px',
 });
-
+ 
 const Divider = styled(Box)({
   height: '1px',
   backgroundColor: colors.lightBorder,
   marginTop: '32px',
   marginBottom: '24px',
 });
-
+ 
 const SubmitButton = styled(Button)({
   borderRadius: '6px',
   paddingTop: '10px',
@@ -144,14 +147,14 @@ const SubmitButton = styled(Button)({
   },
   transition: 'all 0.15s',
 });
-
+ 
 const LabelWrapper = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   marginBottom: '6px',
 });
-
+ 
 const LabelText = styled(Typography)({
   fontSize: '0.6875rem',
   fontWeight: 600,
@@ -160,7 +163,7 @@ const LabelText = styled(Typography)({
   textTransform: 'uppercase',
   fontFamily: fonts.mono,
 });
-
+ 
 const RequiredBadge = styled(Typography)({
   fontSize: '0.625rem',
   fontWeight: 700,
@@ -170,59 +173,82 @@ const RequiredBadge = styled(Typography)({
   fontFamily: fonts.mono,
   opacity: 0.75,
 });
-
+ 
 const Label = ({ children, required }: { children: React.ReactNode; required?: boolean }) => (
   <LabelWrapper>
     <LabelText>{children}</LabelText>
     {required && <RequiredBadge>required</RequiredBadge>}
   </LabelWrapper>
 );
-
+ 
 export default function LoginRightPanel({
   formData,
   loading,
+  loginMode,
+  setLoginMode,
   error,
   onChange,
   onSubmit,
 }: LoginRightPanelProps) {
   const [focused, setFocused] = useState<string | null>(null);
-
+ 
   return (
     <RightPanelRoot sx={{ px: { xs: '24px', sm: '48px', lg: '72px' } }}>
       <FormCard>
         <AccentLine />
-
+ 
         <HeadingBlock>
           <HeadingTitle>Sign in</HeadingTitle>
           <HeadingSubtitle>
             Enter your credentials to access your workspace.
           </HeadingSubtitle>
         </HeadingBlock>
-
+ 
         {error && (
           <StyledAlert severity="error">{error}</StyledAlert>
         )}
-
+ 
         <Box component="form" onSubmit={onSubmit}>
           <FieldsWrapper>
-
-            {/* Username */}
+ 
+            {/* Username OR Email */}
             <Box>
-              <Label required>Username</Label>
-              <RcInputField
-                name="username"
-                value={formData.username}
-                onChange={onChange}
-                onFocus={() => setFocused('username')}
-                onBlur={() => setFocused(null)}
-                placeholder="your username"
-                autoComplete="username"
-                maxLength={30}
-                startIcon={<PersonIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
-                sx={inputSx(focused === 'username')}
-              />
-            </Box>
-
+              <Label required>
+    {loginMode === 'username' ? 'Username' : 'Email'}
+  </Label>
+{loginMode === 'username' ? (
+  <RcInputField
+    name="username"
+    value={formData.username}
+    onChange={onChange}
+    onFocus={() => setFocused('username')}
+    onBlur={() => setFocused(null)}
+    placeholder="your username"
+    autoComplete="username"
+    maxLength={30}
+    startIcon={
+      <PersonIcon
+        sx={{ fontSize: '16px', color: colors.lightTextLow }}
+      />
+    }
+    sx={inputSx(focused === 'username')}
+  />
+) : (
+  <RcEmail
+  name="emailid"
+  value={formData.emailid}
+  onChange={onChange}
+  required
+  autoComplete='email'
+  onFocus={() => setFocused('email')}
+  onBlur={() => setFocused(null)}
+  startIcon={<Email sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
+  sx={inputSx(focused === 'email')}
+/>
+ 
+)}
+</Box>
+ 
             {/* Password */}
             <Box>
               <Label required>Password</Label>
@@ -239,57 +265,68 @@ export default function LoginRightPanel({
                 sx={inputSx(focused === 'password')}
               />
             </Box>
-
+ 
           </FieldsWrapper>
-
-          {/* Forgot password */}
-          <Box sx={{ textAlign: 'right', mt: '10px' }}>
-            <Typography
-              component={Link}
-              to="/forgot-password"
-              sx={{
-                fontSize: '0.6875rem',
-                fontFamily: fonts.mono,
-                color: colors.panelIndigo,
-                textDecoration: 'none',
-                fontWeight: 600,
-                letterSpacing: '0.02em',
-                '&:hover': { textDecoration: 'underline' },
-              }}
-            >
-              Forgot password?
-            </Typography>
-          </Box>
-
+ 
+          {/*  */}
+          <Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    mt: '10px',
+  }}
+>
+  <FormControlLabel
+    control={
+      <Checkbox
+        checked={loginMode === 'email'}
+        onChange={(e) => setLoginMode(e.target.checked ? 'email' : 'username')}
+        size="small"
+        sx={{
+          color: colors.lightBorder,
+          '&.Mui-checked': { color: colors.panelIndigo },
+          padding: '4px',
+          mr: '4px',
+        }}
+      />
+    }
+    label={
+      <Typography sx={{
+        fontSize: '0.6875rem',
+        fontFamily: fonts.mono,
+        color: colors.lightTextMid,
+        fontWeight: 600,
+        letterSpacing: '0.02em',
+      }}>
+        Sign In with Email
+      </Typography>
+    }
+  />
+  <Typography
+    component={Link}
+    to="/forgot-password"
+    sx={{
+      fontSize: '0.6875rem',
+      fontFamily: fonts.mono,
+      color: colors.panelIndigo,
+      textDecoration: 'none',
+      fontWeight: 600,
+      letterSpacing: '0.02em',
+      '&:hover': { textDecoration: 'underline' },
+    }}
+  >
+    Forgot password?
+  </Typography>
+</Box>
+ 
           <Divider />
-
+ 
           <SubmitButton fullWidth type="submit" disabled={loading} disableRipple>
             {loading ? 'Signing in…' : 'Sign In'}
           </SubmitButton>
-
-          {/* Sign up link */}
-          <Box sx={{ textAlign: 'center', mt: '20px' }}>
-            <Typography sx={{ fontSize: '0.8125rem', color: colors.lightTextMid, fontFamily: fonts.mono }}>
-              Don&apos;t have an account?{' '}
-              <Typography
-                component={Link}
-                to="/signup"
-                sx={{
-                  fontSize: '0.8125rem',
-                  color: colors.panelIndigo,
-                  fontFamily: fonts.mono,
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-              >
-                Sign Up
-              </Typography>
-            </Typography>
-          </Box>
         </Box>
       </FormCard>
     </RightPanelRoot>
   );
 }
-
