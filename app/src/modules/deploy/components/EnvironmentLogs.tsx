@@ -18,6 +18,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { deployApi } from '@/modules/deploy/api/deployApi';
 import { EnvironmentLogsProps, ParsedEnvLogLine } from '@/modules/deploy/types/deployTypes';
 import { RawEnvLogFileMeta } from '@/modules/deploy/types/deployEndpointsTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const PAGE_SIZE = 10;
 const DATE_LOOKBACK_DAYS = 14;
@@ -48,20 +49,20 @@ const parseLogLine = (line: string): ParsedEnvLogLine | null => {
 };
 
 const LEVEL_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  INFO: { color: '#22c55e', bg: 'rgba(34,197,94,0.1)', label: 'INFO' },
-  ERROR: { color: '#ef4444', bg: 'rgba(239,68,68,0.1)', label: 'ERROR' },
-  WARN: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', label: 'WARN' },
-  WARNING: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', label: 'WARN' },
-  DEBUG: { color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', label: 'DEBUG' },
+  INFO: { color: brmsTheme.colors.success, bg: `rgba(${brmsTheme.colors.success}20)`, label: 'INFO' },
+  ERROR: { color: brmsTheme.colors.errorRed, bg: `rgba(${brmsTheme.colors.errorRed}20)`, label: 'ERROR' },
+  WARN: { color: brmsTheme.colors.warningAmber, bg: `rgba(${brmsTheme.colors.warningAmber}20)`, label: 'WARN' },
+  WARNING: { color: brmsTheme.colors.warningAmber, bg: `rgba(${brmsTheme.colors.warningAmber}20)`, label: 'WARN' },
+  DEBUG: { color: brmsTheme.colors.chartBlueLight, bg: `rgba(${brmsTheme.colors.chartBlueLight}20)`, label: 'DEBUG' },
 };
 
 const getLevelConfig = (level: string) =>
-  LEVEL_CONFIG[level.toUpperCase()] ?? { color: '#94a3b8', bg: 'rgba(148,163,184,0.1)', label: level };
+  LEVEL_CONFIG[level.toUpperCase()] ?? { color: brmsTheme.colors.lightTextLow, bg: `rgba(${brmsTheme.colors.lightTextLow}20)`, label: level };
 
 const ENV_COLORS: Record<string, string> = {
-  PROD: '#ef4444',
-  QA: '#f59e0b',
-  DEV: '#6366f1',
+  PROD: brmsTheme.colors.errorRed,
+  QA: brmsTheme.colors.warningAmber,
+  DEV: brmsTheme.colors.indigoBase,
 };
 
 function countLevels(lines: ParsedEnvLogLine[]): { info: number; warn: number; error: number } {
@@ -94,7 +95,7 @@ function PageArrow({ direction, enabled, onClick }: {
         justifyContent: 'center',
         cursor: enabled ? 'pointer' : 'default',
         background: enabled ? 'rgba(99,102,241,0.15)' : 'transparent',
-        border: `1px solid ${enabled ? '#6366f1' : '#334155'}`,
+        border: `1px solid ${enabled ? brmsTheme.colors.indigoBase : brmsTheme.colors.slateGray}`,
         opacity: enabled ? 1 : 0.4,
         transition: 'all 0.15s',
         '&:hover': enabled ? { background: 'rgba(99,102,241,0.22)' } : {},
@@ -103,7 +104,7 @@ function PageArrow({ direction, enabled, onClick }: {
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
         <path
           d={direction === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'}
-          stroke={enabled ? '#cbd5e1' : '#475569'}
+          stroke={enabled ? brmsTheme.colors.lightBorderHover : brmsTheme.colors.lightTextMid}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -203,7 +204,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
     }
   }, [open, fetchLogs]);
 
-  const envColor = ENV_COLORS[environment] ?? '#6366f1';
+  const envColor = ENV_COLORS[environment] ?? brmsTheme.colors.indigoBase;
   const totalPages = Math.max(1, Math.ceil(pageTotal / PAGE_SIZE));
   const hasPrev = currentPage > 0;
   const hasNext = currentPage < totalPages - 1;
@@ -227,7 +228,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           width: { xs: '100vw', sm: 680 },
           display: 'flex',
           flexDirection: 'column',
-          bgcolor: '#0f172a',
+          bgcolor: brmsTheme.colors.lightTextHigh,
         },
       }}
     >
@@ -238,18 +239,18 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           justifyContent: 'space-between',
           px: 3,
           py: 2,
-          bgcolor: '#1e293b',
+          bgcolor: brmsTheme.colors.textDarkSlate,
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           flexShrink: 0,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box sx={{ display: 'flex', gap: '6px', mr: 1 }}>
-            {['#ef4444', '#f59e0b', '#22c55e'].map((c) => (
+            {[brmsTheme.colors.errorRed, brmsTheme.colors.warningAmber, brmsTheme.colors.success].map((c) => (
               <Box key={c} sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: c, opacity: 0.8 }} />
             ))}
           </Box>
-          <Typography fontWeight={700} fontSize="0.875rem" color="#f1f5f9" letterSpacing="0.02em">
+          <Typography fontWeight={700} fontSize="0.875rem" color={brmsTheme.colors.surfaceBase} letterSpacing="0.02em">
             Environment Logs
           </Typography>
           <Chip
@@ -259,7 +260,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
               fontWeight: 800,
               fontSize: '0.65rem',
               bgcolor: envColor,
-              color: '#fff',
+              color: brmsTheme.colors.white,
               height: 20,
               letterSpacing: '0.06em',
             }}
@@ -271,18 +272,18 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
               disabled={loading || linesLoading}
               sx={{
                 height: 24,
-                color: '#e2e8f0',
+                color: brmsTheme.colors.lightTextMid,
                 fontSize: '0.72rem',
                 fontFamily: 'monospace',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
-                '& .MuiSelect-icon': { color: '#94a3b8' },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: brmsTheme.colors.slateGray },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: brmsTheme.colors.slateGray },
+                '& .MuiSelect-icon': { color: brmsTheme.colors.textGrayLight },
               }}
               MenuProps={{
                 PaperProps: {
                   sx: {
-                    bgcolor: '#0f172a',
-                    border: '1px solid #334155',
+                    bgcolor: brmsTheme.colors.lightTextHigh,
+                    border: `1px solid ${brmsTheme.colors.slateGray}`,
                     mt: 0.5,
                   },
                 },
@@ -293,7 +294,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                   key={d.value}
                   value={d.value}
                   sx={{
-                    color: '#cbd5e1',
+                    color: brmsTheme.colors.lightBorderHover,
                     fontSize: '0.75rem',
                     fontFamily: 'monospace',
                   }}
@@ -312,13 +313,13 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                 size="small"
                 onClick={() => void fetchLogs()}
                 disabled={loading || linesLoading}
-                sx={{ color: '#64748b', '&:hover': { color: '#f1f5f9' } }}
+                sx={{ color: brmsTheme.colors.slateText, '&:hover': { color: brmsTheme.colors.surfaceBase } }}
               >
                 <RefreshIcon fontSize="small" />
               </IconButton>
             </span>
           </Tooltip>
-          <IconButton size="small" onClick={onClose} sx={{ color: '#64748b', '&:hover': { color: '#f1f5f9' } }}>
+          <IconButton size="small" onClick={onClose} sx={{ color: brmsTheme.colors.slateText, '&:hover': { color: brmsTheme.colors.surfaceBase } }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -328,14 +329,14 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
         sx={{
           px: 2,
           py: 1.25,
-          bgcolor: '#1e293b',
+          bgcolor: brmsTheme.colors.textDarkSlate,
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           display: 'flex',
           alignItems: 'center',
         }}
       >
         {files.length === 0 ? (
-          <Typography variant="caption" sx={{ color: '#64748b', fontFamily: 'monospace' }}>
+          <Typography variant="caption" sx={{ color: brmsTheme.colors.slateText, fontFamily: 'monospace' }}>
             No log files found
           </Typography>
         ) : (
@@ -352,18 +353,18 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
               disabled={loading || linesLoading}
               sx={{
                 height: 30,
-                color: '#e2e8f0',
+                color: brmsTheme.colors.lightBorder,
                 fontSize: '0.72rem',
                 fontFamily: 'monospace',
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#334155' },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#475569' },
-                '& .MuiSelect-icon': { color: '#94a3b8' },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: brmsTheme.colors.slateGray },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: brmsTheme.colors.lightTextMid },
+                '& .MuiSelect-icon': { color: brmsTheme.colors.lightTextLow },
               }}
               MenuProps={{
                 PaperProps: {
                   sx: {
-                    bgcolor: '#0f172a',
-                    border: '1px solid #334155',
+                    bgcolor: brmsTheme.colors.lightTextHigh,
+                    border: `1px solid ${brmsTheme.colors.slateGray}`,
                     mt: 0.5,
                     maxHeight: 320,
                   },
@@ -375,7 +376,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                   key={f.file_key}
                   value={f.file_key}
                   sx={{
-                    color: '#cbd5e1',
+                    color: brmsTheme.colors.lightBorderHover,
                     fontSize: '0.75rem',
                     fontFamily: 'monospace',
                     display: 'flex',
@@ -384,7 +385,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                   }}
                 >
                   <Box component="span">{f.file_key}</Box>
-                  <Box component="span" sx={{ color: '#94a3b8' }}>
+                  <Box component="span" sx={{ color: brmsTheme.colors.lightTextLow }}>
                     {f.line_count ?? '-'}
                   </Box>
                 </MenuItem>
@@ -401,24 +402,24 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           gap: 2,
           px: 3,
           py: 1,
-          bgcolor: '#1e293b',
+          bgcolor: brmsTheme.colors.textDarkSlate,
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           flexShrink: 0,
         }}
       >
-        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+        <Typography variant="caption" sx={{ color: brmsTheme.colors.lightTextLow, fontFamily: 'monospace' }}>
           page {currentPage + 1} of {totalPages}
         </Typography>
-        <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>|</Typography>
-        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+        <Typography variant="caption" sx={{ color: brmsTheme.colors.slateGray, mx: 0.5 }}>|</Typography>
+        <Typography variant="caption" sx={{ color: brmsTheme.colors.lightTextLow, fontFamily: 'monospace' }}>
           file {selectedFileIndex >= 0 ? selectedFileIndex + 1 : 0} of {files.length}
         </Typography>
-        <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>|</Typography>
-        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+        <Typography variant="caption" sx={{ color: brmsTheme.colors.slateGray, mx: 0.5 }}>|</Typography>
+        <Typography variant="caption" sx={{ color: brmsTheme.colors.lightTextLow, fontFamily: 'monospace' }}>
           {selectedFile ?? '-'}
         </Typography>
-        <Typography variant="caption" sx={{ color: '#334155', mx: 0.5 }}>|</Typography>
-        <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace' }}>
+        <Typography variant="caption" sx={{ color: brmsTheme.colors.slateGray, mx: 0.5 }}>|</Typography>
+        <Typography variant="caption" sx={{ color: brmsTheme.colors.lightTextLow, fontFamily: 'monospace' }}>
           {selectedMeta?.created_at ? new Date(selectedMeta.created_at).toLocaleString() : '-'}
         </Typography>
       </Box>
@@ -430,24 +431,24 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           py: 2,
           '&::-webkit-scrollbar': { width: 4 },
           '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
-          '&::-webkit-scrollbar-thumb': { bgcolor: '#334155', borderRadius: 2 },
+          '&::-webkit-scrollbar-thumb': { bgcolor: brmsTheme.colors.slateGray, borderRadius: 2 },
         }}
       >
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress size={24} sx={{ color: '#6366f1' }} />
+            <CircularProgress size={24} sx={{ color: brmsTheme.colors.indigoBase }} />
           </Box>
         ) : error ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Typography variant="body2" sx={{ color: '#ef4444', fontFamily: 'monospace' }}>{error}</Typography>
+            <Typography variant="body2" sx={{ color: brmsTheme.colors.errorRed, fontFamily: 'monospace' }}>{error}</Typography>
           </Box>
         ) : linesLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress size={20} sx={{ color: '#6366f1' }} />
+            <CircularProgress size={20} sx={{ color: brmsTheme.colors.indigoBase }} />
           </Box>
         ) : lines.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Typography variant="body2" sx={{ color: '#475569', fontFamily: 'monospace' }}>
+            <Typography variant="body2" sx={{ color: brmsTheme.colors.lightTextMid, fontFamily: 'monospace' }}>
               No logs found for {environment}
             </Typography>
           </Box>
@@ -469,7 +470,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                     '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
                   }}
                 >
-                  <Typography sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#475569', whiteSpace: 'nowrap' }}>
+                  <Typography sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: brmsTheme.colors.lightTextMid, whiteSpace: 'nowrap' }}>
                     {line.timestamp}
                   </Typography>
 
@@ -492,15 +493,15 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
 
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', minWidth: 0 }}>
                     <Typography
-                      sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#6366f1', whiteSpace: 'nowrap', flexShrink: 0 }}
+                      sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: brmsTheme.colors.indigoBase, whiteSpace: 'nowrap', flexShrink: 0 }}
                       title={line.source}
                     >
                       {line.source.split('.').pop()}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#334155', flexShrink: 0 }}>
+                    <Typography sx={{ fontSize: '0.68rem', fontFamily: 'monospace', color: brmsTheme.colors.slateGray, flexShrink: 0 }}>
                       &gt;
                     </Typography>
-                    <Typography sx={{ fontSize: '0.72rem', fontFamily: 'monospace', color: '#94a3b8', wordBreak: 'break-word' }}>
+                    <Typography sx={{ fontSize: '0.72rem', fontFamily: 'monospace', color: brmsTheme.colors.lightTextLow, wordBreak: 'break-word' }}>
                       {line.message}
                     </Typography>
                   </Box>
@@ -516,7 +517,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           px: 2,
           py: '8px',
           borderTop: '1px solid rgba(255,255,255,0.06)',
-          bgcolor: '#1e293b',
+          bgcolor: brmsTheme.colors.textDarkSlate,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -524,21 +525,21 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           flexWrap: 'wrap',
         }}
       >
-        <Typography sx={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace', minWidth: 160 }}>
+        <Typography sx={{ fontSize: 11, color: brmsTheme.colors.lightTextLow, fontFamily: 'monospace', minWidth: 160 }}>
           {pageTotal === 0
             ? 'rows 0-0 of 0'
             : `rows ${currentPage * PAGE_SIZE + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, pageTotal)} of ${pageTotal}`}
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.28)' }}>
-            <Typography sx={{ fontSize: 10, color: '#22c55e', fontFamily: 'monospace' }}>INFO {levelStats.info}</Typography>
+          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: `rgba(${brmsTheme.colors.success}20)`, border: `1px solid rgba(${brmsTheme.colors.success}45)` }}>
+            <Typography sx={{ fontSize: 10, color: brmsTheme.colors.success, fontFamily: 'monospace' }}>INFO {levelStats.info}</Typography>
           </Box>
-          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.28)' }}>
-            <Typography sx={{ fontSize: 10, color: '#f59e0b', fontFamily: 'monospace' }}>WARN {levelStats.warn}</Typography>
+          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: `rgba(${brmsTheme.colors.warningAmber}20)`, border: `1px solid rgba(${brmsTheme.colors.warningAmber}45)` }}>
+            <Typography sx={{ fontSize: 10, color: brmsTheme.colors.warningAmber, fontFamily: 'monospace' }}>WARN {levelStats.warn}</Typography>
           </Box>
-          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.28)' }}>
-            <Typography sx={{ fontSize: 10, color: '#ef4444', fontFamily: 'monospace' }}>ERROR {levelStats.error}</Typography>
+          <Box sx={{ px: 0.9, py: 0.4, borderRadius: '999px', bgcolor: `rgba(${brmsTheme.colors.errorRed}20)`, border: `1px solid rgba(${brmsTheme.colors.errorRed}45)` }}>
+            <Typography sx={{ fontSize: 10, color: brmsTheme.colors.errorRed, fontFamily: 'monospace' }}>ERROR {levelStats.error}</Typography>
           </Box>
         </Box>
 
@@ -559,7 +560,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
 
               if (showEllBefore || showEllAfter) {
                 return (
-                  <Typography key={`ellipsis-${i}`} sx={{ fontSize: 11, color: '#64748b', px: '2px', userSelect: 'none', fontFamily: 'monospace' }}>
+                  <Typography key={`ellipsis-${i}`} sx={{ fontSize: 11, color: brmsTheme.colors.slateText, px: '2px', userSelect: 'none', fontFamily: 'monospace' }}>
                     ...
                   </Typography>
                 );
@@ -578,8 +579,8 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: linesLoading || !selectedFile ? 'default' : 'pointer',
-                    background: isActive ? '#6366f1' : 'transparent',
-                    border: `1px solid ${isActive ? '#6366f1' : '#334155'}`,
+                    background: isActive ? brmsTheme.colors.indigoBase : 'transparent',
+                    border: `1px solid ${isActive ? brmsTheme.colors.indigoBase : brmsTheme.colors.slateGray}`,
                     transition: 'all 0.12s',
                     '&:hover': !isActive ? { background: 'rgba(99,102,241,0.15)' } : {},
                   }}
@@ -588,7 +589,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
                     sx={{
                       fontSize: 11,
                       fontWeight: isActive ? 800 : 500,
-                      color: isActive ? '#f8fafc' : '#94a3b8',
+                      color: isActive ? brmsTheme.colors.surfaceBase : brmsTheme.colors.lightTextLow,
                       fontFamily: 'monospace',
                       userSelect: 'none',
                     }}
@@ -607,7 +608,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
           />
         </Box>
 
-        <Typography sx={{ fontSize: 10, color: '#64748b', fontFamily: 'monospace', textAlign: 'right', minWidth: 160 }}>
+        <Typography sx={{ fontSize: 10, color: brmsTheme.colors.slateText, fontFamily: 'monospace', textAlign: 'right', minWidth: 160 }}>
           {pageTotal} total lines
         </Typography>
       </Box>

@@ -72,7 +72,7 @@ function PasswordStrength({ password }: { password: string }) {
     { label: 'Contains a letter', pass: /[a-zA-Z]/.test(password) },
   ];
   const strength = checks.filter(c => c.pass).length;
-  const barColor = strength === 1 ? '#ef4444' : strength === 2 ? '#ed6c02' : '#22c55e';
+  const barColor = strength === 1 ? colors.errorRed : strength === 2 ? colors.warningAmber : colors.statusUsingDot;
   return (
     <Box sx={{ mt: 1 }}>
       <Box sx={{ display: 'flex', gap: '4px', mb: '8px' }}>
@@ -81,7 +81,7 @@ function PasswordStrength({ password }: { password: string }) {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
         {checks.map(c => (
           <Box key={c.label} sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Box sx={{ width: 5, height: 5, borderRadius: '50%', flexShrink: 0, background: c.pass ? '#22c55e' : colors.lightTextLow, transition: 'background 0.2s' }} />
+            <Box sx={{ width: 5, height: 5, borderRadius: '50%', flexShrink: 0, background: c.pass ? colors.statusUsingDot : colors.lightTextLow, transition: 'background 0.2s' }} />
             <Typography sx={{ fontSize: '0.6875rem', fontFamily: fonts.mono, color: c.pass ? colors.lightTextMid : colors.lightTextLow, transition: 'color 0.2s' }}>{c.label}</Typography>
           </Box>
         ))}
@@ -124,7 +124,7 @@ export default function CreateUserRightPanel({ formData, loading, error, success
 
         {/* Success */}
         {success && (
-          <StyledAlert severity="success" icon={<CheckCircleOutlineIcon fontSize="small" />} sx={{ background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#166534', '& .MuiAlert-icon': { color: '#22c55e', fontSize: '1rem' } }}>
+          <StyledAlert severity="success" icon={<CheckCircleOutlineIcon fontSize="small" />} sx={{ background: brmsTheme.colors.statusUsingBg, border: `1px solid ${brmsTheme.colors.statusUsingBorder}`, color: brmsTheme.colors.statusUsingText, '& .MuiAlert-icon': { color: brmsTheme.colors.statusUsingDot, fontSize: '1rem' } }}>
             User created successfully.
           </StyledAlert>
         )}

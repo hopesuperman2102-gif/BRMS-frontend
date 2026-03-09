@@ -189,3 +189,81 @@ export interface RcTextAreaProps {
   rows?: number;
   sx?: SxProps<Theme>;
 }
+
+// RcAppDrawer
+
+export interface AppDrawerProps {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  actions?: DrawerAction[];    // footer buttons — rendered left to right, each fullWidth
+  width?: number;              // default 380
+  anchor?: 'right' | 'left';  // default 'right'
+}
+
+export interface DrawerAction {
+  label: string;
+  loadingLabel?: string;
+  color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
+  variant?: 'contained' | 'outlined' | 'text';
+  disabled?: boolean;
+  loading?: boolean;
+  onClick: () => void;
+}
+
+// Rc Left Panel 
+
+export type LeftPanelStat = {
+  label: string;
+  value: string | number;
+};
+
+export type LeftPanelPreview = {
+
+  dimLabel?: string;
+  name: string;
+  description?: string;
+  tag?: string;
+};
+
+export type LeftPanelLogo = {
+
+  icon: React.ReactNode;
+  text: string;
+};
+
+export type LeftPanelCount = {
+  value: number;
+  label: string;
+};
+
+export type LeftPanelFeature = string;
+
+export interface LeftPanelProps {
+
+  variant?: 'list' | 'create';
+  breakpoint?: number;         //Hide panel below this breakpoint (default 900px for list, 1200px for create) 
+  width?: string;             // Panel width (default "38%" for list, "42%" for create)
+  icon?: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+  stats?: LeftPanelStat[];
+  statCards?: LeftPanelStat[];
+  preview?: LeftPanelPreview | null;
+  placeholderText?: string;
+  footer?: string;
+
+  /* ── Create variant ────────────────────────────────── */
+
+  logo?: LeftPanelLogo;
+  backLabel?: string;
+  onBack?: () => void;
+  badge?: string;
+  headline?: string;
+  heroCopy?: string;
+  features?: LeftPanelFeature[];
+  count?: LeftPanelCount;
+  children?: React.ReactNode;
+}

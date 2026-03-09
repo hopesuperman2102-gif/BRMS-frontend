@@ -10,6 +10,7 @@ import { useAlertStore } from '@/core/components/RcAlertComponent';
 import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
 import { JdmRuleVersion } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const EMPTY_GRAPH: DecisionGraphType = {
   nodes: [],
@@ -184,7 +185,7 @@ export default function Editor({
         flex: 1,
         minWidth: 0,
         overflow: 'hidden',
-        backgroundColor: '#ffffff',
+        backgroundColor: brmsTheme.colors.white,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -197,8 +198,8 @@ export default function Editor({
           alignItems: 'center',
           px: 3,
           py: 2,
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid #e5e7eb',
+          backgroundColor: brmsTheme.colors.white,
+          borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
           flexShrink: 0,
           minHeight: 64,
         }}
@@ -209,7 +210,7 @@ export default function Editor({
             variant="h6" 
             sx={{ 
               fontWeight: 600,
-              color: '#111827',
+              color: brmsTheme.colors.textDark,
               fontSize: '1rem',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               letterSpacing: '-0.01em',
@@ -223,7 +224,7 @@ export default function Editor({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {/* Version Selector */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <HistoryIcon sx={{ fontSize: 18, color: '#6b7280' }} />
+            <HistoryIcon sx={{ fontSize: 18, color: brmsTheme.colors.textGray }} />
             <FormControl size="small" sx={{ minWidth: 160 }}>
               <Select
                 value={selectedVersion}
@@ -232,28 +233,28 @@ export default function Editor({
                 displayEmpty
                 sx={{
                   height: 36,
-                  backgroundColor: '#f9fafb',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: brmsTheme.colors.bgGrayLight,
+                  border: `1px solid ${brmsTheme.colors.lightBorder}`,
                   borderRadius: '6px',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  color: '#374151',
+                  color: brmsTheme.colors.navTextHigh,
                   '& .MuiOutlinedInput-notchedOutline': {
                     border: 'none',
                   },
                   '&:hover': {
-                    backgroundColor: '#f3f4f6',
-                    borderColor: '#d1d5db',
+                    backgroundColor: brmsTheme.colors.bgGray,
+                    borderColor: brmsTheme.colors.borderGrayHover,
                   },
                   '&.Mui-focused': {
-                    backgroundColor: '#ffffff',
-                    borderColor: '#3b82f6',
+                    backgroundColor: brmsTheme.colors.white,
+                    borderColor: brmsTheme.colors.focusBlue,
                     boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
                   },
                   '&.Mui-disabled': {
-                    backgroundColor: '#f9fafb',
-                    color: '#9ca3af',
+                    backgroundColor: brmsTheme.colors.bgGrayLight,
+                    color: brmsTheme.colors.textGrayLight,
                   },
                   transition: 'all 0.15s ease',
                 }}
@@ -284,7 +285,7 @@ export default function Editor({
 
           {!isReviewer && (
             <>
-              <Divider orientation="vertical" flexItem sx={{ my: 0.5, backgroundColor: '#e5e7eb' }} />
+              <Divider orientation="vertical" flexItem sx={{ my: 0.5, backgroundColor: brmsTheme.colors.lightBorder }} />
 
               {/* Commit Button */}
               <Button
@@ -294,8 +295,8 @@ export default function Editor({
                 startIcon={<SaveIcon sx={{ fontSize: 18 }} />}
                 sx={{
                   height: 36,
-                  backgroundColor: '#6552D0',
-                  color: '#ffffff',
+                  backgroundColor: brmsTheme.colors.primary,
+                  color: brmsTheme.colors.white,
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                   fontSize: '0.875rem',
                   fontWeight: 600,
@@ -305,15 +306,15 @@ export default function Editor({
                   boxShadow: 'none',
                   letterSpacing: '-0.01em',
                   '&:hover': {
-                    backgroundColor: '#2563eb',
+                    backgroundColor: brmsTheme.colors.focusBlueHover,
                     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                   },
                   '&:active': {
-                    backgroundColor: '#1d4ed8',
+                    backgroundColor: brmsTheme.colors.focusBlueActive,
                   },
                   '&:disabled': {
-                    backgroundColor: '#e5e7eb',
-                    color: '#9ca3af',
+                    backgroundColor: brmsTheme.colors.lightBorder,
+                    color: brmsTheme.colors.textGrayLight,
                   },
                   transition: 'all 0.15s ease',
                 }}
@@ -326,7 +327,7 @@ export default function Editor({
       </Box>
 
       {/* Editor Content Area */}
-      <Box sx={{ flex: 1, overflow: 'hidden', backgroundColor: '#fafafa' }}>
+      <Box sx={{ flex: 1, overflow: 'hidden', backgroundColor: brmsTheme.colors.bgGrayLighter }}>
         {selectedId && selectedItem?.type === 'file' ? (
           <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {isVersionsLoading ? (
@@ -344,8 +345,8 @@ export default function Editor({
                   sx={{
                     width: 40,
                     height: 40,
-                    border: '3px solid #e5e7eb',
-                    borderTopColor: '#3b82f6',
+                    border: `3px solid ${brmsTheme.colors.lightBorder}`,
+                  borderTopColor: brmsTheme.colors.focusBlue,
                     borderRadius: '50%',
                     animation: 'spin 0.8s linear infinite',
                     '@keyframes spin': {
@@ -356,7 +357,7 @@ export default function Editor({
                 />
                 <Typography 
                   sx={{ 
-                    color: '#6b7280',
+                    color: brmsTheme.colors.textGray,
                     fontSize: '0.875rem',
                     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                     fontWeight: 500,
@@ -387,8 +388,8 @@ export default function Editor({
                   sx={{
                     width: 40,
                     height: 40,
-                    border: '3px solid #e5e7eb',
-                    borderTopColor: '#3b82f6',
+                    border: `3px solid ${brmsTheme.colors.lightBorder}`,
+                    borderTopColor: brmsTheme.colors.focusBlue,
                     borderRadius: '50%',
                     animation: 'spin 0.8s linear infinite',
                     '@keyframes spin': {
@@ -399,7 +400,7 @@ export default function Editor({
                 />
                 <Typography 
                   sx={{ 
-                    color: '#6b7280',
+                    color: brmsTheme.colors.textGray,
                     fontSize: '0.875rem',
                     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                     fontWeight: 500,
@@ -427,7 +428,7 @@ export default function Editor({
                 width: 64,
                 height: 64,
                 borderRadius: '12px',
-                backgroundColor: '#f3f4f6',
+                backgroundColor: brmsTheme.colors.bgGray,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -439,13 +440,13 @@ export default function Editor({
                   width: 32,
                   height: 32,
                   borderRadius: '6px',
-                  backgroundColor: '#e5e7eb',
+                  backgroundColor: brmsTheme.colors.lightBorder,
                 }}
               />
             </Box>
             <Typography 
               sx={{ 
-                color: '#111827',
+                color: brmsTheme.colors.textDark,
                 fontSize: '0.9375rem',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 fontWeight: 600,
@@ -455,7 +456,7 @@ export default function Editor({
             </Typography>
             <Typography 
               sx={{ 
-                color: '#6b7280',
+                color: brmsTheme.colors.textGray,
                 fontSize: '0.875rem',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 fontWeight: 400,

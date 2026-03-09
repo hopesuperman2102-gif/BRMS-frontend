@@ -11,35 +11,10 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import { ReactNode } from 'react';
 import { brmsTheme } from '@/core/theme/brmsTheme';
+import { AppDrawerProps } from '../types/commonTypes';
 
 const { colors } = brmsTheme;
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-export interface DrawerAction {
-  label: string;
-  loadingLabel?: string;
-  color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
-  variant?: 'contained' | 'outlined' | 'text';
-  disabled?: boolean;
-  loading?: boolean;
-  onClick: () => void;
-}
-
-export interface AppDrawerProps {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  subtitle?: string;
-  children: ReactNode;
-  actions?: DrawerAction[];    // footer buttons — rendered left to right, each fullWidth
-  width?: number;              // default 380
-  anchor?: 'right' | 'left';  // default 'right'
-}
-
-// ─── Styled ──────────────────────────────────────────────────────────────────
 
 const DrawerBody = styled(Box)<{ ownerState: { width: number } }>(({ ownerState }) => ({
   width: ownerState.width,

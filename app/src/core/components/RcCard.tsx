@@ -6,8 +6,6 @@ import { motion } from 'framer-motion';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import { CardHeaderProps, CardProps } from '@/core/types/commonTypes';
 
-
-// Pre-create motion component to avoid creating components during render
 const MotionPaper = motion(Paper);
 
 export const RcCard: React.FC<CardProps> = ({
@@ -16,7 +14,7 @@ export const RcCard: React.FC<CardProps> = ({
   delay = 0,
   animate = true,
   sx = {},
-  onClick, // Add this line
+  onClick,
 }) => {
   const Component = animate ? MotionPaper : Paper;
 

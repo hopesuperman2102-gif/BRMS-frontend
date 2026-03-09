@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 import { projectsApi } from '@/modules/hub/api/projectsApi';
 import CreateProjectLeftPanel from '@/modules/hub/components/CreateProjectLeftPanel';
 import { FormState } from '@/modules/hub/types/hubTypes';
@@ -100,7 +101,7 @@ export default function CreateProjectPage() {
         width: '100%',
         display: 'flex',
         overflow: 'hidden',
-        background: '#0A0C10',
+        background: brmsTheme.colors.bgDark,
         fontFamily: '"DM Sans", "Inter", sans-serif',
       }}
     >

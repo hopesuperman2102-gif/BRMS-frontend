@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 import { useAuth } from '@/modules/auth/context/Authcontext';
 import { loginApi } from '@/modules/auth/services/Authservice';
 import LoginLeftPanel from '@/modules/auth/components/Loginleftpanel';
@@ -57,7 +58,7 @@ export default function LoginPage() {
         width: '100%',
         display: 'flex',
         overflow: 'hidden',
-        background: '#0A0C10',
+        background: brmsTheme.colors.bgDark,
         fontFamily: '"DM Sans", "Inter", sans-serif',
       }}
     >

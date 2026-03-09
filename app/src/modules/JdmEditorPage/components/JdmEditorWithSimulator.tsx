@@ -15,6 +15,7 @@ import RcAlertComponent from '@/core/components/RcAlertComponent';
 import { useRole } from '@/modules/auth/hooks/useRole';
 import { JsonObject } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
 import ChatUI from './ChatUI';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 /* ---------- Same helper functions as ProjectRuleComponent ---------- */
 const splitPath = (path: string): string[] => path.split('/').filter(Boolean);
@@ -232,8 +233,8 @@ export default function JdmEditorWithSimulator() {
   }, [isDragging]);
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#fafafa', p: 2 }}>
-      <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh - 32px)', backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06)', overflow: 'hidden' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: brmsTheme.colors.bgGrayLighter, p: 2 }}>
+      <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh - 32px)', backgroundColor: brmsTheme.colors.white, borderRadius: '12px', boxShadow: `0 4px 20px ${brmsTheme.colors.shadowMedium}, 0 1px 3px ${brmsTheme.colors.shadowLighter}`, overflow: 'hidden' }}>
 
         {/* Activity Bar - Icon Only (Light Theme) */}
         <Stack

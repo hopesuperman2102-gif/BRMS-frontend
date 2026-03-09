@@ -7,7 +7,7 @@ import { brmsTheme } from "@/core/theme/brmsTheme";
 import { DeployedRuleProps } from "@/modules/dashboard/types/dashboardTypes";
 
 const getBarColor = (index: number): string => {
-  const colors = ["#1976d2", "#2196f3", "#42a5f5"];
+  const colors = [brmsTheme.colors.info, brmsTheme.colors.chartBlue2, brmsTheme.colors.chartBlueLight];
   return colors[index % colors.length];
 };
 

@@ -6,11 +6,10 @@ import { RcCard } from "@/core/components/RcCard";
 import { brmsTheme } from "@/core/theme/brmsTheme";
 import { Props } from "@/core/types/commonTypes";
 
-
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const DEFAULT_COLORS = ["#6552D0", "#7B6AE0", "#9182F0"];
+const DEFAULT_COLORS = [brmsTheme.colors.primary, brmsTheme.colors.indigoLight, brmsTheme.colors.indigoLightShade];
 
 const RcMonthBarChart: React.FC<Props> = ({
   data,

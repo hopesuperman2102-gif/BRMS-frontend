@@ -3,6 +3,9 @@ export const brmsTheme = {
     primary: '#6552D0',
     primaryHover: '#5443B8',
     primaryDark: '#17203D',
+    primaryGlow: 'rgba(101, 82, 208, 0.12)',
+    primaryGlowLight: 'rgba(101, 82, 208, 0.08)',
+    primaryGlowShadow: 'rgba(101, 82, 208, 0.15)',
     textOnPrimary: '#ffffff',
     textPrimary: '#1f2937',
     textSecondary: '#6b7280',
@@ -40,6 +43,8 @@ export const brmsTheme = {
     lightBorderHover: '#CBD5E1',
     lightSurfaceHover: '#F1F5F9',
     surfaceBase: '#F8FAFC',
+    bgGrayLight: '#f9fafb',
+    bgGrayLighter: '#fafafa',
 
     // Error / alert tokens
     errorBg: '#FEF2F2',
@@ -95,6 +100,7 @@ export const brmsTheme = {
     chartBlue1: '#1976d2',
     chartBlue2: '#2196f3',
     chartBlue3: '#42a5f5',
+    chartBlueLight: '#60a5fa',
     chartGreen: '#2e7d32',
     chartRed: '#d32f2f',
     chartOrange: '#ed6c02',
@@ -109,12 +115,36 @@ export const brmsTheme = {
     borderGray: '#e5e7eb',
     borderGrayHover: '#d1d5db',
     bgGray: '#f3f4f6',
-    bgGrayLight: '#f9fafb',
+    bgGrayLightShade: '#f9fafb',
     textDark: '#111827',
     textGray: '#6b7280',
     textGrayLight: '#9ca3af',
     focusBlue: '#3b82f6',
+    focusBlueHover: '#2563eb',
+    focusBlueActive: '#1d4ed8',
     warningAmber: '#f59e0b',
+    lightPurpleSurface: '#f5f7ff',
+    lightPurpleSurfaceHover: '#eef2ff',
+    lightErrorBg: '#ffcccc',
+    lightPurpleBg: '#f5f3ff',
+    bgDark: '#0A0C10',
+    bgGrayLighter2: '#F8FAFC',
+
+    // UI - Shadows & Overlays
+    shadowSoft: 'rgba(0, 0, 0, 0.05)',
+    shadowLighter: 'rgba(0, 0, 0, 0.06)',
+    shadowMedium: 'rgba(0, 0, 0, 0.08)',
+    shadowStrong: 'rgba(0, 0, 0, 0.15)',
+
+    // Additional grays & text colors
+    textDarkSlate: '#1e293b',
+    slateText: '#64748b',
+    slateGray: '#334155',
+
+    // Indigo/Purple shades - for UI elements
+    indigoBase: '#6366f1',
+    indigoLightShade: '#818CF8',
+    indigoDark: '#4f46e5',
   },
   gradients: {
     primary: 'linear-gradient(135deg, #6552D0 0%, #17203D 100%)',
