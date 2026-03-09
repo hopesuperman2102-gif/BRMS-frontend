@@ -10,7 +10,7 @@ import { styled, keyframes } from '@mui/material/styles';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import { ApprovalStatus, ProjectRuleRow, RulesDrawerProps } from '@/modules/hub/types/hubTypes';
+import { ApprovalStatus, RulesDrawerProps } from '@/modules/hub/types/hubTypes';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
@@ -211,7 +211,7 @@ export default function RulesDrawer({ selectedRow, canReview }: RulesDrawerProps
       )}
       {!canReview && (
         <Alert severity="warning" sx={{ borderRadius: 2, fontSize: '0.78rem', mt: 2 }}>
-          You don't have permission to approve or reject this rule.
+          You do not have permission to approve or reject this rule
         </Alert>
       )}
     </>
