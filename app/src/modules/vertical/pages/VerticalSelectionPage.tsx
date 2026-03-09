@@ -10,7 +10,7 @@ import VerticalLeftPanel from '@/modules/vertical/components/VerticalLeftPanel';
 import { VerticalView } from '@/modules/vertical/types/verticalEndpointsTypes';
 
 const MainContainer = styled(Box)({
-  height: '100vh',
+  flex: 1,
   width: '100%',
   display: 'flex',
   overflow: 'hidden',
