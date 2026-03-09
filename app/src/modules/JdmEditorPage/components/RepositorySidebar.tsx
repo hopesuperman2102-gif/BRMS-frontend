@@ -27,8 +27,8 @@ export default function RepositorySidebar({
   return (
     <Box 
       sx={{ 
-        width: 280, 
-        height: '100vh',
+         width: '100%',  // ← fills the parent panel
+        height: '100%',
         backgroundColor: brmsTheme.colors.white,
         display: 'flex',
         flexDirection: 'column',

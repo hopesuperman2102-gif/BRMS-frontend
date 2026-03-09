@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, IconButton, Stack, Tooltip } from '@mui/material';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import ChatIcon from '@mui/icons-material/Chat';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 import Editor from '@/modules/JdmEditorPage/components/Editor';
 import { rulesApi } from '@/modules/rules/api/rulesApi';
@@ -12,6 +14,7 @@ import { RepoItem } from '@/modules/JdmEditorPage/types/JdmEditorTypes';
 import RcAlertComponent from '@/core/components/RcAlertComponent';
 import { useRole } from '@/modules/auth/hooks/useRole';
 import { JsonObject } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
+import ChatUI from './ChatUI';
 
 /* ---------- Same helper functions as ProjectRuleComponent ---------- */
 const splitPath = (path: string): string[] => path.split('/').filter(Boolean);
@@ -93,6 +96,9 @@ export default function JdmEditorWithSimulator() {
   const [openFiles, setOpenFiles]             = useState<(string | number)[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string | number>>(new Set());
   const [projectName, setProjectName]         = useState<string>('');
+  const [activePanel, setActivePanel]         = useState<'sidebar' | 'chat'>('sidebar');
+  const [panelWidth, setPanelWidth]           = useState<number>(380);
+  const [isDragging, setIsDragging]           = useState(false);
 
   /* ---------- Fetch rules, project name, and build tree — ONE call ---------- */
   useEffect(() => {
@@ -184,27 +190,165 @@ export default function JdmEditorWithSimulator() {
     }
   };
 
+  /* ---------- Draggable Panel Resize ---------- */
+  const handleDividerMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only trigger resize if clicking directly on the divider, prevent propagation from sidebar
+    if (e.target === e.currentTarget) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(true);
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      // Only update width if we're actually dragging on the divider
+      const newWidth = Math.max(250, Math.min(800, e.clientX - 55)); // icon bar is 55px
+      setPanelWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      // Add document listeners to track drag even outside the component
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      // Prevent any other drag operations while resizing
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = 'auto';
+      document.body.style.cursor = 'auto';
+    };
+  }, [isDragging]);
+
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#fafafa', p: 2 }}>
       <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh - 32px)', backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06)', overflow: 'hidden' }}>
 
-        {/* Sidebar */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', borderRight: '1px solid #e5e7eb', backgroundColor: '#ffffff' }}>
-          <RepositorySidebar
-            projectName={projectName}
-            items={items}
-            selectedId={selectedId}
-            expandedFolders={expandedFolders}
-            onToggleFolder={handleToggleFolder}
-            onSelectItem={handleSelectItem}
-            onAddClick={() => {}}
-            onDragStart={() => {}}
-            onDropOnFolder={() => {}}
-            onBackClick={() => {
-              if (project_key) navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules`);
-            }}
-          />
+        {/* Activity Bar - Icon Only (Light Theme) */}
+        <Stack
+          direction="column"
+          spacing={0}
+          sx={{
+            width: '55px',
+            backgroundColor: '#f9fafb',
+            borderRight: '1px solid #e5e7eb',
+            alignItems: 'center',
+            py: 2,
+            gap: 1,
+          }}
+        >
+          <Tooltip title="File Explorer" placement="right">
+            <IconButton
+              onClick={() => setActivePanel('sidebar')}
+              sx={{
+                color: activePanel === 'sidebar' ? '#6552D0' : '#9ca3af',
+                width: 40,
+                height: 40,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderLeft: activePanel === 'sidebar' ? '3px solid #6552D0' : '3px solid transparent',
+                borderRadius: 0,
+                transition: 'all 0.3s ease',
+                marginLeft: '-3px',
+                '&:hover': {
+                  color: '#6552D0',
+                  backgroundColor: '#f3f0ff',
+                },
+              }}
+            >
+              <FolderOpenIcon sx={{ fontSize: '1.5rem' }} />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Chat Assistant" placement="right">
+            <IconButton
+              onClick={() => setActivePanel('chat')}
+              sx={{
+                color: activePanel === 'chat' ? '#6552D0' : '#9ca3af',
+                width: 40,
+                height: 40,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderLeft: activePanel === 'chat' ? '3px solid #6552D0' : '3px solid transparent',
+                borderRadius: 0,
+                transition: 'all 0.3s ease',
+                marginLeft: '-3px',
+                '&:hover': {
+                  color: '#6552D0',
+                  backgroundColor: '#f3f0ff',
+                },
+              }}
+            >
+              <ChatIcon sx={{ fontSize: '1.5rem' }} />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+
+        {/* Main Panel - Shows Sidebar or Chat */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: '1px solid #e5e7eb',
+            backgroundColor: '#ffffff',
+            width: `${panelWidth}px`,
+            overflow: 'hidden',
+            transition: isDragging ? 'none' : 'width 0.2s ease',
+          }}
+        >
+          {/* Sidebar Content */}
+          {activePanel === 'sidebar' && (
+            <RepositorySidebar
+              projectName={projectName}
+              items={items}
+              selectedId={selectedId}
+              expandedFolders={expandedFolders}
+              onToggleFolder={handleToggleFolder}
+              onSelectItem={handleSelectItem}
+              onAddClick={() => {}}
+              onDragStart={() => {}}
+              onDropOnFolder={() => {}}
+              onBackClick={() => {
+                if (project_key) navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules`);
+              }}
+            />
+          )}
+
+          {/* Chat Content */}
+          {activePanel === 'chat' && <ChatUI selectedRule={selectedId} />}
         </Box>
+
+        {/* Draggable Divider */}
+        <Box
+          onMouseDown={handleDividerMouseDown}
+          sx={{
+            width: '4px',
+            backgroundColor: isDragging ? '#6552D0' : '#e5e7eb',
+            cursor: isDragging ? 'col-resize' : 'col-resize',
+            transition: isDragging ? 'none' : 'backgroundColor 0.2s ease',
+            userSelect: 'none',
+            flexShrink: 0,
+            '&:hover': {
+              backgroundColor: '#6552D0',
+            },
+            '&:active': {
+              backgroundColor: '#6552D0',
+            },
+          }}
+        />
 
         {/* Editor */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -223,4 +367,5 @@ export default function JdmEditorWithSimulator() {
     </Box>
   );
 }
+
 
