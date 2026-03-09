@@ -8,18 +8,24 @@ const RightPanelContainer = styled(Box)({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  height: '100vh',
-  overflow: 'auto',
+  height: '100%',
+  overflow: 'hidden',
   background: brmsTheme.colors.bgRight,
-  padding: '48px',
+  padding: '32px 40px',
   '@media (max-width: 600px)': {
-    padding: '48px 24px',
+    padding: '24px 20px',
   },
 });
 
 const HeaderSection = styled(Box)({
-  marginBottom: '32px',
+  marginBottom: '20px',
   flexShrink: 0,
+  position: 'sticky',
+  top: 0,
+  background: brmsTheme.colors.bgRight,
+  zIndex: 1,
+  paddingBottom: '12px',
+  borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
 });
 
 const AccentBar = styled(Box)({
@@ -72,7 +78,12 @@ const EmptyText = styled(Typography)({
 const VerticalList = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
-  gap: '8px',
+  gap: '10px',
+  overflowY: 'auto',
+  flex: 1,
+  paddingRight: '4px',
+  paddingTop: '4px',
+  paddingBottom: '16px',
 });
 
 const VerticalCard = styled(Box)<{ isHovered: boolean }>(({ isHovered }) => ({
@@ -90,13 +101,14 @@ const VerticalCard = styled(Box)<{ isHovered: boolean }>(({ isHovered }) => ({
 
 const VerticalInfo = styled(Box)({});
 
-const VerticalName = styled(Typography)<{ isHovered: boolean }>(({ }) => ({
+const VerticalName = styled(Typography)<{ isHovered: boolean }>(({ isHovered }) => ({
   fontWeight: 700,
   fontSize: '0.9375rem',
   letterSpacing: '-0.01em',
   fontFamily: brmsTheme.fonts.sans,
-  transition: 'color 0.15s',
+  transition: 'color 0.2s',
   marginBottom: '2px',
+  color: isHovered ? brmsTheme.colors.panelIndigo : brmsTheme.colors.lightTextHigh,
 }));
 
 const VerticalKey = styled(Typography)({
@@ -107,15 +119,15 @@ const VerticalKey = styled(Typography)({
 });
 
 const ArrowContainer = styled(Box)<{ isHovered: boolean }>(({ isHovered }) => ({
-  width: 28,
-  height: 28,
-  borderRadius: '6px',
+  width: 32,
+  height: 32,
+  borderRadius: '8px',
   background: isHovered ? brmsTheme.colors.panelIndigo : brmsTheme.colors.lightSurfaceHover,
   border: `1px solid ${isHovered ? brmsTheme.colors.panelIndigo : brmsTheme.colors.lightBorder}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  transition: 'all 0.15s ease',
+  transition: 'all 0.2s ease',
   flexShrink: 0,
 }));
 
@@ -160,7 +172,6 @@ export default function VerticalRightPanel({
                   <VerticalName isHovered={isHovered}>
                     {item.vertical_name}
                   </VerticalName>
-                  <VerticalKey>{item.vertical_key}</VerticalKey>
                 </VerticalInfo>
 
                 <ArrowContainer isHovered={isHovered}>

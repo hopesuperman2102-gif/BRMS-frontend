@@ -11,7 +11,8 @@ export default function PageWrapper({
     <Box
       display="flex"
       flexDirection="column"
-      minHeight="100vh"
+      height="100vh"       
+      overflow="hidden"     // ✅ prevents page-level scroll
     >
       {children}
     </Box>
