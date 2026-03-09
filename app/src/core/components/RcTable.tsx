@@ -13,8 +13,6 @@ import { RcTableProps } from "@/core/types/commonTypes";
 
 const { colors } = brmsTheme;
 
-// ---------------- STYLED COMPONENTS ----------------
-
 const StyledTableContainer = styled(TableContainer)({
   backgroundColor: 'transparent',
   boxShadow: "none",

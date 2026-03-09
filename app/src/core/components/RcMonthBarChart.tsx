@@ -6,7 +6,6 @@ import { RcCard } from "@/core/components/RcCard";
 import { brmsTheme } from "@/core/theme/brmsTheme";
 import { Props } from "@/core/types/commonTypes";
 
-
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

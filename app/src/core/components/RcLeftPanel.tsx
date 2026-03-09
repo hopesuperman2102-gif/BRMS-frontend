@@ -5,61 +5,9 @@ import { Box, Button, Typography } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { brmsTheme } from '@/core/theme/brmsTheme';
+import { LeftPanelProps } from '../types/commonTypes';
 
 const { colors, fonts } = brmsTheme;
-
-export type LeftPanelStat = {
-  label: string;
-  value: string | number;
-};
-
-export type LeftPanelPreview = {
-
-  dimLabel?: string;
-  name: string;
-  description?: string;
-  tag?: string;
-};
-
-export type LeftPanelLogo = {
-
-  icon: React.ReactNode;
-  text: string;
-};
-
-export type LeftPanelCount = {
-  value: number;
-  label: string;
-};
-
-export type LeftPanelFeature = string;
-
-export interface LeftPanelProps {
-
-  variant?: 'list' | 'create';
-  breakpoint?: number;         //Hide panel below this breakpoint (default 900px for list, 1200px for create) 
-  width?: string;             // Panel width (default "38%" for list, "42%" for create)
-  icon?: React.ReactNode;
-  title?: string;
-  subtitle?: string;
-  stats?: LeftPanelStat[];
-  statCards?: LeftPanelStat[];
-  preview?: LeftPanelPreview | null;
-  placeholderText?: string;
-  footer?: string;
-
-  /* ── Create variant ────────────────────────────────── */
-
-  logo?: LeftPanelLogo;
-  backLabel?: string;
-  onBack?: () => void;
-  badge?: string;
-  headline?: string;
-  heroCopy?: string;
-  features?: LeftPanelFeature[];
-  count?: LeftPanelCount;
-  children?: React.ReactNode;
-}
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(4px); }
