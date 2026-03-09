@@ -67,3 +67,16 @@ export interface CustomSimulatorPanelProps {
   onRun: (context: JsonObject) => Promise<ExecuteResponse>;
   onClear: () => void;
 }
+
+//Chat UI types
+
+export interface Message {
+  id: string;
+  type: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface ChatUIProps {
+  selectedRule?: string | number | null;
+}

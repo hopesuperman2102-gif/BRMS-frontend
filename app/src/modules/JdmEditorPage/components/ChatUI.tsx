@@ -13,17 +13,7 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { brmsTheme } from '@/core/theme/brmsTheme';
-
-interface Message {
-  id: string;
-  type: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
-
-interface ChatUIProps {
-  selectedRule?: string | number | null;
-}
+import { ChatUIProps, Message } from '../types/JdmEditorTypes';
 
 export default function ChatUI({ selectedRule }: ChatUIProps) {
   const [messages, setMessages] = useState<Message[]>([
