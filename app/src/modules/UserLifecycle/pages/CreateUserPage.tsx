@@ -7,6 +7,7 @@ import CreateUserRightPanel from '@/modules/UserLifecycle/components/CreateUserR
 import { CreateUserApi } from '@/modules/UserLifecycle/api/createUserApi';
 import { CreateUserFormData } from '@/modules/UserLifecycle/types/userTypes';
 import { UserManagementResponse } from '@/modules/UserLifecycle/types/userEndpointsTypes';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -70,7 +71,7 @@ export default function CreateUserPage() {
   };
 
   return (
-    <Box sx={{ height: '100vh', width: '100%', display: 'flex', overflow: 'hidden', background: '#0A0C10', fontFamily: '"DM Sans", "Inter", sans-serif' }}>
+    <Box sx={{ height: '100vh', width: '100%', display: 'flex', overflow: 'hidden', background: brmsTheme.colors.bgRoot, fontFamily: '"DM Sans", "Inter", sans-serif' }}>
       <CreateUserLeftPanel newUser={newUser} /> 
       <CreateUserRightPanel
         formData={formData}

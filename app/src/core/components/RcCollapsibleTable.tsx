@@ -64,14 +64,14 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
               {/* SECTION HEADER ROW */}
               <TableRow
                 sx={{
-                  background: openSections[section.key] ? '#f5f7ff' : '#f8fafc',
+                  background: openSections[section.key] ? brmsTheme.colors.lightPurpleSurface : brmsTheme.colors.bgGray,
                   borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
                   borderLeft: openSections[section.key]
                     ? `4px solid ${brmsTheme.colors.primary}`
                     : '4px solid transparent',
                   transition: 'all 0.2s ease',
                   '&:hover': {
-                    background: openSections[section.key] ? '#eef2ff' : '#f1f5f9',
+                    background: openSections[section.key] ? brmsTheme.colors.lightPurpleSurfaceHover : brmsTheme.colors.lightSurfaceHover,
                     cursor: 'pointer',
                   },
                 }}
@@ -83,7 +83,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                       width: 28,
                       height: 28,
                       borderRadius: '8px',
-                      background: openSections[section.key] ? brmsTheme.colors.primary : '#e2e8f0',
+                      background: openSections[section.key] ? brmsTheme.colors.primary : brmsTheme.colors.lightBorder,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -114,7 +114,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                             sx={{
                               fontWeight: 700,
                               fontSize: '0.92rem',
-                              color: '#0f172a',
+                              color: brmsTheme.colors.textDark,
                               letterSpacing: '0.005em',
                               fontFamily: brmsTheme.fonts.sans,
                             }}
@@ -128,8 +128,8 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                               height: 20,
                               fontSize: '0.7rem',
                               fontWeight: 700,
-                              bgcolor: openSections[section.key] ? brmsTheme.colors.primary : '#e2e8f0',
-                              color: openSections[section.key] ? 'white' : '#64748b',
+                              bgcolor: openSections[section.key] ? brmsTheme.colors.primary : brmsTheme.colors.lightBorder,
+                              color: openSections[section.key] ? 'white' : brmsTheme.colors.lightTextLow,
                               transition: 'all 0.2s ease',
                               '& .MuiChip-label': { px: 1 },
                             }}
@@ -140,7 +140,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                           sx={{
                             fontSize: '0.72rem',
                             fontWeight: 600,
-                            color: '#64748b',
+                            color: brmsTheme.colors.lightTextLow,
                             textTransform: 'uppercase',
                             letterSpacing: '0.08em',
                             fontFamily: brmsTheme.fonts.sans,
@@ -153,7 +153,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                   ))
                 ) : (
                   <TableCell colSpan={columns.length} sx={{ border: 'none', py: 2 }}>
-                    <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', color: '#1e293b', fontFamily: brmsTheme.fonts.sans }}>
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', color: brmsTheme.colors.textDark, fontFamily: brmsTheme.fonts.sans }}>
                       {section.title}
                     </Typography>
                   </TableCell>
@@ -166,12 +166,12 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                   <TableRow
                     key={getRowId(row)}
                     sx={{
-                      borderBottom: rowIndex === section.rows.length - 1
-                        ? '2px solid #e8edf3'
-                        : '1px solid #f1f5f9',
+                        borderBottom: rowIndex === section.rows.length - 1
+                        ? `2px solid ${brmsTheme.colors.lightBorder}`
+                        : `1px solid ${brmsTheme.colors.bgGrayLight}`,
                       transition: 'background 0.15s ease',
-                      backgroundColor: rowIndex % 2 === 0 ? '#ffffff' : '#fcfdff',
-                      '&:hover': { backgroundColor: '#f8faff' },
+                      backgroundColor: rowIndex % 2 === 0 ? brmsTheme.colors.white : brmsTheme.colors.bgGrayLight,
+                      '&:hover': { backgroundColor: brmsTheme.colors.bgGrayLight },
                       animation: 'fadeSlideIn 0.2s ease forwards',
                       animationDelay: `${rowIndex * 0.03}s`,
                       opacity: 0,
@@ -181,13 +181,13 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                       },
                     }}
                   >
-                    <TableCell width={56} sx={{ border: 'none', py: 1.5, pl: 2 }}>
+                  <TableCell width={56} sx={{ border: 'none', py: 1.5, pl: 2 }}>
                       <Box
                         sx={{
                           width: 4,
                           height: 24,
                           borderRadius: '2px',
-                          bgcolor: '#e2e8f0',
+                          bgcolor: brmsTheme.colors.lightBorder,
                           mx: 'auto',
                         }}
                       />
@@ -200,7 +200,7 @@ export function RcCollapsibleTable<T extends Record<string, React.ReactNode>>({
                           border: 'none',
                           py: 1.5,
                           fontSize: '0.84rem',
-                          color: '#1f2937',
+                          color: brmsTheme.colors.textGray,
                           fontWeight: 500,
                           fontFamily: brmsTheme.fonts.sans,
                         }}

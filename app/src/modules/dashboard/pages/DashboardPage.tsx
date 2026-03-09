@@ -43,7 +43,7 @@ const DashboardPage = () => {
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
+        background: `linear-gradient(135deg, ${brmsTheme.colors.bgGrayLighter} 0%, ${brmsTheme.colors.bgGrayLighter} 100%)`,
         padding: '15px',
       }}
     >
@@ -73,7 +73,7 @@ const DashboardPage = () => {
               sx={{
                 fontSize: '0.95rem',
                 fontWeight: 600,
-                color: '#374151',
+                color: brmsTheme.colors.textGray,
                 whiteSpace: 'nowrap',
               }}
             >
@@ -107,7 +107,7 @@ const DashboardPage = () => {
             subtitle="Monthly rule creation trends"
             height={320}
             tooltipSuffix="rules"
-            barColors={["#6552D0", "#7B6AE0", "#9182F0"]}
+            barColors={[brmsTheme.colors.primary, brmsTheme.colors.indigoLight, brmsTheme.colors.indigoLightShade]}
           />
           <RcMonthBarChart
             data={summary?.monthly_deployments || []}
@@ -117,7 +117,7 @@ const DashboardPage = () => {
             subtitle="Cumulative deployment statistics"
             height={320}
             tooltipSuffix="deployments"
-            barColors={["#1976d2", "#2196f3", "#42a5f5"]}
+            barColors={[brmsTheme.colors.info, brmsTheme.colors.chartBlue2, brmsTheme.colors.chartBlueLight]}
           />
         </div>
       </div>

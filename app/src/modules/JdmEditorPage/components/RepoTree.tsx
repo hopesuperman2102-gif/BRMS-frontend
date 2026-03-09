@@ -6,6 +6,7 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RepoTreeProps } from "@/modules/JdmEditorPage/types/JdmEditorTypes";
+import { brmsTheme } from "@/core/theme/brmsTheme";
 
 export default function RepoTree({
   items,
@@ -50,7 +51,7 @@ export default function RepoTree({
                   ? "rgba(101, 82, 208, 0.08)"
                   : "transparent",
                 borderLeft: isSelected
-                  ? "2px solid #6552D0"
+                  ? `2px solid ${brmsTheme.colors.primary}`
                   : "2px solid transparent",
                 transition: "all 0.15s ease",
                 "&:hover": {
@@ -69,7 +70,7 @@ export default function RepoTree({
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
-                  color: "#9ca3af",
+                  color: brmsTheme.colors.textGrayLight,
                 }}
               >
                 {isFolder &&
@@ -85,7 +86,7 @@ export default function RepoTree({
                 <FolderIcon
                   sx={{
                     fontSize: 16,
-                    color: "#f59e0b",
+                    color: brmsTheme.colors.warningAmber,
                     flexShrink: 0,
                     transform: isExpanded ? "scale(1.05)" : "scale(1)",
                     transition: "0.15s ease",
@@ -95,7 +96,7 @@ export default function RepoTree({
                 <InsertDriveFileIcon
                   sx={{
                     fontSize: 15,
-                    color: isSelected ? "#6552D0" : "#94a3b8",
+                    color: isSelected ? brmsTheme.colors.primary : brmsTheme.colors.lightTextLow,
                     flexShrink: 0,
                   }}
                 />
@@ -104,15 +105,15 @@ export default function RepoTree({
               {/* Name */}
               <Typography
                 fontSize={13}
-                color="#6552D0"
+                color={brmsTheme.colors.primary}
                 sx={{
-                  fontSize: "0.8125rem",
+                  fontSize: '0.8125rem',
                   fontWeight: isSelected ? 600 : isFolder ? 500 : 400,
                   color: isSelected
-                    ? "#6552D0"
+                    ? brmsTheme.colors.primary
                     : isFolder
-                      ? "#1e293b"
-                      : "#475569",
+                      ? brmsTheme.colors.textDarkSlate
+                      : brmsTheme.colors.lightTextMid,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",

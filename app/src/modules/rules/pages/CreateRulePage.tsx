@@ -10,6 +10,7 @@ import CreateRuleRightPanel from '@/modules/rules/components/CreateRuleRightPane
 import { FormState } from '@/modules/rules/types/rulesTypes';
 import { RuleResponse } from '@/modules/rules/types/ruleEndpointsTypes';
 import { useRole } from '@/modules/auth/hooks/useRole';
+import { brmsTheme } from '@/core/theme/brmsTheme';
 
 /* ─── Page ────*/
 export default function CreateRulePage() {
@@ -126,7 +127,7 @@ export default function CreateRulePage() {
   /* ─── Loading state ─── */
   if (loadingRule) {
     return (
-      <Box sx={{ height: '100vh', background: '#0A0C10', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box sx={{ height: '100vh', background: brmsTheme.colors.bgRoot, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontFamily: '"DM Mono", monospace', fontSize: '0.875rem', letterSpacing: '0.04em' }}>
           Loading rule…
         </Typography>
@@ -136,7 +137,7 @@ export default function CreateRulePage() {
 
   /* ─── Render ─── */
   return (
-    <Box sx={{ height: '100vh', width: '100%', display: 'flex', overflow: 'hidden', background: '#0A0C10', fontFamily: '"DM Sans", "Inter", sans-serif' }}>
+    <Box sx={{ height: '100vh', width: '100%', display: 'flex', overflow: 'hidden', background: brmsTheme.colors.bgRoot, fontFamily: '"DM Sans", "Inter", sans-serif' }}>
 
       {/* ─── LEFT PANEL ─── */}
       <CreateRuleLeftPanel

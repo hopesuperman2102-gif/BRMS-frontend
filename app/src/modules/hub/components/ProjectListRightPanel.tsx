@@ -262,7 +262,7 @@ const EditMenuItem = styled(MenuItem)({
   fontWeight: 500,
   color: colors.lightTextHigh,
   padding: "10px 16px",
-  "&:hover": { backgroundColor: "#F8FAFC" },
+  "&:hover": { backgroundColor: colors.bgGrayLighter2 },
 });
 
 const DeleteMenuItem = styled(MenuItem)({

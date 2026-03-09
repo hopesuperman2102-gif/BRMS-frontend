@@ -171,7 +171,7 @@ export default function VerticalRightPanel({
                   <ArrowForwardIcon 
                     sx={{ 
                       fontSize: 14, 
-                      color: isHovered ? '#ffffff' : brmsTheme.colors.lightTextLow, 
+                      color: isHovered ? brmsTheme.colors.white : brmsTheme.colors.lightTextLow, 
                       transition: 'color 0.15s' 
                     }} 
                   />

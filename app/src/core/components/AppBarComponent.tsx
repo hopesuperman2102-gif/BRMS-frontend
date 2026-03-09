@@ -148,10 +148,10 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
             {/* Loading State */}
             {loadingUser ? (
               <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 3 }}>
-                <CircularProgress sx={{ color: "#fff" }} size={32} />
+                <CircularProgress sx={{ color: brmsTheme.colors.white }} size={32} />
               </Box>
             ) : error ? (
-              <Typography sx={{ color: "#ffcccc", fontSize: "0.85rem", py: 2 }}>
+              <Typography sx={{ color: brmsTheme.colors.lightErrorBg, fontSize: "0.85rem", py: 2 }}>
                 {error}
               </Typography>
             ) : user ? (
@@ -165,7 +165,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
                     {user.name.charAt(0).toUpperCase()}
                   </Avatar>
                   <Box>
-                    <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "0.95rem" }}>
+                    <Typography sx={{ color: brmsTheme.colors.white, fontWeight: 700, fontSize: "0.95rem" }}>
                       {user.name}
                     </Typography>
                     <Typography sx={{ color: "rgba(255,255,255,0.75)", fontSize: "0.78rem" }}>
@@ -182,15 +182,15 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
 
           {/* White Bottom Section */}
           {user && !loadingUser && (
-            <CardContent sx={{ bgcolor: "#fff", px: 2.5, py: 2, "&:last-child": { pb: 2 } }}>
+            <CardContent sx={{ bgcolor: brmsTheme.colors.white, px: 2.5, py: 2, "&:last-child": { pb: 2 } }}>
               {/* Email Row */}
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
-                <EmailIcon sx={{ color: "#6b7280", fontSize: 20 }} />
+                <EmailIcon sx={{ color: brmsTheme.colors.textGray, fontSize: 20 }} />
                 <Box>
-                  <Typography sx={{ fontSize: "0.72rem", color: "#9ca3af", fontWeight: 500 }}>
+                  <Typography sx={{ fontSize: "0.72rem", color: brmsTheme.colors.textGray, fontWeight: 500 }}>
                     Email
                   </Typography>
-                  <Typography sx={{ fontSize: "0.85rem", color: "#111827", fontWeight: 500 }}>
+                  <Typography sx={{ fontSize: "0.85rem", color: brmsTheme.colors.textDark, fontWeight: 500 }}>
                     {user.email}
                   </Typography>
                 </Box>
@@ -200,17 +200,17 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
               <Button
                 fullWidth
                 variant="text"
-                startIcon={<LogoutIcon sx={{ color: "#ef4444" }} />}
+                startIcon={<LogoutIcon sx={{ color: brmsTheme.colors.errorRed }} />}
                 onClick={handleLogout}
                 sx={{
                   justifyContent: "flex-start",
-                  color: "#ef4444",
+                  color: brmsTheme.colors.errorRed,
                   fontWeight: 600,
                   fontSize: "0.85rem",
                   textTransform: "none",
                   borderRadius: "8px",
                   px: 1,
-                  "&:hover": { backgroundColor: "#fef2f2" },
+                  "&:hover": { backgroundColor: brmsTheme.colors.lightErrorBg },
                 }}
               >
                 Log out
@@ -234,7 +234,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
               borderRadius: "12px",
               minWidth: 200,
               boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-              border: "1px solid #f3f4f6",
+              border: `1px solid ${brmsTheme.colors.bgGray}`,
             },
           }}
         >
@@ -243,14 +243,14 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
               setSettingsAnchor(null);
               navigate("/logs");
             }}
-            sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: "#f5f3ff" } }}
+            sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: brmsTheme.colors.lightPurpleBg } }}
           >
             <ListItemIcon>
-              <AuditIcon fontSize="small" sx={{ color: "#6366f1" }} />
+              <AuditIcon fontSize="small" sx={{ color: brmsTheme.colors.primary }} />
             </ListItemIcon>
             <ListItemText
               primary="Activity Logs"
-              primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: "#111827" }}
+              primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: brmsTheme.colors.textDark }}
             />
           </MenuItem>
 
@@ -259,14 +259,14 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
               setSettingsAnchor(null);
               navigate("/signup");
             }}
-            sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: "#f5f3ff" } }}
+            sx={{ borderRadius: "8px", mx: 0.5, my: 0.25, "&:hover": { backgroundColor: brmsTheme.colors.lightPurpleBg } }}
           >
             <ListItemIcon>
-              <PersonAddIcon fontSize="small" sx={{ color: "#6366f1" }} />
+              <PersonAddIcon fontSize="small" sx={{ color: brmsTheme.colors.primary }} />
             </ListItemIcon>
             <ListItemText
               primary="User Create"
-              primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: "#111827" }}
+              primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: brmsTheme.colors.textDark }}
             />
           </MenuItem>
         </Menu>
