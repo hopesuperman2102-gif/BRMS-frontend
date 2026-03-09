@@ -6,6 +6,7 @@ const verticalRoutes: AppRoute[] = [
   {
     path: '/vertical',
     element: VerticalSelectionPage,
+    fixed: true,
     layout: 'main',
     metadata: {
       title: 'Vertical Selection',

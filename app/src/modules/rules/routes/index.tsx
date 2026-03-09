@@ -6,6 +6,7 @@ const rulesRoutes: AppRoute[] = [
   {
     path: '/vertical/:vertical_Key/dashboard/hub/:project_key/rules',
     element: ProjectRulePage,
+    fixed: true,
     layout: 'main',
     metadata: {
       title: 'Project Rules',

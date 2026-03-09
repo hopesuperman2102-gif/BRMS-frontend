@@ -351,7 +351,7 @@ export default function ProjectRulePage() {
       </HeaderWrapper>
 
       {/* ── Panels — wrapped in ContentWrapper padding like HubPage ── */}
-      <Box sx={{ paddingLeft: '24px', paddingRight: '24px', paddingBottom: '24px' }}>
+      <Box sx={{ paddingLeft: '12px', paddingRight: '12px' }}>
         <RootWrapper>
           <RulesLeftPanel
             projectName={projectName}
