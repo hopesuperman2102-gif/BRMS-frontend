@@ -35,7 +35,7 @@ export default function UserListTable({
     Actions: (
       <IconButton
         size="small"
-        onClick={(e) => onOpenMenu(e, user.username)}
+        onClick={(e) => onOpenMenu(e, user.id)}
         sx={{ color: brmsTheme.colors.textDark, backgroundColor: brmsTheme.colors.white, borderRadius: '4px', padding: '4px' }}
       >
         <MoreVertIcon sx={{ fontSize: '18px', color: brmsTheme.colors.textDark }} />
