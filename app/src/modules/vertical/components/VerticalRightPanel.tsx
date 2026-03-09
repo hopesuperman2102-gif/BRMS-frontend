@@ -111,13 +111,6 @@ const VerticalName = styled(Typography)<{ isHovered: boolean }>(({ isHovered }) 
   color: isHovered ? brmsTheme.colors.panelIndigo : brmsTheme.colors.lightTextHigh,
 }));
 
-const VerticalKey = styled(Typography)({
-  fontSize: '0.6875rem',
-  color: brmsTheme.colors.lightTextLow,
-  fontFamily: brmsTheme.fonts.mono,
-  letterSpacing: '0.04em',
-});
-
 const ArrowContainer = styled(Box)<{ isHovered: boolean }>(({ isHovered }) => ({
   width: 32,
   height: 32,
