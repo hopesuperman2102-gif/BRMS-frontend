@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, IconButton, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardHeader from "@/modules/dashboard/components/DashboardHeader";
 import StatsSection from "@/modules/dashboard/components/Stats";
@@ -10,6 +11,61 @@ import { dashboardApi } from '@/modules/dashboard/api/dashboardApi';
 import { DashboardSummary } from '@/modules/dashboard/types/dashboardEnpointsTypes';
 
 const { colors } = brmsTheme;
+
+// ─── Styled Components ────────────────────────────────────────────────────────
+
+const PageWrapper = styled('div')({
+  minHeight: '100vh',
+  background: `linear-gradient(135deg, ${colors.bgGrayLighter} 0%, ${colors.bgGrayLighter} 100%)`,
+  padding: '15px',
+});
+
+const PageInner = styled('div')({
+  maxWidth: '1600px',
+  margin: '0 auto',
+});
+
+const BackRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  marginBottom: 24,
+});
+
+const BackButton = styled(IconButton)({
+  width: 34,
+  height: 34,
+  borderRadius: '8px',
+  background: colors.white,
+  border: `1px solid ${colors.lightBorder}`,
+  color: colors.lightTextMid,
+  transition: 'all 0.15s',
+  '&:hover': {
+    background: colors.primaryGlowSoft,
+    color: colors.primary,
+    borderColor: colors.primaryGlowMid,
+  },
+});
+
+const BackIcon = styled(ArrowBackIcon)({
+  fontSize: 20,
+});
+
+const VerticalName = styled(Typography)({
+  fontSize: '0.95rem',
+  fontWeight: 600,
+  color: brmsTheme.colors.textGray,
+  whiteSpace: 'nowrap',
+});
+
+const ChartsGrid = styled('div')({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(550px, 1fr))',
+  gap: '24px',
+  marginBottom: '24px',
+});
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -40,47 +96,18 @@ const DashboardPage = () => {
   }, [vertical_Key]);
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: `linear-gradient(135deg, ${brmsTheme.colors.bgGrayLighter} 0%, ${brmsTheme.colors.bgGrayLighter} 100%)`,
-        padding: '15px',
-      }}
-    >
-      <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+    <PageWrapper>
+      <PageInner>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-          <IconButton
-            onClick={() => navigate('/vertical')}
-            sx={{
-              width: 34, height: 34, borderRadius: '8px',
-              background: colors.white,
-              border: `1px solid ${colors.lightBorder}`,
-              color: colors.lightTextMid,
-              transition: 'all 0.15s',
-              '&:hover': {
-                background: colors.primaryGlowSoft,
-                color: colors.primary,
-                borderColor: colors.primaryGlowMid,
-              },
-            }}
-          >
-            <ArrowBackIcon sx={{ fontSize: 20 }} />
-          </IconButton>
+        <BackRow>
+          <BackButton onClick={() => navigate('/vertical')}>
+            <BackIcon />
+          </BackButton>
 
           {summary?.vertical_name && (
-            <Typography
-              sx={{
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                color: brmsTheme.colors.textGray,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {summary.vertical_name}
-            </Typography>
+            <VerticalName>{summary.vertical_name}</VerticalName>
           )}
-        </Box>
+        </BackRow>
 
         <DashboardHeader />
 
@@ -91,14 +118,7 @@ const DashboardPage = () => {
           pendingRules={summary?.pending_rules ?? 0}
         />
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(550px, 1fr))',
-            gap: '24px',
-            marginBottom: '24px',
-          }}
-        >
+        <ChartsGrid>
           <RcMonthBarChart
             data={summary?.monthly_rule_creations || []}
             selectedYear={selectedRulesCreatedYear}
@@ -119,9 +139,10 @@ const DashboardPage = () => {
             tooltipSuffix="deployments"
             barColors={[brmsTheme.colors.info, brmsTheme.colors.chartBlue2, brmsTheme.colors.chartBlueLight]}
           />
-        </div>
-      </div>
-    </div>
+        </ChartsGrid>
+
+      </PageInner>
+    </PageWrapper>
   );
 };
 
