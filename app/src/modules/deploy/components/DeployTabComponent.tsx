@@ -197,7 +197,7 @@ export default function DeployTabComponent() {
   const handleEnvironmentClick = (env: Environment | 'ALL') => setActiveEnvironment(env);
 
   return (
-    <Box sx={{ minHeight: '100vh', p: 4 }}>
+    <Box sx={{ minHeight: '100vh', p: 1 }}>
       <Box sx={{ maxWidth: 1600, mx: 'auto' }}>
         <DeployHeader
           totalRules={totalRules}

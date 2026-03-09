@@ -16,13 +16,14 @@ const { colors, gradients } = brmsTheme;
 
 const HeaderWrapper = styled(Box)({
   padding: '8px 12px 6px',
+  paddingBottom: '8px',
 });
 
 const BackRow = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   gap: '10px',
-  marginBottom: '8px',
+  marginBottom: '10px',
 });
 
 const BackButton = styled(IconButton)({
@@ -48,7 +49,7 @@ const VerticalName = styled(Typography)({
 const StyledTabs = styled(Tabs)({
   minHeight: 0,
   padding: '4px',
-  borderRadius: '12px',
+  borderRadius: '5px',
   background: 'linear-gradient(180deg, rgba(248,250,252,0.9) 0%, rgba(241,245,249,0.9) 100%)',
   border: `1px solid ${colors.lightBorder}`,
   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
