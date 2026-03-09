@@ -250,7 +250,7 @@ const LogoLabel = styled(Typography)({
 
 const BackButtonWrapper = styled(Box)({
   flexShrink: 0,
-  marginBottom: 'auto',
+  marginBottom: 24,
 });
 
 const BackBtn = styled(Button)({
