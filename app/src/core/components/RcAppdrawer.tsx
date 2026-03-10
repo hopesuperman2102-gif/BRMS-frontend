@@ -25,6 +25,76 @@ const DrawerBody = styled(Box)<{ ownerState: { width: number } }>(({ ownerState 
   fontFamily: brmsTheme.fonts.sans,
 }));
 
+const StyledDrawer = styled(Drawer)<{ width: number; anchor: string }>(({ width, anchor }) => ({
+  '& .MuiDrawer-paper': {
+    width: width,
+    maxWidth: '100vw',
+    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+    borderRadius: anchor === 'right' ? '16px 0 0 16px' : '0 16px 16px 0',
+    overflow: 'hidden',
+  },
+}));
+
+const DrawerHeader = styled(Box)({
+  padding: 24,
+  borderBottom: `1px solid ${colors.lightBorder}`,
+  background: `linear-gradient(135deg, ${colors.white} 0%, ${colors.formBg} 100%)`,
+  position: 'relative',
+});
+
+const DrawerTitle = styled(Typography)<{ hasSubtitle?: boolean }>(({ hasSubtitle }) => ({
+  fontSize: '1.1rem',
+  fontWeight: 700,
+  color: colors.lightTextHigh,
+  marginBottom: hasSubtitle ? 4 : 0,
+}));
+
+const DrawerSubtitle = styled(Typography)({
+  fontSize: '0.85rem',
+  color: colors.lightTextMid,
+  fontWeight: 500,
+});
+
+const DrawerCloseButton = styled(IconButton)({
+  color: colors.lightTextMid,
+  '&:hover': {
+    backgroundColor: colors.lightSurfaceHover,
+    color: colors.lightTextHigh,
+  },
+});
+
+const DrawerContent = styled(Box)({
+  padding: 24,
+  flex: 1,
+  overflowY: 'auto',
+  backgroundColor: colors.formBg,
+  '&::-webkit-scrollbar': {
+    width: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: colors.white,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: colors.lightBorder,
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    background: colors.lightBorderHover,
+  },
+});
+
+const DrawerFooter = styled(Stack)({
+  padding: 16,
+  backgroundColor: colors.white,
+  borderTop: `1px solid ${colors.lightBorder}`,
+});
+
+const DrawerActionButton = styled(Button)({
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+});
+
 export default function RcAppDrawer({
   open,
   onClose,
@@ -36,131 +106,60 @@ export default function RcAppDrawer({
   anchor = 'right',
 }: AppDrawerProps) {
   return (
-    <Drawer
+    <StyledDrawer
       anchor={anchor}
       open={open}
       onClose={onClose}
-      sx={{
-        '& .MuiDrawer-paper': {
-          width: width,
-          maxWidth: '100vw',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
-          borderRadius: anchor === 'right' ? '16px 0 0 16px' : '0 16px 16px 0',
-          overflow: 'hidden',
-        },
-      }}
+      width={width}
     >
       <DrawerBody ownerState={{ width }}>
 
         {/* ── Header ── */}
-        <Box
-          sx={{
-            p: 3,
-            borderBottom: `1px solid ${colors.lightBorder}`,
-            background: `linear-gradient(135deg, ${colors.white} 0%, ${colors.formBg} 100%)`,
-            position: 'relative',
-          }}
-        >
+        <DrawerHeader>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Box>
-              <Typography
-                sx={{
-                  fontSize: '1.1rem',
-                  fontWeight: 700,
-                  color: colors.lightTextHigh,
-                  mb: subtitle ? 0.5 : 0,
-                }}
-              >
+              <DrawerTitle hasSubtitle={!!subtitle}>
                 {title}
-              </Typography>
+              </DrawerTitle>
               {subtitle && (
-                <Typography
-                  sx={{
-                    fontSize: '0.85rem',
-                    color: colors.lightTextMid,
-                    fontWeight: 500,
-                  }}
-                >
+                <DrawerSubtitle>
                   {subtitle}
-                </Typography>
+                </DrawerSubtitle>
               )}
             </Box>
-            <IconButton
-              size="medium"
-              onClick={onClose}
-              sx={{
-                color: colors.lightTextMid,
-                '&:hover': {
-                  backgroundColor: colors.lightSurfaceHover,
-                  color: colors.lightTextHigh,
-                },
-              }}
-            >
+            <DrawerCloseButton size="medium" onClick={onClose}>
               <CloseIcon />
-            </IconButton>
+            </DrawerCloseButton>
           </Stack>
-        </Box>
+        </DrawerHeader>
 
         {/* ── Body ── */}
-        <Box
-          sx={{
-            p: 3,
-            flex: 1,
-            overflowY: 'auto',
-            bgcolor: colors.formBg,
-            '&::-webkit-scrollbar': {
-              width: '6px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: colors.white,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: colors.lightBorder,
-              borderRadius: '3px',
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: colors.lightBorderHover,
-            },
-          }}
-        >
+        <DrawerContent>
           {children}
-        </Box>
+        </DrawerContent>
 
         {/* ── Footer ── */}
         {actions.length > 0 && (
           <>
             <Divider />
-            <Stack
-              direction="row"
-              spacing={1.5}
-              sx={{
-                p: 2,
-                bgcolor: colors.white,
-                borderTop: `1px solid ${colors.lightBorder}`,
-              }}
-            >
+            <DrawerFooter direction="row" spacing={1.5}>
               {actions.map((action) => (
-                <Button
+                <DrawerActionButton
                   key={action.label}
                   fullWidth
                   variant={action.variant ?? 'contained'}
                   color={action.color ?? 'primary'}
                   disabled={action.disabled || action.loading}
                   onClick={action.onClick}
-                  sx={{
-                    borderRadius: '8px',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                  }}
                 >
                   {action.loading && action.loadingLabel ? action.loadingLabel : action.label}
-                </Button>
+                </DrawerActionButton>
               ))}
-            </Stack>
+            </DrawerFooter>
           </>
         )}
 
       </DrawerBody>
-    </Drawer>
+    </StyledDrawer>
   );
 }

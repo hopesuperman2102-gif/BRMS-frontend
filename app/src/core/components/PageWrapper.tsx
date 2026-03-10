@@ -1,6 +1,15 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, styled } from '@mui/material';
+
+const StyledBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fixed',
+})<{ fixed?: boolean }>(({ fixed }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  overflow: fixed ? 'hidden' : 'visible',
+}));
 
 export default function PageWrapper({
   children,
@@ -10,13 +19,8 @@ export default function PageWrapper({
   fixed?: boolean;
 }) {
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      height="100vh"
-      overflow={fixed ? 'hidden' : 'visible'}
-    >
+    <StyledBox fixed={fixed}>
       {children}
-    </Box>
+    </StyledBox>
   );
 }
