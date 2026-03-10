@@ -84,6 +84,7 @@ export interface EnvironmentConfig {
 export interface ActiveRulesProps {
   rules: DeployedRule[];
   onRevoked: () => void;
+  onPromoted: (targetEnv: string) => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
   canManageActions?: boolean;
@@ -142,6 +143,7 @@ export interface EnvironmentDeploymentProps {
 export interface EnvironmentHistoryProps {
   rules: DeployedRule[];
   onRevoked: () => void;
+  onPromoted: (targetEnv: string) => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
   canManageActions?: boolean;
