@@ -12,7 +12,7 @@ describe('LogoTitle', () => {
     });
 
     it('renders the logo when provided as a React element', () => {
-      const logo = <img src="/logo.svg" alt="logo" data-testid="logo-img" />;
+      const logo = <span role="img" aria-label="logo" data-testid="logo-img">L</span>;
       render(<LogoTitle logo={logo} organizationName="Acme Corp" />);
       expect(screen.getByTestId('logo-img')).toBeInTheDocument();
     });

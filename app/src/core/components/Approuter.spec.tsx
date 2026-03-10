@@ -2,8 +2,10 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, waitFor, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import AppRouter from './AppRouter';
+import type { AppRoute } from '@/core/types/routeTypes';
 
-let mockRoutes: any[] = [];
+let mockRoutes: AppRoute[] = [];
 
 const mockSetAccessToken = vi.fn();
 const mockSetIsAuthenticated = vi.fn();
@@ -82,11 +84,6 @@ function mockWindowPathname(path: string) {
   });
 }
 
-async function importFreshAppRouter() {
-  const mod = await import(`./AppRouter?test=${Date.now()}-${Math.random()}`);
-  return mod.default;
-}
-
 describe('AppRouter', () => {
   beforeEach(() => {
     cleanup();
@@ -102,7 +99,6 @@ describe('AppRouter', () => {
     it('renders CircularProgress while not ready', async () => {
       mockRefreshApi.mockImplementation(() => new Promise(() => {}));
 
-      const AppRouter = await importFreshAppRouter();
       const { container } = render(<AppRouter />);
 
       expect(container.querySelector('svg, [role="progressbar"], .MuiCircularProgress-root')).toBeTruthy();
@@ -116,7 +112,6 @@ describe('AppRouter', () => {
     });
 
     it('calls setAccessToken(null)', async () => {
-      const AppRouter = await importFreshAppRouter();
       render(<AppRouter />);
 
       await waitFor(() => {
@@ -127,7 +122,6 @@ describe('AppRouter', () => {
     });
 
     it('renders Navigate to /login when not authenticated', async () => {
-      const AppRouter = await importFreshAppRouter();
       render(<AppRouter />);
 
       await waitFor(() => {
@@ -146,7 +140,6 @@ describe('AppRouter', () => {
       mockRefreshApi.mockResolvedValue(token);
       mockGetCurrentUserApi.mockResolvedValue({ roles: userRoles });
 
-      const AppRouter = await importFreshAppRouter();
       render(<AppRouter />);
 
       await waitFor(() => {
@@ -161,7 +154,6 @@ describe('AppRouter', () => {
       mockRefreshApi.mockResolvedValue('token');
       mockGetCurrentUserApi.mockRejectedValue(new Error('User fetch failed'));
 
-      const AppRouter = await importFreshAppRouter();
       render(<AppRouter />);
 
       await waitFor(() => {
@@ -174,7 +166,6 @@ describe('AppRouter', () => {
       mockRefreshApi.mockResolvedValue('token');
       mockGetCurrentUserApi.mockResolvedValue({});
 
-      const AppRouter = await importFreshAppRouter();
       render(<AppRouter />);
 
       await waitFor(() => {
@@ -187,7 +178,6 @@ describe('AppRouter', () => {
       mockRefreshApi.mockResolvedValue('token');
       mockGetCurrentUserApi.mockResolvedValue({ roles: ['user'] });
 
-      const AppRouter = await importFreshAppRouter();
       render(<AppRouter />);
 
       await waitFor(() => {
@@ -201,7 +191,6 @@ describe('AppRouter', () => {
     it('skips refreshApi and sets unauthenticated state immediately', async () => {
       mockWindowPathname('/login');
 
-      const AppRouter = await importFreshAppRouter();
       render(<AppRouter />);
 
       await waitFor(() => {
@@ -225,18 +214,18 @@ describe('RouteWrapper layout rendering', () => {
     mockWindowPathname('/dashboard');
   });
 
-  async function setupRouteWrapperTest(routes: any[]) {
+  async function setupRouteWrapperTest(routes: AppRoute[]) {
     mockRoutes = routes;
-    return importFreshAppRouter();
+    return AppRouter;
   }
 
   it('renders Layout.MAIN route with AppBar inside RequireAuth', async () => {
     const MockElement = () => <div data-testid="main-element">Main Page</div>;
-    const AppRouter = await setupRouteWrapperTest([
+    const Router = await setupRouteWrapperTest([
       { path: '/dashboard', element: MockElement, layout: 'main' },
     ]);
 
-    render(<AppRouter />);
+    render(<Router />);
 
     await waitFor(() => {
       expect(document.querySelector('[data-testid="app-bar"]')).toBeTruthy();
@@ -247,11 +236,11 @@ describe('RouteWrapper layout rendering', () => {
 
   it('renders Layout.NONE route wrapped in PageWrapper inside RequireAuth', async () => {
     const MockElement = () => <div data-testid="none-element">None Layout</div>;
-    const AppRouter = await setupRouteWrapperTest([
+    const Router = await setupRouteWrapperTest([
       { path: '/settings', element: MockElement, layout: 'none', fixed: true },
     ]);
 
-    render(<AppRouter />);
+    render(<Router />);
 
     await waitFor(() => {
       expect(document.querySelector('[data-testid="page-wrapper"]')).toBeTruthy();
@@ -262,11 +251,11 @@ describe('RouteWrapper layout rendering', () => {
 
   it('renders route with no matching layout directly inside RequireAuth', async () => {
     const MockElement = () => <div data-testid="bare-element">Bare</div>;
-    const AppRouter = await setupRouteWrapperTest([
+    const Router = await setupRouteWrapperTest([
       { path: '/other', element: MockElement, layout: 'custom' },
     ]);
 
-    render(<AppRouter />);
+    render(<Router />);
 
     await waitFor(() => {
       expect(document.querySelector('[data-testid="bare-element"]')).toBeTruthy();
@@ -276,11 +265,11 @@ describe('RouteWrapper layout rendering', () => {
 
   it('renders /login route WITHOUT RequireAuth wrapper', async () => {
     const MockElement = () => <div data-testid="login-element">Login Page</div>;
-    const AppRouter = await setupRouteWrapperTest([
+    const Router = await setupRouteWrapperTest([
       { path: '/login', element: MockElement, layout: 'none' },
     ]);
 
-    render(<AppRouter />);
+    render(<Router />);
 
     await waitFor(() => {
       expect(document.querySelector('[data-testid="login-element"]')).toBeTruthy();
@@ -289,11 +278,14 @@ describe('RouteWrapper layout rendering', () => {
   });
 
   it('returns null when route has no element', async () => {
-    const AppRouter = await setupRouteWrapperTest([
+    const Router = await setupRouteWrapperTest([
       { path: '/empty', element: null, layout: 'main' },
     ]);
 
-    const { container } = render(<AppRouter />);
+    const { container } = render(<Router />);
+    await waitFor(() => {
+      expect(mockSetAccessToken).toHaveBeenCalledWith(null);
+    });
     expect(container).toBeTruthy();
   });
 
@@ -301,7 +293,7 @@ describe('RouteWrapper layout rendering', () => {
     const ParentElement = () => <div data-testid="parent-element">Parent</div>;
     const ChildElement = () => <div data-testid="child-element">Child</div>;
 
-    const AppRouter = await setupRouteWrapperTest([
+    const Router = await setupRouteWrapperTest([
       {
         path: '/parent',
         element: ParentElement,
@@ -310,7 +302,7 @@ describe('RouteWrapper layout rendering', () => {
       },
     ]);
 
-    render(<AppRouter />);
+    render(<Router />);
 
     await waitFor(() => {
       expect(document.querySelector('[data-testid="parent-element"]')).toBeTruthy();
@@ -321,7 +313,7 @@ describe('RouteWrapper layout rendering', () => {
   it('renders nested route without parent element (children only)', async () => {
     const ChildElement = () => <div data-testid="child-only-element">Child Only</div>;
 
-    const AppRouter = await setupRouteWrapperTest([
+    const Router = await setupRouteWrapperTest([
       {
         path: '/parent-no-element',
         element: null,
@@ -330,7 +322,7 @@ describe('RouteWrapper layout rendering', () => {
       },
     ]);
 
-    render(<AppRouter />);
+    render(<Router />);
 
     await waitFor(() => {
       expect(document.querySelector('[data-testid="child-only-element"]')).toBeTruthy();
@@ -347,9 +339,11 @@ describe('AppRouter wraps everything in AuthProvider', () => {
     mockRefreshApi.mockResolvedValue(null);
     mockWindowPathname('/dashboard');
 
-    const AppRouter = await importFreshAppRouter();
     render(<AppRouter />);
 
+    await waitFor(() => {
+      expect(mockSetAccessToken).toHaveBeenCalledWith(null);
+    });
     expect(document.querySelector('[data-testid="auth-provider"]')).toBeTruthy();
   });
 });

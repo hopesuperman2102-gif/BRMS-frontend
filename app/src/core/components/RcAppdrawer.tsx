@@ -42,7 +42,9 @@ const DrawerHeader = styled(Box)({
   position: 'relative',
 });
 
-const DrawerTitle = styled(Typography)<{ hasSubtitle?: boolean }>(({ hasSubtitle }) => ({
+const DrawerTitle = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'hasSubtitle',
+})<{ hasSubtitle?: boolean }>(({ hasSubtitle }) => ({
   fontSize: '1.1rem',
   fontWeight: 700,
   color: colors.lightTextHigh,
