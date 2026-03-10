@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RcCard, CardHeader } from './RcCard';
 
@@ -29,54 +29,101 @@ vi.mock('framer-motion', () => ({
   AnimatePresence: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
 }));
 
+const defaultCardProps = {
+  children: <span>Card Content</span>,
+};
+
+function renderCard(
+  props: Partial<React.ComponentProps<typeof RcCard>> = {}
+) {
+  return render(<RcCard {...defaultCardProps} {...props} />);
+}
+
+function renderCardHeader(
+  props: Partial<React.ComponentProps<typeof CardHeader>> = {}
+) {
+  return render(<CardHeader title="My Title" {...props} />);
+}
+
 describe('RcCard', () => {
+  beforeEach(() => vi.clearAllMocks());
+
   describe('Rendering', () => {
     it('renders children', () => {
-      render(<RcCard><span>Card Content</span></RcCard>);
+      renderCard();
+
       expect(screen.getByText('Card Content')).toBeInTheDocument();
     });
 
     it('renders with animate=true by default', () => {
-      render(<RcCard><div>Animated</div></RcCard>);
+      renderCard({
+        children: <div>Animated</div>,
+      });
+
       expect(screen.getByText('Animated')).toBeInTheDocument();
     });
 
     it('renders with animate=false', () => {
-      render(<RcCard animate={false}><div>Static</div></RcCard>);
+      renderCard({
+        animate: false,
+        children: <div>Static</div>,
+      });
+
       expect(screen.getByText('Static')).toBeInTheDocument();
     });
 
     it('renders with custom className', () => {
-      const { container } = render(
-        <RcCard className="custom-class"><div>Content</div></RcCard>
-      );
+      const { container } = renderCard({
+        className: 'custom-class',
+        children: <div>Content</div>,
+      });
+
       expect(container.firstChild).toHaveClass('custom-class');
     });
 
     it('renders with custom delay prop', () => {
-      render(<RcCard delay={0.5}><div>Delayed</div></RcCard>);
+      renderCard({
+        delay: 0.5,
+        children: <div>Delayed</div>,
+      });
+
       expect(screen.getByText('Delayed')).toBeInTheDocument();
     });
 
     it('renders with sx prop', () => {
-      render(<RcCard sx={{ mt: 2 }}><div>Styled</div></RcCard>);
+      renderCard({
+        sx: { mt: 2 },
+        children: <div>Styled</div>,
+      });
+
       expect(screen.getByText('Styled')).toBeInTheDocument();
     });
   });
 
-  describe('onClick', () => {
+  describe('Interactions', () => {
     it('calls onClick when animate=true card is clicked', () => {
-      const handleClick = vi.fn();
-      render(<RcCard onClick={handleClick}><div>Click Me</div></RcCard>);
+      const onClick = vi.fn();
+
+      renderCard({
+        onClick,
+        children: <div>Click Me</div>,
+      });
       fireEvent.click(screen.getByText('Click Me'));
-      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      expect(onClick).toHaveBeenCalledTimes(1);
     });
 
     it('calls onClick when animate=false card is clicked', () => {
-      const handleClick = vi.fn();
-      render(<RcCard animate={false} onClick={handleClick}><div>Click Me</div></RcCard>);
+      const onClick = vi.fn();
+
+      renderCard({
+        animate: false,
+        onClick,
+        children: <div>Click Me</div>,
+      });
       fireEvent.click(screen.getByText('Click Me'));
-      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      expect(onClick).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -84,27 +131,42 @@ describe('RcCard', () => {
 describe('CardHeader', () => {
   describe('Rendering', () => {
     it('renders the title', () => {
-      render(<CardHeader title="My Title" />);
+      renderCardHeader();
+
       expect(screen.getByText('My Title')).toBeInTheDocument();
     });
 
     it('renders subtitle when provided', () => {
-      render(<CardHeader title="Title" subtitle="Sub text" />);
+      renderCardHeader({
+        title: 'Title',
+        subtitle: 'Sub text',
+      });
+
       expect(screen.getByText('Sub text')).toBeInTheDocument();
     });
 
     it('does not render subtitle when not provided', () => {
-      render(<CardHeader title="Title Only" />);
+      renderCardHeader({
+        title: 'Title Only',
+      });
+
       expect(screen.queryByText('Sub text')).not.toBeInTheDocument();
     });
 
     it('renders title as h6 heading', () => {
-      render(<CardHeader title="Heading" />);
+      renderCardHeader({
+        title: 'Heading',
+      });
+
       expect(screen.getByRole('heading', { level: 6 })).toHaveTextContent('Heading');
     });
 
     it('does not render subtitle for empty string', () => {
-      const { container } = render(<CardHeader title="Title" subtitle="" />);
+      const { container } = renderCardHeader({
+        title: 'Title',
+        subtitle: '',
+      });
+
       expect(container.querySelector('p')).toBeNull();
     });
   });
