@@ -37,6 +37,7 @@ const MAX_VISIBLE_ROWS = 3;
 export const ActiveRules: React.FC<ActiveRulesProps> = ({
   rules,
   onRevoked,
+  onPromoted,
   onViewLogs,
   environment,
   canManageActions = true,
@@ -93,7 +94,7 @@ const handlePromoteSubmit = async () => {
   try {
     await deployApi.promoteRule(selectedRule.rule_key, promoteTarget, selectedRule.environment);
     setPromoteDialogOpen(false);
-    onRevoked();
+    onPromoted(promoteTarget);
   } catch (err) {
     console.error('Promote failed:', err);
   } finally {
@@ -111,20 +112,22 @@ const handlePromoteSubmit = async () => {
           <Typography variant="h6" fontWeight={600} color="text.primary">
             Active Rules in {environment}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <motion.div whileHover={{ scale: 1.1 }}>
-              <IconButton
-                size="small"
-                onClick={() => onViewLogs('')}
-                sx={{ color: 'text.secondary' }}
-              >
-                <DescriptionIcon fontSize="small" />
-              </IconButton>
-            </motion.div>
-            <Typography variant="caption" color="text.secondary">
-              View Logs
-            </Typography>
-          </Box>
+  <Box
+    sx={{
+      display: 'flex', alignItems: 'center', gap: 0.1, cursor: 'pointer',
+      borderRadius: '6px', px: 0.75, py: 0.25, transition: 'background 0.15s',
+      '&:hover': {
+        bgcolor: 'rgba(0,0,0,0.04)',
+        '& .MuiTypography-root': { color: 'text.primary' },
+      },
+    }}
+    onClick={() => onViewLogs('')}
+  >
+    <IconButton size="small" sx={{ color: 'text.secondary', pointerEvents: 'none' }}>
+      <DescriptionIcon fontSize="small" />
+    </IconButton>
+    <Typography variant="caption" color="text.secondary">View Logs</Typography>
+  </Box>
         </Box>
 
         {/* Table */}
@@ -205,44 +208,50 @@ const handlePromoteSubmit = async () => {
 
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          {/* Revoke */}
-                          <motion.div whileHover={{ scale: 1.1 }}>
-                            <IconButton
-                              size="small"
-                              disabled={isRevoking || !canManageActions}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRevoke(rule);
-                              }}
-                              sx={{ color: isRevoking ? 'text.disabled' : 'error.main' }}
-                            >
-                              {isRevoking
-                                ? <CircularProgress size={14} />
-                                : <UndoIcon fontSize="small" />}
-                            </IconButton>
-                          </motion.div>
-                          <Typography variant="caption" color="text.secondary">
-                            Revoke
-                          </Typography>
+  {/* Revoke */}
+<motion.div whileHover={{ scale: 1.05 }}>
+  <Box
+    sx={{
+      display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer',
+      borderRadius: '6px', px: 0.75, py: 0.25, transition: 'background 0.15s',
+      '&:hover': {
+        bgcolor: 'rgba(239,68,68,0.08)',
+        '& .MuiTypography-root': { color: 'error.main' },
+      },
+    }}
+    onClick={(e) => { e.stopPropagation(); handleRevoke(rule); }}
+  >
+    <IconButton size="small" disabled={isRevoking || !canManageActions}
+      sx={{ color: isRevoking ? 'text.disabled' : 'error.main', pointerEvents: 'none' }}
+    >
+      {isRevoking ? <CircularProgress size={14} /> : <UndoIcon fontSize="small" />}
+    </IconButton>
+    <Typography variant="caption" color="text.secondary">Revoke</Typography>
+  </Box>
+</motion.div>
 
-                          {/* Promote */}
-                          <motion.div whileHover={{ scale: 1.1 }}>
-                            <IconButton
-                              size="small"
-                              disabled={!canManageActions}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenPromote(rule);
-                              }}
-                              sx={{ color: 'success.main', ml: 1 }}
-                            >
-                              <RedoIcon fontSize="small" />
-                            </IconButton>
-                          </motion.div>
-                          <Typography variant="caption" color="text.secondary">
-                            Promote
-                          </Typography>
-                        </Box>
+{/* Promote */}
+<motion.div whileHover={{ scale: 1.05 }}>
+  <Box
+    sx={{
+      display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer',
+      borderRadius: '6px', px: 0.75, py: 0.25, transition: 'background 0.15s',
+      '&:hover': {
+        bgcolor: 'rgba(34,197,94,0.08)',
+        '& .MuiTypography-root': { color: 'success.main' },
+      },
+    }}
+    onClick={(e) => { e.stopPropagation(); handleOpenPromote(rule); }}
+  >
+    <IconButton size="small" disabled={!canManageActions}
+      sx={{ color: 'success.main', pointerEvents: 'none' }}
+    >
+      <RedoIcon fontSize="small" />
+    </IconButton>
+    <Typography variant="caption" color="text.secondary">Promote</Typography>
+  </Box>
+</motion.div>
+</Box>
                       </TableCell>
                     </MotionTableRow>
                   );

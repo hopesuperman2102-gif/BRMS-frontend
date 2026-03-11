@@ -245,12 +245,7 @@ export const EnvironmentLogs: React.FC<EnvironmentLogsProps> = ({
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box sx={{ display: 'flex', gap: '6px', mr: 1 }}>
-            {[brmsTheme.colors.errorRed, brmsTheme.colors.warningAmber, brmsTheme.colors.success].map((c) => (
-              <Box key={c} sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: c, opacity: 0.8 }} />
-            ))}
-          </Box>
-          <Typography fontWeight={700} fontSize="0.875rem" color={brmsTheme.colors.surfaceBase} letterSpacing="0.02em">
+          <Typography fontWeight={700} fontSize="0.985rem" color={brmsTheme.colors.surfaceBase} letterSpacing="0.02em">
             Environment Logs
           </Typography>
           <Chip

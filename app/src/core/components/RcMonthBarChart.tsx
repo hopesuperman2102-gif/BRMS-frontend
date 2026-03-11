@@ -2,14 +2,128 @@
 
 import React, { useState, useMemo } from "react";
 import { Box, Typography, Select, MenuItem } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { RcCard } from "@/core/components/RcCard";
 import { brmsTheme } from "@/core/theme/brmsTheme";
 import { Props } from "@/core/types/commonTypes";
+import { monthNames } from "../constants/commonConstants";
 
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const DEFAULT_COLORS = [brmsTheme.colors.primary, brmsTheme.colors.indigoLight, brmsTheme.colors.indigoLightShade];
+
+// ─── Styled Components ────────────────────────────────────────────────────────
+
+const ChartHeader = styled(Box)({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  marginBottom: 24,
+});
+
+const ChartTitle = styled(Typography)({
+  fontSize: "1.25rem",
+  fontWeight: 700,
+});
+
+const ChartSubtitle = styled(Typography)({
+  fontSize: "0.875rem",
+  color: brmsTheme.colors.textSecondary,
+});
+
+const StyledSelect = styled(Select)({
+  minWidth: 160,
+});
+
+const YAxis = styled(Box)({
+  position: "absolute",
+  left: 0,
+  top: 0,
+  bottom: "40px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  fontSize: "0.75rem",
+  color: brmsTheme.colors.textSecondary,
+  fontWeight: 600,
+  width: 35,
+});
+
+const BarsContainer = styled(Box)({
+  position: "absolute",
+  left: "45px",
+  right: 2,
+  top: 0,
+  bottom: "40px",
+  display: "flex",
+  alignItems: "flex-end",
+  gap: 6,
+});
+
+const BarWrapper = styled(Box)({
+  flex: 1,
+  position: "relative",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-end",
+  height: "100%",
+});
+
+const Tooltip = styled(Box, {
+  shouldForwardProp: (p) => p !== "heightPercent",
+})<{ heightPercent: number }>(({ heightPercent }) => ({
+  position: "absolute",
+  bottom: `calc(${heightPercent}% + 10px)`,
+  left: "50%",
+  transform: "translateX(-50%)",
+  background: brmsTheme.colors.textPrimary,
+  color: "white",
+  padding: 12,
+  borderRadius: 8,
+  fontSize: "0.75rem",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+  zIndex: 10,
+  whiteSpace: "nowrap",
+}));
+
+const TooltipMonth = styled(Typography)({
+  fontWeight: 600,
+});
+
+const TooltipValue = styled(Typography)({
+  fontWeight: 700,
+});
+
+const Bar = styled(Box, {
+  shouldForwardProp: (p) => p !== "heightPercent" && p !== "barColor" && p !== "showTooltip",
+})<{ heightPercent: number; barColor: string; showTooltip: boolean }>(({ heightPercent, barColor, showTooltip }) => ({
+  width: "100%",
+  height: `${heightPercent}%`,
+  background: barColor,
+  borderRadius: "6px 6px 0 0",
+  transition: "all 0.3s",
+  cursor: showTooltip ? "pointer" : "default",
+}));
+
+const XAxis = styled(Box)({
+  position: "absolute",
+  left: "45px",
+  right: 2,
+  bottom: 0,
+  height: "40px",
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+});
+
+const XAxisLabel = styled(Box)({
+  flex: 1,
+  textAlign: "center",
+  fontSize: "0.75rem",
+  fontWeight: 600,
+  color: brmsTheme.colors.textSecondary,
+});
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 const RcMonthBarChart: React.FC<Props> = ({
   data,
@@ -47,21 +161,16 @@ const RcMonthBarChart: React.FC<Props> = ({
 
   return (
     <RcCard>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+      <ChartHeader>
         <Box>
-          <Typography sx={{ fontSize: "1.25rem", fontWeight: 700 }}>
-            {title}
-          </Typography>
-          <Typography sx={{ fontSize: "0.875rem", color: brmsTheme.colors.textSecondary }}>
-            {subtitle}
-          </Typography>
+          <ChartTitle>{title}</ChartTitle>
+          <ChartSubtitle>{subtitle}</ChartSubtitle>
         </Box>
 
-        <Select
+        <StyledSelect
           value={selectedYear}
           onChange={(e) => onYearChange(Number(e.target.value))}
           size="small"
-          sx={{ minWidth: 160 }}
           MenuProps={{ PaperProps: { style: { maxHeight: '5cm' } } }}
         >
           {availableYears.map((year) => (
@@ -69,133 +178,51 @@ const RcMonthBarChart: React.FC<Props> = ({
               {year}
             </MenuItem>
           ))}
-        </Select>
-      </Box>
+        </StyledSelect>
+      </ChartHeader>
 
       <Box sx={{ position: "relative", height }}>
 
-        {/* Y Axis */}
-        <Box
-          sx={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            bottom: "40px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            fontSize: "0.75rem",
-            color: brmsTheme.colors.textSecondary,
-            fontWeight: 600,
-            width: 35,
-          }}
-        >
+        <YAxis>
           <div>{maxValue}</div>
           <div>{Math.round(maxValue * 0.8)}</div>
           <div>{Math.round(maxValue * 0.6)}</div>
           <div>{Math.round(maxValue * 0.4)}</div>
           <div>{Math.round(maxValue * 0.2)}</div>
           <div>0</div>
-        </Box>
+        </YAxis>
 
-        {/* Bars */}
-        <Box
-          sx={{
-            position: "absolute",
-            left: "45px",
-            right: 2,
-            top: 0,
-            bottom: "40px",
-            display: "flex",
-            alignItems: "flex-end",
-            gap: 0.75,
-          }}
-        >
+        <BarsContainer>
           {chartData.map((item, index) => {
             const heightPercent = (item.value / maxValue) * 100;
             return (
-              <Box
+              <BarWrapper
                 key={index}
                 onMouseEnter={() => showTooltip && setHoveredBar(index)}
                 onMouseLeave={() => showTooltip && setHoveredBar(null)}
-                sx={{
-                  flex: 1,
-                  position: "relative",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  height: "100%",
-                }}
               >
                 {showTooltip && hoveredBar === index && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      bottom: `calc(${heightPercent}% + 10px)`,
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      background: brmsTheme.colors.textPrimary,
-                      color: "white",
-                      p: 1.5,
-                      borderRadius: 2,
-                      fontSize: "0.75rem",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                      zIndex: 10,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: 600 }}>
-                      {item.month} {item.year}
-                    </Typography>
-                    <Typography sx={{ fontWeight: 700 }}>
-                      {item.value} {tooltipSuffix}
-                    </Typography>
-                  </Box>
+                  <Tooltip heightPercent={heightPercent}>
+                    <TooltipMonth>{item.month} {item.year}</TooltipMonth>
+                    <TooltipValue>{item.value} {tooltipSuffix}</TooltipValue>
+                  </Tooltip>
                 )}
 
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: `${heightPercent}%`,
-                    background: getBarColor(index),
-                    borderRadius: "6px 6px 0 0",
-                    transition: "all 0.3s",
-                    cursor: showTooltip ? "pointer" : "default",
-                  }}
+                <Bar
+                  heightPercent={heightPercent}
+                  barColor={getBarColor(index)}
+                  showTooltip={showTooltip}
                 />
-              </Box>
+              </BarWrapper>
             );
           })}
-        </Box>
+        </BarsContainer>
 
-        {/* X Axis - Month Labels */}
-        <Box
-          sx={{
-            position: "absolute",
-            left: "45px",
-            right: 2,
-            bottom: 0,
-            height: "40px",
-            display: "flex",
-            alignItems: "center",
-            gap: 0.75,
-          }}
-        >
+        <XAxis>
           {chartData.map((item, index) => (
-            <Box
-              key={index}
-              sx={{
-                flex: 1,
-                textAlign: "center",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                color: brmsTheme.colors.textSecondary,
-              }}
-            >
-              {item.month}
-            </Box>
+            <XAxisLabel key={index}>{item.month}</XAxisLabel>
           ))}
-        </Box>
+        </XAxis>
 
       </Box>
     </RcCard>

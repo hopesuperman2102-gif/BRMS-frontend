@@ -9,6 +9,7 @@ export enum Layout {
 export type AppRoute = {
   path: string;
   element?: ComponentType<unknown> | ReactNode;
+  fixed?: boolean;
   layout?: Layout | string;
   children?: AppRoute[];
   metadata?: {

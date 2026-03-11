@@ -9,6 +9,7 @@ import { ActiveRules} from '@/modules/deploy/components/ActiveRules';
 export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
   rules,
   onRevoked,
+  onPromoted,
   onViewLogs,
   environment,
   canManageActions,
@@ -18,6 +19,7 @@ export const EnvironmentHistory: React.FC<EnvironmentHistoryProps> = ({
       <ActiveRules
         rules={rules}
         onRevoked={onRevoked}
+        onPromoted={onPromoted}        
         onViewLogs={onViewLogs}
         environment={environment}
         canManageActions={canManageActions}

@@ -188,9 +188,14 @@ export default function DeployTabComponent() {
   };
 
   const handleRevoked = useCallback(async () => {
-    showAlert('Rule revoked successfully.', 'success');
-    await refreshStats();
-  }, [refreshStats, showAlert]);
+  showAlert('Rule revoked successfully.', 'success');
+  await refreshStats();
+}, [refreshStats, showAlert]);
+
+const handlePromoted = useCallback(async (targetEnv: string) => {
+  showAlert(`Rule promoted to ${targetEnv} successfully.`, 'success');
+  await refreshStats();
+}, [refreshStats, showAlert]);
 
   const handleViewLogs = useCallback(() => setLogsOpen(true), []);
 
@@ -234,6 +239,7 @@ export default function DeployTabComponent() {
         <EnvironmentHistory
           rules={deployedRules}
           onRevoked={handleRevoked}
+          onPromoted={handlePromoted}
           onViewLogs={handleViewLogs}
           environment={activeEnvironment}
           canManageActions={canManageDeploy}
