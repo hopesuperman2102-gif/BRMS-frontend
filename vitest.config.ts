@@ -8,13 +8,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'app/src'),
-      '@tests': path.resolve(__dirname, 'tests'),
     },
   },
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: [path.resolve(__dirname, 'tests/vitest.setup.ts')],
+    setupFiles: [path.resolve(__dirname, 'vitest.setup.ts')],
     css: true,
     include: ['**/*.spec.{ts,tsx}'],
     coverage: {

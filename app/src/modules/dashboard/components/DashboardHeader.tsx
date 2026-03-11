@@ -47,7 +47,7 @@ const DashboardHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
-  const verticalName = location.state?.verticalName || 'Real-time monitoring';
+  const verticalName = location.state?.verticalName;
 
   const handleHubClick = () => {
     navigate(`/vertical/${vertical_Key}/dashboard/hub`, {
