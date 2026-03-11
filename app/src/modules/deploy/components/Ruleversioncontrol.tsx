@@ -2,18 +2,210 @@
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Box,
-  Checkbox,
-  Typography,
-  CircularProgress,
-  Divider,
-} from '@mui/material';
+import { Box, Checkbox, Typography, CircularProgress, Divider } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import CodeIcon from '@mui/icons-material/Code';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { GroupedRule, RuleVersionControlProps } from '@/modules/deploy/types/deployTypes';
 import { RcCard, CardHeader } from '@/core/components/RcCard';
+import { brmsTheme } from '@/core/theme/brmsTheme';
+
+const ControlCard = styled(RcCard)({
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const ClickAway = styled(Box)({
+  position: 'fixed',
+  inset: 0,
+  zIndex: 1300,
+});
+
+const DropdownPanel = styled(Box)({
+  backgroundColor: brmsTheme.colors.white,
+  border: '1.5px solid',
+  borderColor: brmsTheme.colors.lightBorder,
+  borderRadius: 8,
+  boxShadow: '0 8px 24px rgba(0,0,0,0.14)',
+  overflow: 'hidden',
+  paddingTop: 4,
+  paddingBottom: 4,
+});
+
+const DropdownOption = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'selected',
+})<{ selected: boolean }>(({ selected }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '6px 12px',
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+  color: selected ? brmsTheme.colors.primary : brmsTheme.colors.textPrimary,
+  backgroundColor: selected ? brmsTheme.colors.lightPurpleSurface : 'transparent',
+  borderLeft: '3px solid',
+  borderColor: selected ? brmsTheme.colors.primary : 'transparent',
+  transition: 'all 0.15s ease',
+  '&:hover': {
+    backgroundColor: brmsTheme.colors.lightPurpleSurfaceHover,
+    color: brmsTheme.colors.primary,
+  },
+}));
+
+const SelectedCheckIcon = styled(CheckCircleIcon)({
+  fontSize: 13,
+  color: brmsTheme.colors.primary,
+});
+
+const PickerTrigger = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'selected' && prop !== 'open',
+})<{ selected: boolean; open: boolean }>(({ selected, open }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '4px 12px',
+  borderRadius: 20,
+  border: '1.5px solid',
+  borderColor: selected ? brmsTheme.colors.primary : brmsTheme.colors.borderGrayHover,
+  backgroundColor: selected ? brmsTheme.colors.primary : 'transparent',
+  color: selected ? brmsTheme.colors.white : brmsTheme.colors.textSecondary,
+  fontSize: '0.75rem',
+  fontWeight: 700,
+  cursor: 'pointer',
+  userSelect: 'none',
+  transition: 'all 0.2s ease',
+  letterSpacing: '0.04em',
+  '&:hover': {
+    borderColor: brmsTheme.colors.primary,
+    backgroundColor: selected ? brmsTheme.colors.primaryHover : brmsTheme.colors.lightPurpleSurface,
+    color: selected ? brmsTheme.colors.white : brmsTheme.colors.primary,
+  },
+  '& .picker-arrow': {
+    marginLeft: 2,
+    fontSize: '0.6rem',
+    opacity: 0.7,
+    transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+    transition: 'transform 0.2s ease',
+    display: 'inline-block',
+  },
+}));
+
+const SmallCheckIcon = styled(CheckCircleIcon)({
+  fontSize: 13,
+});
+
+const SmallCodeIcon = styled(CodeIcon)({
+  fontSize: 13,
+});
+
+const ContentStack = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const CenteredLoader = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  paddingTop: 40,
+  paddingBottom: 40,
+});
+
+const EmptyState = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingTop: 40,
+  paddingBottom: 40,
+  gap: 8,
+});
+
+const EmptyStateIcon = styled(CodeIcon)({
+  fontSize: 32,
+  color: brmsTheme.colors.lightTextLow,
+});
+
+const RuleList = styled(Box)({
+  maxHeight: 128,
+  overflowY: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
+  '&::-webkit-scrollbar': { width: 3 },
+  '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' },
+  '&::-webkit-scrollbar-thumb': { backgroundColor: brmsTheme.colors.lightBorderHover, borderRadius: 4 },
+});
+
+const RuleRow = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'checked',
+})<{ checked: boolean }>(({ checked }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  padding: '10px 8px',
+  borderRadius: 8,
+  position: 'relative',
+  transition: 'background 0.18s ease',
+  cursor: 'pointer',
+  '&:hover': { backgroundColor: brmsTheme.colors.bgGrayLightShade },
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    left: 0,
+    top: '20%',
+    height: '60%',
+    width: 3,
+    borderRadius: '0 3px 3px 0',
+    backgroundColor: checked ? brmsTheme.colors.primary : 'transparent',
+    transition: 'background 0.2s ease',
+    boxShadow: 'none',
+  },
+}));
+
+const RuleCheckbox = styled(Checkbox)({
+  flexShrink: 0,
+  padding: 4,
+  color: brmsTheme.colors.neutralGray,
+  '&.Mui-checked': { color: brmsTheme.colors.primary },
+});
+
+const RuleInfo = styled(Box)({
+  flex: 1,
+  minWidth: 0,
+});
+
+const RuleName = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'checked',
+})<{ checked: boolean }>(({ checked }) => ({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  color: checked ? brmsTheme.colors.primary : brmsTheme.colors.textPrimary,
+  transition: 'color 0.18s ease',
+  fontSize: '0.82rem',
+}));
+
+const RuleMeta = styled(Typography)({
+  color: brmsTheme.colors.textSecondary,
+  fontSize: '0.68rem',
+  letterSpacing: '0.03em',
+});
+
+const PickerContainer = styled(Box)({
+  flexShrink: 0,
+});
+
+const RowDivider = styled(Divider)({
+  marginLeft: 8,
+  marginRight: 8,
+  opacity: 0.5,
+});
+
+const FooterDivider = styled(Divider)({
+  marginTop: 16,
+});
 
 const VersionPicker: React.FC<{
   versions: string[];
@@ -36,7 +228,7 @@ const VersionPicker: React.FC<{
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
     recalc();
-    setOpen((o) => !o);
+    setOpen((current) => !current);
   };
 
   useEffect(() => {
@@ -46,17 +238,11 @@ const VersionPicker: React.FC<{
     return () => window.removeEventListener('scroll', close, true);
   }, [open]);
 
-  // Dropdown JSX — rendered via portal into document.body so it's
-  // completely outside the overflow:auto scroll container
   const dropdown = (
     <AnimatePresence>
       {open && (
         <>
-          {/* Click-away */}
-          <Box
-            onClick={() => setOpen(false)}
-            sx={{ position: 'fixed', inset: 0, zIndex: 1300 }}
-          />
+          <ClickAway onClick={() => setOpen(false)} />
           <motion.div
             initial={{ opacity: 0, y: -6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -70,52 +256,22 @@ const VersionPicker: React.FC<{
               minWidth: 130,
             }}
           >
-            <Box
-              sx={{
-                bgcolor: 'background.paper',
-                border: '1.5px solid',
-                borderColor: 'divider',
-                borderRadius: 2,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.14)',
-                overflow: 'hidden',
-                py: 0.5,
-              }}
-            >
-              {versions.map((v) => (
-                <Box
-                  key={v}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChange(v);
+            <DropdownPanel>
+              {versions.map((version) => (
+                <DropdownOption
+                  key={version}
+                  selected={chosen === version}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onChange(version);
                     setOpen(false);
                   }}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    px: 1.5,
-                    py: 0.75,
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    color: chosen === v ? 'primary.main' : 'text.primary',
-                    bgcolor: chosen === v ? 'primary.lighter' : 'transparent',
-                    borderLeft: '3px solid',
-                    borderColor: chosen === v ? 'primary.main' : 'transparent',
-                    transition: 'all 0.15s ease',
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      color: 'primary.main',
-                    },
-                  }}
                 >
-                  <span>{v}</span>
-                  {chosen === v && (
-                    <CheckCircleIcon sx={{ fontSize: 13, color: 'primary.main' }} />
-                  )}
-                </Box>
+                  <span>{version}</span>
+                  {chosen === version && <SelectedCheckIcon />}
+                </DropdownOption>
               ))}
-            </Box>
+            </DropdownPanel>
           </motion.div>
         </>
       )}
@@ -124,61 +280,21 @@ const VersionPicker: React.FC<{
 
   return (
     <>
-      {/* Trigger pill */}
-      <Box
-        ref={triggerRef}
-        onClick={handleOpen}
-        sx={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 0.75,
-          px: 1.5,
-          py: 0.5,
-          borderRadius: '20px',
-          border: '1.5px solid',
-          borderColor: chosen ? 'primary.main' : 'divider',
-          bgcolor: chosen ? 'primary.main' : 'transparent',
-          color: chosen ? 'white' : 'text.secondary',
-          fontSize: '0.75rem',
-          fontWeight: 700,
-          cursor: 'pointer',
-          userSelect: 'none',
-          transition: 'all 0.2s ease',
-          letterSpacing: '0.04em',
-          '&:hover': {
-            borderColor: 'primary.main',
-            bgcolor: chosen ? 'primary.dark' : 'primary.lighter',
-            color: chosen ? 'white' : 'primary.main',
-          },
-        }}
-      >
+      <PickerTrigger ref={triggerRef} onClick={handleOpen} selected={Boolean(chosen)} open={open}>
         {chosen ? (
           <>
-            <CheckCircleIcon sx={{ fontSize: 13 }} />
+            <SmallCheckIcon />
             {chosen}
           </>
         ) : (
           <>
-            <CodeIcon sx={{ fontSize: 13 }} />
+            <SmallCodeIcon />
             Pick version
           </>
         )}
-        <Box
-          component="span"
-          sx={{
-            ml: 0.25,
-            fontSize: '0.6rem',
-            opacity: 0.7,
-            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease',
-            display: 'inline-block',
-          }}
-        >
-          ▾
-        </Box>
-      </Box>
+        <Box component='span' className='picker-arrow'>▾</Box>
+      </PickerTrigger>
 
-      {/* Portal — renders dropdown directly in document.body, outside all overflow containers */}
       {typeof document !== 'undefined' && createPortal(dropdown, document.body)}
     </>
   );
@@ -192,7 +308,6 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
   onVersionChange,
   delay = 0.5,
   isLoading = false,
-  sx,
 }) => {
   const groupedRules = useMemo<GroupedRule[]>(() => {
     const map = new Map<string, GroupedRule>();
@@ -211,42 +326,23 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
   }, [rules]);
 
   return (
-    <RcCard delay={delay} sx={sx}>
-      <CardHeader title="Rule & Version Control" />
+    <ControlCard delay={delay}>
+      <CardHeader title='Rule & Version Control' />
 
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <ContentStack>
         {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
+          <CenteredLoader>
             <CircularProgress size={28} />
-          </Box>
+          </CenteredLoader>
         ) : groupedRules.length === 0 ? (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              py: 5,
-              gap: 1,
-            }}
-          >
-            <CodeIcon sx={{ fontSize: 32, color: 'text.disabled' }} />
-            <Typography variant="body2" color="text.disabled" fontWeight={500}>
+          <EmptyState>
+            <EmptyStateIcon />
+            <Typography variant='body2' color='text.disabled' fontWeight={500}>
               No undeployed approved rules
             </Typography>
-          </Box>
+          </EmptyState>
         ) : (
-          <Box
-            sx={{
-              maxHeight: 128,
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              '&::-webkit-scrollbar': { width: 3 },
-              '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
-              '&::-webkit-scrollbar-thumb': { bgcolor: 'divider', borderRadius: 4 },
-            }}
-          >
+          <RuleList>
             {groupedRules.map((rule, idx) => {
               const isChecked = selectedRules.has(rule.rule_key);
               const chosenVersion = selectedVersions.get(rule.rule_key) ?? null;
@@ -258,99 +354,42 @@ export const RuleVersionControl: React.FC<RuleVersionControlProps> = ({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.55 + idx * 0.08 }}
                 >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1.5,
-                      px: 1,
-                      py: 1.25,
-                      borderRadius: 2,
-                      position: 'relative',
-                      transition: 'background 0.18s ease',
-                      cursor: 'pointer',
-                      '&:hover': { bgcolor: 'action.hover' },
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        left: 0,
-                        top: '20%',
-                        height: '60%',
-                        width: 3,
-                        borderRadius: '0 3px 3px 0',
-                        bgcolor: isChecked ? 'primary.main' : 'transparent',
-                        transition: 'background 0.2s ease',
-                        boxShadow: isChecked
-                          ? '0 0 6px 1px rgba(101,82,208,0.5)'
-                          : 'none',
-                      },
-                    }}
-                    onClick={() => onToggleRule(rule.rule_key)}
-                  >
-                    <Checkbox
+                  <RuleRow checked={isChecked} onClick={() => onToggleRule(rule.rule_key)}>
+                    <RuleCheckbox
                       checked={isChecked}
                       onChange={() => onToggleRule(rule.rule_key)}
-                      onClick={(e) => e.stopPropagation()}
-                      size="small"
-                      sx={{
-                        flexShrink: 0,
-                        p: 0.5,
-                        color: 'text.disabled',
-                        '&.Mui-checked': { color: 'primary.main' },
-                      }}
+                      onClick={(event) => event.stopPropagation()}
+                      size='small'
                     />
 
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                        sx={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          color: isChecked ? 'primary.main' : 'text.primary',
-                          transition: 'color 0.18s ease',
-                          fontSize: '0.82rem',
-                        }}
-                        title={rule.rule_name}
-                      >
+                    <RuleInfo>
+                      <RuleName variant='body2' fontWeight={600} checked={isChecked} title={rule.rule_name}>
                         {rule.rule_name}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: 'text.disabled',
-                          fontSize: '0.68rem',
-                          letterSpacing: '0.03em',
-                        }}
-                      >
+                      </RuleName>
+                      <RuleMeta variant='caption'>
                         {rule.versions.length} version
                         {rule.versions.length !== 1 ? 's' : ''} available
-                      </Typography>
-                    </Box>
+                      </RuleMeta>
+                    </RuleInfo>
 
-                    <Box onClick={(e) => e.stopPropagation()} sx={{ flexShrink: 0 }}>
+                    <PickerContainer onClick={(event) => event.stopPropagation()}>
                       <VersionPicker
                         versions={rule.versions}
                         chosen={chosenVersion}
-                        onChange={(version) => {
-                          onVersionChange(rule.rule_key, version);
-                        }}
+                        onChange={(version) => onVersionChange(rule.rule_key, version)}
                       />
-                    </Box>
-                  </Box>
+                    </PickerContainer>
+                  </RuleRow>
 
-                  {idx < groupedRules.length - 1 && (
-                    <Divider sx={{ mx: 1, opacity: 0.5 }} />
-                  )}
+                  {idx < groupedRules.length - 1 && <RowDivider />}
                 </motion.div>
               );
             })}
-          </Box>
+          </RuleList>
         )}
-      </Box>
+      </ContentStack>
 
-      <Divider sx={{ mt: 2 }} />
-    </RcCard>
+      <FooterDivider />
+    </ControlCard>
   );
 };

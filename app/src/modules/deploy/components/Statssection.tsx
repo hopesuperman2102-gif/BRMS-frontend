@@ -2,15 +2,20 @@
 
 import React from 'react';
 import { Grid } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { DeploymentHealth } from '@/modules/deploy/components/DeploymentHealth';
 import { PendingSync } from '@/modules/deploy/components/PendingSync';
 import RcMonthBarChart from '@/core/components/RcMonthBarChart';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import { StatsSectionProps } from '@/modules/deploy/types/deployTypes';
 
+const StatsGrid = styled(Grid)({
+  marginBottom: 24,
+});
+
 export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear, onYearChange }) => {
   return (
-    <Grid container spacing={3} sx={{ mb: 3 }}>
+    <StatsGrid container spacing={3}>
       <Grid size={{ xs: 12, md: 3 }}>
         <DeploymentHealth
           title="Deployment Health"
@@ -24,17 +29,11 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear,
       </Grid>
 
       <Grid size={{ xs: 12, md: 2 }}>
-        <PendingSync
-          title="Active Rules"
-          value={stats.deployedVersions}
-        />
+        <PendingSync title="Active Rules" value={stats.deployedVersions} />
       </Grid>
 
       <Grid size={{ xs: 12, md: 2 }}>
-        <PendingSync
-          title="Pending Rules"
-          value={stats.approvedNotDeployedVersions}
-        />
+        <PendingSync title="Pending Rules" value={stats.approvedNotDeployedVersions} />
       </Grid>
 
       <Grid size={{ xs: 12, md: 5 }}>
@@ -49,7 +48,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, selectedYear,
           barColors={[brmsTheme.colors.info, brmsTheme.colors.chartBlue2, brmsTheme.colors.chartBlue3]}
         />
       </Grid>
-    </Grid>
+    </StatsGrid>
   );
 };
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { DeployHeader } from '@/modules/deploy/components/DeployHeader';
 import { Environment, Rule, DeployedRule } from '@/modules/deploy/types/deployTypes';
 import { deployApi } from '@/modules/deploy/api/deployApi';
@@ -15,6 +16,17 @@ import { EnvironmentLogs } from '@/modules/deploy/components/EnvironmentLogs';
 import { MonthlyDeployData } from '@/modules/deploy/types/deployEndpointsTypes';
 import { useRole } from '@/modules/auth/hooks/useRole';
 
+const PageRoot = styled(Box)({
+  minHeight: '100vh',
+  padding: 8,
+});
+
+const PageContent = styled(Box)({
+  maxWidth: 1600,
+  marginLeft: 'auto',
+  marginRight: 'auto',
+});
+
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
   const { showAlert } = useAlertStore();
@@ -23,7 +35,6 @@ export default function DeployTabComponent() {
 
   const [activeEnvironment, setActiveEnvironment] = useState<Environment | 'ALL'>('ALL');
   const [deployTargetEnvironment, setDeployTargetEnvironment] = useState<Environment>('DEV');
-
   const [selectedRules, setSelectedRules] = useState<Set<string>>(new Set());
   const [totalRules, setTotalRules] = useState(0);
   const [projectItems, setProjectItems] = useState<RcDropdownItem[]>([]);
@@ -37,9 +48,7 @@ export default function DeployTabComponent() {
   const [logsOpen, setLogsOpen] = useState(false);
 
   const environments: Environment[] = ['DEV', 'QA', 'PROD'];
-
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-
   const [statsData, setStatsData] = useState({
     totalRuleVersions: 0,
     pendingVersions: 0,
@@ -54,22 +63,31 @@ export default function DeployTabComponent() {
   const activeEnvironmentRef = useRef(activeEnvironment);
   const isMountedRef = useRef(true);
 
-  useEffect(() => { selectedProjectKeyRef.current = selectedProjectKey; }, [selectedProjectKey]);
-  useEffect(() => { activeEnvironmentRef.current = activeEnvironment; }, [activeEnvironment]);
+  useEffect(() => {
+    selectedProjectKeyRef.current = selectedProjectKey;
+  }, [selectedProjectKey]);
+
+  useEffect(() => {
+    activeEnvironmentRef.current = activeEnvironment;
+  }, [activeEnvironment]);
+
   useEffect(() => {
     isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
-  /* ── Shared stats refresh ─────────────────────────────────── */
   const refreshStats = useCallback(async () => {
     const projectKey = selectedProjectKeyRef.current;
     const environment = activeEnvironmentRef.current;
     if (!projectKey) return;
+
     setIsLoadingRules(true);
     try {
       const data = await deployApi.getDashboardStats(projectKey, environment);
       if (!isMountedRef.current) return;
+
       setStatsData({
         totalRuleVersions: data.total_rule_versions,
         pendingVersions: data.pending_versions,
@@ -118,6 +136,7 @@ export default function DeployTabComponent() {
         console.error('Failed to fetch dashboard summary:', error);
       }
     };
+
     fetchDashboardSummary();
   }, [vertical_Key]);
 
@@ -159,9 +178,8 @@ export default function DeployTabComponent() {
       showAlert('Please select at least one rule to deploy.', 'warning');
       return;
     }
-    const missingVersion = Array.from(selectedRules).find(
-      (ruleKey) => !selectedVersions.get(ruleKey)
-    );
+
+    const missingVersion = Array.from(selectedRules).find((ruleKey) => !selectedVersions.get(ruleKey));
     if (missingVersion) {
       showAlert('Please select a version for all checked rules before deploying.', 'warning');
       return;
@@ -188,22 +206,21 @@ export default function DeployTabComponent() {
   };
 
   const handleRevoked = useCallback(async () => {
-  showAlert('Rule revoked successfully.', 'success');
-  await refreshStats();
-}, [refreshStats, showAlert]);
+    showAlert('Rule revoked successfully.', 'success');
+    await refreshStats();
+  }, [refreshStats, showAlert]);
 
-const handlePromoted = useCallback(async (targetEnv: string) => {
-  showAlert(`Rule promoted to ${targetEnv} successfully.`, 'success');
-  await refreshStats();
-}, [refreshStats, showAlert]);
+  const handlePromoted = useCallback(async (targetEnv: string) => {
+    showAlert(`Rule promoted to ${targetEnv} successfully.`, 'success');
+    await refreshStats();
+  }, [refreshStats, showAlert]);
 
   const handleViewLogs = useCallback(() => setLogsOpen(true), []);
-
   const handleEnvironmentClick = (env: Environment | 'ALL') => setActiveEnvironment(env);
 
   return (
-    <Box sx={{ minHeight: '100vh', p: 1 }}>
-      <Box sx={{ maxWidth: 1600, mx: 'auto' }}>
+    <PageRoot>
+      <PageContent>
         <DeployHeader
           totalRules={totalRules}
           projectItems={projectItems}
@@ -231,8 +248,8 @@ const handlePromoted = useCallback(async (targetEnv: string) => {
           onEnvironmentChange={setDeployTargetEnvironment}
           onDeploy={handleDeploy}
           canDeploy={canManageDeploy}
-          lastDeployedBy="John Doe"
-          lastDeployedTime="2m ago"
+          lastDeployedBy='John Doe'
+          lastDeployedTime='2m ago'
           isLoading={isLoadingRules}
         />
 
@@ -252,7 +269,7 @@ const handlePromoted = useCallback(async (targetEnv: string) => {
         />
 
         <RcAlertComponent />
-      </Box>
-    </Box>
+      </PageContent>
+    </PageRoot>
   );
 }

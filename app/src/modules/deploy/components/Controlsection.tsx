@@ -2,9 +2,14 @@
 
 import React from 'react';
 import { Grid } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { ControlSectionProps } from '@/modules/deploy/types/deployTypes';
 import { EnvironmentDeployment } from '@/modules/deploy/components/Environmentdeployment';
 import { RuleVersionControl } from '@/modules/deploy/components/Ruleversioncontrol';
+
+const StretchGridItem = styled(Grid)({
+  display: 'flex',
+});
 
 export const ControlSection: React.FC<ControlSectionProps> = ({
   rules,
@@ -22,9 +27,8 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
   isLoading,
 }) => {
   return (
-    // alignItems="stretch" makes both grid cells the same height as the taller one
     <Grid container spacing={3} alignItems="stretch">
-      <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex' }}>
+      <StretchGridItem size={{ xs: 12, md: 6 }}>
         <RuleVersionControl
           rules={rules}
           selectedRules={selectedRules}
@@ -33,12 +37,10 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
           onVersionChange={onVersionChange}
           delay={0.5}
           isLoading={isLoading}
-          // fills the grid cell height
-          sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}
         />
-      </Grid>
+      </StretchGridItem>
 
-      <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex' }}>
+      <StretchGridItem size={{ xs: 12, md: 6 }}>
         <EnvironmentDeployment
           environments={environments}
           selectedEnvironment={selectedEnvironment}
@@ -48,9 +50,8 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
           lastDeployedBy={lastDeployedBy}
           lastDeployedTime={lastDeployedTime}
           delay={0.5}
-          sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}
         />
-      </Grid>
+      </StretchGridItem>
     </Grid>
   );
 };
