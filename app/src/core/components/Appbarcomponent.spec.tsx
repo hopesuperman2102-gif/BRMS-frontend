@@ -1,7 +1,8 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import userEvent from '@testing-library/user-event';
 import AppBarComponent from './AppBarComponent';
 
 const mockNavigate = vi.fn();
@@ -98,6 +99,7 @@ function renderAppBar(
 describe('AppBarComponent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     roleState = { isRuleAuthor: false, isReviewer: false, isViewer: false };
     mockGetCurrentUserApi.mockResolvedValue({
       avatar: '',
@@ -110,12 +112,14 @@ describe('AppBarComponent', () => {
 
   describe('Rendering', () => {
     it('renders organization name', () => {
+      mockGetCurrentUserApi.mockImplementation(() => new Promise(() => {}));
       renderAppBar();
 
       expect(screen.getByText('Business Rules')).toBeInTheDocument();
     });
 
     it('renders settings and profile actions for admin users', () => {
+      mockGetCurrentUserApi.mockImplementation(() => new Promise(() => {}));
       renderAppBar();
 
       expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument();
@@ -123,6 +127,7 @@ describe('AppBarComponent', () => {
     });
 
     it('hides settings action for restricted roles', () => {
+      mockGetCurrentUserApi.mockImplementation(() => new Promise(() => {}));
       roleState = { isRuleAuthor: true, isReviewer: false, isViewer: false };
       renderAppBar();
 
@@ -132,19 +137,21 @@ describe('AppBarComponent', () => {
   });
 
   describe('Profile popover', () => {
-    it('shows loading state while user data is loading', () => {
+    it('shows loading state while user data is loading', async () => {
+      const user = userEvent.setup();
       mockGetCurrentUserApi.mockImplementation(() => new Promise(() => {}));
       renderAppBar();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Profile' }));
+      await user.click(screen.getByRole('button', { name: 'Profile' }));
 
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
     it('shows fetched user details in profile popover', async () => {
+      const user = userEvent.setup();
       renderAppBar();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Profile' }));
+      await user.click(screen.getByRole('button', { name: 'Profile' }));
 
       await waitFor(() => {
         expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -154,10 +161,11 @@ describe('AppBarComponent', () => {
     });
 
     it('shows error message when user fetch fails', async () => {
+      const user = userEvent.setup();
       mockGetCurrentUserApi.mockRejectedValue(new Error('Failed to load user data'));
       renderAppBar();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Profile' }));
+      await user.click(screen.getByRole('button', { name: 'Profile' }));
 
       await waitFor(() => {
         expect(screen.getByText('Failed to load user data')).toBeInTheDocument();
@@ -165,14 +173,15 @@ describe('AppBarComponent', () => {
     });
 
     it('logs out and navigates to login', async () => {
+      const user = userEvent.setup();
       renderAppBar();
-      fireEvent.click(screen.getByRole('button', { name: 'Profile' }));
+      await user.click(screen.getByRole('button', { name: 'Profile' }));
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+      await user.click(screen.getByRole('button', { name: 'Log out' }));
 
       await waitFor(() => {
         expect(mockLogoutApi).toHaveBeenCalledWith('token-123');
@@ -184,20 +193,24 @@ describe('AppBarComponent', () => {
   });
 
   describe('Settings menu', () => {
-    it('opens settings menu and navigates to logs', () => {
+    it('opens settings menu and navigates to logs', async () => {
+      const user = userEvent.setup();
+      mockGetCurrentUserApi.mockImplementation(() => new Promise(() => {}));
       renderAppBar();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
-      fireEvent.click(screen.getByText('Activity Logs'));
+      await user.click(screen.getByRole('button', { name: 'Settings' }));
+      await user.click(screen.getByText('Activity Logs'));
 
       expect(mockNavigate).toHaveBeenCalledWith('/logs');
     });
 
-    it('navigates to signup from settings menu', () => {
+    it('navigates to signup from settings menu', async () => {
+      const user = userEvent.setup();
+      mockGetCurrentUserApi.mockImplementation(() => new Promise(() => {}));
       renderAppBar();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
-      fireEvent.click(screen.getByText('User Create'));
+      await user.click(screen.getByRole('button', { name: 'Settings' }));
+      await user.click(screen.getByText('User Create'));
 
       expect(mockNavigate).toHaveBeenCalledWith('/signup');
     });
