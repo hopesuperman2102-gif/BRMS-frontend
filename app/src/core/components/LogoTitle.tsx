@@ -1,8 +1,14 @@
 "use client";
 
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, styled } from '@mui/material';
 import { LogoTitleProps } from '@/core/types/commonTypes';
+
+const StyledTypography = styled(Typography)({
+  fontWeight: 700,
+  color: 'white',
+  letterSpacing: '0.05em',
+});
 
 const LogoTitle: React.FC<LogoTitleProps> = ({
   logo,
@@ -11,16 +17,9 @@ const LogoTitle: React.FC<LogoTitleProps> = ({
   return (
     <Box display="flex" alignItems="center" gap={1.5}>
       {logo}
-      <Typography 
-        variant="h6" 
-        sx={{
-          fontWeight: 700,
-          color: 'white',
-          letterSpacing: '0.05em',
-        }}
-      >
+      <StyledTypography variant="h6">
         {organizationName}
-      </Typography>
+      </StyledTypography>
     </Box>
   );
 };

@@ -2,8 +2,31 @@
 
 import React from 'react';
 import { Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { RcCard } from '@/core/components/RcCard';
 import { PendingSyncProps } from '@/modules/deploy/types/deployTypes';
+
+const CardTitle = styled(Typography)({
+  marginBottom: 16,
+  textTransform: 'uppercase',
+  color: 'text.secondary',
+  fontWeight: 600,
+  letterSpacing: '0.05em',
+});
+
+const CardValue = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'hasTimestamp',
+})<{ hasTimestamp: boolean }>(({ hasTimestamp }) => ({
+  fontWeight: 700,
+  textAlign: 'center',
+  marginTop: hasTimestamp ? 16 : 32,
+}));
+
+const TimestampText = styled(Typography)({
+  textAlign: 'center',
+  display: 'block',
+  marginTop: 8,
+});
 
 export const PendingSync: React.FC<PendingSyncProps> = ({
   title,
@@ -13,38 +36,16 @@ export const PendingSync: React.FC<PendingSyncProps> = ({
 }) => {
   return (
     <RcCard delay={delay}>
-      <Typography
-        variant="subtitle2"
-        sx={{
-          mb: 2,
-          textTransform: 'uppercase',
-          color: 'text.secondary',
-          fontWeight: 600,
-          letterSpacing: '0.05em',
-        }}
-      >
-        {title}
-      </Typography>
+      <CardTitle variant="subtitle2">{title}</CardTitle>
 
-      <Typography
-        variant="h2"
-        sx={{
-          fontWeight: 700,
-          textAlign: 'center',
-          mt: timestamp ? 2 : 4,
-        }}
-      >
+      <CardValue variant="h2" hasTimestamp={Boolean(timestamp)}>
         {value}
-      </Typography>
+      </CardValue>
 
       {timestamp && (
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ textAlign: 'center', display: 'block', mt: 1 }}
-        >
+        <TimestampText variant="caption" color="text.secondary">
           {timestamp}
-        </Typography>
+        </TimestampText>
       )}
     </RcCard>
   );

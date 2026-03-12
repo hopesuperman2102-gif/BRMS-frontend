@@ -2,9 +2,45 @@
 
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { RcCard } from '@/core/components/RcCard';
 import { DeploymentHealthProps } from '@/modules/deploy/types/deployTypes';
 import { brmsTheme } from '@/core/theme/brmsTheme';
+
+const Title = styled(Typography)({
+  marginBottom: 16,
+  textTransform: 'uppercase',
+  color: 'text.secondary',
+  fontWeight: 600,
+  letterSpacing: '0.05em',
+});
+
+const ChartWrapper = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+});
+
+const ChartBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'size',
+})<{ size: number }>(({ size }) => ({
+  width: size,
+  height: size,
+}));
+
+const Legend = styled(Box)({
+  marginTop: 16,
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: 16,
+});
+
+const LegendItem = styled(Box)({
+  textAlign: 'right',
+});
+
+const LegendValue = styled(Typography)({
+  fontWeight: 700,
+});
 
 export const DeploymentHealth: React.FC<DeploymentHealthProps> = ({
   title,
@@ -28,33 +64,19 @@ export const DeploymentHealth: React.FC<DeploymentHealthProps> = ({
 
   return (
     <RcCard delay={delay}>
-      {/* Title */}
-      <Typography
-        variant="subtitle2"
-        sx={{
-          mb: 2,
-          textTransform: 'uppercase',
-          color: 'text.secondary',
-          fontWeight: 600,
-          letterSpacing: '0.05em',
-        }}
-      >
-        {title}
-      </Typography>
+      <Title variant="subtitle2">{title}</Title>
 
-      {/* Segmented Circle */}
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Box sx={{ width: size, height: size }}>
+      <ChartWrapper>
+        <ChartBox size={size}>
           <svg width={size} height={size}>
-            {/* Segments */}
             <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
-                {segments.map((segment, index) => {
+              {segments.map((segment, index) => {
                 const pct = total > 0 ? segment.value / total : 0;
                 const dash = pct * circumference;
                 const gap = circumference - dash;
 
                 const circle = (
-                    <circle
+                  <circle
                     key={index}
                     cx={size / 2}
                     cy={size / 2}
@@ -69,49 +91,34 @@ export const DeploymentHealth: React.FC<DeploymentHealthProps> = ({
 
                 offset -= dash;
                 return circle;
-                })}
+              })}
             </g>
 
-            {/* Center total */}
             <text
-                x="50%"
-                y="50%"
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize="28"
-                fontWeight="700"
-                fill={brmsTheme.colors.textPrimary}
+              x="50%"
+              y="50%"
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="28"
+              fontWeight="700"
+              fill={brmsTheme.colors.textPrimary}
             >
-                {total}
+              {total}
             </text>
-            </svg>
+          </svg>
+        </ChartBox>
+      </ChartWrapper>
 
-        </Box>
-      </Box>
-
-      {/* Legend / Stats */}
-      <Box
-        sx={{
-          mt: 2,
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 2,
-        }}
-      >
+      <Legend>
         {segments.map((segment) => (
-          <Box key={segment.label} sx={{ textAlign: 'right' }}>
-            <Typography
-              variant="caption"
-              sx={{ color: segment.color, fontWeight: 600 }}
-            >
+          <LegendItem key={segment.label}>
+            <Typography variant="caption" style={{ color: segment.color, fontWeight: 600 }}>
               {segment.label}
             </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-              {segment.value}
-            </Typography>
-          </Box>
+            <LegendValue variant="body2">{segment.value}</LegendValue>
+          </LegendItem>
         ))}
-      </Box>
+      </Legend>
     </RcCard>
   );
 };

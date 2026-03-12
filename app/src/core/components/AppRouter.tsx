@@ -31,7 +31,7 @@ function RouteWrapper({ route }: { route: AppRoute }) {
       );
     }
     if (route.layout === Layout.NONE || route.layout === 'none') {
-      return <PageWrapper><Element /></PageWrapper>;
+      return <PageWrapper fixed={route.fixed}><Element /></PageWrapper>;
     }
     return <Element />;
   })();

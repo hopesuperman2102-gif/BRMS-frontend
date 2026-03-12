@@ -1,64 +1,72 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Box, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import { RcCard } from '@/core/components/RcCard';
+
+const { colors, gradients } = brmsTheme;
+
+const StyledRcCard = styled(RcCard)({
+  marginBottom: '24px',
+});
+
+const Row = styled(Box)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+const Title = styled(Typography)({
+  fontSize: '1.75rem',
+  fontWeight: 700,
+  color: colors.textPrimary,
+  margin: 0,
+});
+
+const Subtitle = styled(Typography)({
+  fontSize: '0.875rem',
+  color: colors.textSecondary,
+  margin: '4px 0 0 0',
+});
+
+const HubButton = styled('button')({
+  padding: '12px 24px',
+  background: 'white',
+  border: `2px solid ${gradients.primary}`,
+  borderRadius: '8px',
+  color: gradients.primaryHover,
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
 
 const DashboardHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { vertical_Key } = useParams();
-  const verticalName = location.state?.verticalName || 'Real-time monitoring';
+  const verticalName = location.state?.verticalName;
 
   const handleHubClick = () => {
-    navigate(`/vertical/${vertical_Key}/dashboard/hub`, { 
-      state: { verticalName } 
+    navigate(`/vertical/${vertical_Key}/dashboard/hub`, {
+      state: { verticalName },
     });
   };
 
   return (
-    <RcCard sx={{ mb: 3 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <StyledRcCard>
+      <Row>
         <div>
-          <h1
-            style={{
-              fontSize: '1.75rem',
-              fontWeight: '700',
-              color: brmsTheme.colors.textPrimary,
-              margin: 0,
-            }}
-          >
-            BRMS Dashboard
-          </h1>
-          <p
-            style={{
-              fontSize: '0.875rem',
-              color: brmsTheme.colors.textSecondary,
-              margin: '4px 0 0 0',
-            }}
-          >
+          <Title>BRMS Dashboard</Title>
+          <Subtitle>
             Real-time insights into your business rules performance and health
-          </p>
+          </Subtitle>
         </div>
-
-        <button
-          onClick={handleHubClick}
-          style={{
-            padding: '12px 24px',
-            background: 'white',
-            border: `2px solid ${brmsTheme.gradients.primary}`,
-            borderRadius: '8px',
-            color: brmsTheme.gradients.primaryHover,
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          Hub
-        </button>
-      </div>
-    </RcCard>
+        <HubButton onClick={handleHubClick}>Hub</HubButton>
+      </Row>
+    </StyledRcCard>
   );
 };
 

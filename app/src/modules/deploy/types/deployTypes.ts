@@ -1,7 +1,6 @@
 // @/modules/feature-flags/types/featureFlagTypes.ts
 
 import { MonthlyData, RcDropdownItem } from "@/core/types/commonTypes";
-import type { SxProps, Theme } from '@mui/material/styles';
 
 export type Environment = 'DEV' | 'QA' | 'PROD';
 
@@ -84,6 +83,7 @@ export interface EnvironmentConfig {
 export interface ActiveRulesProps {
   rules: DeployedRule[];
   onRevoked: () => void;
+  onPromoted: (targetEnv: string) => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
   canManageActions?: boolean;
@@ -135,13 +135,13 @@ export interface EnvironmentDeploymentProps {
   lastDeployedBy?: string;
   lastDeployedTime?: string;
   delay?: number;
-  sx?: SxProps<Theme>;
 }
 
 // EnvironmentHistory Props
 export interface EnvironmentHistoryProps {
   rules: DeployedRule[];
   onRevoked: () => void;
+  onPromoted: (targetEnv: string) => void;
   onViewLogs: (ruleKey: string) => void;
   environment: string;
   canManageActions?: boolean;
@@ -164,7 +164,6 @@ export interface RuleVersionControlProps {
   onVersionChange: (ruleKey: string, version: string) => void;
   delay?: number;
   isLoading?: boolean;
-  sx?: SxProps<Theme>;
 }
 
 // StatsSection Props

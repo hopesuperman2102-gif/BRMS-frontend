@@ -1,20 +1,26 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, styled } from '@mui/material';
+
+const StyledBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fixed',
+})<{ fixed?: boolean }>(({ fixed }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  overflow: fixed ? 'hidden' : 'visible',
+}));
 
 export default function PageWrapper({
   children,
+  fixed = false,
 }: {
   children: React.ReactNode;
+  fixed?: boolean;
 }) {
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      height="100vh"       
-      overflow="hidden"     // ✅ prevents page-level scroll
-    >
+    <StyledBox fixed={fixed}>
       {children}
-    </Box>
+    </StyledBox>
   );
 }

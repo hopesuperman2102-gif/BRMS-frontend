@@ -1,4 +1,4 @@
-import { Snackbar, Alert as MuiAlert, AlertColor } from '@mui/material';
+import { Snackbar, Alert as MuiAlert, AlertColor, styled } from '@mui/material';
 import { create } from 'zustand';
 import { AlertStateProps } from '@/core/types/commonTypes';
 
@@ -11,6 +11,10 @@ export const useAlertStore = create<AlertStateProps>((set) => ({
   hideAlert: () => set({ open: false }),
 }));
 
+const StyledAlert = styled(MuiAlert)({
+  width: '100%',
+});
+
 export default function RcAlertComponent() {
   const { open, message, type, hideAlert } = useAlertStore();
 
@@ -21,14 +25,13 @@ export default function RcAlertComponent() {
       onClose={hideAlert}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
     >
-      <MuiAlert
+      <StyledAlert
         onClose={hideAlert}
         severity={type}
         variant="filled"
-        sx={{ width: '100%' }}
       >
         {message}
-      </MuiAlert>
+      </StyledAlert>
     </Snackbar>
   );
 }
