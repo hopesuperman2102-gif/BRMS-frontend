@@ -10,8 +10,6 @@ import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Styled Components ─────────────────────────────────── */
-
 const EditorWrap = styled('div')({
   display: 'flex',
   alignItems: 'center',
