@@ -199,7 +199,7 @@ describe('AppBarComponent', () => {
       renderAppBar();
 
       await user.click(screen.getByRole('button', { name: 'Settings' }));
-      await user.click(screen.getByText('Activity Logs'));
+      await user.click(screen.getByText('Audit Logs'));
 
       expect(mockNavigate).toHaveBeenCalledWith('/logs');
     });
@@ -210,7 +210,7 @@ describe('AppBarComponent', () => {
       renderAppBar();
 
       await user.click(screen.getByRole('button', { name: 'Settings' }));
-      await user.click(screen.getByText('User Create'));
+      await user.click(screen.getByText('User Lifecycle'));
 
       expect(mockNavigate).toHaveBeenCalledWith('/signup');
     });

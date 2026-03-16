@@ -124,6 +124,16 @@ const ArrowContainer = styled(Box)<{ isHovered: boolean }>(({ isHovered }) => ({
   flexShrink: 0,
 }));
 
+const StyledArrowForwardIcon = styled(ArrowForwardIcon)<{ isHovered: boolean }>(({ isHovered }) => ({
+  fontSize: 14,
+  color: isHovered ? brmsTheme.colors.white : brmsTheme.colors.lightTextLow,
+  transition: 'color 0.15s',
+}));
+
+const StyledCircularProgress = styled(CircularProgress)({
+  color: brmsTheme.colors.panelIndigo,
+});
+
 export default function VerticalRightPanel({
   verticals,
   loading,
@@ -143,7 +153,7 @@ export default function VerticalRightPanel({
       {/* Content */}
       {loading ? (
         <LoadingContainer>
-          <CircularProgress size={24} sx={{ color: brmsTheme.colors.panelIndigo }} />
+          <StyledCircularProgress size={24} />
         </LoadingContainer>
       ) : verticals.length === 0 ? (
         <EmptyContainer>
@@ -168,13 +178,7 @@ export default function VerticalRightPanel({
                 </VerticalInfo>
 
                 <ArrowContainer isHovered={isHovered}>
-                  <ArrowForwardIcon 
-                    sx={{ 
-                      fontSize: 14, 
-                      color: isHovered ? brmsTheme.colors.white : brmsTheme.colors.lightTextLow, 
-                      transition: 'color 0.15s' 
-                    }} 
-                  />
+                  <StyledArrowForwardIcon isHovered={isHovered} />
                 </ArrowContainer>
               </VerticalCard>
             );
@@ -184,4 +188,3 @@ export default function VerticalRightPanel({
     </RightPanelContainer>
   );
 }
-
