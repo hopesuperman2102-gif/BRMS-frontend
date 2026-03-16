@@ -15,7 +15,7 @@ import { Email } from '@mui/icons-material';
 import { LoginRightPanelProps } from '@/modules/auth/types/loginTypes';
 
 const { colors, fonts } = brmsTheme;
- 
+
 const inputSx = (focused: boolean) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '6px',
@@ -46,7 +46,7 @@ const inputSx = (focused: boolean) => ({
     },
   },
 });
- 
+
 const RightPanelRoot = styled(Box)({
   flex: 1,
   display: 'flex',
@@ -56,15 +56,25 @@ const RightPanelRoot = styled(Box)({
   overflow: 'auto',
   position: 'relative',
   background: colors.formBg,
+  paddingLeft: '24px',
+  paddingRight: '24px',
+  '@media (min-width: 600px)': {
+    paddingLeft: '48px',
+    paddingRight: '48px',
+  },
+  '@media (min-width: 1200px)': {
+    paddingLeft: '72px',
+    paddingRight: '72px',
+  },
 });
- 
+
 const FormCard = styled(Box)({
   width: '100%',
   maxWidth: '420px',
   paddingTop: '48px',
   paddingBottom: '48px',
 });
- 
+
 const AccentLine = styled(Box)({
   width: '32px',
   height: '2px',
@@ -73,11 +83,11 @@ const AccentLine = styled(Box)({
   marginBottom: '24px',
   opacity: 0.9,
 });
- 
+
 const HeadingBlock = styled(Box)({
   marginBottom: '32px',
 });
- 
+
 const HeadingTitle = styled(Typography)({
   fontSize: '1.5rem',
   fontWeight: 800,
@@ -86,14 +96,14 @@ const HeadingTitle = styled(Typography)({
   lineHeight: 1.1,
   marginBottom: '8px',
 });
- 
+
 const HeadingSubtitle = styled(Typography)({
   fontSize: '0.8125rem',
   color: colors.lightTextMid,
   fontWeight: 400,
   lineHeight: 1.65,
 });
- 
+
 const StyledAlert = styled(Alert)({
   marginBottom: '24px',
   borderRadius: '6px',
@@ -109,20 +119,20 @@ const StyledAlert = styled(Alert)({
     fontSize: '1rem',
   },
 });
- 
+
 const FieldsWrapper = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   gap: '20px',
 });
- 
+
 const Divider = styled(Box)({
   height: '1px',
   backgroundColor: colors.lightBorder,
   marginTop: '32px',
   marginBottom: '24px',
 });
- 
+
 const SubmitButton = styled(Button)({
   borderRadius: '6px',
   paddingTop: '10px',
@@ -147,14 +157,14 @@ const SubmitButton = styled(Button)({
   },
   transition: 'all 0.15s',
 });
- 
+
 const LabelWrapper = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   marginBottom: '6px',
 });
- 
+
 const LabelText = styled(Typography)({
   fontSize: '0.6875rem',
   fontWeight: 600,
@@ -163,7 +173,7 @@ const LabelText = styled(Typography)({
   textTransform: 'uppercase',
   fontFamily: fonts.mono,
 });
- 
+
 const RequiredBadge = styled(Typography)({
   fontSize: '0.625rem',
   fontWeight: 700,
@@ -173,14 +183,61 @@ const RequiredBadge = styled(Typography)({
   fontFamily: fonts.mono,
   opacity: 0.75,
 });
- 
+
 const Label = ({ children, required }: { children: React.ReactNode; required?: boolean }) => (
   <LabelWrapper>
     <LabelText>{children}</LabelText>
     {required && <RequiredBadge>required</RequiredBadge>}
   </LabelWrapper>
 );
- 
+
+const SmallPersonIcon = styled(PersonIcon)({
+  fontSize: '16px',
+  color: colors.lightTextLow,
+});
+
+const SmallEmailIcon = styled(Email)({
+  fontSize: '16px',
+  color: colors.lightTextLow,
+});
+
+const SmallLockIcon = styled(LockIcon)({
+  fontSize: '16px',
+  color: colors.lightTextLow,
+});
+
+const BottomRow = styled(Box)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginTop: '10px',
+});
+
+const StyledCheckbox = styled(Checkbox)({
+  color: colors.lightBorder,
+  '&.Mui-checked': { color: colors.panelIndigo },
+  padding: '4px',
+  marginRight: '4px',
+});
+
+const CheckboxLabel = styled(Typography)({
+  fontSize: '0.6875rem',
+  fontFamily: fonts.mono,
+  color: colors.lightTextMid,
+  fontWeight: 600,
+  letterSpacing: '0.02em',
+});
+
+const ForgotPasswordLink = styled(Typography)<{ component?: React.ElementType; to?: string }>({
+  fontSize: '0.6875rem',
+  fontFamily: fonts.mono,
+  color: colors.panelIndigo,
+  textDecoration: 'none',
+  fontWeight: 600,
+  letterSpacing: '0.02em',
+  '&:hover': { textDecoration: 'underline' },
+});
+
 export default function LoginRightPanel({
   formData,
   loading,
@@ -191,64 +248,59 @@ export default function LoginRightPanel({
   onSubmit,
 }: LoginRightPanelProps) {
   const [focused, setFocused] = useState<string | null>(null);
- 
+
   return (
-    <RightPanelRoot sx={{ px: { xs: '24px', sm: '48px', lg: '72px' } }}>
+    <RightPanelRoot>
       <FormCard>
         <AccentLine />
- 
+
         <HeadingBlock>
           <HeadingTitle>Sign in</HeadingTitle>
           <HeadingSubtitle>
             Enter your credentials to access your workspace.
           </HeadingSubtitle>
         </HeadingBlock>
- 
+
         {error && (
           <StyledAlert severity="error">{error}</StyledAlert>
         )}
- 
+
         <Box component="form" onSubmit={onSubmit}>
           <FieldsWrapper>
- 
+
             {/* Username OR Email */}
             <Box>
               <Label required>
-    {loginMode === 'username' ? 'Username' : 'Email'}
-  </Label>
-{loginMode === 'username' ? (
-  <RcInputField
-    name="username"
-    value={formData.username}
-    onChange={onChange}
-    onFocus={() => setFocused('username')}
-    onBlur={() => setFocused(null)}
-    placeholder="your username"
-    autoComplete="username"
-    maxLength={30}
-    startIcon={
-      <PersonIcon
-        sx={{ fontSize: '16px', color: colors.lightTextLow }}
-      />
-    }
-    sx={inputSx(focused === 'username')}
-  />
-) : (
-  <RcEmail
-  name="emailid"
-  value={formData.emailid}
-  onChange={onChange}
-  required
-  autoComplete='email'
-  onFocus={() => setFocused('email')}
-  onBlur={() => setFocused(null)}
-  startIcon={<Email sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
-  sx={inputSx(focused === 'email')}
-/>
- 
-)}
-</Box>
- 
+                {loginMode === 'username' ? 'Username' : 'Email'}
+              </Label>
+              {loginMode === 'username' ? (
+                <RcInputField
+                  name="username"
+                  value={formData.username}
+                  onChange={onChange}
+                  onFocus={() => setFocused('username')}
+                  onBlur={() => setFocused(null)}
+                  placeholder="your username"
+                  autoComplete="username"
+                  maxLength={30}
+                  startIcon={<SmallPersonIcon />}
+                  sx={inputSx(focused === 'username')}
+                />
+              ) : (
+                <RcEmail
+                  name="emailid"
+                  value={formData.emailid}
+                  onChange={onChange}
+                  required
+                  autoComplete="email"
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                  startIcon={<SmallEmailIcon />}
+                  sx={inputSx(focused === 'email')}
+                />
+              )}
+            </Box>
+
             {/* Password */}
             <Box>
               <Label required>Password</Label>
@@ -261,67 +313,31 @@ export default function LoginRightPanel({
                 placeholder="••••••••"
                 autoComplete="current-password"
                 maxLength={30}
-                startIcon={<LockIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />}
+                startIcon={<SmallLockIcon />}
                 sx={inputSx(focused === 'password')}
               />
             </Box>
- 
+
           </FieldsWrapper>
- 
-          {/*  */}
-          <Box
-  sx={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    mt: '10px',
-  }}
->
-  <FormControlLabel
-    control={
-      <Checkbox
-        checked={loginMode === 'email'}
-        onChange={(e) => setLoginMode(e.target.checked ? 'email' : 'username')}
-        size="small"
-        sx={{
-          color: colors.lightBorder,
-          '&.Mui-checked': { color: colors.panelIndigo },
-          padding: '4px',
-          mr: '4px',
-        }}
-      />
-    }
-    label={
-      <Typography sx={{
-        fontSize: '0.6875rem',
-        fontFamily: fonts.mono,
-        color: colors.lightTextMid,
-        fontWeight: 600,
-        letterSpacing: '0.02em',
-      }}>
-        Sign In with Email
-      </Typography>
-    }
-  />
-  <Typography
-    component={Link}
-    to="/forgot-password"
-    sx={{
-      fontSize: '0.6875rem',
-      fontFamily: fonts.mono,
-      color: colors.panelIndigo,
-      textDecoration: 'none',
-      fontWeight: 600,
-      letterSpacing: '0.02em',
-      '&:hover': { textDecoration: 'underline' },
-    }}
-  >
-    Forgot password?
-  </Typography>
-</Box>
- 
+
+          <BottomRow>
+            <FormControlLabel
+              control={
+                <StyledCheckbox
+                  checked={loginMode === 'email'}
+                  onChange={(e) => setLoginMode(e.target.checked ? 'email' : 'username')}
+                  size="small"
+                />
+              }
+              label={<CheckboxLabel>Sign In with Email</CheckboxLabel>}
+            />
+            <ForgotPasswordLink component={Link} to="/forgot-password">
+              Forgot password?
+            </ForgotPasswordLink>
+          </BottomRow>
+
           <Divider />
- 
+
           <SubmitButton fullWidth type="submit" disabled={loading} disableRipple>
             {loading ? 'Signing in…' : 'Sign In'}
           </SubmitButton>

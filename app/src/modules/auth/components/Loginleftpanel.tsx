@@ -154,6 +154,14 @@ const Feature = ({ children, last }: { children: string; last?: boolean }) => (
   </FeatureRow>
 );
 
+const HiddenBackButton = styled(BackButton)({
+  visibility: 'hidden',
+});
+
+const SmallArrowBackIcon = styled(ArrowBackIcon)({
+  fontSize: '12px !important',
+});
+
 export default function LoginLeftPanel() {
   return (
     <LeftPanelRoot>
@@ -163,10 +171,10 @@ export default function LoginLeftPanel() {
       <ContentWrapper>
         <BackButtonWrapper>
           {/* Spacer — no back button on login */}
-          <BackButton disableRipple sx={{ visibility: 'hidden' }}>
-            <ArrowBackIcon sx={{ fontSize: '12px !important' }} />
+          <HiddenBackButton disableRipple>
+            <SmallArrowBackIcon />
             Back
-          </BackButton>
+          </HiddenBackButton>
         </BackButtonWrapper>
 
         <HeroCopy>
