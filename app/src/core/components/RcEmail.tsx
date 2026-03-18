@@ -10,6 +10,7 @@ export default function RcEmail({
   value,
   onChange,
   name = 'emailid',
+  label,
   placeholder = 'e.g. john.doe@example.com',
   required = false,
   autoComplete = 'email',
@@ -17,19 +18,22 @@ export default function RcEmail({
   sx,
   onFocus,
   onBlur,
+  resetKey,        // ← add
 }: RcEmailProps) {
   const [touched, setTouched] = useState(false);
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
+
+  // when resetKey changes, reset touched — no useEffect needed
+  if (prevResetKey !== resetKey) {
+    setPrevResetKey(resetKey);
+    setTouched(false);
+  }
 
   const error = touched && (!value
-    ? (required ? 'Email is required' : '')
+    ? (required ? `${label ?? 'Email'} is required` : '')
     : !EMAIL_REGEX.test(value)
-    ? 'Enter a valid email address'
+    ? 'Invalid email format'
     : '');
-
-  const handleBlur = () => {
-    setTouched(true);
-    onBlur?.();
-  };
 
   return (
     <TextField
@@ -40,16 +44,16 @@ export default function RcEmail({
       value={value}
       onChange={onChange}
       onFocus={onFocus}
-      onBlur={handleBlur}
+      onBlur={() => { setTouched(true); onBlur?.(); }}
       autoComplete={autoComplete}
       error={!!error}
       helperText={error || ''}
       required={required}
       InputProps={
-  startIcon
-    ? { startAdornment: <InputAdornment position="start">{startIcon}</InputAdornment> }
-    : undefined
-}
+        startIcon
+          ? { startAdornment: <InputAdornment position="start">{startIcon}</InputAdornment> }
+          : undefined
+      }
       sx={sx}
     />
   );

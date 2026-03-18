@@ -253,6 +253,7 @@ export default function CreateUserRightPanel({
   onChange,
   onRoleSelect,
   onSubmit,
+  resetKey,
 }: CreateUserRightPanelProps) {
   const [focused, setFocused] = useState<string | null>(null);
 
@@ -353,6 +354,7 @@ export default function CreateUserRightPanel({
                   />
                 }
                 sx={inputSx(focused === "email")}
+                resetKey={resetKey}
               />
             </Box>
 
