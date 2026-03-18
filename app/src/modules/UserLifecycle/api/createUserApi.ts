@@ -1,20 +1,39 @@
 import axiosInstance from '@/api/apiClient';
 import { UserManagementResponse } from '@/modules/UserLifecycle/types/userEndpointsTypes';
+import axios from 'axios';
 
 export const CreateUserApi = {
 
   createUser: async (data: {
-    username: string;
-    email: string;
-    password: string;
-    roles: string[];
-  }): Promise<UserManagementResponse> => {
-    const res = await axiosInstance.post<UserManagementResponse>(
-      '/api/v1/users',
-      data
-    );
+  username: string;
+  email: string;
+  password: string;
+  roles: string[];
+}): Promise<UserManagementResponse> => {
+  try {
+    const res = await axiosInstance.post<UserManagementResponse>('/api/v1/users', data);
     return res.data;
-  },
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const status = err.response?.status;
+      const raw = err.response?.data?.error?.message || err.response?.data?.message;
+      const message = Array.isArray(raw) ? raw[0] : typeof raw === 'string' ? raw : '';
+
+      if (status === 409) {
+        if (message.toLowerCase().includes('email')) {
+          throw new Error('An account with this email already exists.');
+        }
+        if (message.toLowerCase().includes('username')) {
+          throw new Error('This username is already taken.');
+        }
+        throw new Error('A conflict occurred. Please check your details.');
+      }
+
+      if (message) throw new Error(message);
+    }
+    throw new Error('Failed to create user. Please try again.');
+  }
+},
 
   getUsers: async (page = 1, pageSize = 10): Promise<{ users: UserManagementResponse[]; total: number }> => {
     const res = await axiosInstance.get<{ users: UserManagementResponse[]; total: number }>(
