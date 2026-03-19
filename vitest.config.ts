@@ -26,6 +26,7 @@ export default defineConfig({
       exclude: [
         '**/*.d.ts',
         '**/*.test.{ts,tsx}',
+        '**/routes/**',
         '**/types/**',
         '**/theme/**',
         '**/constants/**',

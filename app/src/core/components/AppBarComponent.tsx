@@ -249,7 +249,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
               <AuditIcon fontSize="small" sx={{ color: brmsTheme.colors.primary }} />
             </ListItemIcon>
             <ListItemText
-              primary="Activity Logs"
+              primary="Audit Logs"
               primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: brmsTheme.colors.textDark }}
             />
           </MenuItem>
@@ -265,7 +265,7 @@ const AppBarComponent: React.FC<AppBarComponentProps> = ({ logo, organizationNam
               <PersonAddIcon fontSize="small" sx={{ color: brmsTheme.colors.primary }} />
             </ListItemIcon>
             <ListItemText
-              primary="User Create"
+              primary="User Lifecycle"
               primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 500, color: brmsTheme.colors.textDark }}
             />
           </MenuItem>

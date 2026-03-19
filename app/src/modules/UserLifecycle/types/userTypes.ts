@@ -22,6 +22,7 @@ export interface CreateUserRightPanelProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRoleSelect: (role: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  resetKey: number;
 }
 
 // UpdatePasswordDialog Props

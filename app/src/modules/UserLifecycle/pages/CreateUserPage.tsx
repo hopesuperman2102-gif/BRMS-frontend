@@ -23,6 +23,7 @@ export default function CreateUserPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [newUser, setNewUser] = useState<UserManagementResponse | null>(null); // ← new
+  const [resetKey, setResetKey] = useState(0);     
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -61,6 +62,7 @@ export default function CreateUserPage() {
 
       setNewUser(created); // ← push new user to left panel
       setSuccess(true);
+      setResetKey(prev => prev + 1);
       setFormData({ username: '', email: '', password: '', confirmPassword: '', roles: [] });
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: unknown) {
@@ -81,6 +83,7 @@ export default function CreateUserPage() {
         onChange={handleChange}
         onRoleSelect={handleRoleSelect}
         onSubmit={handleSubmit}
+        resetKey={resetKey}
       />
     </Box>
   );

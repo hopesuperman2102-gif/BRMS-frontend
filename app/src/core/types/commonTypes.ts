@@ -150,6 +150,7 @@ export interface RcEmailProps {
   onBlur?: () => void;
   startIcon?: React.ReactNode;
   autoComplete?: string;
+  resetKey?: number;
 }
 
 export interface RcInputProps {

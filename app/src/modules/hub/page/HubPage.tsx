@@ -42,7 +42,7 @@ const BackButton = styled(IconButton)({
 const VerticalName = styled(Typography)({
   fontSize: '0.9rem',
   fontWeight: 600,
-  color: colors.navTextHigh,
+  color: brmsTheme.colors.textGray,
   whiteSpace: 'nowrap',
 });
 

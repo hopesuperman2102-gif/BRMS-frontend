@@ -8,7 +8,6 @@ export function useRole() {
 
   const isRuleAuthor = hasRole('RULE_AUTHOR');
   const isSuperAdmin = hasRole('SUPER_ADMIN');
-  const isAdmin = hasRole('ADMIN');
   const isReviewer = hasRole('REVIEWER');
   const isViewer = hasRole('VIEWER');
 
@@ -17,7 +16,6 @@ export function useRole() {
     hasRole,
     isRuleAuthor,
     isSuperAdmin,
-    isAdmin,
     isReviewer,
     isViewer,
   };

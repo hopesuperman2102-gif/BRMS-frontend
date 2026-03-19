@@ -11,7 +11,7 @@ const { getDashboardSummary, getDashboardStats, deployRule, showAlert } = vi.hoi
   showAlert: vi.fn(),
 }));
 
-let roleState = { isAdmin: true, isSuperAdmin: false };
+let roleState = { isSuperAdmin: false };
 
 vi.mock('react-router-dom', () => ({
   useParams: () => ({ vertical_Key: 'vertical-1' }),
@@ -130,7 +130,7 @@ describe('DeployTabComponent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    roleState = { isAdmin: true, isSuperAdmin: false };
+    roleState = { isSuperAdmin: false };
     getDashboardSummary.mockResolvedValue({
       total_active_rules: 12,
       active_projects: [
@@ -185,6 +185,7 @@ describe('DeployTabComponent', () => {
   });
 
   it('shows warnings for invalid deploy attempts', async () => {
+    roleState = { isSuperAdmin: true };
     render(<DeployTabComponent />);
     await screen.findByText('project:Project A');
 
@@ -197,6 +198,7 @@ describe('DeployTabComponent', () => {
   });
 
   it('deploys selected rules and refreshes stats', async () => {
+    roleState = { isSuperAdmin: true };
     render(<DeployTabComponent />);
     await screen.findByText('project:Project A');
 
@@ -230,7 +232,7 @@ describe('DeployTabComponent', () => {
   });
 
   it('shows permission alert when user cannot deploy', async () => {
-    roleState = { isAdmin: false, isSuperAdmin: false };
+    roleState = { isSuperAdmin: false };
     render(<DeployTabComponent />);
     await screen.findByText('project:Project A');
 
@@ -242,6 +244,7 @@ describe('DeployTabComponent', () => {
   });
 
   it('shows error alert when deployment fails', async () => {
+    roleState = { isSuperAdmin: true };
     deployRule.mockRejectedValueOnce(new Error('deploy failed'));
     render(<DeployTabComponent />);
     await screen.findByText('project:Project A');

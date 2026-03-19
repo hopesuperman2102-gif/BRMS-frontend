@@ -134,7 +134,7 @@ const ReviewButton = styled(Button)({
 
 export default function HubRules() {
   const { vertical_Key } = useParams<{ vertical_Key: string }>();
-  const { isReviewer, isAdmin, isSuperAdmin } = useRole();
+  const { isReviewer, isSuperAdmin } = useRole();
   const { showAlert } = useAlertStore();
 
   const [sections,     setSections]     = useState<ProjectSection[]>([]);
@@ -144,7 +144,7 @@ export default function HubRules() {
   const [reviewing,    setReviewing]    = useState(false);
   const [error,        setError]        = useState<string | null>(null);
 
-  const canReview = isReviewer || isAdmin || isSuperAdmin;
+  const canReview = isReviewer || isSuperAdmin;
 
   const fetchAllData = useCallback(async () => {
     if (!vertical_Key) { setSections([]); setLoading(false); setError('Vertical key is missing'); return; }

@@ -62,7 +62,7 @@ const BackButton = styled(IconButton)({
 const VerticalNameText = styled(Typography)({
   fontSize: '0.95rem',
   fontWeight: 600,
-  color: colors.navTextHigh,
+  color: brmsTheme.colors.textGray,
   whiteSpace: 'nowrap',
 });
 
@@ -75,7 +75,7 @@ const SeparatorText = styled(Typography)({
 const ProjectNameText = styled(Typography)({
   fontSize: '0.95rem',
   fontWeight: 700,
-  color: colors.navTextHigh,
+  color: brmsTheme.colors.textGray,
   whiteSpace: 'nowrap',
 });
 

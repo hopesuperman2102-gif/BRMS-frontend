@@ -40,7 +40,6 @@ const inputSx = (focused: boolean) => ({
   },
 });
 
-/* ─── Styled Components ───────────────────────────────────── */
 const PanelRoot = styled(Box)({
   flex: 1,
   display: 'flex',
@@ -50,7 +49,16 @@ const PanelRoot = styled(Box)({
   overflow: 'auto',
   position: 'relative',
   background: colors.formBg,
-  // responsive padding handled via sx on the element (breakpoints need theme)
+  paddingLeft: '24px',
+  paddingRight: '24px',
+  '@media (min-width: 600px)': {
+    paddingLeft: '48px',
+    paddingRight: '48px',
+  },
+  '@media (min-width: 1200px)': {
+    paddingLeft: '72px',
+    paddingRight: '72px',
+  },
 });
 
 const MobileBackWrapper = styled(Box)({
@@ -253,7 +261,10 @@ const SubmitButton = styled(Button)({
   transition: 'all 0.15s',
 });
 
-/* ─── Label sub-component ─────────────────────────────────── */
+const StyledArrowBackIcon = styled(ArrowBackIcon)({
+  fontSize: '12px !important',
+});
+
 const Label = ({ children, required }: { children: React.ReactNode; required?: boolean }) => (
   <LabelRow>
     <LabelText>{children}</LabelText>
@@ -261,7 +272,6 @@ const Label = ({ children, required }: { children: React.ReactNode; required?: b
   </LabelRow>
 );
 
-/* ─── Component ───────────────────────────────────────────── */
 export default function CreateRuleRightPanel({
   isEditMode,
   form,
@@ -277,12 +287,12 @@ export default function CreateRuleRightPanel({
   onBack,
 }: CreateRuleRightPanelProps) {
   return (
-    <PanelRoot sx={{ px: { xs: '24px', sm: '48px', lg: '72px' } }}>
+    <PanelRoot>
 
       {/* Mobile back */}
       <MobileBackWrapper>
         <MobileBackButton
-          startIcon={<ArrowBackIcon sx={{ fontSize: '12px !important' }} />}
+          startIcon={<StyledArrowBackIcon />}
           onClick={onBack}
           disableRipple
         >
