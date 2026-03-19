@@ -15,7 +15,7 @@ vi.mock('react-router-dom', () => ({
 }));
 
 vi.mock('@/modules/auth/hooks/useRole', () => ({
-  useRole: vi.fn(() => ({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isAdmin: false, isReviewer: false, isViewer: false })),
+  useRole: vi.fn(() => ({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isReviewer: false, isViewer: false })),
 }));
 
 vi.mock('@/modules/rules/api/rulesApi', () => ({
@@ -135,7 +135,7 @@ describe('CreateRulePage', () => {
     vi.clearAllMocks();
     mockParams = { vertical_Key: 'finance', project_key: 'proj-1' };
     mockSearchParams = new URLSearchParams();
-    mockedUseRole.mockReturnValue({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isAdmin: false, isReviewer: false, isViewer: false });
+    mockedUseRole.mockReturnValue({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isReviewer: false, isViewer: false });
     mockedGetProjectsView.mockResolvedValue(PROJECTS);
   });
 
@@ -344,7 +344,7 @@ describe('CreateRulePage', () => {
 
   describe('handleSubmit — validation', () => {
     it('sets error when user has no permission (isReviewer=true)', async () => {
-      mockedUseRole.mockReturnValue({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isAdmin: false, isReviewer: true, isViewer: false });
+      mockedUseRole.mockReturnValue({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isReviewer: true, isViewer: false });
       renderPage();
       await waitFor(() => screen.getByTestId('rp-submit'));
       await act(async () => { fireEvent.click(screen.getByTestId('rp-submit')); });
@@ -354,7 +354,7 @@ describe('CreateRulePage', () => {
     });
 
     it('sets error when user is a viewer', async () => {
-      mockedUseRole.mockReturnValue({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isAdmin: false, isReviewer: false, isViewer: true });
+      mockedUseRole.mockReturnValue({ roles: [], hasRole: () => false, isRuleAuthor: false, isSuperAdmin: false, isReviewer: false, isViewer: true });
       renderPage();
       await waitFor(() => screen.getByTestId('rp-submit'));
       await act(async () => { fireEvent.click(screen.getByTestId('rp-submit')); });

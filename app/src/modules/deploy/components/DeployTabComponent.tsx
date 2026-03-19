@@ -30,8 +30,8 @@ const PageContent = styled(Box)({
 export default function DeployTabComponent() {
   const { vertical_Key } = useParams();
   const { showAlert } = useAlertStore();
-  const { isAdmin, isSuperAdmin } = useRole();
-  const canManageDeploy = isAdmin || isSuperAdmin;
+  const { isSuperAdmin } = useRole();
+  const canManageDeploy = isSuperAdmin;
 
   const [activeEnvironment, setActiveEnvironment] = useState<Environment | 'ALL'>('ALL');
   const [deployTargetEnvironment, setDeployTargetEnvironment] = useState<Environment>('DEV');

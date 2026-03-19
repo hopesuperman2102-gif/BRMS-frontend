@@ -24,7 +24,7 @@ vi.mock('react-router-dom', () => ({
 vi.mock('@/modules/auth/hooks/useRole', () => ({
   useRole: vi.fn(() => ({
     roles: [], hasRole: () => false, isRuleAuthor: false,
-    isSuperAdmin: false, isAdmin: false, isReviewer: false, isViewer: false,
+    isSuperAdmin: false, isReviewer: false, isViewer: false,
   })),
 }));
 
@@ -189,7 +189,7 @@ const mockedUseRole            = vi.mocked(useRole);
 
 const BASE_ROLE = {
   roles: [], hasRole: () => false, isRuleAuthor: false,
-  isSuperAdmin: false, isAdmin: false, isReviewer: false, isViewer: false,
+  isSuperAdmin: false, isReviewer: false, isViewer: false,
 };
 
 const makeRule = (overrides: Partial<RuleResponse> = {}): RuleResponse => ({
