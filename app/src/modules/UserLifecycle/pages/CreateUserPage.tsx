@@ -2,16 +2,28 @@
 
 import { useState } from 'react';
 import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import CreateUserLeftPanel from '@/modules/UserLifecycle/components/CreateUserLeftPanel';
 import CreateUserRightPanel from '@/modules/UserLifecycle/components/CreateUserRightPanel';
 import { CreateUserApi } from '@/modules/UserLifecycle/api/createUserApi';
 import { CreateUserFormData } from '@/modules/UserLifecycle/types/userTypes';
 import { UserManagementResponse } from '@/modules/UserLifecycle/types/userEndpointsTypes';
 import { brmsTheme } from '@/core/theme/brmsTheme';
+import RcAlertComponent, { useAlertStore } from '@/core/components/RcAlertComponent';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const PageRoot = styled(Box)({
+  height: '100vh',
+  width: '100%',
+  display: 'flex',
+  overflow: 'hidden',
+  background: brmsTheme.colors.bgRoot,
+  fontFamily: '"DM Sans", "Inter", sans-serif',
+});
+
 export default function CreateUserPage() {
+  const { showAlert } = useAlertStore();
   const [formData, setFormData] = useState<CreateUserFormData>({
     username: '',
     email: '',
@@ -42,14 +54,19 @@ export default function CreateUserPage() {
     setError('');
     setSuccess(false);
 
-    if (!formData.username.trim()) { setError('Username is required.'); return; }
-    if (formData.username.trim().length < 3) { setError('Username must be at least 3 characters.'); return; }
-    if (!formData.email.trim()) { setError('Email is required.'); return; }
-    if (!EMAIL_REGEX.test(formData.email.trim())) { setError('Please enter a valid email address.'); return; }
-    if (!formData.password) { setError('Password is required.'); return; }
-    if (formData.password.length < 8) { setError('Password must be at least 8 characters.'); return; }
-    if (formData.password !== formData.confirmPassword) { setError('Passwords do not match.'); return; }
-    if (!formData.roles.length) { setError('Please select a role.'); return; }
+    const failValidation = (message: string) => {
+      setError(message);
+      showAlert(message, 'error');
+    };
+
+    if (!formData.username.trim()) { failValidation('Username is required.'); return; }
+    if (formData.username.trim().length < 3) { failValidation('Username must be at least 3 characters.'); return; }
+    if (!formData.email.trim()) { failValidation('Email is required.'); return; }
+    if (!EMAIL_REGEX.test(formData.email.trim())) { failValidation('Please enter a valid email address.'); return; }
+    if (!formData.password) { failValidation('Password is required.'); return; }
+    if (formData.password.length < 8) { failValidation('Password must be at least 8 characters.'); return; }
+    if (formData.password !== formData.confirmPassword) { failValidation('Passwords do not match.'); return; }
+    if (!formData.roles.length) { failValidation('Please select a role.'); return; }
 
     setLoading(true);
     try {
@@ -66,14 +83,16 @@ export default function CreateUserPage() {
       setFormData({ username: '', email: '', password: '', confirmPassword: '', roles: [] });
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to create user. Please try again.');
+      const message = err instanceof Error ? err.message : 'Failed to create user. Please try again.';
+      setError(message);
+      showAlert(message, 'error');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ height: '100vh', width: '100%', display: 'flex', overflow: 'hidden', background: brmsTheme.colors.bgRoot, fontFamily: '"DM Sans", "Inter", sans-serif' }}>
+    <PageRoot>
       <CreateUserLeftPanel newUser={newUser} /> 
       <CreateUserRightPanel
         formData={formData}
@@ -85,6 +104,7 @@ export default function CreateUserPage() {
         onSubmit={handleSubmit}
         resetKey={resetKey}
       />
-    </Box>
+      <RcAlertComponent />
+    </PageRoot>
   );
 }

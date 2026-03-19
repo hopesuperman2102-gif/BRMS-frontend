@@ -146,6 +146,7 @@ export interface RcEmailProps {
   placeholder?: string;
   required?: boolean;
   sx?: SxProps<Theme>;
+  className?: string;
   onFocus?: () => void;
   onBlur?: () => void;
   startIcon?: React.ReactNode;
@@ -164,6 +165,7 @@ export interface RcInputProps {
   maxLength?: number;
   startIcon?: React.ReactNode;
   sx?: SxProps<Theme>;
+  className?: string;
 }
 
 export interface RcPasswordProps {
@@ -177,6 +179,7 @@ export interface RcPasswordProps {
   maxLength?: number;
   startIcon?: React.ReactNode;
   sx?: SxProps<Theme>;
+  className?: string;
 }
 
 export interface RcTextAreaProps {

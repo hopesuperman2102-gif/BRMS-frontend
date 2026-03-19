@@ -2,12 +2,56 @@
 
 import React from 'react';
 import { Box, Button, CircularProgress, IconButton, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RcTable from '@/core/components/RcTable';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import { User } from '@/modules/UserLifecycle/types/userTypes';
 
 const { colors } = brmsTheme;
+
+const ActionsButton = styled(IconButton)({
+  width: '28px',
+  height: '28px',
+  color: colors.white,
+  backgroundColor: 'transparent',
+  border: 'none',
+  borderRadius: '0',
+  padding: '4px',
+  '&:hover': {
+    backgroundColor: 'transparent',
+  },
+});
+
+const ActionsIcon = styled(MoreVertIcon)({
+  fontSize: '16px',
+  color: colors.white,
+});
+
+const CenteredBox = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  flex: 1,
+});
+
+const CenteredColumnBox = styled(CenteredBox)({
+  flexDirection: 'column',
+  gap: '12px',
+});
+
+const LoadingProgress = styled(CircularProgress)({
+  color: colors.panelIndigo,
+});
+
+const InfoText = styled(Typography)({
+  color: colors.panelTextLow,
+  fontSize: '0.875rem',
+});
+
+const RetryButton = styled(Button)({
+  color: colors.panelIndigo,
+});
 
 type UserListTableProps = {
   users: User[];
@@ -33,38 +77,37 @@ export default function UserListTable({
     Email: user.email,
     Role: formatRoles(user.roles),
     Actions: (
-      <IconButton
+      <ActionsButton
         size="small"
         onClick={(e) => onOpenMenu(e, user.id)}
-        sx={{ color: brmsTheme.colors.textDark, backgroundColor: brmsTheme.colors.white, borderRadius: '4px', padding: '4px' }}
       >
-        <MoreVertIcon sx={{ fontSize: '18px', color: brmsTheme.colors.textDark }} />
-      </IconButton>
+        <ActionsIcon />
+      </ActionsButton>
     ),
   }));
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-        <CircularProgress size={40} sx={{ color: colors.panelIndigo }} />
-      </Box>
+      <CenteredBox>
+        <LoadingProgress size={40} />
+      </CenteredBox>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', gap: '12px' }}>
-        <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>{error}</Typography>
-        <Button size="small" onClick={onRetry} sx={{ color: colors.panelIndigo }}>Retry</Button>
-      </Box>
+      <CenteredColumnBox>
+        <InfoText>{error}</InfoText>
+        <RetryButton size="small" onClick={onRetry}>Retry</RetryButton>
+      </CenteredColumnBox>
     );
   }
 
   if (users.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-        <Typography sx={{ color: colors.panelTextLow, fontSize: '0.875rem' }}>No users created yet</Typography>
-      </Box>
+      <CenteredBox>
+        <InfoText>No users created yet</InfoText>
+      </CenteredBox>
     );
   }
 

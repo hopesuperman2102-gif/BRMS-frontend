@@ -11,22 +11,43 @@ import { UserListActionDialogs, UserListActionMenu } from '@/modules/UserLifecyc
 
 const { colors } = brmsTheme;
 
-const HeadingBlock = styled(Box)({ marginBottom: '24px' });
+const CardRoot = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  minHeight: 0,
+});
+
+const HeadingBlock = styled(Box)({
+  marginBottom: '10px',
+  flexShrink: 0,
+});
+
+const TableRegion = styled(Box)({
+  flex: 1,
+  minHeight: 0,
+  overflowY: 'auto',
+  scrollbarWidth: 'none',
+  msOverflowStyle: 'none',
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
+});
 
 const HeadingTitle = styled(Typography)({
-  fontSize: '1.5rem',
+  fontSize: '1.2rem',
   fontWeight: 800,
   color: colors.textOnPrimary,
   letterSpacing: '-0.03em',
   lineHeight: 1.1,
-  marginBottom: '8px',
+  marginBottom: '4px',
 });
 
 const HeadingSubtitle = styled(Typography)({
-  fontSize: '0.8125rem',
+  fontSize: '0.75rem',
   color: colors.panelTextMid,
   fontWeight: 400,
-  lineHeight: 1.65,
+  lineHeight: 1.45,
 });
 
 export default function UserListCard({ newUser }: UserListCardProps) {
@@ -70,7 +91,7 @@ export default function UserListCard({ newUser }: UserListCardProps) {
   };
 
   return (
-    <>
+    <CardRoot>
       <HeadingBlock>
         <HeadingTitle>Team Members</HeadingTitle>
         <HeadingSubtitle>
@@ -78,13 +99,15 @@ export default function UserListCard({ newUser }: UserListCardProps) {
         </HeadingSubtitle>
       </HeadingBlock>
 
-      <UserListTable
-        users={users}
-        loading={loading}
-        error={error}
-        onRetry={() => void fetchUsers()}
-        onOpenMenu={handleMenuOpen}
-      />
+      <TableRegion>
+        <UserListTable
+          users={users}
+          loading={loading}
+          error={error}
+          onRetry={() => void fetchUsers()}
+          onOpenMenu={handleMenuOpen}
+        />
+      </TableRegion>
 
       <UserListActionMenu
         anchorEl={anchorEl}
@@ -102,6 +125,6 @@ export default function UserListCard({ newUser }: UserListCardProps) {
         onCloseDelete={() => setDeleteDialogOpen(false)}
         onClosePassword={() => setPasswordDialogOpen(false)}
       />
-    </>
+    </CardRoot>
   );
 }
