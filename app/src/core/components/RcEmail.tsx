@@ -36,7 +36,7 @@ export default function RcEmail({
         ? `${label ?? 'Email'} is required`
         : ''
       : !EMAIL_REGEX.test(value)
-        ? 'Invalid email format'
+        ? 'Enter a valid email address'
         : '');
 
   return (

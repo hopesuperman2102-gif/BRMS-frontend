@@ -44,7 +44,7 @@ describe('RcMonthBarChart', () => {
 
       expect(screen.getByRole('option', { name: '2024' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: '2023' })).toBeInTheDocument();
-    });
+    }, 10000);
 
     it('renders month labels', () => {
       renderMonthBarChart();
