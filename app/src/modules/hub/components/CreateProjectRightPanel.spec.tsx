@@ -4,10 +4,16 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CreateProjectRightPanel from './CreateProjectRightPanel';
 
-/* ─── Mock child components ───────────────────────────── */
+type MockFieldProps = {
+  name: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+};
 
 vi.mock('@/core/components/RcInputField', () => ({
-  default: (props: any) => (
+  default: (props: MockFieldProps) => (
     <input
       data-testid={props.name}
       value={props.value}
@@ -19,7 +25,7 @@ vi.mock('@/core/components/RcInputField', () => ({
 }));
 
 vi.mock('@/core/components/RcTextArea', () => ({
-  default: (props: any) => (
+  default: (props: MockFieldProps) => (
     <textarea
       data-testid={props.name}
       value={props.value}
@@ -29,8 +35,6 @@ vi.mock('@/core/components/RcTextArea', () => ({
     />
   ),
 }));
-
-/* ─── Default Props ───────────────────────────── */
 
 const defaultProps = {
   isEditMode: false,
@@ -50,33 +54,25 @@ const defaultProps = {
 const renderComponent = (props = {}) =>
   render(<CreateProjectRightPanel {...defaultProps} {...props} />);
 
-/* ─── Tests ───────────────────────────── */
-
 describe('CreateProjectRightPanel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  /* ─── Rendering ───────────────────────────── */
-
   describe('Rendering', () => {
     it('renders create mode correctly', () => {
       renderComponent();
 
-      // Button
       expect(
-        screen.getByRole('button', { name: /create project/i })
+        screen.getByRole('button', { name: /create project/i }),
       ).toBeInTheDocument();
 
-      // Heading (avoid duplicate issue)
       expect(screen.getAllByText('Create Project')[0]).toBeInTheDocument();
 
       expect(
-        screen.getByText(
-          'Fill in the details below to set up your new project.'
-        )
+        screen.getByText('Fill in the details below to set up your new project.'),
       ).toBeInTheDocument();
-    },15000);
+    });
 
     it('renders edit mode correctly', () => {
       renderComponent({ isEditMode: true });
@@ -84,13 +80,11 @@ describe('CreateProjectRightPanel', () => {
       expect(screen.getAllByText('Edit Project')[0]).toBeInTheDocument();
 
       expect(
-        screen.getByText(
-          'Update the fields below and save your changes.'
-        )
+        screen.getByText('Update the fields below and save your changes.'),
       ).toBeInTheDocument();
 
       expect(
-        screen.getByRole('button', { name: /save changes/i })
+        screen.getByRole('button', { name: /save changes/i }),
       ).toBeInTheDocument();
     });
 
@@ -106,8 +100,6 @@ describe('CreateProjectRightPanel', () => {
     });
   });
 
-  /* ─── Field interactions ───────────────────────────── */
-
   describe('Field interactions', () => {
     it('updates project name', () => {
       const onFieldChange = vi.fn();
@@ -117,10 +109,7 @@ describe('CreateProjectRightPanel', () => {
         target: { value: 'Test Project' },
       });
 
-      expect(onFieldChange).toHaveBeenCalledWith(
-        'name',
-        'Test Project'
-      );
+      expect(onFieldChange).toHaveBeenCalledWith('name', 'Test Project');
     });
 
     it('updates description', () => {
@@ -131,10 +120,7 @@ describe('CreateProjectRightPanel', () => {
         target: { value: 'Test desc' },
       });
 
-      expect(onFieldChange).toHaveBeenCalledWith(
-        'description',
-        'Test desc'
-      );
+      expect(onFieldChange).toHaveBeenCalledWith('description', 'Test desc');
     });
 
     it('updates domain', () => {
@@ -145,23 +131,16 @@ describe('CreateProjectRightPanel', () => {
         target: { value: 'finance' },
       });
 
-      expect(onFieldChange).toHaveBeenCalledWith(
-        'domain',
-        'finance'
-      );
+      expect(onFieldChange).toHaveBeenCalledWith('domain', 'finance');
     });
   });
-
-  /* ─── Actions ───────────────────────────── */
 
   describe('Actions', () => {
     it('calls onSubmit (create mode)', () => {
       const onSubmit = vi.fn();
       renderComponent({ onSubmit });
 
-      fireEvent.click(
-        screen.getByRole('button', { name: /create project/i })
-      );
+      fireEvent.click(screen.getByRole('button', { name: /create project/i }));
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
@@ -170,9 +149,7 @@ describe('CreateProjectRightPanel', () => {
       const onSubmit = vi.fn();
       renderComponent({ onSubmit, isEditMode: true });
 
-      fireEvent.click(
-        screen.getByRole('button', { name: /save changes/i })
-      );
+      fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
@@ -191,14 +168,12 @@ describe('CreateProjectRightPanel', () => {
       renderComponent({ onBack });
 
       fireEvent.click(
-        screen.getByRole('button', { name: /hub/i, hidden: true })
+        screen.getByRole('button', { name: /hub/i, hidden: true }),
       );
 
       expect(onBack).toHaveBeenCalledTimes(1);
     });
   });
-
-  /* ─── States ───────────────────────────── */
 
   describe('States', () => {
     it('disables submit button when loading (create mode)', () => {
@@ -211,9 +186,7 @@ describe('CreateProjectRightPanel', () => {
     it('shows saving state in edit mode', () => {
       renderComponent({ loading: true, isEditMode: true });
 
-      expect(
-        screen.getByRole('button', { name: /saving/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /saving/i })).toBeInTheDocument();
     });
 
     it('shows character counts correctly', () => {
@@ -241,8 +214,6 @@ describe('CreateProjectRightPanel', () => {
       expect(screen.getByText('301/300')).toBeInTheDocument();
     });
   });
-
-  /* ─── Focus handling ───────────────────────────── */
 
   describe('Focus handling', () => {
     it('handles focus for all fields', () => {
