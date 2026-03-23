@@ -15,6 +15,8 @@ import { brmsTheme } from '@/core/theme/brmsTheme';
 
 const { colors, fonts } = brmsTheme;
 
+/* ─── Keyframes ───────────────────────────────────────────── */
+
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -29,6 +31,8 @@ const dotPulse = keyframes`
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50%       { opacity: 1;   transform: scale(1.6); }
 `;
+
+/* ─── Styled Components ───────────────────────────────────── */
 
 const DrawerTopSection = styled(Box)({
   position: 'relative',
@@ -61,7 +65,10 @@ const GlowOrbSecondary = styled(Box)({
   animation: `${orbFloat} 8s ease-in-out infinite reverse`,
 });
 
-const TopContent = styled(Box)({ position: 'relative', zIndex: 1 });
+const TopContent = styled(Box)({
+  position: 'relative',
+  zIndex: 1,
+});
 
 const RuleBadge = styled(Box)({
   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -79,9 +86,13 @@ const RuleNameText = styled(Typography)({
   lineHeight: 1.3, letterSpacing: '-0.02em', wordBreak: 'break-word', marginBottom: 20,
 });
 
-const DecorativeBar = styled(Box)({ display: 'flex', alignItems: 'center', gap: 6 });
+const DecorativeBar = styled(Box)({
+  display: 'flex', alignItems: 'center', gap: 6,
+});
 
-const BarSegment = styled(Box)<{ w: number; op: number }>(({ w, op }) => ({
+const BarSegment = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'w' && prop !== 'op',
+})<{ w: number; op: number }>(({ w, op }) => ({
   height: 3, width: w, borderRadius: 99, background: `rgba(255,255,255,${op})`,
 }));
 
@@ -91,7 +102,9 @@ const InfoSection = styled(Box)({
   animation: `${fadeIn} 0.4s ease both`,
 });
 
-const InfoRow = styled(Box)<{ delay?: number }>(({ delay = 0 }) => ({
+const InfoRow = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'delay',
+})<{ delay?: number }>(({ delay = 0 }) => ({
   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
   padding: '13px 0',
   animation: `${fadeIn} 0.35s ease ${delay}ms both`,
@@ -107,7 +120,19 @@ const RowValue = styled(Typography)({
   textAlign: 'right', fontFamily: fonts.mono, maxWidth: '55%', wordBreak: 'break-word',
 });
 
-const StatusBadge = styled(Box)<{ bg: string; textColor: string; borderColor: string }>(
+const ProjectRowValue = styled(Typography)({
+  fontFamily: 'inherit',
+  fontWeight: 600,
+  fontSize: '0.84rem',
+  color: colors.lightTextHigh,
+  textAlign: 'right',
+  maxWidth: '55%',
+  wordBreak: 'break-word',
+});
+
+const StatusBadge = styled(Box, {
+  shouldForwardProp: (prop) => !['bg', 'textColor', 'borderColor'].includes(prop as string),
+})<{ bg: string; textColor: string; borderColor: string }>(
   ({ bg, textColor, borderColor }) => ({
     display: 'inline-flex', alignItems: 'center', gap: 5,
     padding: '3px 10px 3px 7px', borderRadius: 20,
@@ -116,30 +141,48 @@ const StatusBadge = styled(Box)<{ bg: string; textColor: string; borderColor: st
   })
 );
 
-const PulseDot = styled(Box)<{ dotColor: string }>(({ dotColor }) => ({
+const PulseDot = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'dotColor',
+})<{ dotColor: string }>(({ dotColor }) => ({
   width: 6, height: 6, borderRadius: '50%', background: dotColor,
   animation: `${dotPulse} 2s ease-in-out infinite`, flexShrink: 0,
 }));
 
-const StyledDivider = styled(Divider)({ borderColor: colors.lightBorder, opacity: 0.7 });
+const StyledDivider = styled(Divider)({
+  borderColor: colors.lightBorder, opacity: 0.7,
+});
+
+const ApprovalIcon = styled(CheckCircleOutlineIcon)({ fontSize: 12 });
+const RejectedIcon = styled(CancelOutlinedIcon)({ fontSize: 12 });
+const PendingIcon = styled(HourglassEmptyIcon)({ fontSize: 12 });
+
+const InfoAlert = styled(Alert)({
+  borderRadius: 8,
+  fontSize: '0.78rem',
+  marginTop: 16,
+});
+
+/* ─── Helpers ─────────────────────────────────────────────── */
 
 const getApprovalChip = (status: ApprovalStatus) => {
   if (status === 'Approved') return { color: colors.approvedText, bg: colors.approvedBg, border: colors.approvedBorder };
-  if (status === 'Rejected') return { color: colors.deleteRed,    bg: colors.errorBg,    border: colors.errorBorder };
+  if (status === 'Rejected') return { color: colors.deleteRed, bg: colors.errorBg, border: colors.errorBorder };
   return { color: colors.statusInactiveText, bg: colors.statusInactiveBg, border: colors.statusInactiveBorder };
 };
 
 const getProjectStatusChip = (status: string) => {
-  if (status === 'Active')   return { color: colors.statusUsingText,    bg: colors.statusUsingBg,    border: colors.statusUsingBorder };
+  if (status === 'Active') return { color: colors.statusUsingText, bg: colors.statusUsingBg, border: colors.statusUsingBorder };
   if (status === 'Archived') return { color: colors.statusInactiveText, bg: colors.statusInactiveBg, border: colors.statusInactiveBorder };
   return { color: colors.statusDraftText, bg: colors.statusDraftBg, border: colors.statusDraftBorder };
 };
 
 const getApprovalIcon = (status: ApprovalStatus) => {
-  if (status === 'Approved') return <CheckCircleOutlineIcon sx={{ fontSize: 12 }} />;
-  if (status === 'Rejected') return <CancelOutlinedIcon sx={{ fontSize: 12 }} />;
-  return <HourglassEmptyIcon sx={{ fontSize: 12 }} />;
+  if (status === 'Approved') return <ApprovalIcon />;
+  if (status === 'Rejected') return <RejectedIcon />;
+  return <PendingIcon />;
 };
+
+/* ─── Component ───────────────────────────────────────────── */
 
 export default function RulesDrawer({ selectedRow, canReview }: RulesDrawerProps) {
   const approvalChip  = selectedRow ? getApprovalChip(selectedRow.approvalStatus)     : null;
@@ -170,9 +213,7 @@ export default function RulesDrawer({ selectedRow, canReview }: RulesDrawerProps
       <InfoSection>
         <InfoRow delay={60}>
           <RowLabel>Project</RowLabel>
-          <RowValue sx={{ fontFamily: 'inherit', fontWeight: 600, fontSize: '0.84rem' }}>
-            {selectedRow?.projectName ?? '—'}
-          </RowValue>
+          <ProjectRowValue>{selectedRow?.projectName ?? '—'}</ProjectRowValue>
         </InfoRow>
         <StyledDivider />
 
@@ -205,14 +246,14 @@ export default function RulesDrawer({ selectedRow, canReview }: RulesDrawerProps
       </InfoSection>
 
       {selectedRow?.version === '--' && (
-        <Alert severity="info" sx={{ borderRadius: 2, fontSize: '0.78rem', mt: 2 }}>
+        <InfoAlert severity="info">
           No version available. Create a version before reviewing this rule.
-        </Alert>
+        </InfoAlert>
       )}
       {!canReview && (
-        <Alert severity="warning" sx={{ borderRadius: 2, fontSize: '0.78rem', mt: 2 }}>
+        <InfoAlert severity="warning">
           You do not have permission to approve or reject this rule
-        </Alert>
+        </InfoAlert>
       )}
     </>
   );

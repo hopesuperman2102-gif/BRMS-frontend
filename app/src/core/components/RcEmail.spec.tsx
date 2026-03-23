@@ -77,5 +77,14 @@ describe('RcEmail', () => {
       expect(onFocus).toHaveBeenCalledTimes(1);
       expect(onBlur).toHaveBeenCalledTimes(1);
     });
+
+    it('resets touched state when resetKey changes', () => {
+      const { rerender } = renderEmail({ value: 'invalid-email' });
+      const input = screen.getByRole('textbox');
+      fireEvent.blur(input);
+      expect(screen.getByText('Enter a valid email address')).toBeInTheDocument();
+      rerender(<RcEmail {...defaultProps} value="invalid-email" resetKey={1} />);
+      expect(screen.queryByText('Enter a valid email address')).not.toBeInTheDocument();
+      });
   });
 });

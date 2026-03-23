@@ -46,7 +46,6 @@ const PanelRoot = styled(Box)({
   alignItems: 'center',
   justifyContent: 'center',
   height: '100vh',
-  overflow: 'auto',
   position: 'relative',
   background: colors.formBg,
   paddingLeft: '24px',
