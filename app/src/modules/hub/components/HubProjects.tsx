@@ -87,7 +87,7 @@ export default function HubProjects() {
     setSelectedProject(null);
   };
 
-  const handleDelete = async () => {
+    const handleDelete = async () => {
     if (!canManageProjects) {
       showAlert("You do not have permission to delete projects.", "info");
       return;
@@ -99,7 +99,7 @@ export default function HubProjects() {
         prev.filter((p) => p.project_key !== selectedProject.project_key)
       );
       handleMenuClose();
-    } catch (err) {}
+    } catch {}
   };
 
   const handleEdit = () => {
