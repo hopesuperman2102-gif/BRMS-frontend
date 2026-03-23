@@ -11,57 +11,28 @@ import { CreateProjectRightPanelProps } from '@/modules/hub/types/hubTypes';
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Styled: input style factory ────────────────────────── */
-const inputSx = (focused: boolean) => ({
-  '& .MuiOutlinedInput-root': {
-    borderRadius: '6px',
-    backgroundColor: colors.white,
-    transition: 'box-shadow 0.15s, border-color 0.15s',
-    ...(focused && {
-      boxShadow: `0 0 0 3px ${colors.panelIndigoGlow}`,
-    }),
-    '& fieldset': {
-      borderColor: focused ? colors.panelIndigo : colors.lightBorder,
-      borderWidth: focused ? '1.5px' : '1px',
-      transition: 'border-color 0.15s',
-    },
-    '&:hover fieldset': {
-      borderColor: focused ? colors.panelIndigo : colors.lightBorderHover,
-    },
-  },
-  '& .MuiInputBase-input': {
-    fontSize: '0.875rem',
-    fontFamily: fonts.mono,
-    color: colors.lightTextHigh,
-    padding: '10px 14px',
-    letterSpacing: '0.01em',
-    '&::placeholder': {
-      color: colors.lightTextLow,
-      opacity: 1,
-      fontFamily: fonts.mono,
-    },
-  },
-  '& .MuiInputBase-inputMultiline': {
-    fontSize: '0.875rem',
-    fontFamily: fonts.mono,
-    color: colors.lightTextHigh,
-    lineHeight: 1.65,
-    letterSpacing: '0.01em',
-  },
-});
-
 /* ─── Styled Components ───────────────────────────────────── */
 
-const RightPanelRoot = styled(Box)({
+const RightPanelRoot = styled(Box)(({ theme }) => ({
   flex: 1,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   height: '100vh',
-  overflow: 'auto',
   position: 'relative',
   background: colors.formBg,
-});
+  paddingLeft: '24px',
+  paddingRight: '24px',
+
+  [theme.breakpoints.up('sm')]: {
+    paddingLeft: '48px',
+    paddingRight: '48px',
+  },
+  [theme.breakpoints.up('lg')]: {
+    paddingLeft: '72px',
+    paddingRight: '72px',
+  },
+}));
 
 const MobileBackWrapper = styled(Box)({
   display: 'none',
@@ -145,7 +116,53 @@ const FieldsWrapper = styled(Box)({
   gap: '20px',
 });
 
-const CharCount = styled(Typography)<{ overlimit: boolean }>(({ overlimit }) => ({
+const StyledInputWrapper = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'focused',
+})<{ focused: boolean }>(({ focused }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '6px',
+    backgroundColor: colors.white,
+    transition: 'box-shadow 0.15s, border-color 0.15s',
+
+    ...(focused && {
+      boxShadow: `0 0 0 3px ${colors.panelIndigoGlow}`,
+    }),
+
+    '& fieldset': {
+      borderColor: focused ? colors.panelIndigo : colors.lightBorder,
+      borderWidth: focused ? '1.5px' : '1px',
+    },
+
+    '&:hover fieldset': {
+      borderColor: focused ? colors.panelIndigo : colors.lightBorderHover,
+    },
+  },
+
+  '& .MuiInputBase-input': {
+    fontSize: '0.875rem',
+    fontFamily: fonts.mono,
+    color: colors.lightTextHigh,
+    padding: '10px 14px',
+    letterSpacing: '0.01em',
+    '&::placeholder': {
+      color: colors.lightTextLow,
+      opacity: 1,
+      fontFamily: fonts.mono,
+    },
+  },
+
+  '& .MuiInputBase-inputMultiline': {
+    fontSize: '0.875rem',
+    fontFamily: fonts.mono,
+    color: colors.lightTextHigh,
+    lineHeight: 1.65,
+    letterSpacing: '0.01em',
+  },
+}));
+
+const CharCount = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'overlimit',
+})<{ overlimit: boolean }>(({ overlimit }) => ({
   marginTop: '4px',
   fontSize: '0.6875rem',
   color: overlimit ? colors.errorRed : colors.lightTextLow,
@@ -175,10 +192,7 @@ const ActionsWrapper = styled(Box)({
 
 const CancelButton = styled(Button)({
   borderRadius: '6px',
-  paddingTop: '10px',
-  paddingBottom: '10px',
-  paddingLeft: '20px',
-  paddingRight: '20px',
+  padding: '10px 20px',
   textTransform: 'none',
   fontWeight: 600,
   fontSize: '0.8125rem',
@@ -270,9 +284,8 @@ export default function CreateProjectRightPanel({
   const [focused, setFocused] = useState<string | null>(null);
 
   return (
-    <RightPanelRoot sx={{ px: { xs: '24px', sm: '48px', lg: '72px' } }}>
+    <RightPanelRoot>
 
-      {/* Mobile back */}
       <MobileBackWrapper>
         <MobileBackButton
           startIcon={<ArrowBackIcon sx={{ fontSize: '12px !important' }} />}
@@ -283,14 +296,12 @@ export default function CreateProjectRightPanel({
         </MobileBackButton>
       </MobileBackWrapper>
 
-      {/* Form card */}
       <FormCard>
         <AccentLine />
 
-        {/* Heading block */}
         <HeadingBlock>
           <HeadingTitle>
-            {isEditMode ? 'Edit project' : 'Create project'}
+            {isEditMode ? 'Edit Project' : 'Create Project'}
           </HeadingTitle>
           <HeadingSubtitle>
             {isEditMode
@@ -299,81 +310,72 @@ export default function CreateProjectRightPanel({
           </HeadingSubtitle>
         </HeadingBlock>
 
-        {/* Error alert */}
-        {error && (
-          <StyledAlert severity="error">
-            {error}
-          </StyledAlert>
-        )}
+        {error && <StyledAlert severity="error">{error}</StyledAlert>}
 
-        {/* Fields */}
         <FieldsWrapper>
 
-          {/* Project name */}
           <Box>
             <Label required>Project Name</Label>
-            <RcInputField
-              name="name"
-              placeholder="e.g. Risk Assessment Engine"
-              value={form.name}
-              onChange={(e) => onFieldChange('name', e.target.value)}
-              onFocus={() => setFocused('name')}
-              onBlur={() => setFocused(null)}
-              maxLength={50}
-              sx={inputSx(focused === 'name')}
-            />
+            <StyledInputWrapper focused={focused === 'name'}>
+              <RcInputField
+                name="name"
+                placeholder="e.g. Risk Assessment Engine"
+                value={form.name}
+                onChange={(e) => onFieldChange('name', e.target.value)}
+                onFocus={() => setFocused('name')}
+                onBlur={() => setFocused(null)}
+                maxLength={50}
+              />
+            </StyledInputWrapper>
             <CharCount overlimit={false}>
               {form.name.length}/100
             </CharCount>
           </Box>
 
-          {/* Description */}
           <Box>
             <Label>Description</Label>
-            <RcTextArea
-              name="description"
-              placeholder="Briefly describe the purpose and goals of this project…"
-              value={form.description}
-              onChange={(e) => onFieldChange('description', e.target.value)}
-              onFocus={() => setFocused('description')}
-              onBlur={() => setFocused(null)}
-              maxLength={300}
-              rows={3}
-              sx={inputSx(focused === 'description')}
-            />
+            <StyledInputWrapper focused={focused === 'description'}>
+              <RcTextArea
+                name="description"
+                placeholder="Briefly describe the purpose and goals of this project…"
+                value={form.description}
+                onChange={(e) => onFieldChange('description', e.target.value)}
+                onFocus={() => setFocused('description')}
+                onBlur={() => setFocused(null)}
+                maxLength={300}
+                rows={3}
+              />
+            </StyledInputWrapper>
             <CharCount overlimit={form.description.length > 300}>
               {form.description.length}/300
             </CharCount>
           </Box>
 
-          {/* Domain */}
           <Box>
             <Label>Domain</Label>
-            <RcInputField
-              name="domain"
-              placeholder="e.g. finance, healthcare, retail"
-              value={form.domain}
-              onChange={(e) => onFieldChange('domain', e.target.value)}
-              onFocus={() => setFocused('domain')}
-              onBlur={() => setFocused(null)}
-              maxLength={30}
-              sx={inputSx(focused === 'domain')}
-            />
+            <StyledInputWrapper focused={focused === 'domain'}>
+              <RcInputField
+                name="domain"
+                placeholder="e.g. finance, healthcare, retail"
+                value={form.domain}
+                onChange={(e) => onFieldChange('domain', e.target.value)}
+                onFocus={() => setFocused('domain')}
+                onBlur={() => setFocused(null)}
+                maxLength={30}
+              />
+            </StyledInputWrapper>
             <FieldHint>
               Categorize using the organizational domain structure
             </FieldHint>
           </Box>
         </FieldsWrapper>
-
         <Divider />
-
-        {/* Actions */}
         <ActionsWrapper>
           <CancelButton onClick={onCancel} disableRipple>
             Cancel
           </CancelButton>
           <SubmitButton fullWidth disabled={loading} onClick={onSubmit} disableRipple>
-            {loading ? 'Saving…' : isEditMode ? 'Save changes' : 'Create project'}
+            {loading ? 'Saving…' : isEditMode ? 'Save Changes' : 'Create Project'}
           </SubmitButton>
         </ActionsWrapper>
       </FormCard>

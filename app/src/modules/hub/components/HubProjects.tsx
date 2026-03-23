@@ -99,9 +99,7 @@ export default function HubProjects() {
         prev.filter((p) => p.project_key !== selectedProject.project_key)
       );
       handleMenuClose();
-    } catch (err) {
-      console.error("Error deleting project:", err);
-    }
+    } catch (err) {}
   };
 
   const handleEdit = () => {

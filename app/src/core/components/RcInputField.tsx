@@ -14,9 +14,11 @@ export default function RcInputField({
   maxLength = 100,
   startIcon,
   sx,
+  className,
 }: RcInputProps) {
   return (
     <TextField
+      className={className}
       fullWidth
       name={name}
       value={value}

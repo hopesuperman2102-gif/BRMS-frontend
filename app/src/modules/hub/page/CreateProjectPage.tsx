@@ -2,13 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 import { projectsApi } from '@/modules/hub/api/projectsApi';
 import CreateProjectLeftPanel from '@/modules/hub/components/CreateProjectLeftPanel';
 import { FormState } from '@/modules/hub/types/hubTypes';
 import CreateProjectRightPanel from '@/modules/hub/components/CreateProjectRightPanel';
 import { useRole } from '@/modules/auth/hooks/useRole';
+
+const PageRoot = styled(Box)({
+  height: '100vh',
+  width: '100%',
+  display: 'flex',
+  overflow: 'hidden',
+  background: brmsTheme.colors.bgDark,
+  fontFamily: '"DM Sans", "Inter", sans-serif',
+});
 
 export default function CreateProjectPage() {
   const navigate = useNavigate();
@@ -95,16 +104,7 @@ export default function CreateProjectPage() {
   };
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        width: '100%',
-        display: 'flex',
-        overflow: 'hidden',
-        background: brmsTheme.colors.bgDark,
-        fontFamily: '"DM Sans", "Inter", sans-serif',
-      }}
-    >
+    <PageRoot>
       <CreateProjectLeftPanel
         isEditMode={isEditMode}
         onBack={handleBack}
@@ -119,6 +119,6 @@ export default function CreateProjectPage() {
         onCancel={handleBack}
         onBack={handleBack}
       />
-    </Box>
+    </PageRoot>
   );
 }

@@ -225,6 +225,19 @@ const CardMenuButton = styled(IconButton)({
   },
 });
 
+const MenuIcon = styled(MoreVertIcon)({
+  fontSize: 16,
+});
+
+const FolderIcon = styled(FolderOpenIcon)({
+  fontSize: 22,
+  color: colors.lightTextLow,
+});
+
+const StyledProgress = styled(CircularProgress)({
+  color: colors.panelIndigo,
+});
+
 const PaginationRow = styled(Box)({
   display: "flex",
   justifyContent: "center",
@@ -273,6 +286,8 @@ const DeleteMenuItem = styled(MenuItem)({
   "&:hover": { backgroundColor: colors.errorBg },
 });
 
+/* ─────────── Component ───────────── */
+
 export default function ProjectListRightPanel({
   loading,
   paginatedProjects,
@@ -309,12 +324,12 @@ export default function ProjectListRightPanel({
       <ScrollArea>
         {loading ? (
           <CenteredBox>
-            <CircularProgress size={28} sx={{ color: colors.panelIndigo }} />
+            <StyledProgress size={28} />
           </CenteredBox>
         ) : paginatedProjects.length === 0 ? (
           <EmptyBox>
             <EmptyIconBox>
-              <FolderOpenIcon sx={{ fontSize: 22, color: colors.lightTextLow }} />
+              <FolderIcon />
             </EmptyIconBox>
             <EmptyTextCenter>
               <EmptyTitle>No projects yet</EmptyTitle>
@@ -350,7 +365,7 @@ export default function ProjectListRightPanel({
                         onMenuOpen(e, project);
                       }}
                     >
-                      <MoreVertIcon sx={{ fontSize: 16 }} />
+                      <MenuIcon />
                     </CardMenuButton>
                   )}
                 </CardRight>

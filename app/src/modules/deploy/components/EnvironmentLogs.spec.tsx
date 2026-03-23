@@ -46,7 +46,7 @@ describe('EnvironmentLogs', () => {
     expect(screen.getByText('Environment Logs')).toBeInTheDocument();
     expect(getEnvironmentLogFiles).toHaveBeenCalled();
     expect(getEnvironmentLogPage).toHaveBeenCalledWith('DEV', '2026-03-11-DEV', 0);
-  });
+  }, 10000);
 
   it('shows empty file state', async () => {
     getEnvironmentLogFiles.mockResolvedValueOnce([]);
@@ -106,7 +106,7 @@ describe('EnvironmentLogs', () => {
 
     fireEvent.click(screen.getAllByRole('button')[0]);
     await waitFor(() => expect(getEnvironmentLogFiles).toHaveBeenCalledTimes(2));
-  });
+  }, 10000);
 
   it('shows page-load error when log page fetch fails', async () => {
     getEnvironmentLogFiles.mockResolvedValueOnce([

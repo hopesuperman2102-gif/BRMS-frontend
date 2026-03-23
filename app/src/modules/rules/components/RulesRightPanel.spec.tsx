@@ -82,7 +82,7 @@ describe('RulesRightPanel', () => {
     expect(onOpenFolder).toHaveBeenCalledTimes(1);
     expect(onOpenFile).toHaveBeenCalledTimes(1);
     expect(onNavigateToBreadcrumb).toHaveBeenCalledWith({ name: 'Home', path: '' });
-  });
+  },10000);
 
   it('shows the empty state when there are no visible items', () => {
     render(

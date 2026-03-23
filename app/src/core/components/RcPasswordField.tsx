@@ -17,11 +17,13 @@ export default function RcPasswordField({
   maxLength = 128,
   startIcon,
   sx,
+  className,
 }: RcPasswordProps) {
   const [show, setShow] = useState(false);
 
   return (
     <TextField
+      className={className}
       fullWidth
       name={name}
       type={show ? 'text' : 'password'}

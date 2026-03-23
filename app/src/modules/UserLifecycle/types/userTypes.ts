@@ -46,3 +46,21 @@ export interface UserListCardProps {
   /** Pass a freshly-created user to append it to the list without a refetch */
   newUser?: UserManagementResponse | null;
 }
+
+//user action types
+export type UserListActionMenuProps = {
+  anchorEl: null | HTMLElement;
+  onClose: () => void;
+  onUpdatePassword: () => void;
+  onDelete: () => void;
+};
+
+export type UserListActionDialogsProps = {
+  selectedUserId: string | null;
+  deleteDialogOpen: boolean;
+  passwordDialogOpen: boolean;
+  deleting: boolean;
+  onConfirmDelete: () => void;
+  onCloseDelete: () => void;
+  onClosePassword: () => void;
+};

@@ -1,9 +1,19 @@
 'use client';
 
 import {
-  Box, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, InputAdornment, Alert,
+  Box,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  InputAdornment,
+  Alert,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
 import CloseIcon from '@mui/icons-material/Close';
 import Visibility from '@mui/icons-material/Visibility';
@@ -14,21 +24,34 @@ import { UpdatePasswordDialogProps } from '@/modules/UserLifecycle/types/userTyp
 
 const { colors, fonts } = brmsTheme;
 
-/* ─── Password input sx ── */
-const inputSx = (focused: boolean, error?: boolean) => ({
+type InputStateProps = {
+  $focused: boolean;
+  $error?: boolean;
+};
+
+type CheckStateProps = {
+  $pass: boolean;
+};
+
+type StrengthBarProps = {
+  $active: boolean;
+  $barColor: string;
+};
+
+const sharedInputStyles = ({ $focused, $error }: InputStateProps) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '6px',
     backgroundColor: colors.white,
     transition: 'box-shadow 0.15s, border-color 0.15s',
-    ...(focused && !error && { boxShadow: `0 0 0 3px ${colors.panelIndigoGlow}` }),
-    ...(error && { boxShadow: `0 0 0 3px rgba(239,68,68,0.12)` }),
+    ...($focused && !$error && { boxShadow: `0 0 0 3px ${colors.panelIndigoGlow}` }),
+    ...($error && { boxShadow: '0 0 0 3px rgba(239,68,68,0.12)' }),
     '& fieldset': {
-      borderColor: error ? colors.errorBorder : focused ? colors.panelIndigo : colors.lightBorder,
-      borderWidth: focused || error ? '1.5px' : '1px',
+      borderColor: $error ? colors.errorBorder : $focused ? colors.panelIndigo : colors.lightBorder,
+      borderWidth: $focused || $error ? '1.5px' : '1px',
       transition: 'border-color 0.15s',
     },
     '&:hover fieldset': {
-      borderColor: error ? colors.errorBorder : focused ? colors.panelIndigo : colors.lightBorderHover,
+      borderColor: $error ? colors.errorBorder : $focused ? colors.panelIndigo : colors.lightBorderHover,
     },
   },
   '& .MuiInputBase-input': {
@@ -45,38 +68,235 @@ const inputSx = (focused: boolean, error?: boolean) => ({
   },
 });
 
-/* ─── Password strength ── */
+const StyledDialog = styled(Dialog)({
+  '& .MuiPaper-root': {
+    background: colors.formBg,
+    borderRadius: '8px',
+    width: '100%',
+    maxWidth: '400px',
+  },
+});
+
+const StyledDialogTitle = styled(DialogTitle)({
+  color: colors.textOnPrimary,
+  fontWeight: 700,
+  paddingBottom: '8px',
+  paddingRight: '48px',
+});
+
+const CloseButton = styled(IconButton)({
+  position: 'absolute',
+  right: 12,
+  top: 12,
+  color: colors.lightTextLow,
+  '&:hover': { color: colors.lightTextMid },
+});
+
+const CloseButtonIcon = styled(CloseIcon)({
+  fontSize: '18px',
+});
+
+const StyledDialogContent = styled(DialogContent)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
+  paddingTop: '16px !important',
+});
+
+const StyledAlert = styled(Alert)({
+  borderRadius: '6px',
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+});
+
+const ErrorAlert = styled(StyledAlert)({
+  background: colors.errorBg,
+  border: `1px solid ${colors.errorBorder}`,
+  color: colors.errorText,
+  '& .MuiAlert-icon': { color: colors.errorIcon, fontSize: '1rem' },
+});
+
+const SuccessAlert = styled(StyledAlert)({
+  background: colors.statusUsingBg,
+  border: `1px solid ${colors.statusUsingBorder}`,
+  color: colors.statusUsingText,
+  '& .MuiAlert-icon': { color: colors.statusUsingDot, fontSize: '1rem' },
+});
+
+const LabelRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: '6px',
+});
+
+const LabelText = styled(Typography)({
+  fontSize: '0.6875rem',
+  fontWeight: 600,
+  color: colors.lightTextMid,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  fontFamily: fonts.mono,
+});
+
+const RequiredText = styled(Typography)({
+  fontSize: '0.625rem',
+  fontWeight: 700,
+  color: colors.panelIndigo,
+  letterSpacing: '0.07em',
+  textTransform: 'uppercase',
+  fontFamily: fonts.mono,
+  opacity: 0.75,
+});
+
+const PasswordIcon = styled(LockIcon)({
+  fontSize: '16px',
+  color: colors.lightTextLow,
+});
+
+const ConfirmPasswordIcon = styled(LockIcon, {
+  shouldForwardProp: (prop) => prop !== '$error',
+})<{ $error: boolean }>(({ $error }) => ({
+  fontSize: '16px',
+  color: $error ? colors.errorIcon : colors.lightTextLow,
+}));
+
+const ToggleButton = styled(IconButton)({
+  color: colors.lightTextLow,
+  marginRight: '-4px',
+});
+
+const ToggleIcon = styled(Visibility)({
+  fontSize: '16px',
+});
+
+const ToggleIconOff = styled(VisibilityOff)({
+  fontSize: '16px',
+});
+
+const StyledTextField = styled(TextField, {
+  shouldForwardProp: (prop) => prop !== '$focused' && prop !== '$error',
+})<InputStateProps>(({ $focused, $error }) => sharedInputStyles({ $focused, $error }));
+
+const PasswordStrengthRoot = styled(Box)({ marginTop: '8px' });
+
+const StrengthBars = styled(Box)({
+  display: 'flex',
+  gap: '4px',
+  marginBottom: '8px',
+});
+
+const StrengthBar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== '$active' && prop !== '$barColor',
+})<StrengthBarProps>(({ $active, $barColor }) => ({
+  flex: 1,
+  height: '3px',
+  borderRadius: '99px',
+  background: $active ? $barColor : colors.lightBorder,
+  transition: 'background 0.2s',
+}));
+
+const StrengthChecks = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '3px',
+});
+
+const StrengthCheckRow = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+});
+
+const CheckDot = styled(Box, {
+  shouldForwardProp: (prop) => prop !== '$pass',
+})<CheckStateProps>(({ $pass }) => ({
+  width: 5,
+  height: 5,
+  borderRadius: '50%',
+  flexShrink: 0,
+  background: $pass ? colors.statusUsingDot : colors.lightTextLow,
+  transition: 'background 0.2s',
+}));
+
+const CheckText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== '$pass',
+})<CheckStateProps>(({ $pass }) => ({
+  fontSize: '0.6875rem',
+  fontFamily: fonts.mono,
+  color: $pass ? colors.lightTextMid : colors.lightTextLow,
+  transition: 'color 0.2s',
+}));
+
+const MismatchText = styled(Typography)({
+  marginTop: '6px',
+  fontSize: '0.6875rem',
+  color: colors.errorText,
+  fontFamily: fonts.mono,
+});
+
+const StyledDialogActions = styled(DialogActions)({
+  paddingLeft: '24px',
+  paddingRight: '24px',
+  paddingBottom: '24px',
+  gap: '8px',
+});
+
+const CancelButton = styled(Button)({
+  color: colors.panelTextMid,
+  textTransform: 'none',
+  fontWeight: 500,
+});
+
+const ConfirmButton = styled(Button)({
+  borderRadius: '6px',
+  paddingLeft: '20px',
+  paddingRight: '20px',
+  paddingTop: '8px',
+  paddingBottom: '8px',
+  textTransform: 'none',
+  fontWeight: 700,
+  fontSize: '0.8125rem',
+  color: colors.white,
+  background: colors.panelIndigo,
+  boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${colors.panelIndigoGlow}`,
+  '&:hover': { background: colors.panelIndigoHover },
+  '&:disabled': { background: colors.lightBorder, color: colors.lightTextLow, boxShadow: 'none' },
+  transition: 'all 0.15s',
+});
+
 function PasswordStrength({ password }: { password: string }) {
   if (!password) return null;
+
   const checks = [
     { label: 'At least 8 characters', pass: password.length >= 8 },
     { label: 'Contains a number', pass: /\d/.test(password) },
     { label: 'Contains a letter', pass: /[a-zA-Z]/.test(password) },
   ];
-  const strength = checks.filter(c => c.pass).length;
-  const barColor = strength === 1 ? colors.errorRed : strength === 2 ? colors.warningAmber : colors.statusUsingDot;
+
+  const strength = checks.filter((c) => c.pass).length;
+  const barColor =
+    strength === 1 ? colors.errorRed : strength === 2 ? colors.warningAmber : colors.statusUsingDot;
+
   return (
-    <Box sx={{ mt: 1 }}>
-      <Box sx={{ display: 'flex', gap: '4px', mb: '8px' }}>
-        {[1, 2, 3].map(i => (
-          <Box key={i} sx={{ flex: 1, height: '3px', borderRadius: '99px', background: i <= strength ? barColor : colors.lightBorder, transition: 'background 0.2s' }} />
+    <PasswordStrengthRoot>
+      <StrengthBars>
+        {[1, 2, 3].map((i) => (
+          <StrengthBar key={i} $active={i <= strength} $barColor={barColor} />
         ))}
-      </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-        {checks.map(c => (
-          <Box key={c.label} sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Box sx={{ width: 5, height: 5, borderRadius: '50%', flexShrink: 0, background: c.pass ? colors.statusUsingDot : colors.lightTextLow, transition: 'background 0.2s' }} />
-            <Typography sx={{ fontSize: '0.6875rem', fontFamily: fonts.mono, color: c.pass ? colors.lightTextMid : colors.lightTextLow, transition: 'color 0.2s' }}>
-              {c.label}
-            </Typography>
-          </Box>
+      </StrengthBars>
+      <StrengthChecks>
+        {checks.map((c) => (
+          <StrengthCheckRow key={c.label}>
+            <CheckDot $pass={c.pass} />
+            <CheckText $pass={c.pass}>{c.label}</CheckText>
+          </StrengthCheckRow>
         ))}
-      </Box>
-    </Box>
+      </StrengthChecks>
+    </PasswordStrengthRoot>
   );
 }
 
-/* ─── Component ── */
 export default function UpdatePasswordDialog({ open, userId, onClose, onChangePassword }: UpdatePasswordDialogProps) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -100,9 +320,18 @@ export default function UpdatePasswordDialog({ open, userId, onClose, onChangePa
 
   const handleConfirm = async () => {
     setPasswordError('');
-    if (!newPassword) { setPasswordError('New password is required.'); return; }
-    if (newPassword.length < 8) { setPasswordError('Password must be at least 8 characters.'); return; }
-    if (newPassword !== confirmPassword) { setPasswordError('Passwords do not match.'); return; }
+    if (!newPassword) {
+      setPasswordError('New password is required.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.');
+      return;
+    }
     if (!userId) return;
 
     setUpdatingPassword(true);
@@ -123,185 +352,123 @@ export default function UpdatePasswordDialog({ open, userId, onClose, onChangePa
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      PaperProps={{
-        sx: {
-          background: colors.formBg,
-          borderRadius: '8px',
-          width: '100%',
-          maxWidth: '400px',
-        },
-      }}
-    >
-      <DialogTitle sx={{ color: colors.textOnPrimary, fontWeight: 700, pb: 1, pr: '48px' }}>
+    <StyledDialog open={open} onClose={handleClose}>
+      <StyledDialogTitle>
         Update Password
-        <IconButton
+        <CloseButton
           onClick={handleClose}
           disabled={updatingPassword}
-          size="small"
-          sx={{
-            position: 'absolute',
-            right: 12,
-            top: 12,
-            color: colors.lightTextLow,
-            '&:hover': { color: colors.lightTextMid },
-          }}
+          size='small'
         >
-          <CloseIcon sx={{ fontSize: '18px' }} />
-        </IconButton>
-      </DialogTitle>
+          <CloseButtonIcon />
+        </CloseButton>
+      </StyledDialogTitle>
 
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '20px', pt: '16px !important' }}>
+      <StyledDialogContent>
+        {passwordError && <ErrorAlert severity='error'>{passwordError}</ErrorAlert>}
 
-        {/* Error */}
-        {passwordError && (
-          <Alert
-            severity="error"
-            sx={{
-              borderRadius: '6px',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              background: colors.errorBg,
-              border: `1px solid ${colors.errorBorder}`,
-              color: colors.errorText,
-              '& .MuiAlert-icon': { color: colors.errorIcon, fontSize: '1rem' },
-            }}
-          >
-            {passwordError}
-          </Alert>
-        )}
-
-        {/* Success */}
         {passwordSuccess && (
-          <Alert
-            severity="success"
-            sx={{
-              borderRadius: '6px',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              background: colors.statusUsingBg,
-              border: `1px solid ${colors.statusUsingBorder}`,
-              color: colors.statusUsingText,
-              '& .MuiAlert-icon': { color: colors.statusUsingDot, fontSize: '1rem' },
-            }}
-          >
+          <SuccessAlert severity='success'>
             Password updated successfully.
-          </Alert>
+          </SuccessAlert>
         )}
 
-        {/* New Password */}
         <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '6px' }}>
-            <Typography sx={{ fontSize: '0.6875rem', fontWeight: 600, color: colors.lightTextMid, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: fonts.mono }}>
-              New Password
-            </Typography>
-            <Typography sx={{ fontSize: '0.625rem', fontWeight: 700, color: colors.panelIndigo, letterSpacing: '0.07em', textTransform: 'uppercase', fontFamily: fonts.mono, opacity: 0.75 }}>
-              required
-            </Typography>
-          </Box>
-          <TextField
+          <LabelRow>
+            <LabelText>New Password</LabelText>
+            <RequiredText>required</RequiredText>
+          </LabelRow>
+
+          <StyledTextField
             fullWidth
             type={showNewPassword ? 'text' : 'password'}
-            placeholder="••••••••"
+            placeholder='********'
             value={newPassword}
-            onChange={(e) => { setNewPassword(e.target.value); setPasswordError(''); }}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              setPasswordError('');
+            }}
             onFocus={() => setPasswordFocused('new')}
             onBlur={() => setPasswordFocused(null)}
-            autoComplete="new-password"
+            autoComplete='new-password'
+            $focused={passwordFocused === 'new'}
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">
-                  <LockIcon sx={{ fontSize: '16px', color: colors.lightTextLow }} />
+                <InputAdornment position='start'>
+                  <PasswordIcon />
                 </InputAdornment>
               ),
               endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowNewPassword(!showNewPassword)} edge="end" disableRipple sx={{ color: colors.lightTextLow, mr: '-4px' }}>
-                    {showNewPassword ? <VisibilityOff sx={{ fontSize: '16px' }} /> : <Visibility sx={{ fontSize: '16px' }} />}
-                  </IconButton>
+                <InputAdornment position='end'>
+                  <ToggleButton
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    edge='end'
+                    disableRipple
+                  >
+                    {showNewPassword ? <ToggleIconOff /> : <ToggleIcon />}
+                  </ToggleButton>
                 </InputAdornment>
               ),
             }}
-            sx={inputSx(passwordFocused === 'new')}
           />
           <PasswordStrength password={newPassword} />
         </Box>
 
-        {/* Confirm Password */}
         <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '6px' }}>
-            <Typography sx={{ fontSize: '0.6875rem', fontWeight: 600, color: colors.lightTextMid, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: fonts.mono }}>
-              Confirm Password
-            </Typography>
-            <Typography sx={{ fontSize: '0.625rem', fontWeight: 700, color: colors.panelIndigo, letterSpacing: '0.07em', textTransform: 'uppercase', fontFamily: fonts.mono, opacity: 0.75 }}>
-              required
-            </Typography>
-          </Box>
-          <TextField
+          <LabelRow>
+            <LabelText>Confirm Password</LabelText>
+            <RequiredText>required</RequiredText>
+          </LabelRow>
+
+          <StyledTextField
             fullWidth
             type={showConfirmPassword ? 'text' : 'password'}
-            placeholder="••••••••"
+            placeholder='********'
             value={confirmPassword}
-            onChange={(e) => { setConfirmPassword(e.target.value); setPasswordError(''); }}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              setPasswordError('');
+            }}
             onFocus={() => setPasswordFocused('confirm')}
             onBlur={() => setPasswordFocused(null)}
-            autoComplete="new-password"
+            autoComplete='new-password'
+            $focused={passwordFocused === 'confirm'}
+            $error={passwordMismatch}
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">
-                  <LockIcon sx={{ fontSize: '16px', color: passwordMismatch ? colors.errorIcon : colors.lightTextLow }} />
+                <InputAdornment position='start'>
+                  <ConfirmPasswordIcon $error={passwordMismatch} />
                 </InputAdornment>
               ),
               endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" disableRipple sx={{ color: colors.lightTextLow, mr: '-4px' }}>
-                    {showConfirmPassword ? <VisibilityOff sx={{ fontSize: '16px' }} /> : <Visibility sx={{ fontSize: '16px' }} />}
-                  </IconButton>
+                <InputAdornment position='end'>
+                  <ToggleButton
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    edge='end'
+                    disableRipple
+                  >
+                    {showConfirmPassword ? <ToggleIconOff /> : <ToggleIcon />}
+                  </ToggleButton>
                 </InputAdornment>
               ),
             }}
-            sx={inputSx(passwordFocused === 'confirm', passwordMismatch)}
           />
-          {passwordMismatch && (
-            <Typography sx={{ mt: '6px', fontSize: '0.6875rem', color: colors.errorText, fontFamily: fonts.mono }}>
-              Passwords do not match
-            </Typography>
-          )}
+
+          {passwordMismatch && <MismatchText>Passwords do not match</MismatchText>}
         </Box>
+      </StyledDialogContent>
 
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 3, gap: '8px' }}>
-        <Button
-          onClick={handleClose}
-          disabled={updatingPassword}
-          sx={{ color: colors.panelTextMid, textTransform: 'none', fontWeight: 500 }}
-        >
+      <StyledDialogActions>
+        <CancelButton onClick={handleClose} disabled={updatingPassword}>
           Cancel
-        </Button>
-        <Button
+        </CancelButton>
+        <ConfirmButton
           onClick={handleConfirm}
           disabled={updatingPassword || passwordMismatch || !newPassword}
-          sx={{
-            borderRadius: '6px',
-            px: '20px',
-            py: '8px',
-            textTransform: 'none',
-            fontWeight: 700,
-            fontSize: '0.8125rem',
-            color: colors.white,
-            background: colors.panelIndigo,
-            boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 4px 12px ${colors.panelIndigoGlow}`,
-            '&:hover': { background: colors.panelIndigoHover },
-            '&:disabled': { background: colors.lightBorder, color: colors.lightTextLow, boxShadow: 'none' },
-            transition: 'all 0.15s',
-          }}
         >
           {updatingPassword ? 'Updating...' : 'Update Password'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </ConfirmButton>
+      </StyledDialogActions>
+    </StyledDialog>
   );
 }
