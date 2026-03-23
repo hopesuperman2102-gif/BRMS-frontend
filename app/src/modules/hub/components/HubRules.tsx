@@ -35,6 +35,8 @@ import RulesDrawer from './RulesDrawer';
 
 const { colors } = brmsTheme;
 
+/* ─── Helpers ─────────────────────────────────────────────── */
+
 const mapStatus = (status: string): string => {
   const s = status.toUpperCase();
   if (s === 'ACTIVE' || s === 'USING') return 'Active';
@@ -51,12 +53,12 @@ const mapApprovalStatus = (status: string): ApprovalStatus => {
 
 const getApprovalChip = (status: ApprovalStatus) => {
   if (status === 'Approved') return { color: colors.approvedText, bg: colors.approvedBg, border: colors.approvedBorder };
-  if (status === 'Rejected') return { color: colors.deleteRed,    bg: colors.errorBg,    border: colors.errorBorder };
+  if (status === 'Rejected') return { color: colors.deleteRed, bg: colors.errorBg, border: colors.errorBorder };
   return { color: colors.statusInactiveText, bg: colors.statusInactiveBg, border: colors.statusInactiveBorder };
 };
 
 const getProjectStatusChip = (status: string) => {
-  if (status === 'Active')   return { color: colors.statusUsingText,    bg: colors.statusUsingBg,    border: colors.statusUsingBorder };
+  if (status === 'Active') return { color: colors.statusUsingText, bg: colors.statusUsingBg, border: colors.statusUsingBorder };
   if (status === 'Archived') return { color: colors.statusInactiveText, bg: colors.statusInactiveBg, border: colors.statusInactiveBorder };
   return { color: colors.statusDraftText, bg: colors.statusDraftBg, border: colors.statusDraftBorder };
 };
@@ -110,6 +112,8 @@ const buildSections = (projects: VerticalProject[]): ProjectSection[] =>
     return { key: project.project_key, title: project.project_name, showHeader: true, rows };
   });
 
+/* ─── Styled Components ───────────────────────────────────── */
+
 const Root = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
@@ -125,76 +129,219 @@ const ListWrap = styled(Paper)({
   overflow: 'hidden',
 });
 
-const ReviewButton = styled(Button)({
-  minWidth: 92, height: 30, borderRadius: 8, textTransform: 'none',
-  fontSize: '0.76rem', fontWeight: 700, color: colors.primary,
-  border: `1px solid ${colors.primaryGlowMid}`, background: colors.primaryGlowSoft, boxShadow: 'none',
-  '&:hover': { background: 'rgba(101,82,208,0.14)', borderColor: colors.primary, boxShadow: 'none' },
+const InnerPadding = styled(Box)({
+  padding: '9.6px',
+  backgroundColor: colors.formBg,
 });
+
+const StyledAccordion = styled(Accordion)({
+  marginBottom: 8,
+  borderRadius: '10px !important',
+  border: `1px solid ${colors.lightBorder}`,
+  boxShadow: 'none',
+  overflow: 'hidden',
+  '&:before': { display: 'none' },
+});
+
+const StyledAccordionSummary = styled(AccordionSummary)({
+  minHeight: 48,
+  backgroundColor: colors.primaryGlowSoft,
+  '& .MuiAccordionSummary-content': { margin: '8px 0' },
+  '&:hover': { backgroundColor: colors.primaryGlowMid },
+});
+
+const ExpandIcon = styled(ExpandMoreIcon)({
+  color: colors.lightTextMid,
+});
+
+const SummaryRow = styled(Stack)({
+  width: '100%',
+});
+
+const SectionTitle = styled(Typography)({
+  fontWeight: 700,
+  fontSize: '0.88rem',
+  color: colors.primaryDark,
+});
+
+const RulesCountChip = styled(Chip)({
+  fontWeight: 600,
+  fontSize: '0.7rem',
+  background: colors.white,
+  color: colors.primaryDark,
+  border: `1px solid ${colors.primaryGlowMid}`,
+});
+
+const StyledAccordionDetails = styled(AccordionDetails)({
+  padding: '6.4px 8px 4.8px',
+  backgroundColor: colors.formBg,
+  borderTop: `1px solid ${colors.lightBorder}`,
+});
+
+const RuleCard = styled(Paper)({
+  padding: '7.2px',
+  borderRadius: 6,
+  boxShadow: 'none',
+  borderColor: colors.lightBorder,
+  '&:hover': {
+    borderColor: colors.lightBorderHover,
+    backgroundColor: colors.lightSurfaceHover,
+  },
+});
+
+const RuleName = styled(Typography)({
+  fontSize: '0.84rem',
+  fontWeight: 600,
+  color: colors.lightTextHigh,
+});
+
+const ChipsRow = styled(Stack)({
+  marginTop: 5.6,
+  flexWrap: 'wrap',
+});
+
+const VersionChip = styled(Chip)({
+  height: 22,
+  fontSize: '0.68rem',
+});
+
+const StatusChip = styled(Chip, {
+  shouldForwardProp: (prop) => !['chipColor', 'chipBg', 'chipBorder'].includes(prop as string),
+})<{ chipColor: string; chipBg: string; chipBorder: string }>(
+  ({ chipColor, chipBg, chipBorder }) => ({
+    height: 22,
+    fontSize: '0.68rem',
+    color: chipColor,
+    background: chipBg,
+    border: `1px solid ${chipBorder}`,
+  })
+);
+
+const ReviewButton = styled(Button)({
+  minWidth: 92,
+  height: 30,
+  borderRadius: 8,
+  textTransform: 'none',
+  fontSize: '0.76rem',
+  fontWeight: 700,
+  color: colors.primary,
+  border: `1px solid ${colors.primaryGlowMid}`,
+  background: colors.primaryGlowSoft,
+  boxShadow: 'none',
+  '&:hover': {
+    background: 'rgba(101,82,208,0.14)',
+    borderColor: colors.primary,
+    boxShadow: 'none',
+  },
+});
+
+const LoadingBox = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  padding: '48px 0',
+});
+
+const RuleContentBox = styled(Box)({
+  flex: 1,
+  minWidth: 0,
+});
+
+/* ─── Component ───────────────────────────────────────────── */
 
 export default function HubRules() {
   const { vertical_Key } = useParams<{ vertical_Key: string }>();
   const { isReviewer, isSuperAdmin } = useRole();
   const { showAlert } = useAlertStore();
 
-  const [sections,     setSections]     = useState<ProjectSection[]>([]);
+  const [sections, setSections] = useState<ProjectSection[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
-  const [selectedRow,  setSelectedRow]  = useState<ReviewRow | null>(null);
-  const [loading,      setLoading]      = useState(true);
-  const [reviewing,    setReviewing]    = useState(false);
-  const [error,        setError]        = useState<string | null>(null);
+  const [selectedRow, setSelectedRow] = useState<ReviewRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [reviewing, setReviewing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const canReview = isReviewer || isSuperAdmin;
 
   const fetchAllData = useCallback(async () => {
-    if (!vertical_Key) { setSections([]); setLoading(false); setError('Vertical key is missing'); return; }
+    if (!vertical_Key) {
+      setSections([]);
+      setLoading(false);
+      setError('Vertical key is missing');
+      return;
+    }
     try {
-      setLoading(true); setError(null);
+      setLoading(true);
+      setError(null);
       const vertical = await rulesTableApi.refreshVerticalRules(vertical_Key);
       setSections(buildSections(vertical.projects));
       setOpenSections({});
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, [vertical_Key]);
 
   useEffect(() => { void fetchAllData(); }, [fetchAllData]);
 
   const handleStatusChange = async (
-    projectKey: string, ruleId: string, ruleKey: string,
-    version: string, status: 'Approved' | 'Rejected',
+    projectKey: string,
+    ruleId: string,
+    ruleKey: string,
+    version: string,
+    status: 'Approved' | 'Rejected',
   ) => {
-    if (!canReview) { showAlert('You do not have permission to review rule versions.', 'info'); return; }
+    if (!canReview) {
+      showAlert('You do not have permission to review rule versions.', 'info');
+      return;
+    }
     try {
       setReviewing(true);
-      const response = await rulesTableApi.reviewRuleVersion(ruleKey, version, status === 'Approved' ? 'APPROVED' : 'REJECTED', 'qa_user');
+      const response = await rulesTableApi.reviewRuleVersion(
+        ruleKey, version,
+        status === 'Approved' ? 'APPROVED' : 'REJECTED',
+        'qa_user',
+      );
       const updated = mapApprovalStatus(response.status);
       setSections((prev) =>
-        prev.map((s) => s.key !== projectKey ? s : {
-          ...s, rows: s.rows.map((r) => r.id !== ruleId ? r : { ...r, approvalStatus: updated }),
-        })
+        prev.map((s) =>
+          s.key !== projectKey ? s : {
+            ...s,
+            rows: s.rows.map((r) => r.id !== ruleId ? r : { ...r, approvalStatus: updated }),
+          }
+        )
       );
       setSelectedRow((prev) => (prev ? { ...prev, approvalStatus: updated } : prev));
       showAlert(`Rule ${status.toLowerCase()} successfully.`, 'success');
     } catch {
       showAlert('Failed to update approval status. Please try again.', 'error');
-    } finally { setReviewing(false); }
+    } finally {
+      setReviewing(false);
+    }
   };
 
   const visibleSections = useMemo(
-    () => sections.map((s) => ({ ...s, rows: s.rows.filter((r) => !r.isEmptyState) })).filter((s) => s.rows.length > 0),
+    () =>
+      sections
+        .map((s) => ({ ...s, rows: s.rows.filter((r) => !r.isEmptyState) }))
+        .filter((s) => s.rows.length > 0),
     [sections],
   );
 
-  const allRows = visibleSections.flatMap((s) => s.rows.map((r) => ({ ...r, projectName: s.title })));
-
-  const canTakeAction = Boolean(
-    selectedRow && selectedRow.approvalStatus === 'Pending' &&
-    selectedRow.version !== '--' && canReview && !reviewing,
+  const allRows = visibleSections.flatMap((s) =>
+    s.rows.map((r) => ({ ...r, projectName: s.title }))
   );
 
-  if (loading)         return <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}><CircularProgress size={28} /></Box>;
-  if (error)           return <Alert severity="error">Error loading data: {error}</Alert>;
+  const canTakeAction = Boolean(
+    selectedRow &&
+    selectedRow.approvalStatus === 'Pending' &&
+    selectedRow.version !== '--' &&
+    canReview &&
+    !reviewing,
+  );
+
+  if (loading) return <LoadingBox><CircularProgress size={28} /></LoadingBox>;
+  if (error) return <Alert severity="error">Error loading data: {error}</Alert>;
   if (!allRows.length) return <Alert severity="info">No rules found for this vertical.</Alert>;
 
   return (
@@ -202,54 +349,58 @@ export default function HubRules() {
       <RcAlertComponent />
 
       <ListWrap>
-        <Box sx={{ p: 1.2, bgcolor: colors.formBg }}>
+        <InnerPadding>
           {visibleSections.map((section) => {
             const isOpen = Boolean(openSections[section.key]);
             return (
-              <Accordion
-                key={section.key} disableGutters expanded={isOpen}
-                onChange={() => setOpenSections((prev) => ({ ...prev, [section.key]: !prev[section.key] }))}
-                sx={{ mb: 1, borderRadius: '10px', border: `1px solid ${colors.lightBorder}`, boxShadow: 'none', '&:before': { display: 'none' }, overflow: 'hidden' }}
+              <StyledAccordion
+                key={section.key}
+                disableGutters
+                expanded={isOpen}
+                onChange={() =>
+                  setOpenSections((prev) => ({ ...prev, [section.key]: !prev[section.key] }))
+                }
               >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon sx={{ color: colors.lightTextMid }} />}
-                  sx={{ minHeight: 48, bgcolor: colors.primaryGlowSoft, '& .MuiAccordionSummary-content': { my: 1 }, '&:hover': { bgcolor: colors.primaryGlowMid } }}
-                >
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: colors.primaryDark }}>{section.title}</Typography>
-                    <Chip size="small" label={`${section.rows.length} Rules`} sx={{ fontWeight: 600, fontSize: '0.7rem', background: colors.white, color: colors.primaryDark, border: `1px solid ${colors.primaryGlowMid}` }} />
-                  </Stack>
-                </AccordionSummary>
+                <StyledAccordionSummary expandIcon={<ExpandIcon />}>
+                  <SummaryRow direction="row" justifyContent="space-between" alignItems="center">
+                    <SectionTitle>{section.title}</SectionTitle>
+                    <RulesCountChip size="small" label={`${section.rows.length} Rules`} />
+                  </SummaryRow>
+                </StyledAccordionSummary>
 
-                <AccordionDetails sx={{ px: 1, pt: 0.8, pb: 0.6, bgcolor: colors.formBg, borderTop: `1px solid ${colors.lightBorder}` }}>
+                <StyledAccordionDetails>
                   <Stack spacing={0.55}>
                     {section.rows.map((rule) => {
                       const approval = getApprovalChip(rule.approvalStatus);
-                      const ps       = getProjectStatusChip(rule.projectStatus);
+                      const ps = getProjectStatusChip(rule.projectStatus);
                       return (
-                        <Paper key={rule.id} variant="outlined" sx={{ p: 0.9, borderRadius: 1.5, borderColor: colors.lightBorder, boxShadow: 'none', '&:hover': { borderColor: colors.lightBorderHover, bgcolor: colors.lightSurfaceHover } }}>
+                        <RuleCard key={rule.id} variant="outlined">
                           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1} alignItems={{ md: 'center' }}>
-                            <Box sx={{ flex: 1, minWidth: 0 }}>
-                              <Typography sx={{ fontSize: '0.84rem', fontWeight: 600, color: colors.lightTextHigh }}>{rule.name}</Typography>
-                              <Stack direction="row" spacing={0.6} sx={{ mt: 0.7, flexWrap: 'wrap' }}>
-                                <Chip size="small" variant="outlined" label={`version : ${rule.version}`} sx={{ height: 22, fontSize: '0.68rem' }} />
-                                <Chip size="small" label={rule.projectStatus} sx={{ height: 22, fontSize: '0.68rem', color: ps.color, background: ps.bg, border: `1px solid ${ps.border}` }} />
-                                <Chip size="small" label={rule.approvalStatus} sx={{ height: 22, fontSize: '0.68rem', color: approval.color, background: approval.bg, border: `1px solid ${approval.border}` }} />
-                              </Stack>
-                            </Box>
-                            <ReviewButton size="small" variant="outlined" onClick={() => setSelectedRow({ ...rule, projectName: section.title })}>
+                            <RuleContentBox>
+                              <RuleName>{rule.name}</RuleName>
+                              <ChipsRow direction="row" spacing={0.6}>
+                                <VersionChip size="small" variant="outlined" label={`version : ${rule.version}`} />
+                                <StatusChip size="small" label={rule.projectStatus} chipColor={ps.color} chipBg={ps.bg} chipBorder={ps.border} />
+                                <StatusChip size="small" label={rule.approvalStatus} chipColor={approval.color} chipBg={approval.bg} chipBorder={approval.border} />
+                              </ChipsRow>
+                            </RuleContentBox>
+                            <ReviewButton
+                              size="small"
+                              variant="outlined"
+                              onClick={() => setSelectedRow({ ...rule, projectName: section.title })}
+                            >
                               Review
                             </ReviewButton>
                           </Stack>
-                        </Paper>
+                        </RuleCard>
                       );
                     })}
                   </Stack>
-                </AccordionDetails>
-              </Accordion>
+                </StyledAccordionDetails>
+              </StyledAccordion>
             );
           })}
-        </Box>
+        </InnerPadding>
       </ListWrap>
 
       <RcAppDrawer
@@ -261,11 +412,17 @@ export default function HubRules() {
           {
             label: 'Approve', loadingLabel: 'Saving...', color: 'success', variant: 'contained',
             disabled: !canTakeAction, loading: reviewing,
-            onClick: () => { if (!selectedRow) return; void handleStatusChange(selectedRow.project_key, selectedRow.id, selectedRow.rule_key, selectedRow.version, 'Approved'); },
+            onClick: () => {
+              if (!selectedRow) return;
+              void handleStatusChange(selectedRow.project_key, selectedRow.id, selectedRow.rule_key, selectedRow.version, 'Approved');
+            },
           },
           {
             label: 'Reject', color: 'error', variant: 'outlined', disabled: !canTakeAction,
-            onClick: () => { if (!selectedRow) return; void handleStatusChange(selectedRow.project_key, selectedRow.id, selectedRow.rule_key, selectedRow.version, 'Rejected'); },
+            onClick: () => {
+              if (!selectedRow) return;
+              void handleStatusChange(selectedRow.project_key, selectedRow.id, selectedRow.rule_key, selectedRow.version, 'Rejected');
+            },
           },
         ]}
       >
