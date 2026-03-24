@@ -90,6 +90,22 @@ describe('ActiveRules', () => {
     expect(onViewLogs).toHaveBeenCalledWith('');
   });
 
+  it('disables view logs action when environment is ALL', () => {
+    const onViewLogs = vi.fn();
+    render(
+      <ActiveRules
+        rules={[]}
+        onRevoked={vi.fn()}
+        onPromoted={vi.fn()}
+        onViewLogs={onViewLogs}
+        environment='ALL'
+      />,
+    );
+
+    fireEvent.click(screen.getByText('View Logs'));
+    expect(onViewLogs).not.toHaveBeenCalled();
+  });
+
   it('shows permission alert when revoke is blocked', () => {
     render(
       <ActiveRules

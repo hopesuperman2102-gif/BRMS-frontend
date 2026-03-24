@@ -47,24 +47,33 @@ const SectionHeader = styled(Box)({
   marginBottom: 16,
 });
 
-const LogsButton = styled(Box)({
+const LogsButton = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'disabledstate',
+})<{ disabledstate: boolean }>(({ disabledstate }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: 1,
-  cursor: 'pointer',
+  cursor: disabledstate ? 'not-allowed' : 'pointer',
   borderRadius: 6,
   padding: '2px 6px',
+  opacity: disabledstate ? 0.5 : 1,
   transition: 'background 0.15s',
   '&:hover': {
-    backgroundColor: 'rgba(0,0,0,0.04)',
-    '& .MuiTypography-root': { color: 'text.primary' },
+    backgroundColor: disabledstate ? 'transparent' : 'rgba(0,0,0,0.04)',
+    '& .MuiTypography-root': { color: disabledstate ? brmsTheme.colors.textSecondary : 'text.primary' },
   },
-});
+}));
 
 const LogsIconButton = styled(IconButton)({
   color: brmsTheme.colors.textSecondary,
   pointerEvents: 'none',
 });
+
+const LogsText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'disabledstate',
+})<{ disabledstate: boolean }>(({ disabledstate }) => ({
+  color: disabledstate ? brmsTheme.colors.lightTextLow : brmsTheme.colors.textSecondary,
+}));
 
 const StyledTableContainer = styled(TableContainer)({
   borderRadius: 8,
@@ -251,6 +260,7 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
   canManageActions = true,
   delay = 0.7,
 }) => {
+  const canViewLogs = environment !== 'ALL';
   const { showAlert } = useAlertStore();
   const [revokeLoadingKey, setRevokeLoadingKey] = useState<string | null>(null);
   const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
@@ -306,6 +316,11 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
     }
   };
 
+  const handleViewLogsClick = () => {
+    if (!canViewLogs) return;
+    onViewLogs('');
+  };
+
   return (
     <RcCard delay={delay}>
       <CardHeader title='Environment-Specific Rule Listing & History' />
@@ -315,11 +330,17 @@ export const ActiveRules: React.FC<ActiveRulesProps> = ({
           <Typography variant='h6' fontWeight={600} color='text.primary'>
             Active Rules in {environment}
           </Typography>
-          <LogsButton onClick={() => onViewLogs('')}>
+          <LogsButton
+            disabledstate={!canViewLogs}
+            onClick={handleViewLogsClick}
+            aria-disabled={!canViewLogs}
+          >
             <LogsIconButton size='small'>
               <DescriptionIcon fontSize='small' />
             </LogsIconButton>
-            <Typography variant='caption' color='text.secondary'>View Logs</Typography>
+            <LogsText variant='caption' disabledstate={!canViewLogs}>
+              View Logs
+            </LogsText>
           </LogsButton>
         </SectionHeader>
 

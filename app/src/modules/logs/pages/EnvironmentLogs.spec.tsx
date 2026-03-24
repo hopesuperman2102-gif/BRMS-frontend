@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { EnvironmentLogs } from './EnvironmentLogs';
+import { EnvironmentLogs } from '../../logs/pages/EnvironmentLogs';
 
 const { getEnvironmentLogFiles, getEnvironmentLogPage } = vi.hoisted(() => ({
   getEnvironmentLogFiles: vi.fn(),
@@ -117,5 +117,24 @@ describe('EnvironmentLogs', () => {
     render(<EnvironmentLogs open environment="DEV" onClose={vi.fn()} />);
 
     expect(await screen.findByText('Failed to load log page. Please try again.')).toBeInTheDocument();
+  });
+
+  it('ignores malformed log lines and shows empty page state', async () => {
+    getEnvironmentLogFiles.mockResolvedValueOnce([
+      { file_key: '2026-03-11-DEV', line_count: 1, created_at: '2026-03-11T10:00:00Z' },
+    ]);
+    getEnvironmentLogPage.mockResolvedValueOnce({
+      file_key: '2026-03-11-DEV',
+      environment: 'DEV',
+      data: ['not-a-parseable-line'],
+      total: 1,
+      count: 1,
+      skip: 0,
+      limit: 10,
+    });
+
+    render(<EnvironmentLogs open environment='DEV' onClose={vi.fn()} />);
+
+    expect(await screen.findByText('No logs found for DEV')).toBeInTheDocument();
   });
 });

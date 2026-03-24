@@ -191,15 +191,3 @@ export interface EnvLogEntry {
   created_at: string;
 }
 
-export interface ParsedEnvLogLine {
-  timestamp: string;
-  level: string;
-  source: string;
-  message: string;
-}
-
-export interface EnvironmentLogsProps {
-  open: boolean;
-  environment: string;
-  onClose: () => void;
-}

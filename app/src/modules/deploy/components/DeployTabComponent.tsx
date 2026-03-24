@@ -12,7 +12,7 @@ import RcAlertComponent, { useAlertStore } from '@/core/components/RcAlertCompon
 import { EnvironmentHistory } from '@/modules/deploy/components/EnvironmentHistory';
 import { StatsSection } from '@/modules/deploy/components/Statssection';
 import { ControlSection } from '@/modules/deploy/components/Controlsection';
-import { EnvironmentLogs } from '@/modules/deploy/components/EnvironmentLogs';
+import { EnvironmentLogs } from '@/modules/logs/pages/EnvironmentLogs';
 import { MonthlyDeployData } from '@/modules/deploy/types/deployEndpointsTypes';
 import { useRole } from '@/modules/auth/hooks/useRole';
 

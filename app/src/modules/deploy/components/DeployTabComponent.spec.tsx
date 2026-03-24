@@ -108,7 +108,7 @@ vi.mock('@/modules/deploy/components/EnvironmentHistory', () => ({
   ),
 }));
 
-vi.mock('@/modules/deploy/components/EnvironmentLogs', () => ({
+vi.mock('@/modules/logs/pages/EnvironmentLogs', () => ({
   EnvironmentLogs: ({
     open,
     environment,

@@ -4,10 +4,27 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ProjectListLeftPanel from './ProjectListLeftPanel';
 
-/* ─── Mock RcLeftPanel ───────────────────────────── */
+type RcLeftPanelStats = {
+  label: string;
+  value: string | number;
+};
+
+type RcLeftPanelPreview = {
+  name: string;
+  description: string;
+  tag: string;
+};
+
+type RcLeftPanelMockProps = {
+  title: string;
+  subtitle: string;
+  stats: RcLeftPanelStats[];
+  preview?: RcLeftPanelPreview;
+  placeholderText?: string;
+};
 
 vi.mock('@/core/components/RcLeftPanel', () => ({
-  default: (props: any) => (
+  default: (props: RcLeftPanelMockProps) => (
     <div>
       <p>{props.title}</p>
       <p>{props.subtitle}</p>
@@ -25,8 +42,6 @@ vi.mock('@/core/components/RcLeftPanel', () => ({
     </div>
   ),
 }));
-
-/* ─── Mock Data ───────────────────────────── */
 
 const mockProjects = [
   {
@@ -47,22 +62,15 @@ const mockProjects = [
   },
 ];
 
-/* ─── Tests ───────────────────────────── */
-
 describe('ProjectListLeftPanel', () => {
   it('renders title, subtitle and stats', () => {
-    render(
-      <ProjectListLeftPanel
-        projects={mockProjects}
-        hoveredProject={null}
-      />
-    );
+    render(<ProjectListLeftPanel projects={mockProjects} hoveredProject={null} />);
 
     expect(screen.getByText('Projects')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Manage and organize your rule projects across teams and domains.'
-      )
+        'Manage and organize your rule projects across teams and domains.',
+      ),
     ).toBeInTheDocument();
 
     expect(screen.getByText('Total projects')).toBeInTheDocument();
@@ -70,15 +78,10 @@ describe('ProjectListLeftPanel', () => {
   });
 
   it('shows placeholder when no hovered project', () => {
-    render(
-      <ProjectListLeftPanel
-        projects={mockProjects}
-        hoveredProject={null}
-      />
-    );
+    render(<ProjectListLeftPanel projects={mockProjects} hoveredProject={null} />);
 
     expect(
-      screen.getByText('Hover a project to see its details here.')
+      screen.getByText('Hover a project to see its details here.'),
     ).toBeInTheDocument();
   });
 
@@ -87,7 +90,7 @@ describe('ProjectListLeftPanel', () => {
       <ProjectListLeftPanel
         projects={mockProjects}
         hoveredProject={mockProjects[0]}
-      />
+      />,
     );
 
     expect(screen.getByText('Project One')).toBeInTheDocument();
@@ -100,11 +103,11 @@ describe('ProjectListLeftPanel', () => {
       <ProjectListLeftPanel
         projects={mockProjects}
         hoveredProject={mockProjects[1]}
-      />
+      />,
     );
 
     expect(
-      screen.getByText('No description provided for this project.')
+      screen.getByText('No description provided for this project.'),
     ).toBeInTheDocument();
   });
 });

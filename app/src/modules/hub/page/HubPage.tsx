@@ -14,6 +14,8 @@ import HubRules from '@/modules/hub/components/HubRules';
 
 const { colors, gradients } = brmsTheme;
 
+/* ─── Styled Components ───────────────────────────────────── */
+
 const HeaderWrapper = styled(Box)({
   padding: '8px 12px 6px',
   paddingBottom: '8px',
@@ -37,6 +39,10 @@ const BackButton = styled(IconButton)({
     color: colors.primary,
     borderColor: colors.primaryGlowMid,
   },
+});
+
+const BackIcon = styled(ArrowBackIcon)({
+  fontSize: 20,
 });
 
 const VerticalName = styled(Typography)({
@@ -81,6 +87,8 @@ const StyledTabs = styled(Tabs)({
 const ContentWrapper = styled(Box)({
   padding: '10px 12px 14px',
 });
+
+/* ─── Component ───────────────────────────────────────────── */
 
 const HubPage = () => {
   const [tab, setTab] = useState(0);
@@ -137,7 +145,7 @@ const HubPage = () => {
       <HeaderWrapper>
         <BackRow>
           <BackButton onClick={() => navigate(`/vertical/${vertical_Key}/dashboard`)}>
-            <ArrowBackIcon sx={{ fontSize: 20 }} />
+            <BackIcon />
           </BackButton>
           {verticalName && <VerticalName>{verticalName}</VerticalName>}
         </BackRow>
@@ -157,4 +165,3 @@ const HubPage = () => {
 };
 
 export default HubPage;
-

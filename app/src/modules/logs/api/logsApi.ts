@@ -1,6 +1,7 @@
 import axiosInstance from '@/api/apiClient';
 
-import { HourlyLogEntry, ParsedLogLine, RawHourlyListResponse, RawHourlyLogDetail } from '@/modules/hub/types/hubEndpointsTypes';
+import { RawHourlyListResponse, RawHourlyLogDetail } from '@/modules/hub/types/hubEndpointsTypes';
+import { HourlyLogEntry, ParsedLogLine } from '@/modules/logs/types/auditLogsTypes';
 
 function parseLogLine(line: string): ParsedLogLine | null {
   const parts = line.split(' | ');
