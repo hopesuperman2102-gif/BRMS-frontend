@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axiosInstance from '@/api/apiClient';
-import { logsApi, parseLogLines, deriveCountsFromRaw } from './logsApi';
+import { logsApi, parseLogLines, deriveCountsFromRaw } from '../../logs/api/logsApi';
 
 vi.mock('@/api/apiClient', () => ({
   default: {

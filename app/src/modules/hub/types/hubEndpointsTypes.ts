@@ -34,25 +34,6 @@ export interface RawHourlyLogDetail {
   count: number;
 }
 
-export interface ParsedLogLine {
-  timestamp: string;
-  level: 'INFO' | 'WARNING' | 'ERROR';
-  source: string;
-  message: string;
-}
-
-export interface HourlyLogEntry {
-  file_key: string;
-  id: string;
-  created_at: string;
-  lines: ParsedLogLine[];
-  linesLoaded: boolean;
-  info: number;
-  warnings: number;
-  errors: number;
-  total: number;
-}
-
 // projects Endpoints Types
 export interface ProjectView {
   id: string;

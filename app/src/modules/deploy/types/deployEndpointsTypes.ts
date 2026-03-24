@@ -6,6 +6,12 @@ export interface MonthlyDeployData {
   total: number;
 }
 
+export interface RawEnvLogFileMeta {
+  file_key: string;
+  created_at?: string;
+  line_count?: number;
+}
+
 export interface DeploySummary {
   total_active_projects: number;
   active_projects: Array<{ project_key: string; project_name: string }>;
@@ -50,12 +56,6 @@ export interface EnvironmentLog {
   file_key: string;
   environment: string;
   created_at: string;
-}
-
-export interface RawEnvLogFileMeta {
-  file_key: string;
-  created_at?: string;
-  line_count?: number;
 }
 
 export interface RawEnvLogListResponse {

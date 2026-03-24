@@ -271,3 +271,48 @@ export interface LeftPanelProps {
   count?: LeftPanelCount;
   children?: React.ReactNode;
 }
+
+//Rc Logs Level Stats Types
+export interface RcLogLevelStatItem {
+  key: string;
+  label: string;
+  count: number;
+  color: string;
+  background: string;
+  border: string;
+}
+
+export interface RcLogLevelStatsProps {
+  items: RcLogLevelStatItem[];
+  label?: string;
+  labelColor?: string;
+  compact?: boolean;
+  showDot?: boolean;
+  fontFamily?: string;
+}
+
+// Rc Paginations Types
+export interface RcLogPaginationPalette {
+  activeBackground: string;
+  activeBorder: string;
+  activeText: string;
+  inactiveBorder: string;
+  inactiveText: string;
+  inactiveHoverBackground: string;
+  arrowEnabledBackground: string;
+  arrowEnabledBorder: string;
+  arrowDisabledBorder: string;
+  arrowEnabledIcon: string;
+  arrowDisabledIcon: string;
+  ellipsisText: string;
+  activeShadow?: string;
+}
+
+export interface RcLogPaginationProps {
+  currentPage: number;
+  totalPages: number;
+  disabled?: boolean;
+  onPageChange: (page: number) => void;
+  palette: RcLogPaginationPalette;
+  fontFamily?: string;
+}
