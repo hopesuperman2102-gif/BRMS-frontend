@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
 
-// ── Mocks ──────────────────────────────────────────────────────────────────────
+// ──────────────── Mocks ──────────────────
 
 vi.mock('@/config/env', () => ({
   ENV: { API_BASE_URL: 'http://localhost:8000' },
