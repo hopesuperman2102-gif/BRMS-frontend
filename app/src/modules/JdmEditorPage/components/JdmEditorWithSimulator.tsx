@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 import Editor from '@/modules/JdmEditorPage/components/Editor';
 import { rulesApi } from '@/modules/rules/api/rulesApi';
@@ -79,6 +80,39 @@ const buildTreeStructure = (rules: { rule_key: string; name: string; directory?:
   sortItems(rootItems);
   return rootItems;
 };
+
+const PageWrapper = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  minHeight: '100vh',
+  backgroundColor: brmsTheme.colors.bgGrayLighter,
+  padding: 16,
+});
+
+const EditorCard = styled(Box)({
+  display: 'flex',
+  width: '100%',
+  height: 'calc(100vh - 32px)',
+  backgroundColor: brmsTheme.colors.white,
+  borderRadius: '12px',
+  boxShadow: `0 4px 20px ${brmsTheme.colors.shadowMedium}, 0 1px 3px ${brmsTheme.colors.shadowLighter}`,
+  overflow: 'hidden',
+});
+
+const SidebarWrapper = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  borderRight: `1px solid ${brmsTheme.colors.lightBorder}`,
+  backgroundColor: brmsTheme.colors.white,
+});
+
+const EditorWrapper = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+});
 
 export default function JdmEditorWithSimulator() {
   const { project_key, vertical_Key } = useParams<{
@@ -186,11 +220,11 @@ export default function JdmEditorWithSimulator() {
   };
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: brmsTheme.colors.bgGrayLighter, p: 2 }}>
-      <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh - 32px)', backgroundColor: brmsTheme.colors.white, borderRadius: '12px', boxShadow: `0 4px 20px ${brmsTheme.colors.shadowMedium}, 0 1px 3px ${brmsTheme.colors.shadowLighter}`, overflow: 'hidden' }}>
+    <PageWrapper>
+      <EditorCard>
 
         {/* Sidebar */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', borderRight: `1px solid ${brmsTheme.colors.lightBorder}`, backgroundColor: brmsTheme.colors.white }}>
+        <SidebarWrapper>
           <RepositorySidebar
             projectName={projectName}
             items={items}
@@ -205,10 +239,10 @@ export default function JdmEditorWithSimulator() {
               if (project_key) navigate(`/vertical/${vertical_Key}/dashboard/hub/${project_key}/rules`);
             }}
           />
-        </Box>
+        </SidebarWrapper>
 
         {/* Editor */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <EditorWrapper>
           <Editor
             items={items}
             selectedId={selectedId}
@@ -217,11 +251,11 @@ export default function JdmEditorWithSimulator() {
             onSimulatorRun={handleSimulatorRun}
             isReviewer={isReviewer || isViewer}
           />
-        </Box>
-      </Box>
+        </EditorWrapper>
+
+      </EditorCard>
 
       <RcAlertComponent />
-    </Box>
+    </PageWrapper>
   );
 }
-

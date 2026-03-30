@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Box, Select, MenuItem, Button, FormControl, Typography, Divider } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import type { DecisionGraphType } from '@gorules/jdm-editor';
 import { EditorPropsExtended, RepoItem } from '@/modules/JdmEditorPage/types/JdmEditorTypes';
 import JdmEditorComponent from '@/modules/JdmEditorPage/components/JdmEditorComponent';
@@ -12,10 +13,224 @@ import HistoryIcon from '@mui/icons-material/History';
 import { JdmRuleVersion } from '@/modules/JdmEditorPage/types/jdmEditorEndpointsTypes';
 import { brmsTheme } from '@/core/theme/brmsTheme';
 
+// ─── Styled Components ────────────────────────────────────────────────────────
+
+const RootBox = styled(Box)({
+  flex: 1,
+  minWidth: 0,
+  overflow: 'hidden',
+  backgroundColor: brmsTheme.colors.white,
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const HeaderBar = styled(Box)({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '16px 24px',
+  backgroundColor: brmsTheme.colors.white,
+  borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
+  flexShrink: 0,
+  minHeight: 64,
+});
+
+const RuleNameBox = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+});
+
+const RuleNameText = styled(Typography)({
+  fontWeight: 600,
+  color: brmsTheme.colors.textDark,
+  fontSize: '1rem',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  letterSpacing: '-0.01em',
+});
+
+const VersionControlBox = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 16,
+});
+
+const VersionSelectorBox = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+});
+
+const HistoryIconStyled = styled(HistoryIcon)({
+  fontSize: 18,
+  color: brmsTheme.colors.textGray,
+});
+
+const VersionFormControl = styled(FormControl)({
+  minWidth: 160,
+});
+
+const VersionSelect = styled(Select)({
+  height: 36,
+  backgroundColor: brmsTheme.colors.bgGrayLight,
+  border: `1px solid ${brmsTheme.colors.lightBorder}`,
+  borderRadius: '6px',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  color: brmsTheme.colors.navTextHigh,
+  transition: 'all 0.15s ease',
+  '& .MuiOutlinedInput-notchedOutline': {
+    border: 'none',
+  },
+  '&:hover': {
+    backgroundColor: brmsTheme.colors.bgGray,
+    borderColor: brmsTheme.colors.borderGrayHover,
+  },
+  '&.Mui-focused': {
+    backgroundColor: brmsTheme.colors.white,
+    borderColor: brmsTheme.colors.focusBlue,
+    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+  },
+  '&.Mui-disabled': {
+    backgroundColor: brmsTheme.colors.bgGrayLight,
+    color: brmsTheme.colors.textGrayLight,
+  },
+});
+
+const VersionMenuItem = styled(MenuItem)({
+  fontSize: '0.875rem',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontWeight: 500,
+  padding: '8px 16px',
+});
+
+const HeaderDivider = styled(Divider)({
+  margin: '4px 0',
+  backgroundColor: brmsTheme.colors.lightBorder,
+});
+
+const CommitButton = styled(Button)({
+  height: 36,
+  backgroundColor: brmsTheme.colors.primary,
+  color: brmsTheme.colors.white,
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  textTransform: 'none',
+  padding: '0 20px',
+  borderRadius: '6px',
+  boxShadow: 'none',
+  letterSpacing: '-0.01em',
+  transition: 'all 0.15s ease',
+  '&:hover': {
+    backgroundColor: brmsTheme.colors.focusBlueHover,
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+  },
+  '&:active': {
+    backgroundColor: brmsTheme.colors.focusBlueActive,
+  },
+  '&:disabled': {
+    backgroundColor: brmsTheme.colors.lightBorder,
+    color: brmsTheme.colors.textGrayLight,
+  },
+});
+
+const CommitSaveIcon = styled(SaveIcon)({
+  fontSize: 18,
+});
+
+const ContentArea = styled(Box)({
+  flex: 1,
+  overflow: 'hidden',
+  backgroundColor: brmsTheme.colors.bgGrayLighter,
+});
+
+const EditorWrapperBox = styled(Box)({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const CenteredStateBox = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+  gap: 16,
+});
+
+const SpinnerBox = styled(Box)({
+  width: 40,
+  height: 40,
+  border: `3px solid ${brmsTheme.colors.lightBorder}`,
+  borderTopColor: brmsTheme.colors.focusBlue,
+  borderRadius: '50%',
+  animation: 'spin 0.8s linear infinite',
+  '@keyframes spin': {
+    '0%': { transform: 'rotate(0deg)' },
+    '100%': { transform: 'rotate(360deg)' },
+  },
+});
+
+const LoadingText = styled(Typography)({
+  color: brmsTheme.colors.textGray,
+  fontSize: '0.875rem',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontWeight: 500,
+});
+
+const EmptyStateBox = styled(Box)({
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+  gap: 12,
+  padding: '64px 0',
+});
+
+const EmptyStateIconBox = styled(Box)({
+  width: 64,
+  height: 64,
+  borderRadius: '12px',
+  backgroundColor: brmsTheme.colors.bgGray,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 8,
+});
+
+const EmptyStateIconInner = styled(Box)({
+  width: 32,
+  height: 32,
+  borderRadius: '6px',
+  backgroundColor: brmsTheme.colors.lightBorder,
+});
+
+const EmptyStateTitleText = styled(Typography)({
+  color: brmsTheme.colors.textDark,
+  fontSize: '0.9375rem',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontWeight: 600,
+});
+
+const EmptyStateSubtitleText = styled(Typography)({
+  color: brmsTheme.colors.textGray,
+  fontSize: '0.875rem',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontWeight: 400,
+});
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const EMPTY_GRAPH: DecisionGraphType = {
   nodes: [],
   edges: [],
 };
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Editor({
   items,
@@ -30,7 +245,7 @@ export default function Editor({
   const [isCommitting, setIsCommitting] = useState(false);
   const { showAlert } = useAlertStore();
 
-  const findItem = (list: RepoItem[], id: string| number): RepoItem | null => {
+  const findItem = (list: RepoItem[], id: string | number): RepoItem | null => {
     for (const i of list) {
       if (i.id === id) return i;
       if (i.children) {
@@ -61,11 +276,11 @@ export default function Editor({
 
         if (versionsList && versionsList.length > 0) {
           setVersions(versionsList);
-          
+
           // Set the latest version (first in array) as selected
           const latestVersion = versionsList[0];
           setSelectedVersion(latestVersion.version);
-          
+
           // Load the graph for the latest version
           if (latestVersion.jdm) {
             setCurrentGraph(latestVersion.jdm);
@@ -107,16 +322,16 @@ export default function Editor({
   // Handle version change in dropdown
   const handleVersionChange = async (version: string) => {
     if (!selectedItem) return;
-    
+
     setSelectedVersion(version);
-    
+
     // Check if JDM is already in the versions list
     const versionObj = versions.find((v) => v.version === version);
     if (versionObj && versionObj.jdm) {
       setCurrentGraph(versionObj.jdm);
       return;
     }
-    
+
     // Otherwise fetch it
     try {
       const versionData = await ruleVersionsApi.getVersionData(
@@ -155,7 +370,7 @@ export default function Editor({
         rule_key: String(selectedItem.id),
         jdm: currentGraph,
       });
-      
+
       // Refresh versions list to get the newly created version
       const updatedVersions = await ruleVersionsApi.listVersions(String(selectedItem.id));
 
@@ -180,84 +395,27 @@ export default function Editor({
   const isDropdownDisabled = versions.length === 0;
 
   return (
-    <Box
-      sx={{
-        flex: 1,
-        minWidth: 0,
-        overflow: 'hidden',
-        backgroundColor: brmsTheme.colors.white,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <RootBox>
       {/* Header Bar - Enterprise Clean */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          px: 3,
-          py: 2,
-          backgroundColor: brmsTheme.colors.white,
-          borderBottom: `1px solid ${brmsTheme.colors.lightBorder}`,
-          flexShrink: 0,
-          minHeight: 64,
-        }}
-      >
+      <HeaderBar>
         {/* Left - Rule Name */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600,
-              color: brmsTheme.colors.textDark,
-              fontSize: '1rem',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              letterSpacing: '-0.01em',
-            }}
-          >
+        <RuleNameBox>
+          <RuleNameText variant="h6">
             {selectedItem ? selectedItem.name : 'Select a rule to begin'}
-          </Typography>
-        </Box>
+          </RuleNameText>
+        </RuleNameBox>
 
         {/* Right - Version Control */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <VersionControlBox>
           {/* Version Selector */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <HistoryIcon sx={{ fontSize: 18, color: brmsTheme.colors.textGray }} />
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <Select
+          <VersionSelectorBox>
+            <HistoryIconStyled />
+            <VersionFormControl size="small">
+              <VersionSelect
                 value={selectedVersion}
-                onChange={(e) => handleVersionChange(e.target.value)}
+                onChange={(e) => handleVersionChange(e.target.value as string)}
                 disabled={isDropdownDisabled || isVersionsLoading}
                 displayEmpty
-                sx={{
-                  height: 36,
-                  backgroundColor: brmsTheme.colors.bgGrayLight,
-                  border: `1px solid ${brmsTheme.colors.lightBorder}`,
-                  borderRadius: '6px',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  color: brmsTheme.colors.navTextHigh,
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    border: 'none',
-                  },
-                  '&:hover': {
-                    backgroundColor: brmsTheme.colors.bgGray,
-                    borderColor: brmsTheme.colors.borderGrayHover,
-                  },
-                  '&.Mui-focused': {
-                    backgroundColor: brmsTheme.colors.white,
-                    borderColor: brmsTheme.colors.focusBlue,
-                    boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
-                  },
-                  '&.Mui-disabled': {
-                    backgroundColor: brmsTheme.colors.bgGrayLight,
-                    color: brmsTheme.colors.textGrayLight,
-                  },
-                  transition: 'all 0.15s ease',
-                }}
               >
                 {versions.length === 0 ? (
                   <MenuItem value="" disabled>
@@ -265,107 +423,42 @@ export default function Editor({
                   </MenuItem>
                 ) : (
                   versions.map((version) => (
-                    <MenuItem 
-                      key={version.version} 
-                      value={version.version}
-                      sx={{
-                        fontSize: '0.875rem',
-                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                        fontWeight: 500,
-                        py: 1,
-                      }}
-                    >
+                    <VersionMenuItem key={version.version} value={version.version}>
                       {version.version}
-                    </MenuItem>
+                    </VersionMenuItem>
                   ))
                 )}
-              </Select>
-            </FormControl>
-          </Box>
+              </VersionSelect>
+            </VersionFormControl>
+          </VersionSelectorBox>
 
           {!isReviewer && (
             <>
-              <Divider orientation="vertical" flexItem sx={{ my: 0.5, backgroundColor: brmsTheme.colors.lightBorder }} />
+              <HeaderDivider orientation="vertical" flexItem />
 
               {/* Commit Button */}
-              <Button
+              <CommitButton
                 variant="contained"
                 onClick={handleCommit}
                 disabled={!selectedItem || !currentGraph || isCommitting}
-                startIcon={<SaveIcon sx={{ fontSize: 18 }} />}
-                sx={{
-                  height: 36,
-                  backgroundColor: brmsTheme.colors.primary,
-                  color: brmsTheme.colors.white,
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  px: 2.5,
-                  borderRadius: '6px',
-                  boxShadow: 'none',
-                  letterSpacing: '-0.01em',
-                  '&:hover': {
-                    backgroundColor: brmsTheme.colors.focusBlueHover,
-                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-                  },
-                  '&:active': {
-                    backgroundColor: brmsTheme.colors.focusBlueActive,
-                  },
-                  '&:disabled': {
-                    backgroundColor: brmsTheme.colors.lightBorder,
-                    color: brmsTheme.colors.textGrayLight,
-                  },
-                  transition: 'all 0.15s ease',
-                }}
+                startIcon={<CommitSaveIcon />}
               >
                 {isCommitting ? 'Saving...' : 'Commit Changes'}
-              </Button>
+              </CommitButton>
             </>
           )}
-        </Box>
-      </Box>
+        </VersionControlBox>
+      </HeaderBar>
 
       {/* Editor Content Area */}
-      <Box sx={{ flex: 1, overflow: 'hidden', backgroundColor: brmsTheme.colors.bgGrayLighter }}>
+      <ContentArea>
         {selectedId && selectedItem?.type === 'file' ? (
-          <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <EditorWrapperBox>
             {isVersionsLoading ? (
-              <Box
-                sx={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
-                  gap: 2,
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    border: `3px solid ${brmsTheme.colors.lightBorder}`,
-                  borderTopColor: brmsTheme.colors.focusBlue,
-                    borderRadius: '50%',
-                    animation: 'spin 0.8s linear infinite',
-                    '@keyframes spin': {
-                      '0%': { transform: 'rotate(0deg)' },
-                      '100%': { transform: 'rotate(360deg)' },
-                    },
-                  }}
-                />
-                <Typography 
-                  sx={{ 
-                    color: brmsTheme.colors.textGray,
-                    fontSize: '0.875rem',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                    fontWeight: 500,
-                  }}
-                >
-                  Loading versions...
-                </Typography>
-              </Box>
+              <CenteredStateBox>
+                <SpinnerBox />
+                <LoadingText>Loading versions...</LoadingText>
+              </CenteredStateBox>
             ) : currentGraph !== null ? (
               <JdmEditorComponent
                 value={currentGraph}
@@ -374,100 +467,24 @@ export default function Editor({
                 isReviewer={isReviewer}
               />
             ) : (
-              <Box
-                sx={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
-                  gap: 2,
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    border: `3px solid ${brmsTheme.colors.lightBorder}`,
-                    borderTopColor: brmsTheme.colors.focusBlue,
-                    borderRadius: '50%',
-                    animation: 'spin 0.8s linear infinite',
-                    '@keyframes spin': {
-                      '0%': { transform: 'rotate(0deg)' },
-                      '100%': { transform: 'rotate(360deg)' },
-                    },
-                  }}
-                />
-                <Typography 
-                  sx={{ 
-                    color: brmsTheme.colors.textGray,
-                    fontSize: '0.875rem',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                    fontWeight: 500,
-                  }}
-                >
-                  Loading editor...
-                </Typography>
-              </Box>
+              <CenteredStateBox>
+                <SpinnerBox />
+                <LoadingText>Loading editor...</LoadingText>
+              </CenteredStateBox>
             )}
-          </Box>
+          </EditorWrapperBox>
         ) : (
-          <Box
-            sx={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'column',
-              gap: 1.5,
-              py: 8,
-            }}
-          >
-            <Box
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: '12px',
-                backgroundColor: brmsTheme.colors.bgGray,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mb: 1,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: '6px',
-                  backgroundColor: brmsTheme.colors.lightBorder,
-                }}
-              />
-            </Box>
-            <Typography 
-              sx={{ 
-                color: brmsTheme.colors.textDark,
-                fontSize: '0.9375rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                fontWeight: 600,
-              }}
-            >
-              No rule selected
-            </Typography>
-            <Typography 
-              sx={{ 
-                color: brmsTheme.colors.textGray,
-                fontSize: '0.875rem',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                fontWeight: 400,
-              }}
-            >
+          <EmptyStateBox>
+            <EmptyStateIconBox>
+              <EmptyStateIconInner />
+            </EmptyStateIconBox>
+            <EmptyStateTitleText>No rule selected</EmptyStateTitleText>
+            <EmptyStateSubtitleText>
               Select a rule from the sidebar to begin editing
-            </Typography>
-          </Box>
+            </EmptyStateSubtitleText>
+          </EmptyStateBox>
         )}
-      </Box>
-    </Box>
+      </ContentArea>
+    </RootBox>
   );
 }
-
