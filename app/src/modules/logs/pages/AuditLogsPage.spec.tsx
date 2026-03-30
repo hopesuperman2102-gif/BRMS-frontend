@@ -12,7 +12,7 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => navigateSpy,
 }));
 
-vi.mock('@/modules/hub/api/logsApi', () => ({
+vi.mock('@/modules/logs/api/logsApi', () => ({
   logsApi: {
     getHourlyLogs: (...args: unknown[]) => getHourlyLogs(...args),
     getHourlyLogPage: (...args: unknown[]) => getHourlyLogPage(...args),
