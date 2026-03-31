@@ -11,7 +11,10 @@ import { brmsTheme } from "@/core/theme/brmsTheme";
 
 const TreeRoot = styled(Box)({});
 
-const ItemRow = styled(Box)<{ isSelected: boolean; depth: number }>(
+const ItemRow = styled(Box, {
+  shouldForwardProp: (prop) =>
+    prop !== "isSelected" && prop !== "depth",
+})<{ isSelected: boolean; depth: number }>(
   ({ isSelected, depth }) => ({
     display: "flex",
     alignItems: "center",
@@ -52,7 +55,9 @@ const StyledChevronRightIcon = styled(ChevronRightIcon)({
   fontSize: 14,
 });
 
-const StyledFolderIcon = styled(FolderIcon)<{ isExpanded: boolean }>(
+const StyledFolderIcon = styled(FolderIcon, {
+  shouldForwardProp: (prop) => prop !== "isExpanded",
+})<{ isExpanded: boolean }>(
   ({ isExpanded }) => ({
     fontSize: 16,
     color: brmsTheme.colors.warningAmber,
@@ -62,7 +67,9 @@ const StyledFolderIcon = styled(FolderIcon)<{ isExpanded: boolean }>(
   })
 );
 
-const StyledFileIcon = styled(InsertDriveFileIcon)<{ isSelected: boolean }>(
+const StyledFileIcon = styled(InsertDriveFileIcon, {
+  shouldForwardProp: (prop) => prop !== "isSelected",
+})<{ isSelected: boolean }>(
   ({ isSelected }) => ({
     fontSize: 15,
     color: isSelected
@@ -72,10 +79,11 @@ const StyledFileIcon = styled(InsertDriveFileIcon)<{ isSelected: boolean }>(
   })
 );
 
-const ItemLabel = styled(Typography)<{
-  isSelected: boolean;
-  isFolder: boolean;
-}>(({ isSelected, isFolder }) => ({
+const ItemLabel = styled(Typography, {
+  shouldForwardProp: (prop) =>
+    prop !== "isSelected" && prop !== "isFolder",
+})<{ isSelected: boolean; isFolder: boolean }>(
+  ({ isSelected, isFolder }) => ({
   fontSize: "0.8125rem",
   fontWeight: isSelected ? 600 : isFolder ? 500 : 400,
   color: isSelected
